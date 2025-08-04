@@ -80,6 +80,16 @@ const Dark_Navbar = ({ onNavigate }) => {
             </div>
           </div>
         )}
+        
+        {/* Modals */}
+        <ContactModal 
+          isOpen={isContactModalOpen} 
+          onClose={() => setIsContactModalOpen(false)} 
+        />
+        <SignUpModal 
+          isOpen={isSignUpModalOpen} 
+          onClose={() => setIsSignUpModalOpen(false)} 
+        />
     </>
   );
 };
