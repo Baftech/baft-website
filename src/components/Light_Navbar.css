@@ -20,6 +20,11 @@
   background-color: white;
   color: #092646;
 }
+
+.inter-aandl:hover {
+  background-color: #0a2d52 !important;
+  color: white !important;
+}
 .inter-signup {
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
