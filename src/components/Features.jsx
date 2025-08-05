@@ -72,33 +72,33 @@ const Features = () => {
         </div>
 
         {/* Right Column: Stacked Cards */}
-        <div className="relative flex items-center justify-center h-screen w-full">
+        <div className="relative flex items-center justify-center h-screen w-full mt-22">
           {/* Bottom Card (card4) */}
           <img
             src="/card4.png"
             alt="Card 4"
-            className="absolute w-[380px] h-screen object-cover rounded-5xl shadow-lg transform -translate-y-16 z-10"
+            className="absolute w-[280px] h-[400px] object-cover rounded-5xl shadow-lg transform -translate-y-16 z-10"
           />
           
           {/* Third Card (card3) */}
           <img
             src="/card3.png"
             alt="Card 3"
-            className="absolute w-[380px] h-screen object-cover rounded-5xl shadow-xl transform -translate-y-12 z-20"
+            className="absolute w-[280px] h-[400px] object-cover rounded-5xl shadow-xl transform -translate-y-12 z-20"
           />
           
           {/* Second Card (card2) */}
           <img
             src="/card2.png"
             alt="Card 2"
-            className="absolute w-[380px] h-screen object-cover rounded-5xl shadow-2xl transform -translate-y-6 z-30"
+            className="absolute w-[280px] h-[400px] object-cover rounded-5xl shadow-2xl transform -translate-y-6 z-30"
           />
           
           {/* Top Card (card1) */}
           <img
             src="/card1.png"
             alt="Card 1"
-            className="relative w-[380px] h-screen object-cover rounded-5xl shadow-2xl z-40"
+            className="relative w-[280px] h-[400px] object-cover rounded-5xl shadow-2xl z-40"
           />
         </div>
 
