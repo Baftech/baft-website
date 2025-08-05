@@ -1,0 +1,130 @@
+/* Container for centering */
+.tick-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #000;
+}
+
+/* Tick Mark */
+.tick-mark {
+  position: relative;
+  width: 40px;
+  height: 80px;
+  transform: rotate(45deg);
+  animation: drawTick 0.5s ease-out forwards;
+}
+
+.tick-mark::before,
+.tick-mark::after {
+  content: "";
+  position: absolute;
+  background-color: #00ff00;
+  border-radius: 2px;
+  opacity: 0;
+}
+
+/* Short leg of the tick */
+.tick-mark::before {
+  width: 6px;
+  height: 30px;
+  left: 0;
+  bottom: 0;
+  animation: tickLeg1 0.3s forwards;
+}
+
+/* Long leg of the tick */
+.tick-mark::after {
+  width: 6px;
+  height: 50px;
+  right: 0;
+  top: 0;
+  animation: tickLeg2 0.3s 0.3s forwards;
+}
+
+/* Glow after full tick is drawn */
+.tick-mark.glow {
+  box-shadow: 0 0 20px 4px #00ff00;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Keyframes */
+@keyframes tickLeg1 {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: 30px;
+    opacity: 1;
+  }
+}
+
+@keyframes tickLeg2 {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: 50px;
+    opacity: 1;
+  }
+}
+
+/* Thanks page container */
+.thank-you-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #000;
+}
+
+/* Thanks content wrapper */
+.thanks-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+/* Thanks title styling */
+.thanks-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+/* Thanks message styling */
+.thanks-message {
+  font-size: 1.1rem;
+  color: #ccc;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+/* Thanks close button */
+.thanks-close-button {
+  padding: 12px 30px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.thanks-close-button:hover {
+  background-color: #0056b3;
+}
+
+/* Text content wrapper */
+.thanks-text-content {
+  margin-bottom: 30px;
+}
