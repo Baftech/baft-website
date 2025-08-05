@@ -1,0 +1,88 @@
+import "./B_coin.css";
+import React, { useState, useEffect } from "react";
+
+
+
+ {/* Section 1 */}
+const B_coin = () => {
+  const [imageVisible, setImageVisible] = useState(false);
+  const [introducingVisible, setIntroducingVisible] = useState(false);
+  const [baftCoinVisible, setBaftCoinVisible] = useState(false);
+
+  // Handle animations with timeouts
+  useEffect(() => {
+    // "Introducing" text fade-in effect after 1 second
+    const introducingTimer = setTimeout(() => {
+      setIntroducingVisible(true);
+    }, 1000);
+
+    // "BaFT Coin" text fade-in effect after 2.5 seconds
+    const baftCoinTimer = setTimeout(() => {
+      setBaftCoinVisible(true);
+    }, 2500);
+
+    // Image fade-in effect after 4 seconds (after text animations complete)
+    const imageTimer = setTimeout(() => {
+      setImageVisible(true);
+    }, 3000);
+
+    // Cleanup timers
+    return () => {
+      clearTimeout(introducingTimer);
+      clearTimeout(baftCoinTimer);
+      clearTimeout(imageTimer);
+    };
+  }, []);
+
+  return (
+    <div className="bg-black w-full h-screen flex items-center justify-center relative">
+      
+      {/* Glowing Lines Container */}
+      <div className="glowing-lines-container">
+        <div className="glowing-line-1"></div>
+        <div className="glowing-line-2"></div>
+        <div className="glowing-line-3"></div>
+      </div>
+      
+      <div className="absolute z-20 text-center w-full">
+        {/** add animation intro 3sec*/}
+        {/** add animation intro 3sec after animation 3  viabrate up and down */}
+        <img
+          src="b-coin image.png"
+          alt="b-coin image.png"
+          className={`absolute top-1/2 left-1/2 transform-translate-x-1/2-translate-y-1/2 z-10 w-80 ${
+            imageVisible
+              ? "transition-opacity ease-in-out duration-700 smooth-vibrate opacity-20"
+              : "opacity-0"
+          }`}
+          style={{ filter: "brightness(1.2)" }}
+        />
+        <h3
+          className={`flex justify-center items-center px-2 py-5 text-white font-[400] text-[2rem] ${
+            introducingVisible ? "smooth-fade-in" : "opacity-0"
+          }`}
+          style={{
+            fontFamily: "Libertinus Serif",
+            fontStyle: "normal",
+          }}
+        >
+          Introducing
+        </h3>
+
+        <h1
+          className={`flex justify-center items-center px-2 text-white font-[400] text-[5rem] ${
+            baftCoinVisible ? "smooth-fade-in" : "opacity-0"
+          }`}
+          style={{
+            fontFamily: "Libertinus Serif",
+            fontStyle: "normal",
+          }}
+        >
+          BaFT Coin
+        </h1>
+      </div>
+      
+    </div>
+  );
+};
+export default B_coin;
