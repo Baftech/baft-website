@@ -35,7 +35,7 @@ const Dark_Navbar = ({ onNavigate }) => {
         </div>
 
         {/* Right Signup */}
-        <div className="hidden lg:block">
+        <div className=" fancy hidden lg:block">
           <button
             onClick={() => setIsSignUpModalOpen(true)}
             className="px-3 xl:px-4 py-2 text-sm xl:text-base hover:bg-white hover:text-black rounded-full transition-all duration-300"
