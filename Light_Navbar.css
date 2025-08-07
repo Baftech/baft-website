@@ -1,0 +1,120 @@
+.navbar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  color: white;
+}
+
+.inter-aandl {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  background-color: white;
+  color: #092646;
+}
+
+.inter-aandl:hover {
+  background-color: #0a2d52 !important;
+  color: white !important;
+}
+.inter-signup {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+
+.fancy {
+    --offset: 2px;
+    background: transparent;
+    border-radius: 25px;
+    position: relative;
+    height: 40px;
+    width: 106px;
+    
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Conic gradient */
+.fancy::before {
+  content: '';
+  background: conic-gradient(transparent 270deg, #092646, transparent);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 1;
+  width: 100%;
+  animation: rotate 2s linear infinite;
+
+  /* Reduced Glow Effect - contained to borders */
+  filter: blur(0.5px);
+}
+
+
+/* Overlay */
+.fancy::after {
+    content: '';
+    background: white;
+    border-radius: inherit;
+    position: absolute;
+    inset: var(--offset);
+    height: calc(100% - 2 * var(--offset));
+    width: calc(100% - 2 * var(--offset));
+    transition: background 0.3s ease;
+}
+
+/* Hover effect for overlay */
+.fancy:hover::after {
+    background: white;
+}
+
+/* Button styling */
+.fancy button {
+    background: transparent;
+    color: #092646;
+    border: none;
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+/* Hover effect for button text */
+.fancy:hover button {
+    color: black;
+}
+
+.fancy input {
+    background: #092646;
+    color: white;
+    font-size: 0.05rem;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    padding: 1.5rem;
+}
+
+@keyframes rotate {
+    from {
+        transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
+    }
+}
+

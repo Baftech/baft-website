@@ -5,8 +5,8 @@ const ContactModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="lets-chat">
-    <div className="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 w-full max-w-sm relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 p-4 sm:p-6 md:p-8">
+      <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-4 sm:p-6 w-full max-w-xs sm:max-w-sm md:max-w-md relative">
         {/* Close Button */}
         <button
           onClick={onClose}

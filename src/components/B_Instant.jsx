@@ -1,71 +1,124 @@
-// eslint-disable-next-line
-import { motion, useAnimation, useInView } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
-export default function CoinStackSection() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.5 });
-  const controls = useAnimation();
+const CoinsSection = () => {
+  const [showOverlayText, setShowOverlayText] = useState(false);
 
+  // Trigger overlay text animation after StackedCoins zoom-in completes
   useEffect(() => {
-    if (inView) {
-      controls.start("spread");
-    }
-  }, [inView, controls]);
+    const timer = setTimeout(() => {
+      setShowOverlayText(true);
+    }, 1000); // Wait for StackedCoins animation to complete (1000ms)
 
-  const coinVariants = {
-    initial: { y: 0 },
-    spread: (offset) => ({
-      y: offset,
-      transition: { delay: 0.2, duration: 1 },
-    }),
+    return () => clearTimeout(timer);
+  }, []);
+
+  // StackedCoins animation variants
+  const stackedCoinsVariants = {
+    initial: { 
+      scale: 0.5,
+      opacity: 0
+    },
+    animate: { 
+      scale: 1,
+      opacity: 1,
+      transition: {
+        duration: 1, // 1000ms
+        ease: "easeOut",
+        delay: 0 // No delay
+      }
+    }
+  };
+
+  // OverlayText animation variants
+  const overlayTextVariants = {
+    initial: { 
+      opacity: 0,
+      y: 50 // Start from bottom
+    },
+    animate: { 
+      opacity: 1,
+      y: 0, // Move to center
+      transition: {
+        duration: 0.8, // 800ms
+        ease: "easeInOut",
+        delay: 0.2 // 200ms delay
+      }
+    }
   };
 
   return (
-    <section
-      ref={ref}
-      className="bg-black w-full h-screen relative min-h-screen flex flex-col items-center justify-center "
-    >      <div className="flex flex-col items-center relative">
-        {/* Top Coin */}
-        <motion.img
-          src="/coin.png"
-          alt="Top Coin"
-          className="w-24 opacity-30"
-          custom={-8} // Moves up to create a space of 4
-          variants={coinVariants}
+    <section className="bg-black w-full min-h-screen relative flex flex-col items-center justify-center px-4 sm:px-6 md:px-8">
+      <div className="relative flex flex-col items-center justify-center">
+        {/* StackedCoins Element */}
+        <motion.div
+          className="relative z-20"
+          variants={stackedCoinsVariants}
           initial="initial"
-          animate={controls}
-        />
+          animate="animate"
+        >
+          {/* Additional stacked coin effect */}
+          <img
+            src="/coin.png"
+            alt=""
+            className="gap-10 absolute top-2 left-2 w-48 sm:w-56 md:w-64 lg:w-72 xl:w-80 h-auto object-contain opacity-100 -z-10"
+            style={{ 
+              filter: "brightness(0.9) saturate(1.1)" 
+            }}
+          />
+          <br/>
+          <img
+            src="/coin.png"
+            alt="Stacked gold coins representing wealth accumulation"
+            className="gap-10 w-48 sm:w-56 md:w-64 lg:w-72 xl:w-80 h-auto object-contain filter brightness-110"
+            style={{ 
+              filter: "brightness(1.3) saturate(1.2) drop-shadow(0 0 20px rgba(255, 215, 0, 0.3))" 
+            }}
+          />
+          
+          
+          
+          <img
+            src="/coin.png"
+            alt=""
+            className="gap-10 absolute top-4 left-4 w-48 sm:w-56 md:w-64 lg:w-72 xl:w-80 h-auto object-contain opacity-100 -z-20"
+            style={{ 
+              filter: "brightness(0.7) saturate(1.0)" 
+            }}
+          />
+        </motion.div>
 
-        {/* Center Coin (Static) */}
-        <img
-          src="/coin.png"
-          alt="Center Coin"
-          className="w-24 opacity-30 my-3"
-        />
-
-        {/* Bottom Coin */}
-        <motion.img
-          src="/coin.png"
-          alt="Bottom Coin"
-          className="w-24 opacity-30"
-          custom={8} // Moves down to create a space of 4
-          variants={coinVariants}
+        {/* OverlayText Element */}
+        <motion.div
+          className="absolute inset-0 flex flex-col items-center justify-center text-center z-20"
+          variants={overlayTextVariants}
           initial="initial"
-          animate={controls}
-        />
+          animate={showOverlayText ? "animate" : "initial"}
+        >
+          <h2 
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-amber-50 mb-2 sm:mb-3 md:mb-4"
+            style={{
+              fontFamily: "Libertinus Serif",
+              textShadow: "0 0 20px rgba(255, 215, 0, 0.5)"
+            }}
+          >
+            Stack Your Success
+          </h2>
+          <p 
+            className="text-gray-400 text-sm sm:text-base md:text-lg lg:text-xl max-w-md mx-auto"
+            style={{
+              fontFamily: "Libertinus Serif"
+            }}
+          >
+            Build wealth coin by coin, step by step
+          </p>
+        </motion.div>
       </div>
 
-      {/* Text that fades in */}
-      <motion.div
-        className="mt-20 text-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ delay: 1, duration: 1 }}
-      >
-        <h2 className="text-3xl font-bold text-amber-50">Do Money, Differently.</h2>
-        <p className="text-gray-400 mt-2">Unstacked. Unlimited.</p>
-      </motion.div>
+      {/* Background glow effect */}
+      <div className="absolute inset-0 bg-gradient-radial from-amber-900/10 via-transparent to-transparent pointer-events-none" />
     </section>
   );
-}
+};
+
+export default CoinsSection;

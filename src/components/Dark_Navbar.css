@@ -33,11 +33,39 @@
     background: transparent;
     border-radius: 25px;
     position: relative;
-    height: 40px;
-    width: 106px;
-    
+    height: 36px;
+    width: 90px;
     max-width: 100%;
     overflow: hidden;
+}
+
+/* Responsive sizing for fancy button */
+@media (min-width: 640px) {
+  .fancy {
+    height: 38px;
+    width: 95px;
+  }
+}
+
+@media (min-width: 768px) {
+  .fancy {
+    height: 40px;
+    width: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fancy {
+    height: 40px;
+    width: 106px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .fancy {
+    height: 42px;
+    width: 110px;
+  }
 }
 
 /* Conic gradient */
@@ -112,4 +140,3 @@
         transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
     }
 }
-

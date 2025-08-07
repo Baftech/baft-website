@@ -198,7 +198,7 @@
 .glowing-line-1 {
   position: absolute;
   width: 1px;
-  height: 40vh;
+  height: 30vh;
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 0.8) 0%,
@@ -209,7 +209,7 @@
     0 0 8px rgba(255, 255, 255, 0.6),
     0 0 16px rgba(255, 255, 255, 0.3);
   top: 0;
-  left: 8%;
+  left: 5%;
   animation: glowPulse 3s ease-in-out infinite alternate;
 }
 
@@ -217,7 +217,7 @@
 .glowing-line-2 {
   position: absolute;
   height: 1px;
-  width: 25vw;
+  width: 20vw;
   background: linear-gradient(
     to right,
     rgba(255, 255, 255, 0.8) 0%,
@@ -227,7 +227,7 @@
   box-shadow:
     0 0 8px rgba(255, 255, 255, 0.6),
     0 0 16px rgba(255, 255, 255, 0.3);
-  top: 25%;
+  top: 20%;
   left: 0;
   animation: glowPulse 3s ease-in-out infinite alternate;
   animation-delay: 1s;
@@ -237,7 +237,7 @@
 .glowing-line-3 {
   position: absolute;
   width: 1px;
-  height: 35vh;
+  height: 25vh;
   background: linear-gradient(
     to top,
     rgba(255, 255, 255, 0.8) 0%,
@@ -248,9 +248,52 @@
     0 0 8px rgba(255, 255, 255, 0.6),
     0 0 16px rgba(255, 255, 255, 0.3);
   bottom: 0;
-  right: 12%;
+  right: 8%;
   animation: glowPulse 3s ease-in-out infinite alternate;
   animation-delay: 2s;
+}
+
+/* Responsive adjustments for glowing lines */
+@media (min-width: 640px) {
+  .glowing-line-1 {
+    height: 35vh;
+    left: 6%;
+  }
+  .glowing-line-2 {
+    width: 22vw;
+    top: 22%;
+  }
+  .glowing-line-3 {
+    height: 30vh;
+    right: 10%;
+  }
+}
+
+@media (min-width: 768px) {
+  .glowing-line-1 {
+    height: 40vh;
+    left: 8%;
+  }
+  .glowing-line-2 {
+    width: 25vw;
+    top: 25%;
+  }
+  .glowing-line-3 {
+    height: 35vh;
+    right: 12%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .glowing-line-1 {
+    height: 45vh;
+  }
+  .glowing-line-2 {
+    width: 28vw;
+  }
+  .glowing-line-3 {
+    height: 40vh;
+  }
 }
 
 /* Glow pulse animation */

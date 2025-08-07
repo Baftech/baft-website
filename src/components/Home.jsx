@@ -46,7 +46,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="home-wrapper" ref={containerRef}>
+    <div className="home-wrapper min-h-screen relative" ref={containerRef}>
      
         {/* Grid Component */}
         <GridBackground className="absolute inset-0 z-0" />
@@ -64,16 +64,21 @@ const Home = () => {
       />*/}
       <div
         ref={headingRef}
-        className="hero-image-wrapper fade-in-bottom mt-24 flex justify-center relative z-20"
+        className="hero-image-wrapper fade-in-bottom mt-16 sm:mt-20 md:mt-24 lg:mt-28 xl:mt-32 flex justify-center relative z-20 px-4 sm:px-6 md:px-8"
       >
         <img
           src="/headline.png"
           alt="Do Money, Differently"
-          className="w-[900px] max-w-full mx-auto mt-4"
+          className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-2xl xl:max-w-4xl 2xl:max-w-5xl mx-auto mt-2 sm:mt-4 md:mt-6"
         />
       </div>
 
-      <button ref={scrollBtnRef} className="scroll-btn relative z-20">
+      <button 
+        ref={scrollBtnRef} 
+        className="scroll-btn relative z-20 text-xs sm:text-sm md:text-base lg:text-lg
+                   px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4
+                   bottom-8 sm:bottom-12 md:bottom-16 lg:bottom-20"
+      >
         Scroll Down ↓
       </button>
       <div className="ellipse"></div>
