@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ScrollObserver, valueAtPercentage } from 'aat';
+import { ScrollObserver, valueAtPercentage } from './aat';
 
 const CardStack = ({ cardsData }) => {
   const containerRef = useRef(null);
@@ -45,13 +45,13 @@ const CardStack = ({ cardsData }) => {
   return (
     <div
       ref={containerRef}
-      className="cards relative flex flex-col gap-4"
+      className="cards relative flex flex-col "
     >
       {cardsData.map((cardContent, index) => (
         <div
           key={index}
           ref={(el) => (cardRefs.current[index] = el)}
-          className="card bg-white shadow-md rounded-md overflow-hidden transition-transform duration-300"
+          className=" transition-transform duration-300"
         >
           <div className="card__inner p-4">{cardContent}</div>
         </div>

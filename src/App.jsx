@@ -11,10 +11,12 @@ import Video_Component from './components/Video_Component';
 import VideoPlayer from './components/VideoPlayer';
 import SecurityCard from './components/SecurityCard';
 import About from './components/About';
+import Footer from './components/Footer';
 
 
 
 const App = () => {
+  
    return (
     <div className="min-h-screen w-full overflow-x-hidden">
       <Dark_Navbar />
@@ -29,6 +31,7 @@ const App = () => {
         <VideoPlayer />
         <SecurityCard />
         <About />
+        <Footer />
       </main>
     </div>
   )
