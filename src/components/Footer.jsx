@@ -13,32 +13,39 @@ const SignupForm = () => {
       className="bg-gradient-to-br from-[#0f2c5c] to-[#163e74] text-white mx-auto"
       style={{
         width: "1100px",
-        height: "200px",
+        height: "350px",
         borderRadius: "30px",
         opacity: 1,
         transform: "rotate(0deg)",
       }}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 pb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-10">
         <div className="flex flex-col justify-center order-2 lg:order-1">
-        <h2 className="text-3xl font-semibold mx-10 mb-2">Sign Up</h2>
-        <p className="text-sm text-gray-200 mx-10 mb-4">
-          Get early access, updates, and exclusive perks. Enter your email below
-          - no spam, we promise.
-        </p>
-        <form className="flex flex-row items-center gap-3 mb-20">
-          <input
-            type="email"
-            placeholder="Enter Your Email"
-            className="mx-10 flex-1 px-4 py-3 rounded-full bg-white/10 backdrop-blur-sm text-white placeholder-white/60 border border-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+          <h2 className="text-3xl font-semibold mx-10 mb-2">Sign Up</h2>
+          <p className="text-sm text-gray-200 mx-10 mb-4">
+            Get early access, updates, and exclusive perks. Enter your email
+            below - no spam, we promise.
+          </p>
+          <form className="flex flex-row items-center gap-3 mb-20">
+            <input
+              type="email"
+              placeholder="Enter Your Email"
+              className="block w-full ml-10 flex-1 px-4 py-3 rounded-full bg-white/10 backdrop-blur-sm text-white placeholder-white/60 border border-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+            />
+            <button
+              type="submit"
+              className="px-2 py-3 bg-white text-black rounded-full font-medium hover:bg-gray-100 transition"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+        <div className="relative flex items-center justify-center w-full order-1 lg:order-2">
+          <img
+            src="/hand_iphone_image.png"
+            alt="Signup Illustration"
+            className="align-top-[-15px] w-[450px] h-[350px] rounded-2xl object-cover"
           />
-          <button
-            type="submit"
-            className="px-2 py-3 bg-white text-black rounded-full font-medium hover:bg-gray-100 transition"
-          >
-            Subscribe
-          </button>
-        </form>
         </div>
       </div>
     </section>
