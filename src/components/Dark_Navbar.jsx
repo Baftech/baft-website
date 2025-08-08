@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Dark_Navbar.css";
 import ContactModal from "./ContactModal";
 import SignUpModal from "./SignUpModal";
@@ -8,11 +8,32 @@ const Dark_Navbar = ({ onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [showNavbar, setShowNavbar] = useState(true);
+
+  // Scroll hide/show effect
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    const handleScroll = () => {
+      if (window.scrollY > lastScrollY && window.scrollY > 50) {
+        setShowNavbar(false); // hide on scroll down
+      } else {
+        setShowNavbar(true); // show on scroll up
+      }
+      lastScrollY = window.scrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <>
       {/* Navbar */}
-      <div className="navbar-container relative w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between bg-black text-white z-50">
+      <div
+        className={`navbar-container relative w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between bg-black text-white z-50 transition-transform duration-300 ${
+          showNavbar ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
         {/* Left Group */}
         <div className="hidden lg:flex gap-2 xl:gap-4">
           <button
@@ -35,7 +56,7 @@ const Dark_Navbar = ({ onNavigate }) => {
         </div>
 
         {/* Right Signup */}
-        <div className=" fancy hidden lg:block">
+        <div className="fancy hidden lg:block">
           <button
             onClick={() => setIsSignUpModalOpen(true)}
             className="px-3 xl:px-4 py-2 text-sm xl:text-base hover:bg-white hover:text-black rounded-full transition-all duration-300"
@@ -60,37 +81,39 @@ const Dark_Navbar = ({ onNavigate }) => {
       </div>
 
       {/* Full-Screen Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-40 flex flex-col justify-center items-center space-y-6 px-6">
-          <button
-            onClick={() => {
-              onNavigate && onNavigate("about");
-              setIsMobileMenuOpen(false);
-            }}
-            className="text-white text-xl w-full text-center hover:underline"
-          >
-            About BaFT
-          </button>
-          <button
-            onClick={() => {
-              setIsContactModalOpen(true);
-              setIsMobileMenuOpen(false);
-            }}
-            className="text-white text-xl w-full text-center hover:underline"
-          >
-            Let's Chat
-          </button>
-          <button
-            onClick={() => {
-              setIsSignUpModalOpen(true);
-              setIsMobileMenuOpen(false);
-            }}
-            className="text-white text-xl w-full text-center hover:underline"
-          >
-            Sign Up
-          </button>
-        </div>
-      )}
+      <div
+        className={`fixed inset-0 bg-black/90 backdrop-blur-sm z-40 flex flex-col justify-center items-center space-y-6 px-6 transition-transform duration-300 ${
+          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <button
+          onClick={() => {
+            onNavigate && onNavigate("about");
+            setIsMobileMenuOpen(false);
+          }}
+          className="text-white text-xl w-full text-center hover:underline"
+        >
+          About BaFT
+        </button>
+        <button
+          onClick={() => {
+            setIsContactModalOpen(true);
+            setIsMobileMenuOpen(false);
+          }}
+          className="text-white text-xl w-full text-center hover:underline"
+        >
+          Let's Chat
+        </button>
+        <button
+          onClick={() => {
+            setIsSignUpModalOpen(true);
+            setIsMobileMenuOpen(false);
+          }}
+          className="text-white text-xl w-full text-center hover:underline"
+        >
+          Sign Up
+        </button>
+      </div>
 
       {/* Modals */}
       <ContactModal
