@@ -19,7 +19,7 @@ const B_Fast = () => {
 
   return (
     <>
-      <div className="relative w-full min-h-screen overflow-hidden bg-black">
+      <div id="b-fast" data-theme="light" className="relative w-full min-h-screen overflow-hidden bg-black">
         {/* Background Video */}
         <video
           ref={videoRef}

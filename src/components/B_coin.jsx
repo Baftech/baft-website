@@ -35,7 +35,7 @@ const B_coin = () => {
   }, []);
 
   return (
-    <div className="bg-black w-full min-h-screen flex items-center justify-center relative px-4 sm:px-6 md:px-8">
+    <div id="b-coin" data-theme="Dark" className="bg-black w-full min-h-screen flex items-center justify-center relative px-4 sm:px-6 md:px-8">
       
       {/* Glowing Lines Container */}
       <div className="glowing-lines-container">

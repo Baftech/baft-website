@@ -3,7 +3,7 @@ import React from "react";
 
 const SecurityCard = () => {
   return (
-    <div className="bg-black text-white w-full max-w-5xl mx-auto rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-8 mt-40 mb-15">
+    <div id="securitycard" data-theme="light" className="bg-black text-white w-full max-w-5xl mx-auto rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-8 mt-40 mb-15">
       {/* Left Text Section */}
       <div className="md:w-1/2 mt-20 mb-20">
         <h2 className="text-2xl md:text-3xl font-bold mb-4 libertinus-serif-bold">

@@ -73,7 +73,7 @@ const socialLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-100 py-10 px-4">
+    <footer id="footer" data-theme="dark" className="bg-gray-100 py-10 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Signup Form Section */}
         <div className="mb-4">

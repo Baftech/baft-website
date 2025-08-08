@@ -43,7 +43,7 @@ const CardStack = ({ cardsData }) => {
   }, []);
 
   return (
-    <div
+    <div id="cardstack" data-theme="light"
       ref={containerRef}
       className="cards relative flex flex-col "
     >

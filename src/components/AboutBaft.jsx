@@ -2,7 +2,7 @@ import React from "react";
 
 const AboutBaft = () => {
   return (
-    <section className="bg-white min-h-screen flex items-center justify-center">
+    <section id="about" data-theme="light" className="bg-white min-h-screen flex items-center justify-center">
       <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10">
         {/* Left Column */}
         <p className="text-sm text-[rgba(25,102,187,1)] font-medium mb-2 flex items-center gap-2">

@@ -46,7 +46,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="home-wrapper min-h-screen relative" ref={containerRef}>
+    <div id="home" data-theme="dark" className="home-wrapper min-h-screen relative" ref={containerRef}>
      
         {/* Grid Component */}
         <GridBackground className="absolute inset-0 z-0" />

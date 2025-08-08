@@ -48,7 +48,7 @@ const CoinsSection = () => {
   };
 
   return (
-    <section className="bg-black w-full min-h-screen relative flex flex-col items-center justify-center px-4 sm:px-6 md:px-8">
+    <section id="b_instant" data-theme="Dark" className="bg-black w-full min-h-screen relative flex flex-col items-center justify-center px-4 sm:px-6 md:px-8">
       <div className="relative flex flex-col items-center justify-center">
         {/* StackedCoins Element */}
         <motion.div

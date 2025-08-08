@@ -16,7 +16,7 @@ const ReadMoreText = ({
   };
 
   return (
-    <div className={className}>
+    <div id="readmore" data-theme="light" className={className}>
       <p className="text-sm text-gray-600 leading-relaxed pr-2">
         {displayText}
         {!isExpanded && shouldShowButton && "..."}

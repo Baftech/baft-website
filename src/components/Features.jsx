@@ -14,7 +14,7 @@ const Features = () => {
   ];
 
   return (
-    <section className="bg-white min-h-screen flex items-center justify-center">
+    <section id="features" data-theme="light" className="bg-white min-h-screen flex items-center justify-center">
       <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10">
         {/* Left Column (unchanged) */}
         <div className="flex flex-col justify-center order-2 lg:order-1">
