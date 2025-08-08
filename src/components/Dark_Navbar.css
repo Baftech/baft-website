@@ -1,5 +1,3 @@
-
-
 .navbar-container {
   position: fixed;
   top: 0;
@@ -12,6 +10,7 @@
   justify-content: space-between;
   background: transparent;
   color: white;
+  transition: transform 0.3s ease-in-out;
 }
 
 .inter-aandl {
@@ -27,40 +26,35 @@
   font-style: normal;
 }
 
-
 .fancy {
-    --offset: 2px;
-    background: transparent;
-    border-radius: 25px;
-    position: relative;
-    height: 36px;
-    width: 90px;
-    max-width: 100%;
-    overflow: hidden;
+  --offset: 2px;
+  background: transparent;
+  border-radius: 25px;
+  position: relative;
+  height: 36px;
+  width: 90px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-/* Responsive sizing for fancy button */
 @media (min-width: 640px) {
   .fancy {
     height: 38px;
     width: 95px;
   }
 }
-
 @media (min-width: 768px) {
   .fancy {
     height: 40px;
     width: 100px;
   }
 }
-
 @media (min-width: 1024px) {
   .fancy {
     height: 40px;
     width: 106px;
   }
 }
-
 @media (min-width: 1280px) {
   .fancy {
     height: 42px;
@@ -68,7 +62,6 @@
   }
 }
 
-/* Conic gradient */
 .fancy::before {
   content: '';
   background: conic-gradient(transparent 270deg, white, transparent);
@@ -79,64 +72,61 @@
   aspect-ratio: 1;
   width: 100%;
   animation: rotate 2s linear infinite;
-
-  /* Reduced Glow Effect - contained to borders */
   filter: blur(0.5px);
 }
 
-
-/* Overlay */
 .fancy::after {
-    content: '';
-    background: black;
-    border-radius: inherit;
-    position: absolute;
-    inset: var(--offset);
-    height: calc(100% - 2 * var(--offset));
-    width: calc(100% - 2 * var(--offset));
-    transition: background 0.3s ease;
+  content: '';
+  background: black;
+  border-radius: inherit;
+  position: absolute;
+  inset: var(--offset);
+  height: calc(100% - 2 * var(--offset));
+  width: calc(100% - 2 * var(--offset));
+  transition: background 0.3s ease;
 }
 
-/* Hover effect for overlay */
 .fancy:hover::after {
-    background: white;
+  background: white;
 }
 
-/* Button styling */
 .fancy button {
-    background: transparent;
-    color: white;
-    border: none;
-    position: relative;
-    z-index: 10;
-    width: 100%;
-    height: 100%;
-    border-radius: inherit;
-    transition: color 0.3s ease;
-    cursor: pointer;
+  background: transparent;
+  color: white;
+  border: none;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  transition: color 0.3s ease;
+  cursor: pointer;
 }
 
-/* Hover effect for button text */
 .fancy:hover button {
-    color: black;
+  color: black;
 }
 
 .fancy input {
-    background: black;
-    color: white;
-    font-size: 0.05rem;
-    position: absolute;
-    inset: 0;
-    z-index: 10;
-    padding: 1.5rem;
+  background: black;
+  color: white;
+  font-size: 0.05rem;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  padding: 1.5rem;
 }
 
 @keyframes rotate {
-    from {
-        transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
-    }
+  from {
+    transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
+  }
+}
 
-    to {
-        transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
-    }
+/* Mobile menu slide-in */
+.fixed.inset-0 {
+  transition: transform 0.3s ease-in-out;
 }
