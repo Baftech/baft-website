@@ -84,53 +84,60 @@ const Navbar = ({ onNavigate }) => {
         </div>
 
         {/* Mobile menu toggle */}
-        <div className="lg:hidden absolute top-3 right-4 z-50">
+        <div className="lg:hidden absolute top-3 right-4 z-[110]">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`p-2 rounded-lg transition-all duration-300 ${theme === "dark" ? "text-white hover:bg-white/20" : "text-black hover:bg-black/20"}`}
+            className={`p-2 rounded-lg transition-all duration-300 ${theme === "dark" ? "text-white" : "text-black hover:bg-black/20"}`}
           >
             {isMobileMenuOpen ? (
-              <HiX className="w-6 h-6" />
+              <HiX className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
             ) : (
-              <HiMenu className="w-6 h-6" />
+              <HiMenu className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
             )}
+
           </button>
         </div>
       </div>
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 transform ${theme === "dark" ? "bg-black/90" : "bg-white/90"
-          } backdrop-blur-sm z-50 flex flex-col justify-center items-center space-y-6 px-6 transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+        className={`fixed inset-0 ${theme === "dark" ? "bg-transperent" : "bg-white/90"
+          } backdrop-blur-sm z-[105] flex flex-col justify-center items-center space-y-6 px-6 transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+          } lg:hidden`}
+        onClick={() => setIsMobileMenuOpen(false)}
       >
-        <button
-          onClick={() => {
-            onNavigate && onNavigate("about");
-            setIsMobileMenuOpen(false);
-          }}
-          className="mobile-link"
-        >
-          About BaFT
-        </button>
-        <button
-          onClick={() => {
-            setIsContactModalOpen(true);
-            setIsMobileMenuOpen(false);
-          }}
-          className="mobile-link"
-        >
-          Let's Chat
-        </button>
-        <button
-          onClick={() => {
-            setIsSignUpModalOpen(true);
-            setIsMobileMenuOpen(false);
-          }}
-          className="mobile-link"
-        >
-          Sign Up
-        </button>
+        <div onClick={(e) => e.stopPropagation()} className="flex flex-col space-y-6">
+          <button
+            onClick={() => {
+              onNavigate && onNavigate("about");
+              setIsMobileMenuOpen(false);
+            }}
+            className={`mobile-link ${theme === "dark" ? "text-white" : "text-black"}`}
+          >
+            About BaFT
+          </button>
+
+          <button
+            onClick={() => {
+              onNavigate && onNavigate("contact");
+              setIsContactModalOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+             className={`mobile-link ${theme === "dark" ? "text-white" : "text-black"}`}
+          >
+            Let's Chat
+          </button>
+          <button
+            onClick={() => {
+              onNavigate && onNavigate("signup");
+              setIsSignUpModalOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            className={`mobile-link ${theme === "dark" ? "text-white" : "text-black"}`}
+          >
+            Sign Up
+          </button>
+        </div>
       </div>
 
       {/* Modals */}
