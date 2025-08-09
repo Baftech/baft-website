@@ -1,0 +1,155 @@
+/* ===== Common Navbar Base ===== */
+.navbar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Buttons shared base */
+.nav-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  cursor: pointer;
+}
+
+/* Fancy signup container */
+.fancy {
+  --offset: 2px;
+  background: transparent;
+  border-radius: 25px;
+  position: relative;
+  height: 40px;
+  width: 106px;
+  max-width: 100%;
+  overflow: hidden;
+}
+.fancy::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 1;
+  width: 100%;
+  animation: rotate 2s linear infinite;
+  filter: blur(0.5px);
+}
+.fancy::after {
+  content: '';
+  border-radius: inherit;
+  position: absolute;
+  inset: var(--offset);
+  height: calc(100% - 2 * var(--offset));
+  width: calc(100% - 2 * var(--offset));
+  transition: background 0.3s ease;
+}
+.fancy button {
+  background: transparent;
+  border: none;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+/* Mobile menu link styles */
+.mobile-link {
+  text-align: center;
+  padding: 0.75rem 1rem;
+  font-size: 1.25rem;
+  border-radius: 0.5rem;
+  transition: background 0.3s ease;
+}
+
+/* Animation */
+@keyframes rotate {
+  from {
+    transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
+  }
+}
+
+/* ===== DARK THEME ===== */
+.dark-theme {
+  background: transparent;
+  color: white;
+}
+.dark-theme .nav-btn {
+  background: transparent;
+  color: white;
+}
+.dark-theme .nav-btn:hover {
+  background: white;
+  color: black;
+}
+.dark-theme .fancy::before {
+  background: conic-gradient(transparent 270deg, white, transparent);
+}
+.dark-theme .fancy::after {
+  background: black;
+}
+.dark-theme .fancy:hover::after {
+  background: white;
+}
+.dark-theme .fancy button {
+  color: white;
+}
+.dark-theme .fancy:hover button {
+  color: black;
+}
+.dark-theme .mobile-link {
+  color: white;
+}
+.dark-theme .mobile-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== LIGHT THEME ===== */
+.light-theme {
+  background: white;
+  color: #092646;
+}
+.light-theme .nav-btn {
+  background: white;
+  color: #092646;
+}
+.light-theme .nav-btn:hover {
+  background: #0a2d52 !important;
+  color: white !important;
+}
+.light-theme .fancy::before {
+  background: conic-gradient(transparent 270deg, #092646, transparent);
+}
+.light-theme .fancy::after {
+  background: white;
+}
+.light-theme .fancy button {
+  color: #092646;
+}
+.light-theme .fancy:hover button {
+  color: black;
+}
+.light-theme .mobile-link {
+  color: #092646;
+}
+.light-theme .mobile-link:hover {
+  background: rgba(0, 0, 0, 0.05);
+}

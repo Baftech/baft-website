@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Dark_Navbar from './components/Dark_Navbar';
+import Navbar from './components/Navbar';
 import B_Fast from './components/B_Fast';
 import Home from './components/Home'
 import GridBackground from './components/GridBackground'
@@ -10,7 +10,7 @@ import Features from './components/Features';
 import Video_Component from './components/Video_Component';
 import VideoPlayer from './components/VideoPlayer';
 import SecurityCard from './components/SecurityCard';
-import About from './components/About';
+import AboutBaft from './components/AboutBaft';
 import Footer from './components/Footer';
 
 
@@ -19,7 +19,7 @@ const App = () => {
   
    return (
     <div className="min-h-screen w-full overflow-x-hidden">
-      <Dark_Navbar />
+      <Navbar />
       
       <main className="w-full">
         <Home />
@@ -30,7 +30,7 @@ const App = () => {
         <Video_Component />
         <VideoPlayer />
         <SecurityCard />
-        <About />
+        <AboutBaft />
         <Footer />
       </main>
     </div>

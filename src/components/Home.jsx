@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import Dark_Navbar from "./Dark_Navbar";
+import Navbar from "./Navbar";
 import GridBackground from "./GridBackground";
 import "./Home.css";
 
@@ -55,7 +55,7 @@ const Home = () => {
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent to-black to-[75%]" />
       
 
-      <Dark_Navbar />
+      <Navbar />
       {/*<video
         ref={videoRef}
         src="/BAFT Vid 2_1.mp4"
