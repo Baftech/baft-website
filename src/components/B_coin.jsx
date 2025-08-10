@@ -9,30 +9,28 @@ const B_coin = () => {
   const [introducingVisible, setIntroducingVisible] = useState(false);
   const [baftCoinVisible, setBaftCoinVisible] = useState(false);
 
-  // Handle animations with timeouts
   useEffect(() => {
-    // "Introducing" text fade-in effect after 1 second
-    const introducingTimer = setTimeout(() => {
-      setIntroducingVisible(true);
-    }, 1000);
+  // Step 1: Show "Introducing"
+  const introducingTimer = setTimeout(() => {
+    setIntroducingVisible(true);
+  }, 0); // Start immediately
 
-    // "BaFT Coin" text fade-in effect after 2.5 seconds
-    const baftCoinTimer = setTimeout(() => {
-      setBaftCoinVisible(true);
-    }, 2500);
+  // Step 2: Show "BaFT Coin" after 3s
+  const baftCoinTimer = setTimeout(() => {
+    setBaftCoinVisible(true);
+  }, 3000);
 
-    // Image fade-in effect after 4 seconds (after text animations complete)
-    const imageTimer = setTimeout(() => {
-      setImageVisible(true);
-    }, 3000);
+  // Step 3: Show Coin image after another 3s (6s total)
+  const imageTimer = setTimeout(() => {
+    setImageVisible(true);
+  }, 6000);
 
-    // Cleanup timers
-    return () => {
-      clearTimeout(introducingTimer);
-      clearTimeout(baftCoinTimer);
-      clearTimeout(imageTimer);
-    };
-  }, []);
+  return () => {
+    clearTimeout(introducingTimer);
+    clearTimeout(baftCoinTimer);
+    clearTimeout(imageTimer);
+  };
+}, []);
 
   return (
     <div id="b-coin" data-theme="dark" className="bg-black w-full min-h-screen flex items-center justify-center relative px-4 sm:px-6 md:px-8">
@@ -44,14 +42,14 @@ const B_coin = () => {
         <div className="glowing-line-3"></div>
       </div>
       
-      <div className="absolute z-20 text-center w-full max-w-4xl mx-auto">
+      <div className="mt-70 absolute z-20 text-center w-full max-w-4xl mx-auto">
         {/** add animation intro 3sec*/}
         {/** add animation intro 3sec after animation 3  viabrate up and down */}
         <img
           src="b-coin image.png"
           alt="b-coin image.png"
           className={`absolute top-1/2 left-1/2 transform-translate-x-1/2-translate-y-1/2 z-10 
-            w-48 sm:w-56 md:w-64 lg:w-72 xl:w-80 
+            w-96 sm:w-[28rem] md:w-[32rem] lg:w-[36rem] xl:w-[35rem] 
             ${imageVisible
               ? "transition-opacity ease-in-out duration-700 smooth-vibrate opacity-20"
               : "opacity-0"
@@ -60,7 +58,7 @@ const B_coin = () => {
         />
         <h3
           className={`flex justify-center items-center px-2 py-3 sm:py-4 md:py-5 text-white font-[400] 
-            text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl
+            text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl
             ${introducingVisible ? "smooth-fade-in" : "opacity-0"}`}
           style={{
             fontFamily: "Libertinus Serif",
@@ -72,7 +70,7 @@ const B_coin = () => {
 
         <h1
           className={`flex justify-center items-center px-2 text-white font-[400] 
-            text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl
+            text-6xl sm:text-7xl md:text-[6rem] lg:text-[7rem] xl:text-[8rem] 2xl:text-[9rem]
             ${baftCoinVisible ? "smooth-fade-in" : "opacity-0"}`}
           style={{
             fontFamily: "Libertinus Serif",
