@@ -62,63 +62,70 @@ const Home = () => {
       ref={containerRef}
     >
       <GridBackground className="absolute inset-0 z-0" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent to-black to-[65%]" />
+
 
       <div className="relative">
-        <motion.video
-          ref={videoRef}
-          src="/home_vid.mp4"
-          muted
-          autoPlay
-          playsInline
-          initial={{
-            width: "100vw",
-            height: "100vh",
+  <motion.video
+    ref={videoRef}
+    src="/home_vid.mp4"
+    muted
+    autoPlay
+    playsInline
+    className="video-fade-edges"
+    initial={{
+      width: "100vw",
+      height: "100vh",
+      top: 0,
+      left: 0,
+      borderRadius: 0,
+      position: "absolute",
+      zIndex: 20,
+      objectFit: "cover",
+      scale: 1,
+    }}
+    animate={
+      zoomOut
+        ? {
+            scale: 0.45,
+            top: 190,
+            left: "50%",
+            x: "-50%",
+            borderRadius: 200,
+            opacity: 1,
+          }
+        : {
+            scale: 1,
             top: 0,
             left: 0,
+            x: 0,
             borderRadius: 0,
-            position: "absolute",
-            zIndex: 20,
-            objectFit: "cover",
-            scale: 1,
-          }}
-          animate={
-            zoomOut
-              ? {
-                scale: 0.6,
-                top: 45,
-                left: "50%",
-                x: "-50%",
-                borderRadius: 200,
-                opacity: 1,
-              }
-              : {
-                scale: 1,
-                top: 0,
-                left: 0,
-                x: 0,
-                borderRadius: 0,
-                opacity: 1,
-              }
+            opacity: 1,
           }
-          transition={{ duration: 2, ease: "easeInOut" }}
-        />
-        {/* Black overlay covering bottom 65% */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent to-black to-[65%]" />
-      </div>
+    }
+    transition={{ duration: 2, ease: "easeInOut" }}
+  />
+</div>
+
+        
+
+
 
       <Navbar />
 
       <motion.div
         className="hero-image-wrapper mt-16 sm:mt-20 md:mt-24 lg:mt-28 xl:mt-32 flex justify-center relative z-20 px-4 sm:px-6 md:px-8"
-        initial={{ opacity: 0, y: 70 }}
-        animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 70 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
+        initial={{ opacity: 0, y: 120 }}
+        animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 120 }}
+        transition={{ duration: 1.8, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <motion.img
           src="/headline.png"
           alt="Do Money, Differently"
           className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-2xl xl:max-w-4xl 2xl:max-w-5xl mx-auto mt-2 sm:mt-4 md:mt-6"
-          initial={false} // controlled by parent motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={showContent ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+          transition={{ duration: 1.8, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
         />
       </motion.div>
 
