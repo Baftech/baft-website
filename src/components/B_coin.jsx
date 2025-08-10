@@ -49,7 +49,7 @@ const B_coin = () => {
           src="b-coin image.png"
           alt="b-coin image.png"
           className={`absolute top-1/2 left-1/2 transform-translate-x-1/2-translate-y-1/2 z-10 
-            w-96 sm:w-[28rem] md:w-[32rem] lg:w-[36rem] xl:w-[35rem] 
+            w-96 sm:w-[20rem] md:w-[30rem] lg:w-[30rem] xl:w-[30rem] mx-2
             ${imageVisible
               ? "transition-opacity ease-in-out duration-700 smooth-vibrate opacity-20"
               : "opacity-0"
