@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 
-export const GridBackground=() =>{
+export const GridBackground = () => {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -8,12 +8,13 @@ export const GridBackground=() =>{
     const ctx = canvas.getContext('2d')
     let W, H, dpr, animationId
 
- 
-    const gridSize = 100
-    const speed = 3
+
+    const gridSize = 123   
+    const speed = 4
 
     let progress1 = 0 
     let progress2 = 0 
+    let progress3 = 0  
 
     function resize() {
       dpr = window.devicePixelRatio || 1
@@ -27,60 +28,54 @@ export const GridBackground=() =>{
       ctx.scale(dpr, dpr)
     }
 
-   function drawGrid() {
-  ctx.clearRect(0, 0, W, H)
+    function drawGrid() {
+      ctx.clearRect(0, 0, W, H)
 
-  for (let x = 0; x <= W; x += gridSize) {
-    for (let y = 0; y <= H; y += gridSize) {
-      const gradient = ctx.createRadialGradient(
-        x + gridSize / 2,
-        y + gridSize / 2,
-        0,
-        x + gridSize / 2,
-        y + gridSize / 2,
-        gridSize / 1.5
-      )
-      gradient.addColorStop(0, 'rgba(255,255,255,0.01)')
-      gradient.addColorStop(1, 'rgba(255,255,255,0)')
-      ctx.fillStyle = gradient
-      ctx.fillRect(x, y, gridSize, gridSize)
+     
+      for (let x = 0; x <= W; x += gridSize) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)' 
+        ctx.lineWidth = 0.8
+        ctx.beginPath()
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, H)
+        ctx.stroke()
+      }
+
+      
+      for (let y = 0; y <= H; y += gridSize) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)' 
+        ctx.lineWidth = 0.8
+        ctx.beginPath()
+        ctx.moveTo(0, y)
+        ctx.lineTo(W, y)
+        ctx.stroke()
+      }
     }
-  }
-
-  for (let x = 0; x <= W; x += gridSize) {
-    const distanceFromCenter = Math.abs(x - W / 2)
-    const alpha = Math.max(0.05, 0.3 - distanceFromCenter / (W / 2))
-    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`
-    ctx.beginPath()
-    ctx.moveTo(x, 0)
-    ctx.lineTo(x, H)
-    ctx.stroke()
-  }
-
-  for (let y = 0; y <= H; y += gridSize) {
-    const distanceFromCenter = Math.abs(y - H / 2)
-    const alpha = Math.max(0.05, 0.3 - distanceFromCenter / (H / 2))
-    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`
-    ctx.beginPath()
-    ctx.moveTo(0, y)
-    ctx.lineTo(W, y)
-    ctx.stroke()
-  }
-}
 
 
 
-    function drawSharpLine(x, y, dx, dy, length = 100) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)'
-      ctx.lineWidth = 1.5
-      ctx.shadowBlur = 6
-      ctx.shadowColor = 'rgba(255,255,255,0.5)'
-      ctx.beginPath()
-      ctx.moveTo(x, y)
-      ctx.lineTo(x + dx * length, y + dy * length)
-      ctx.stroke()
-
-
+    function drawFadingLine(x, y, dx, dy, segments = 8, totalLength = 150) {
+      const segmentLength = totalLength / segments
+      
+      for (let i = 0; i < segments; i++) {
+        const startX = x + dx * segmentLength * i
+        const startY = y + dy * segmentLength * i
+        const endX = x + dx * segmentLength * (i + 1)
+        const endY = y + dy * segmentLength * (i + 1)
+        
+      
+        const opacity = (1 - i / segments) * 0.5 
+        ctx.strokeStyle = `rgba(255,255,255,${opacity})`
+        ctx.lineWidth = 1.2 * (1 - i / segments * 0.5) 
+        ctx.shadowBlur = 3 * (1 - i / segments)
+        ctx.shadowColor = `rgba(255,255,255,${opacity * 0.3})`
+        
+        ctx.beginPath()
+        ctx.moveTo(startX, startY)
+        ctx.lineTo(endX, endY)
+        ctx.stroke()
+      }
+      
       ctx.shadowBlur = 0
       ctx.shadowColor = 'transparent'
     }
@@ -88,18 +83,21 @@ export const GridBackground=() =>{
     function animate() {
       drawGrid()
 
-      
-      const verticalX = gridSize * 2
-      const y1 = H - (progress1 % (H + 100))
-      drawSharpLine(verticalX, y1, 0, -1) 
+      const verticalX = Math.round(gridSize * 2.5 / gridSize) * gridSize
+      const y1 = H - (progress1 % (H + 150))
+      drawFadingLine(verticalX, y1, 0, -1, 8, 200) 
 
-     
-      const horizontalY = gridSize * 1
-      const x2 = W - (progress2 % (W + 100))
-      drawSharpLine(x2, horizontalY, -1, 0)
+      const horizontalY = Math.round(gridSize * 1.5 / gridSize) * gridSize
+      const x2 = W - (progress2 % (W + 150))
+      drawFadingLine(x2, horizontalY, -1, 0, 8, 200) 
+
+      const verticalXRight = Math.round(gridSize * 10 / gridSize) * gridSize
+      const y3 = (progress3 % (H + 150)) - 150
+      drawFadingLine(verticalXRight, y3, 0, 1, 8, 200) 
 
       progress1 += speed
       progress2 += speed
+      progress3 += speed * 1.2
 
       animationId = requestAnimationFrame(animate)
     }
