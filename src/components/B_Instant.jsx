@@ -3,20 +3,80 @@ import { useState, useEffect } from "react";
 
 const B_Instant = () => {
   const [showOverlayText, setShowOverlayText] = useState(false);
+  const [startAnimation, setStartAnimation] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    
+    const timer1 = setTimeout(() => {
+      setStartAnimation(true);
+    }, 200); 
+    
+    
+    const timer2 = setTimeout(() => {
       setShowOverlayText(true);
-    }, 1000);
-    return () => clearTimeout(timer);
+    }, 2200); 
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
   }, []);
 
-  const imageVariants = {
-    initial: { scale: 0.5, opacity: 0 },
+
+  const topCoinVariants = {
+    initial: { 
+      x: 0,
+      y: 0, 
+      opacity: 1, 
+      scale: 1 
+    },
     animate: {
+      x: -60, 
+      y: -80, 
+      opacity: 1, 
       scale: 1,
-      opacity: 0.5, // stays at 50% after animation
-      transition: { duration: 1, ease: "easeOut" },
+      transition: { 
+        duration: 1.5, 
+        ease: "easeOut",
+        delay: 0.5 
+      },
+    },
+  };
+
+  const centerCoinVariants = {
+    initial: { 
+      scale: 1, 
+      opacity: 1, 
+      rotateY: 0 
+    },
+    animate: {
+      scale: 1, 
+      opacity: 1, 
+      rotateY: 0,
+      transition: { 
+        duration: 1.2, 
+        ease: "easeOut" 
+      },
+    },
+  };
+
+  const bottomCoinVariants = {
+    initial: { 
+      x: 0, 
+      y: 0, 
+      opacity: 1,
+      scale: 1
+    },
+    animate: {
+      x: 60, 
+      y: 80, 
+      opacity: 1, 
+      scale: 1, 
+      transition: { 
+        duration: 1.5, 
+        ease: "easeOut",
+        delay: 0.5 
+      },
     },
   };
 
@@ -38,19 +98,56 @@ const B_Instant = () => {
     >
       {/* Centered container */}
       <div className="relative flex items-center justify-center w-full h-full">
-        {/* Image */}
-        <motion.img
-          src="/B_instant.svg"
-          alt="B instant illustration"
-          className="max-w-[30rem] w-full h-auto object-contain"
-          style={{
-            filter:
-              "drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)) brightness(1.2)",
-          }}
-          variants={imageVariants}
-          initial="initial"
-          animate="animate"
-        />
+        
+        {/* Coin Stack Container */}
+        <div className="relative max-w-[30rem] w-full h-auto">
+          
+          {/* Bottom Coin */}
+          <motion.div
+            className="absolute inset-0 w-full h-auto"
+            style={{ zIndex: startAnimation ? 3 : 1 }}
+            variants={bottomCoinVariants}
+            initial="initial"
+            animate={startAnimation ? "animate" : "initial"}
+          >
+            <img
+              src="../../public/Coin tilted1 3.svg" 
+              alt="Bottom coin"
+              className="w-full h-auto object-contain"
+              style={{
+                filter: "drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)) brightness(1.1)",
+              }}
+            />
+          </motion.div>
+
+          {/* Center Coin */}
+          <motion.img
+            src="../../public/Coin tilted1 3.svg" 
+            alt="Center coin"
+            className="w-full h-auto object-contain"
+            style={{
+              filter: "drop-shadow(0 0 25px rgba(255, 215, 0, 0.4)) brightness(1.2)",
+              zIndex: 2
+            }}
+            variants={centerCoinVariants}
+            initial="initial"
+            animate={startAnimation ? "animate" : "initial"}
+          />
+
+          {/* Top Coin */}
+          <motion.img
+            src="../../public/Coin tilted1 3.svg" 
+            alt="Top coin"
+            className="absolute inset-0 w-full h-auto object-contain"
+            style={{
+              filter: "drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)) brightness(1.1)",
+              zIndex: 3
+            }}
+            variants={topCoinVariants}
+            initial="initial"
+            animate={startAnimation ? "animate" : "initial"}
+          />
+        </div>
 
         {/* Overlay Text */}
         <motion.div
@@ -60,7 +157,7 @@ const B_Instant = () => {
           animate={showOverlayText ? "animate" : "initial"}
         >
           <div className="flex flex-col items-start leading-tight">
-            {/* First line group */}
+            
             <div className="flex flex-col">
               <span
                 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-amber-50 italic"
@@ -98,7 +195,7 @@ const B_Instant = () => {
               </div>
             </div>
 
-            {/* Second line */}
+           
             <span
               className="self-end text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-amber-50 italic"
               style={{
