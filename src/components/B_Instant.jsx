@@ -111,7 +111,7 @@ const B_Instant = () => {
             animate={startAnimation ? "animate" : "initial"}
           >
             <img
-              src="../../public/Coin tilted1 3.svg" 
+              src="/Coin tilted1 3.svg" 
               alt="Bottom coin"
               className="w-full h-auto object-contain"
               style={{
@@ -122,7 +122,7 @@ const B_Instant = () => {
 
           {/* Center Coin */}
           <motion.img
-            src="../../public/Coin tilted1 3.svg" 
+            src="/Coin tilted1 3.svg" 
             alt="Center coin"
             className="w-full h-auto object-contain"
             style={{
@@ -136,7 +136,7 @@ const B_Instant = () => {
 
           {/* Top Coin */}
           <motion.img
-            src="../../public/Coin tilted1 3.svg" 
+            src="/Coin tilted1 3.svg" 
             alt="Top coin"
             className="absolute inset-0 w-full h-auto object-contain"
             style={{
