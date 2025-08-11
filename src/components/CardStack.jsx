@@ -41,7 +41,7 @@ export const CardStack = ({ items = [], offset, scaleFactor }) => {
         cards.map((card, index) => (
           <motion.div
             key={card.id || index}
-            className="absolute dark:bg-black bg-white h-60 w-60 md:h-60 md:w-96 rounded-3xl p-4 shadow-xl border border-neutral-200 dark:border-white/[0.1] shadow-black/[0.1] dark:shadow-white/[0.05] flex flex-col justify-between"
+            className="absolute dark:bg-transparent bg-white h-60 w-60 md:h-60 md:w-96 rounded-3xl p-4 shadow-xl border border-neutral-200 dark:border-white/[0.1] shadow-black/[0.1] dark:shadow-white/[0.05] flex flex-col justify-between"
             style={{ transformOrigin: "top center" }}
             animate={{
               top: index * -CARD_OFFSET,
