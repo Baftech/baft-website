@@ -7,6 +7,9 @@ import B_coin from "../components/B_coin";
 import Features from "../components/Features";
 import Video_Component from "../components/Video_Component";
 import SecurityCard from "../components/SecurityCard";
+import AboutBaft from "../components/AboutBaft";
+import Footer from "../components/Footer";
+import Banking_NE from "../components/Banking_NE";
 export const Home = () => {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -27,12 +30,19 @@ export const Home = () => {
           <B_Instant />
         </div>
         <B_Fast />
+
         <Features />
+
         <Video_Component />
+
         <SecurityCard />
+
+        <AboutBaft />
       </main>
 
       {/* Footer */}
+      <Banking_NE />
+      <Footer />
     </div>
   );
 };
