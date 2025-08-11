@@ -8,10 +8,30 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Features = () => {
   const cardsData = [
-    <img key="card1" src="/card1.svg" alt="Card 1" className="w-full h-auto rounded-2xl" />,
-    <img key="card2" src="/card2.svg" alt="Card 2" className="w-full h-auto rounded-2xl" />,
-    <img key="card3" src="/card3.svg" alt="Card 3" className="w-full h-auto rounded-2xl" />,
-    <img key="card4" src="/card4.svg" alt="Card 4" className="w-full h-auto rounded-2xl" />,
+    {
+      id: 1,
+      content: <img src="/card1.svg" alt="Card 1" className="w-full h-auto rounded-2xl" />,
+      name: "BAFT Card 1",
+      designation: "Premium Design"
+    },
+    {
+      id: 2,
+      content: <img src="/card2.svg" alt="Card 2" className="w-full h-auto rounded-2xl" />,
+      name: "BAFT Card 2",
+      designation: "Secure Payment"
+    },
+    {
+      id: 3,
+      content: <img src="/card3.svg" alt="Card 3" className="w-full h-auto rounded-2xl" />,
+      name: "BAFT Card 3",
+      designation: "Instant Transfer"
+    },
+    {
+      id: 4,
+      content: <img src="/card4.svg" alt="Card 4" className="w-full h-auto rounded-2xl" />,
+      name: "BAFT Card 4",
+      designation: "Global Access"
+    }
   ];
 
   return (
@@ -85,7 +105,7 @@ const Features = () => {
         </div>
         {/* Right Column: CardStack */}
         <div className="relative flex items-center justify-center w-full order-1 lg:order-2">
-          <CardStack cardsData={cardsData} />
+          <CardStack items={cardsData} />
         </div>
       </div>
     </section>
