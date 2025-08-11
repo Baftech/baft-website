@@ -1,6 +1,6 @@
 import React from "react";
 import "./Banking_NE.css";
-
+import ConcentricCircles from "./ConcentricCircles.jsx";
 const Banking_NE = () => {
   return (
     <section
@@ -10,16 +10,11 @@ const Banking_NE = () => {
      <h1
   className="leading-tight"
   style={{
-    fontFamily: "Satoshi",
-    fontWeight: 700,
-    fontSize: "64px",
-    background:
-      "linear-gradient(101.23deg, #EDEDED 0%, #EDEDED 50%, #B6B6B6 50%, #B6B6B6 100%)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    backgroundClip: "text",
-    color: "transparent",
-  }}
+  color: "#EDEDED", // just text color, no background clipping
+  fontFamily: "Satoshi",
+  fontWeight: 700,
+  fontSize: "64px",
+}}
 >
   Banking was never easy...
 </h1>
@@ -35,6 +30,7 @@ const Banking_NE = () => {
       }}>
         BAFT - Build for You. Powered by Tech
       </p>
+      <ConcentricCircles />
     </section>
   );
 };
