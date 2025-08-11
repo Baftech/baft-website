@@ -1,64 +1,74 @@
-import "./B_coin.css";
 import React, { useState, useEffect } from "react";
+import "./B_coin.css";
 
-
-
- {/* Section 1 */}
+// ===== COMPONENT: B_COIN =====
 const B_coin = () => {
+  // ===== STATE MANAGEMENT =====
   const [imageVisible, setImageVisible] = useState(false);
   const [introducingVisible, setIntroducingVisible] = useState(false);
   const [baftCoinVisible, setBaftCoinVisible] = useState(false);
 
+  // ===== ANIMATION EFFECTS =====
   useEffect(() => {
-  // Step 1: Show "Introducing"
-  const introducingTimer = setTimeout(() => {
-    setIntroducingVisible(true);
-  }, 0); // Start immediately
+    // Step 1: Show "Introducing" text immediately
+    const introducingTimer = setTimeout(() => {
+      setIntroducingVisible(true);
+    }, 0);
 
-  // Step 2: Show "BaFT Coin" after 3s
-  const baftCoinTimer = setTimeout(() => {
-    setBaftCoinVisible(true);
-  }, 3000);
+    // Step 2: Show "BaFT Coin" text after 3 seconds
+    const baftCoinTimer = setTimeout(() => {
+      setBaftCoinVisible(true);
+    }, 3000);
 
-  // Step 3: Show Coin image after another 3s (6s total)
-  const imageTimer = setTimeout(() => {
-    setImageVisible(true);
-  }, 6000);
+    // Step 3: Show coin image after 6 seconds total
+    const imageTimer = setTimeout(() => {
+      setImageVisible(true);
+    }, 6000);
 
-  return () => {
-    clearTimeout(introducingTimer);
-    clearTimeout(baftCoinTimer);
-    clearTimeout(imageTimer);
-  };
-}, []);
+    // Cleanup timers on component unmount
+    return () => {
+      clearTimeout(introducingTimer);
+      clearTimeout(baftCoinTimer);
+      clearTimeout(imageTimer);
+    };
+  }, []);
 
+  // ===== COMPONENT RENDER =====
   return (
-    <div id="b-coin" data-theme="dark" className="bg-black w-full min-h-screen flex items-center justify-center relative px-4 sm:px-6 md:px-8">
+    <div 
+      id="b-coin" 
+      data-theme="dark" 
+      className="bg-black w-full min-h-screen ios-vh-fix flex items-center justify-center relative container-fluid-responsive pt-20"
+    >
       
-      {/* Glowing Lines Container */}
+      {/* ===== BACKGROUND EFFECTS ===== */}
       <div className="glowing-lines-container">
         <div className="glowing-line-1"></div>
         <div className="glowing-line-2"></div>
         <div className="glowing-line-3"></div>
       </div>
       
-      <div className="mt-70 absolute z-20 text-center w-full max-w-4xl mx-auto">
-        {/** add animation intro 3sec*/}
-        {/** add animation intro 3sec after animation 3  viabrate up and down */}
+      {/* ===== MAIN CONTENT CONTAINER ===== */}
+      <div className="absolute z-20 text-center w-full max-w-4xl mx-auto">
+        
+        {/* ===== COIN IMAGE ===== */}
         <img
-          src="b-coin image.png"
-          alt="b-coin image.png"
+          src="/B_coin/b-coin image.png"
+          alt="BaFT Coin"
           className={`absolute top-1/2 left-1/2 transform-translate-x-1/2-translate-y-1/2 z-10 
-            w-96 sm:w-[20rem] md:w-[30rem] lg:w-[30rem] xl:w-[30rem] mx-2
+            w-64 xs:w-72 sm:w-80 md:w-96 lg:w-[25rem] xl:w-[25rem] mx-2 responsive-img ios-hardware-acceleration
             ${imageVisible
               ? "transition-opacity ease-in-out duration-700 smooth-vibrate opacity-20"
               : "opacity-0"
-          }`}
+            }`}
           style={{ filter: "brightness(1.2)" }}
+          loading="lazy"
         />
+        
+        {/* ===== INTRODUCING TEXT ===== */}
         <h3
-          className={`flex justify-center items-center px-2 py-3 sm:py-4 md:py-5 text-white font-[400] 
-            text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl
+          className={`flex justify-center items-center responsive-padding-sm text-white font-[400] 
+            responsive-text-3xl sm:responsive-text-4xl md:responsive-text-5xl
             ${introducingVisible ? "smooth-fade-in" : "opacity-0"}`}
           style={{
             fontFamily: "Libertinus Serif",
@@ -68,20 +78,26 @@ const B_coin = () => {
           Introducing
         </h3>
 
+        {/* ===== MAIN TITLE ===== */}
         <h1
           className={`flex justify-center items-center px-2 text-white font-[400] 
-            text-6xl sm:text-7xl md:text-[6rem] lg:text-[7rem] xl:text-[8rem] 2xl:text-[9rem]
+            responsive-text-4xl sm:responsive-text-5xl md:responsive-text-6xl lg:text-[7rem] xl:text-[8rem] 2xl:text-[9rem]
             ${baftCoinVisible ? "smooth-fade-in" : "opacity-0"}`}
           style={{
             fontFamily: "Libertinus Serif",
             fontStyle: "normal",
+            fontSize: "clamp(2.5rem, 8vw, 8rem)",
+            lineHeight: "1.1",
           }}
         >
           BaFT Coin
         </h1>
+        
       </div>
       
     </div>
   );
 };
+
+// ===== EXPORT =====
 export default B_coin;

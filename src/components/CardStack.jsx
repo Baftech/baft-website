@@ -1,63 +1,72 @@
-import React, { useEffect, useRef } from 'react';
-import { ScrollObserver, valueAtPercentage } from './aat';
+"use client";
+import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 
-const CardStack = ({ cardsData }) => {
-  const containerRef = useRef(null);
-  const cardRefs = useRef([]);
+let interval;
+
+export const CardStack = ({ items = [], offset, scaleFactor }) => {
+  const CARD_OFFSET = offset || 10;
+  const SCALE_FACTOR = scaleFactor || 0.06;
+  const [cards, setCards] = useState(items);
 
   useEffect(() => {
-    const container = containerRef.current;
-    const cards = cardRefs.current;
+    // Update cards if items change (API or props update)
+    if (Array.isArray(items) && items.length > 0) {
+      setCards(items);
+    }
+  }, [items]);
 
-    if (!container || cards.length === 0) return;
+  useEffect(() => {
+    if (cards.length > 0) {
+      startFlipping();
+    }
+    return () => clearInterval(interval);
+  }, [cards]);
 
-    container.style.setProperty('--cards-count', cards.length);
-    container.style.setProperty('--card-height', `${cards[0].clientHeight}px`);
-
-    cards.forEach((card, index) => {
-      const offsetTop = 20 + index * 20;
-      card.style.paddingTop = `${offsetTop}px`;
-
-      if (index === cards.length - 1) return;
-
-      const toScale = 1 - (cards.length - 1 - index) * 0.1;
-      const nextCard = cards[index + 1];
-      const cardInner = card.querySelector('.card__inner');
-
-      ScrollObserver.Element(nextCard, {
-        offsetTop,
-        offsetBottom: window.innerHeight - card.clientHeight
-      }).onScroll(({ percentageY }) => {
-        cardInner.style.scale = valueAtPercentage({
-          from: 1,
-          to: toScale,
-          percentage: percentageY
-        });
-        cardInner.style.filter = `brightness(${valueAtPercentage({
-          from: 1,
-          to: 0.6,
-          percentage: percentageY
-        })})`;
+  const startFlipping = () => {
+    clearInterval(interval); // prevent multiple intervals
+    interval = setInterval(() => {
+      setCards((prevCards) => {
+        if (!Array.isArray(prevCards) || prevCards.length === 0) return prevCards;
+        const newArray = [...prevCards];
+        newArray.unshift(newArray.pop()); // move last to front
+        return newArray;
       });
-    });
-  }, []);
+    }, 5000);
+  };
 
   return (
-    <div id="cardstack" data-theme="light"
-      ref={containerRef}
-      className="cards relative flex flex-col "
-    >
-      {cardsData.map((cardContent, index) => (
-        <div
-          key={index}
-          ref={(el) => (cardRefs.current[index] = el)}
-          className=" transition-transform duration-300"
-        >
-          <div className="card__inner p-4">{cardContent}</div>
+    <div className="relative h-60 w-60 md:h-60 md:w-96">
+      {cards.length > 0 ? (
+        cards.map((card, index) => (
+          <motion.div
+            key={card.id || index}
+            className="absolute dark:bg-black bg-white h-60 w-60 md:h-60 md:w-96 rounded-3xl p-4 shadow-xl border border-neutral-200 dark:border-white/[0.1] shadow-black/[0.1] dark:shadow-white/[0.05] flex flex-col justify-between"
+            style={{ transformOrigin: "top center" }}
+            animate={{
+              top: index * -CARD_OFFSET,
+              scale: 1 - index * SCALE_FACTOR,
+              zIndex: cards.length - index,
+            }}
+          >
+            <div className="font-normal text-neutral-700 dark:text-neutral-200">
+              {card.content}
+            </div>
+            <div>
+              <p className="text-neutral-500 font-medium dark:text-white">
+                {card.name}
+              </p>
+              <p className="text-neutral-400 font-normal dark:text-neutral-200">
+                {card.designation}
+              </p>
+            </div>
+          </motion.div>
+        ))
+      ) : (
+        <div className="flex items-center justify-center h-full text-gray-500">
+          No cards available
         </div>
-      ))}
+      )}
     </div>
   );
 };
-
-export default CardStack;

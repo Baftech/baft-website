@@ -5,7 +5,7 @@ import ContactModal from "./ContactModal";
 import SignUpModal from "./SignUpModal";
 import { HiMenu, HiX } from "react-icons/hi";
 
-const Navbar = ({ onNavigate }) => {
+export const Navbar = ({ onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
@@ -29,12 +29,15 @@ const Navbar = ({ onNavigate }) => {
     window.addEventListener("scroll", handleScrollTheme);
     handleScrollTheme();
     return () => window.removeEventListener("scroll", handleScrollTheme);
-  }, []);
+  }, [theme]);
 
   // Hide/show on scroll
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
+      // Don't hide navbar on mobile when menu is open
+      if (isMobileMenuOpen) return;
+      
       if (window.scrollY > lastScrollY && window.scrollY > 50) {
         setShowNavbar(false);
       } else {
@@ -42,9 +45,9 @@ const Navbar = ({ onNavigate }) => {
       }
       lastScrollY = window.scrollY;
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMobileMenuOpen]);
 
   return (
     <>
@@ -74,7 +77,8 @@ const Navbar = ({ onNavigate }) => {
           <img
             src={theme === "dark" ? "logo.png" : "logo1.png"}
             alt="Logo"
-            className="w-16 sm:w-18 md:w-20"
+            className="w-12 xs:w-14 sm:w-16 md:w-18 lg:w-20 h-auto"
+            loading="eager"
           />
         </div>
 
@@ -101,12 +105,14 @@ const Navbar = ({ onNavigate }) => {
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 ${theme === "dark" ? "bg-transperent" : "bg-white/90"
-          } backdrop-blur-sm z-[105] flex flex-col justify-center items-center space-y-6 px-6 transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-          } lg:hidden`}
+        className={`fixed inset-0 ${theme === "dark" ? "bg-black/95" : "bg-white/95"
+          } backdrop-blur-lg z-[105] flex flex-col justify-center items-center space-y-4 sm:space-y-6 px-4 sm:px-6 transition-all duration-300 ease-in-out ${isMobileMenuOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          } lg:hidden overflow-hidden`}
         onClick={() => setIsMobileMenuOpen(false)}
       >
-        <div onClick={(e) => e.stopPropagation()} className="flex flex-col space-y-6">
+        <div 
+          onClick={(e) => e.stopPropagation()} 
+          className="flex flex-col space-y-4 sm:space-y-6 w-full max-w-sm">
           <button
             onClick={() => {
               onNavigate && onNavigate("about");
@@ -153,4 +159,4 @@ const Navbar = ({ onNavigate }) => {
   );
 };
 
-export default Navbar;
+

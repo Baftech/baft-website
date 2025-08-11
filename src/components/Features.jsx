@@ -1,16 +1,17 @@
 import React from "react";
 import { FaCreditCard, FaUser, FaGift, FaShieldAlt } from "react-icons/fa";
-import CardStack from "./CardStack"; // Ensure correct path
+import {CardStack} from "./CardStack"; // Ensure correct path
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+
 gsap.registerPlugin(ScrollTrigger);
 
 const Features = () => {
   const cardsData = [
-    <img src="/card1.png" alt="Card 1" className="w-full h-auto rounded-2xl" />,
-    <img src="/card2.png" alt="Card 2" className="w-full h-auto rounded-2xl" />,
-    <img src="/card3.png" alt="Card 3" className="w-full h-auto rounded-2xl" />,
-    <img src="/card4.png" alt="Card 4" className="w-full h-auto rounded-2xl" />,
+    <img key="card1" src="/card1.svg" alt="Card 1" className="w-full h-auto rounded-2xl" />,
+    <img key="card2" src="/card2.svg" alt="Card 2" className="w-full h-auto rounded-2xl" />,
+    <img key="card3" src="/card3.svg" alt="Card 3" className="w-full h-auto rounded-2xl" />,
+    <img key="card4" src="/card4.svg" alt="Card 4" className="w-full h-auto rounded-2xl" />,
   ];
 
   return (

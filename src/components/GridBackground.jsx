@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 
-export default function GridBackground() {
+export const GridBackground=() =>{
   const canvasRef = useRef(null)
 
   useEffect(() => {

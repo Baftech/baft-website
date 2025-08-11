@@ -61,8 +61,24 @@
   position: relative;
   width: 100%;
   height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
   overflow: hidden;
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .home-wrapper {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Landscape mobile fixes */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .home-wrapper {
+    height: 100vh;
+    min-height: 100vh;
+  }
 }
 
 /* Video container */
@@ -324,12 +340,39 @@
   transition: all 0.3s ease;
   cursor: pointer;
   backdrop-filter: blur(10px);
+  font-weight: 400;
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px; /* iOS touch target minimum */
 }
 
 /* Responsive scroll button positioning and sizing */
 .scroll-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateX(-50%) translateY(-2px);
+}
+
+.scroll-btn:active {
+  transform: translateX(-50%) translateY(0px);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile specific scroll button adjustments */
+@media (max-width: 768px) {
+  .scroll-btn {
+    font-size: 0.875rem;
+    padding: 0.75rem 1.5rem;
+    border-width: 1.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .scroll-btn {
+    font-size: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    bottom: 1.5rem !important;
+  }
 }
 
 .video-fade-edges {
@@ -344,4 +387,24 @@
   mask-size: cover;
 
   background-clip: padding-box;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+/* Mobile video optimizations */
+@media (max-width: 768px) {
+  .video-fade-edges {
+    -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 90%, rgba(0,0,0,0) 100%);
+    mask-image: radial-gradient(circle, rgba(0,0,0,1) 90%, rgba(0,0,0,0) 100%);
+  }
+}
+
+/* iOS video performance optimizations */
+@supports (-webkit-touch-callout: none) {
+  .video-fade-edges {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
 }
