@@ -8,10 +8,9 @@ gsap.registerPlugin(ScrollTrigger);
 const B_Fast = () => {
   const sectionRef = useRef(null);
   const contentRef = useRef(null);
-  const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // Starfield effect
+  // Starfield effect (black stars on white background)
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -26,34 +25,22 @@ const B_Fast = () => {
     const stars = [];
     const starCount = Math.floor((canvas.width * canvas.height) / 8000);
 
-    ScrollTrigger.create({
-    trigger: sectionRef.current,
-    start: "top center",
-    onEnter: () => {
-      videoRef.current.currentTime = 0; // restart video
-      videoRef.current.play();
-    },
-    onEnterBack: () => {
-      videoRef.current.currentTime = 0; // restart video
-      videoRef.current.play();
-    },
-  });
-
     for (let i = 0; i < starCount; i++) {
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         radius: Math.random() * 1.5 + 0.5,
-        opacity: 0.7 + Math.random() * 0.3, // brighter range (0.7–1.0)
       });
     }
 
     let rotationAngle = 0;
+    let rafId = 0;
 
     function draw() {
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Slight rotation for a subtle effect
       ctx.translate(canvas.width / 2, canvas.height / 2);
       ctx.rotate(rotationAngle);
       ctx.translate(-canvas.width / 2, -canvas.height / 2);
@@ -61,36 +48,37 @@ const B_Fast = () => {
       for (let star of stars) {
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `(#000000;
- ${star.opacity})`; // Bright sky blue stars
+        // Black stars
+        ctx.fillStyle = "#000000";
         ctx.fill();
       }
 
       ctx.restore();
       rotationAngle += 0.0001;
 
-      requestAnimationFrame(draw);
+      rafId = requestAnimationFrame(draw);
     }
 
-    requestAnimationFrame(draw);
+    rafId = requestAnimationFrame(draw);
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
+      cancelAnimationFrame(rafId);
     };
   }, []);
 
-  // GSAP scroll animation
+  // GSAP scroll animation (overlay fade + content reveal)
   useGSAP(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.current,
-        start: "top bottom", // start fading when section enters
-        end: "top center", // fully revealed at center
+        start: "top bottom",  // when section enters viewport
+        end: "top center",    // fully revealed at center
         scrub: true,
       },
     });
 
-    // Screen reveal from black
+    // Black overlay fades away to reveal the section
     tl.fromTo(
       "#black-overlay",
       { opacity: 1 },
@@ -98,7 +86,7 @@ const B_Fast = () => {
       0
     );
 
-    // Your existing content fade
+    // Content fades in slightly after overlay starts fading
     tl.fromTo(
       contentRef.current,
       { opacity: 0, y: 50 },
@@ -106,40 +94,38 @@ const B_Fast = () => {
       0.1
     );
 
-    tl.fromTo(
-      videoRef.current,
-      { opacity: 0 },
-      { opacity: 1, ease: "power1.out" },
-      0.2
-    );
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+    };
   }, []);
 
   return (
     <div
       ref={sectionRef}
       id="entire"
-      className="relative flex flex-col justify-center py-35 min-h-screen overflow-hidden"
+      className="relative flex flex-col justify-center py-35 min-h-screen overflow-hidden bg-white"
     >
       {/* Black overlay for reveal */}
       <div
         id="black-overlay"
         style={{
           position: "absolute",
-          inset: 0,
+          inset: 0,            // covers the entire section
           backgroundColor: "#000",
           zIndex: 20,
           pointerEvents: "none",
         }}
-      ></div>
+      />
 
-      {/* Starfield Background */}
+      {/* Starfield Canvas (transparent to let section's white bg show through) */}
       <canvas
         ref={canvasRef}
         style={{
           position: "absolute",
           inset: 0,
           zIndex: 0,
-          background: "#ffff", // keep black background for contrast
+          background: "transparent",
         }}
       />
 
@@ -151,8 +137,8 @@ const B_Fast = () => {
         <h1
           id="bfast"
           className="text-[130px] flex-center eb-garamond-Bfast 
-      bg-gradient-to-r from-[#9AB5D2] to-[#092646] 
-      bg-clip-text text-transparent"
+          bg-gradient-to-r from-[#9AB5D2] to-[#092646] 
+          bg-clip-text text-transparent"
         >
           B-Fast
         </h1>
@@ -160,8 +146,8 @@ const B_Fast = () => {
         <p
           id="bfast-sub"
           className="flex flex-col text-[28px] flex-center inter-Bfast_sub 
-      bg-gradient-to-r from-[#777575] to-[#092646] 
-      bg-clip-text text-transparent mt-4"
+          bg-gradient-to-r from-[#777575] to-[#092646] 
+          bg-clip-text text-transparent mt-4"
         >
           One Tap. Zero Wait.
         </p>
