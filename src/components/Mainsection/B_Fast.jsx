@@ -26,6 +26,19 @@ const B_Fast = () => {
     const stars = [];
     const starCount = Math.floor((canvas.width * canvas.height) / 8000);
 
+    ScrollTrigger.create({
+    trigger: sectionRef.current,
+    start: "top center",
+    onEnter: () => {
+      videoRef.current.currentTime = 0; // restart video
+      videoRef.current.play();
+    },
+    onEnterBack: () => {
+      videoRef.current.currentTime = 0; // restart video
+      videoRef.current.play();
+    },
+  });
+
     for (let i = 0; i < starCount; i++) {
       stars.push({
         x: Math.random() * canvas.width,
