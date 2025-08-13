@@ -1,198 +1,387 @@
-import React, { useRef } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import ReadMore from "./ReadMore";
+import React, { useState } from "react";
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
-
-const About = () => {
-  const containerRef = useRef(null);
-
-  useGSAP(() => {
-    const t1 = gsap.timeline({
-      scrollTrigger: {
-        trigger: "#aboutus",
-        start: "top center",
-        end: "bottom end",
-        scrub: true,
-      }
-    });
-    t1.fromTo("#aboutus", { opacity: 1 }, { opacity: 0 });
-
-    // Initial setup
-    gsap.set("#layer1", { opacity: 0 });
-    gsap.set("#layer2", { opacity: 0 });
-    gsap.set("#layer3", { opacity: 0 });
-    gsap.set("#layer1_write", { opacity: 0 });
-    gsap.set("#layer2_write", { opacity: 0 });
-    gsap.set("#layer3_write", { opacity: 0 });
-    gsap.set("#spotlight-overlay", { opacity: 0 });
-    
-    // Set initial spotlight properties
-    gsap.set("#spotlight-overlay", {
-      background: "radial-gradient(circle at 50% 50%, transparent 0%, transparent 5%, rgba(0,0,0,0.8) 10%, rgba(0,0,0,0.9) 100%)"
-    });
-
-    // Main animation timeline
-    t1.fromTo("#aboutus", { opacity: 1 }, { delay: 2, opacity: 0.5 })
-      .to("#spotlight-overlay", { opacity: 1, duration: 0.5 })
-      
-      // Layer 1 spotlight - move to position and resize
-      .to("#spotlight-overlay", {
-        duration: 1,
-        ease: "power2.inOut",
-        background: "radial-gradient(circle at 30% 40%, transparent 0%, transparent 8%, rgba(0,0,0,0.8) 12%, rgba(0,0,0,0.9) 100%)"
-      }, "layer1")
-      .fromTo("#layer1", { opacity: 0 }, { opacity: 1, duration: 1 }, "layer1")
-      .fromTo("#layer1_write", { opacity: 0 }, { opacity: 1, duration: 0.5 }, "layer1+=0.5")
-      
-      // Layer 2 spotlight
-      .to("#spotlight-overlay", {
-        duration: 1,
-        ease: "power2.inOut",
-        background: "radial-gradient(circle at 60% 35%, transparent 0%, transparent 8%, rgba(0,0,0,0.8) 12%, rgba(0,0,0,0.9) 100%)"
-      }, "layer2")
-      .to("#layer1_write", { opacity: 0, duration: 0.3 }, "layer2")
-      .fromTo("#layer2", { opacity: 0 }, { opacity: 1, duration: 1 }, "layer2")
-      .fromTo("#layer2_write", { opacity: 0 }, { opacity: 1, duration: 0.5 }, "layer2+=0.5")
-      
-      // Layer 3 spotlight
-      .to("#spotlight-overlay", {
-        duration: 1,
-        ease: "power2.inOut",
-        background: "radial-gradient(circle at 45% 65%, transparent 0%, transparent 8%, rgba(0,0,0,0.8) 12%, rgba(0,0,0,0.9) 100%)"
-      }, "layer3")
-      .to("#layer2_write", { opacity: 0, duration: 0.3 }, "layer3")
-      .fromTo("#layer3", { opacity: 0 }, { opacity: 1, duration: 1 }, "layer3")
-      .fromTo("#layer3_write", { opacity: 0 }, { opacity: 1, duration: 0.5 }, "layer3+=0.5")
-      
-      // Final state - expand spotlight and fade overlay
-      .to("#spotlight-overlay", {
-        duration: 1,
-        ease: "power2.inOut",
-        background: "radial-gradient(circle at 50% 50%, transparent 0%, transparent 50%, rgba(0,0,0,0.8) 80%, rgba(0,0,0,0.9) 100%)"
-      }, "final")
-      .to("#spotlight-overlay", { opacity: 0, duration: 0.5 }, "final+=0.5")
-      .to("#aboutus", { opacity: 1, duration: 0.5 }, "final")
-      .to("#layer3_write", { opacity: 0, duration: 0.3 }, "final");
-
-  }, { scope: containerRef });
-
+// ReadMoreText Component (placeholder - replace with your actual component)
+const ReadMoreText = ({ content, maxLength, onExpandChange }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const truncatedContent = content.substring(0, maxLength);
+  const shouldShowReadMore = content.length > maxLength;
+  const additionalContent = content.substring(maxLength);
+  
+  const handleToggle = () => {
+    const newState = !isExpanded;
+    setIsExpanded(newState);
+    if (onExpandChange) onExpandChange(newState);
+  };
+  
   return (
-    <div id="about" data-theme="light" className="bg-white min-h-screen flex items-center justify-center">
-      <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 items-center">
-        {/* Left Column */}
-        <div>
-          <p className="text-sm text-[rgba(25,102,187,1)] font-medium mb-2 flex items-center gap-2">
-            <span className="text-xs">🔹</span> Know Our Story
-          </p>
-          <h1
-            className="leading-none mb-6 md:mb-8 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[rgba(25,102,187,1)]"
+    <div className="leading-relaxed pr-2">
+      <p 
+        className="transition-all duration-1000 ease-out"
+        style={{
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '24px',
+          color: '#909090'
+        }}
+      >
+        {truncatedContent}
+        {!isExpanded && shouldShowReadMore && "..."}
+        <span 
+          className="inline-block overflow-hidden transition-all duration-1200 ease-in-out"
+          style={{
+            maxHeight: isExpanded ? '500px' : '0px',
+            opacity: isExpanded ? 1 : 0,
+            transform: `translateY(${isExpanded ? '0px' : '-10px'})`,
+          }}
+        >
+          {additionalContent}
+        </span>
+      </p>
+      {shouldShowReadMore && (
+        <div className="transition-all duration-1200 ease-in-out" style={{
+          transform: `translateY(${isExpanded ? '20px' : '0px'})`
+        }}>
+          <button
+            onClick={handleToggle}
+            className="mt-6 transition-all duration-500 ease-out"
             style={{
-              fontFamily: "EB Garamond",
-              lineHeight: 1.1,
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '16px',
+              width: '177px',
+              height: '64px',
+              borderRadius: '200px',
+              backgroundColor: '#E3EDFF',
+              color: '#092646',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#000000';
+              e.target.style.color = '#ffffff';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#E3EDFF';
+              e.target.style.color = '#092646';
             }}
           >
-            <span className="block">About BaFT</span>
-          </h1>
-          {/* Description */}
-          <p className="text-sm text-gray-600 leading-relaxed pr-2">
-            We're Vibha, Dion and Saket, the trio behind BAFT Technology. We
-            started this company with a simple goal: to make banking in India less
-            of a headache and more of a smooth, dare we say… enjoyable
-            experience.
-            <br/>
-            <br/>
-            Somewhere between dodging endless forms and wond...
-          </p>
-          {/* ReadMoreText Component */}
-          <ReadMore
-            content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
-
-Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BAFT Technology was born.
-
-At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.
-`}
-            maxLength={150}
-          />
+            {isExpanded ? "Read Less" : "Read More"}
+          </button>
         </div>
+      )}
+    </div>
+  );
+};
 
-        {/* Right Column */}
-        <div ref={containerRef} className="flex justify-center">
-          <div className="relative w-full max-w-full">
-            {/* Main aboutus image */}
+// Interactive Team Image Component
+const InteractiveTeamImage = () => {
+  const [hoveredMember, setHoveredMember] = useState(null);
+  const [isUserInteracting, setIsUserInteracting] = useState(false);
+  const [autoHighlight, setAutoHighlight] = useState('full');
+  const [activeImageId, setActiveImageId] = useState('full');
+  const [loadedImages, setLoadedImages] = useState(new Set(['/Property 1=Image.png']));
+
+  const teamMembers = React.useMemo(() => [
+    {
+      id: 'vibha',
+      name: 'Vibha Harish',
+      position: 'Co-Founder, BaFT Technology',
+      area: { x: '35%', y: '45%', width: '30%', height: '55%' },
+      image: '/Property 1=Vibha Harish (1).png',
+      textPosition: { left: '51%', bottom: '26%', transform: 'translateX(-50%)' },
+      animation: 'center'
+    },
+    {
+      id: 'dion',
+      name: 'Dion Monteiro',
+      position: 'Co-Founder, BaFT Technology',
+      area: { x: '5%', y: '20%', width: '35%', height: '70%' },
+      image: '/Property 1=Dion Monteiro (1).png',
+      textPosition: { left: '8%', bottom: '27%' },
+      animation: 'fade-right'
+    },
+    {
+      id: 'saket',
+      name: 'Saket Borkar',
+      position: 'Co-Founder, BaFT Technology',
+      area: { x: '60%', y: '15%', width: '35%', height: '75%' },
+      image: '/Property 1=Saket Borkar (1).png',
+      textPosition: { right: '5%', bottom: '27%' },
+      animation: 'fade-left'
+    }
+  ], []);
+
+  const cycleSequence = React.useMemo(() => ['full', 'vibha', 'dion', 'saket'], []);
+
+  // Preload images on component mount
+  React.useEffect(() => {
+    const imagesToPreload = teamMembers.map(member => member.image);
+
+    imagesToPreload.forEach(src => {
+      const img = new Image();
+      img.onload = () => {
+        setLoadedImages(prev => new Set([...prev, src]));
+      };
+      img.src = src;
+    });
+  }, [teamMembers]);
+
+  // Auto-cycling effect
+  React.useEffect(() => {
+    if (!isUserInteracting) {
+      const interval = setInterval(() => {
+        setAutoHighlight(current => {
+          const currentIndex = cycleSequence.findIndex(id => id === current);
+          const nextIndex = (currentIndex + 1) % cycleSequence.length;
+          return cycleSequence[nextIndex];
+        });
+      }, 2500);
+
+      return () => clearInterval(interval);
+    }
+  }, [isUserInteracting, cycleSequence]);
+
+  // Image transition effect
+  React.useEffect(() => {
+    const activeMember = isUserInteracting ? hoveredMember : autoHighlight;
+    setActiveImageId(activeMember || 'full');
+  }, [autoHighlight, hoveredMember, isUserInteracting]);
+
+  const handleMouseEnterImage = () => {
+    setIsUserInteracting(true);
+  };
+
+  const handleMouseLeaveImage = () => {
+    setHoveredMember(null);
+    setIsUserInteracting(false);
+    setAutoHighlight('full');
+  };
+
+  const handleMouseEnterMember = (memberId) => {
+    setHoveredMember(memberId);
+  };
+
+  const getAnimationStyles = (member) => {
+    if (!member) return {};
+    
+    const isHovered = isUserInteracting && hoveredMember === member.id;
+    const isActive = !isUserInteracting && autoHighlight === member.id;
+    const shouldShow = isHovered || isActive;
+    
+    switch (member.animation) {
+      case 'fade-right':
+        return {
+          name: {
+            transform: shouldShow ? 'translateX(0)' : 'translateX(20px)',
+            opacity: shouldShow ? 1 : 0,
+            transition: 'transform 0.6s ease-in-out 0.5s, opacity 0.6s ease-in-out 0.5s'
+          },
+          role: {
+            transform: shouldShow ? 'translateX(0)' : 'translateX(0)',
+            opacity: shouldShow ? 1 : 0,
+            transition: 'transform 1.2s ease-in-out, opacity 1.2s ease-in-out'
+          }
+        };
+      case 'fade-left':
+        return {
+          name: {
+            transform: shouldShow ? 'translateX(0)' : 'translateX(-30px)',
+            opacity: shouldShow ? 1 : 0,
+            transition: 'transform 0.6s ease-in-out 0.5s, opacity 0.6s ease-in-out 0.5s',
+            textAlign: 'right'
+          },
+          role: {
+            transform: shouldShow ? 'translateX(0)' : 'translateX(0)',
+            opacity: shouldShow ? 1 : 0,
+            transition: 'transform 1.2s ease-in-out, opacity 1.2s ease-in-out',
+            textAlign: 'right'
+          }
+        };
+      case 'center':
+        return {
+          name: {
+            opacity: shouldShow ? 1 : 0,
+            transition: 'opacity 0.6s ease-in-out 0.5s',
+            textAlign: 'center'
+          },
+          role: {
+            opacity: shouldShow ? 1 : 0,
+            transition: 'opacity 1.2s ease-in-out',
+            textAlign: 'center'
+          }
+        };
+      default:
+        return {
+          name: { opacity: shouldShow ? 1 : 0, transition: 'opacity 0.6s ease-in-out' },
+          role: { opacity: shouldShow ? 1 : 0, transition: 'opacity 0.6s ease-in-out 0.1s' }
+        };
+    }
+  };
+
+  return (
+    <div className="relative" style={{ width: '553px', height: '782px' }}>
+      {/* Main Image Container */}
+      <div 
+        className="relative w-full h-full overflow-hidden"
+        style={{ borderRadius: '24px', backgroundColor: '#f3f4f6' }}
+        onMouseEnter={handleMouseEnterImage}
+        onMouseLeave={handleMouseLeaveImage}
+      >
+        {/* Base Image - Full Team */}
+        <img 
+          src="/Property 1=Image.png"
+          alt="BaFT Team Full" 
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{ 
+            objectPosition: 'center center',
+            opacity: activeImageId === 'full' ? 1 : 0.999, // Slightly transparent when not active to prevent z-index issues
+            transition: 'opacity 1200ms ease-in-out',
+            zIndex: 1 // Always stays at base level
+          }}
+        />
+        
+        {/* Individual Member Images */}
+        {teamMembers.map((member) => {
+          const isLoaded = loadedImages.has(member.image);
+          const isActive = activeImageId === member.id;
+          
+          return (
             <img 
-              id="aboutus" 
-              src="/aboutus.svg" 
-              alt="About BaFT" 
-              className="max-w-full h-auto relative z-10" 
-            />
-            
-            {/* Layer images positioned absolutely over main image */}
-            <img 
-              id="layer1"
-              src="/layer1.svg" 
-              alt="Layer 1" 
-              className="absolute top-0 left-0 w-full h-full object-contain z-20" 
-              style={{ opacity: 0 }}
-            />
-            
-            <img 
-              id="layer1_write"
-              src="/layer1_write.svg" 
-              alt="Layer 1 Write" 
-              className="absolute top-0 left-0 w-full h-full object-contain z-30" 
-              style={{ opacity: 0 }}
-            />
-            
-            <img 
-              id="layer2"
-              src="/layer2.svg" 
-              alt="Layer 2" 
-              className="absolute top-0 left-0 w-full h-full object-contain z-20" 
-              style={{ opacity: 0 }}
-            />
-            
-            <img 
-              id="layer2_write"
-              src="/layer2_write.svg" 
-              alt="Layer 2 Write" 
-              className="absolute top-0 left-0 w-full h-full object-contain z-30" 
-              style={{ opacity: 0 }}
-            />
-            
-            <img 
-              id="layer3"
-              src="/layer3.svg" 
-              alt="Layer 3" 
-              className="absolute top-0 left-0 w-full h-full object-contain z-20" 
-              style={{ opacity: 0 }}
-            />
-            
-            <img 
-              id="layer3_write"
-              src="/layer3_write.svg" 
-              alt="Layer 3 Write" 
-              className="absolute top-0 left-0 w-full h-full object-contain z-30" 
-              style={{ opacity: 0 }}
-            />
-            
-            {/* Spotlight overlay using radial gradient */}
-            <div 
-              id="spotlight-overlay"
-              className="absolute top-0 left-0 w-full h-full z-40 pointer-events-none"
+              key={member.id}
+              src={member.image}
+              alt={`BaFT Team ${member.name}`}
+              className="absolute inset-0 w-full h-full object-cover object-center"
               style={{ 
-                opacity: 0,
-                background: "radial-gradient(circle at 50% 50%, transparent 0%, transparent 5%, rgba(0,0,0,0.8) 10%, rgba(0,0,0,0.9) 100%)"
+                objectPosition: 'center center',
+                opacity: isActive && isLoaded ? 1 : 0,
+                transition: 'opacity 1200ms ease-in-out',
+                zIndex: isActive ? 2 : 1,
+                display: isLoaded ? 'block' : 'none'
+              }}
+              onLoad={() => {
+                setLoadedImages(prev => new Set([...prev, member.image]));
+              }}
+            />
+          );
+        })}
+        
+        {/* Text Overlays for all members */}
+        {teamMembers.map((member) => {
+          const memberAnimationStyles = getAnimationStyles(member);
+          
+          return (
+            <div 
+              key={member.id}
+              className="absolute z-30 pointer-events-none"
+              style={{
+                ...member.textPosition,
+                maxWidth: '280px',
               }}
             >
+              <div className="text-white">
+                <h3 
+                  style={{
+                    fontFamily: 'EB Garamond, serif',
+                    fontWeight: 'bold',
+                    fontSize: member.id === 'vibha' ? '24px' : '26px',
+                    lineHeight: '1.1',
+                    marginBottom: '4px',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                    ...memberAnimationStyles.name
+                  }}
+                >
+                  {member.name}
+                </h3>
+                <p 
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: '150',
+                    fontSize: '14px',
+                    lineHeight: '1.2',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                    ...memberAnimationStyles.role
+                  }}
+                >
+                  {member.position}
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
+          );
+        })}
+        
+        {/* Invisible hover areas */}
+        {teamMembers.map((member) => (
+          <div
+            key={member.id}
+            className="absolute cursor-pointer z-20"
+            style={{
+              left: member.area.x,
+              top: member.area.y,
+              width: member.area.width,
+              height: member.area.height,
+            }}
+            onMouseEnter={() => handleMouseEnterMember(member.id)}
+          />
+        ))}
       </div>
     </div>
   );
 };
 
-export default About;
+const AboutBaft = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  return (
+    <section id="about" data-theme="light" className="bg-white min-h-screen flex items-center justify-center">
+      <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 items-start">
+        {/* Left Column */}
+        <div className="transition-all duration-1200 ease-in-out" style={{
+          transform: `translateY(${isExpanded ? '-20px' : '0px'})`
+        }}>
+          <p 
+            className="font-normal mb-2 flex items-center gap-2 transition-all duration-1200 ease-out"
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '20px',
+              color: '#092646',
+            }}
+          >
+            <img 
+              src="/SVG.svg" 
+              alt="Icon" 
+              className="w-5 h-5"
+            />
+            Know our story
+          </p>
+          <h1
+            className="leading-none mb-6 md:mb-8 font-bold transition-all duration-1200 ease-out"
+            style={{
+              fontFamily: "EB Garamond, serif",
+              fontSize: '64px',
+              lineHeight: 1.1,
+              color: '#1966BB'
+            }}
+          >
+            <span className="block">About BaFT</span>
+          </h1>
+          
+          <ReadMoreText
+            content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
+
+Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BAFT Technology was born.
+
+At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
+            maxLength={150}
+            onExpandChange={setIsExpanded}
+          />
+        </div>
+
+        {/* Right Column - Interactive Team Image */}
+        <div className="flex justify-center ">
+          <InteractiveTeamImage />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default AboutBaft;
