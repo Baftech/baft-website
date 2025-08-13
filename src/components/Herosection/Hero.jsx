@@ -19,33 +19,46 @@ const Hero = () => {
   useGSAP(() => {
   gsap.set(["#baft_coin_section", "#b_instant_section"], { opacity: 0 });
 
+  // 1️⃣ Time-based animation inside Hero
+  ScrollTrigger.create({
+    trigger: "#hero_container",
+    start: "top top",
+    end: "+=100%", // only runs while Hero is in view
+    onEnter: () => {
+      const heroTl = gsap.timeline();
+      heroTl
+        .fromTo("#videoElement", 
+          { opacity: 0, scale: 1 },
+          { opacity: 1, duration: 1 }
+        )
+        .to("#videoElement", {
+          scale: 0.4,
+          duration: 2,
+          ease: "power2.out",
+          delay: 7 // wait before compressing
+        })
+        .fromTo("#text", 
+          { opacity: 0, y: 50, scale: 0.8 },
+          { opacity: 1, y: 0, scale: 1, duration: 2 },
+          "<"
+        );
+    },
+    onLeaveBack: () => {
+      gsap.set(["#videoElement", "#text"], { clearProps: "all" });
+    }
+  });
+
+  // 2️⃣ Scroll-based transition between sections
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: "#hero_container",
-      start: "top",
-      end: "+=3000", // enough scroll space
+      start: "top top",
+      end: "+=3000",
       scrub: true,
       pin: true,
     }
   });
 
-  // Hero video zoom-out & text fade in
-  tl.fromTo("#videoElement",
-    { opacity: 0, scale: 1 },
-    { opacity: 1, duration: 1 }
-  )
-  .to("#videoElement", {
-    scale: 0.4,
-    duration: 2,
-    ease: "power2.out"
-  }, "+=7")
-  .fromTo("#text",
-    { opacity: 0, y: 50, scale: 0.8 },
-    { opacity: 1, y: 0, scale: 1, duration: 2 },
-    "<"
-  );
-
-  // Fade out Hero, fade in BaFT Coin
   tl.to("#Hero", { opacity: 0, duration: 1 }, "+=1")
     .to("#baft_coin_section", { opacity: 1, y: 0, duration: 1 }, "<")
     .from(["#introduction", "#baft_coin_text", "#B_coin"], {
@@ -53,10 +66,8 @@ const Hero = () => {
       y: 50,
       stagger: 0.2,
       duration: 1
-    });
-
-  // Fade out BaFT Coin, fade in B_Instant
-  tl.to("#baft_coin_section", { opacity: 0, duration: 1 }, "+=1")
+    })
+    .to("#baft_coin_section", { opacity: 0, duration: 1 }, "+=1")
     .to("#b_instant_section", { opacity: 1, y: 0, duration: 1 }, "<")
     .from("#instant_content", {
       opacity: 0,
