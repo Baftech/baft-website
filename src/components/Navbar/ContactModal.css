@@ -1,0 +1,20 @@
+.lets-chat {
+  box-sizing: border-box;
+  position: absolute;
+
+  width: 480px;
+  height: 750px;
+  top: 31px;
+  left: 28.9px;
+
+  background: radial-gradient(
+    112.62% 112.6% at 47.95% 3.5%,
+    #090E65 0%,
+    rgba(55, 102, 183, 0.9) 78.84%,
+    rgba(25, 25, 25, 0.93) 100%
+  );
+
+  border: 2.7px solid rgba(255, 255, 255, 0.46);
+  backdrop-filter: blur(29.7px); /* Note: limited browser support */
+  border-radius: 42.18px;
+}
