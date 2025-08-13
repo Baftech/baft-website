@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 
-// ReadMoreText Component (placeholder - replace with your actual component)
+// Updated ReadMoreText from my earlier fix
 const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const isLong = content.length > maxLength;
   const safeMax = Math.max(0, Math.min(maxLength, content.length));
-  const truncatedContent = content.substring(0, safeMax);
-  const shouldShowReadMore = content.length > safeMax;
-  const additionalContent = content.substring(safeMax);
+
+  const textToShow = isExpanded || !isLong
+    ? content
+    : content.substring(0, safeMax) + "...";
+
+  const paragraphs = textToShow
+    .split(/\n+/)
+    .map((para) => para.trim())
+    .filter((para) => para.length > 0);
 
   const handleToggle = () => {
     const newState = !isExpanded;
@@ -17,64 +24,50 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
 
   return (
     <div className="leading-relaxed pr-2">
-      <p
-        className="transition-all duration-1000 ease-out text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] text-[#909090]"
-        style={{
-          fontFamily: "Inter, sans-serif",
-        }}
-      >
-        {truncatedContent}
-        {!isExpanded && shouldShowReadMore && "..."}
-        <span
-          className="inline-block overflow-hidden transition-all duration-1200 ease-in-out"
+      {paragraphs.map((para, i) => (
+        <p
+          key={i}
+          className="transition-all duration-1000 ease-out text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] text-[#909090] mb-6"
           style={{
-            maxHeight: isExpanded ? "500px" : "0px",
-            opacity: isExpanded ? 1 : 0,
-            transform: `translateY(${isExpanded ? "0px" : "-10px"})`,
+            fontFamily: "Inter, sans-serif",
           }}
         >
-          {additionalContent}
-        </span>
-      </p>
-      {shouldShowReadMore && (
-        <div
-          className="transition-all duration-1200 ease-in-out"
+          {para}
+        </p>
+      ))}
+
+      {isLong && (
+        <button
+          onClick={handleToggle}
+          className="mt-2 transition-all duration-500 ease-out"
           style={{
-            transform: `translateY(${isExpanded ? "20px" : "0px"})`,
+            fontFamily: "Inter, sans-serif",
+            fontSize: "16px",
+            width: "177px",
+            height: "64px",
+            borderRadius: "200px",
+            backgroundColor: "#E3EDFF",
+            color: "#092646",
+            border: "none",
+            cursor: "pointer",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = "#000000";
+            e.target.style.color = "#ffffff";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = "#E3EDFF";
+            e.target.style.color = "#092646";
           }}
         >
-          <button
-            onClick={handleToggle}
-            className="mt-6 transition-all duration-500 ease-out"
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "16px",
-              width: "177px",
-              height: "64px",
-              borderRadius: "200px",
-              backgroundColor: "#E3EDFF",
-              color: "#092646",
-              border: "none",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = "#000000";
-              e.target.style.color = "#ffffff";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "#E3EDFF";
-              e.target.style.color = "#092646";
-            }}
-          >
-            {isExpanded ? "Read Less" : "Read More"}
-          </button>
-        </div>
+          {isExpanded ? "Read Less" : "Read More"}
+        </button>
       )}
     </div>
   );
 };
 
-// Interactive Team Image Component
+// InteractiveTeamImage stays the same as before
 const InteractiveTeamImage = () => {
   const [hoveredMember, setHoveredMember] = useState(null);
   const [isUserInteracting, setIsUserInteracting] = useState(false);
@@ -238,8 +231,7 @@ const InteractiveTeamImage = () => {
         };
     }
   };
-
-  return (
+ return (
     <div className="relative w-full max-w-[553px] h-[420px] sm:h-[520px] md:h-[640px] lg:h-[782px]">
       {/* Main Image Container */}
       <div
@@ -349,6 +341,7 @@ const InteractiveTeamImage = () => {
   );
 };
 
+
 const AboutBaft = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -359,6 +352,7 @@ const AboutBaft = () => {
       className="bg-white min-h-screen flex items-center justify-center"
     >
       <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-8 md:gap-y-10 gap-x-6 md:gap-x-12 lg:gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 items-start max-w-[1200px] mx-auto w-full">
+        
         {/* Left Column */}
         <div
           className="transition-all duration-1200 ease-in-out"
@@ -386,22 +380,19 @@ const AboutBaft = () => {
             <span className="block">About BaFT</span>
           </h1>
 
-          <ReadMoreText 
-          
+          <ReadMoreText
             content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
-                \n\n\n
+
 Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BAFT Technology was born.
-\n\n\n
+
 At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
             maxLength={150}
             onExpandChange={setIsExpanded}
-            className="whitespace-pre-line leading-relaxed"
           />
-          
         </div>
 
         {/* Right Column - Interactive Team Image */}
-        <div className="flex justify-center ">
+        <div className="flex justify-center">
           <InteractiveTeamImage />
         </div>
       </div>
