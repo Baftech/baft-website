@@ -19,7 +19,10 @@ export const Navbar = ({ onNavigate }) => {
       let currentTheme = theme;
       sections.forEach((section) => {
         const rect = section.getBoundingClientRect();
-        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+        if (
+          rect.top <= window.innerHeight / 2 &&
+          rect.bottom >= window.innerHeight / 2
+        ) {
           currentTheme = section.getAttribute("data-theme");
         }
       });
@@ -35,9 +38,7 @@ export const Navbar = ({ onNavigate }) => {
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
-      // Don't hide navbar on mobile when menu is open
       if (isMobileMenuOpen) return;
-      
       if (window.scrollY > lastScrollY && window.scrollY > 50) {
         setShowNavbar(false);
       } else {
@@ -50,24 +51,38 @@ export const Navbar = ({ onNavigate }) => {
   }, [isMobileMenuOpen]);
 
   return (
-    <>
+    <div className="relative">
+      {/* Elliptical shadow for dark theme */}
+      {theme === "dark" && (
+        <div
+          style={{
+            position: "absolute",
+            width: "1359px",
+            height: "457px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            top: "-287px",
+            background: "#272727",
+            filter: "blur(162px)",
+            zIndex: 90,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
       {/* Navbar */}
       <div
-        className={`navbar-container ${theme}-theme transition-transform duration-300 ${showNavbar ? "translate-y-0" : "-translate-y-full"
-          }`}
+        className={`navbar-container ${theme}-theme transition-transform duration-300 ${
+          showNavbar ? "translate-y-0" : "-translate-y-full"
+        }`}
+        style={{ zIndex: 100 }}
       >
         {/* Left group */}
         <div className="hidden lg:flex gap-2 xl:gap-4">
-          <button
-            onClick={() => onNavigate && onNavigate("about")}
-            className="nav-btn"
-          >
+          <button onClick={() => onNavigate?.("about")} className="nav-btn">
             About BaFT
           </button>
-          <button
-            onClick={() => setIsContactModalOpen(true)}
-            className="nav-btn"
-          >
+          <button onClick={() => setIsContactModalOpen(true)} className="nav-btn">
             Let's Chat
           </button>
         </div>
@@ -91,55 +106,78 @@ export const Navbar = ({ onNavigate }) => {
         <div className="lg:hidden absolute top-3 right-4 z-[110]">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`p-2 rounded-lg transition-all duration-300 ${theme === "dark" ? "text-white" : "text-black hover:bg-black/20"}`}
+            className={`p-2 rounded-lg transition-all duration-300 ${
+              theme === "dark"
+                ? "text-white"
+                : "text-black hover:bg-black/20"
+            }`}
           >
             {isMobileMenuOpen ? (
-              <HiX className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
+              <HiX
+                className={`w-6 h-6 ${
+                  theme === "dark" ? "text-white" : "text-black"
+                }`}
+              />
             ) : (
-              <HiMenu className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
+              <HiMenu
+                className={`w-6 h-6 ${
+                  theme === "dark" ? "text-white" : "text-black"
+                }`}
+              />
             )}
-
           </button>
         </div>
       </div>
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 ${theme === "dark" ? "bg-black/95" : "bg-white/95"
-          } backdrop-blur-lg z-[105] flex flex-col justify-center items-center space-y-4 sm:space-y-6 px-4 sm:px-6 transition-all duration-300 ease-in-out ${isMobileMenuOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-          } lg:hidden overflow-hidden`}
+        className={`fixed inset-0 ${
+          theme === "dark" ? "bg-black/95" : "bg-white/95"
+        } backdrop-blur-lg z-[105] flex flex-col justify-center items-center space-y-4 sm:space-y-6 px-4 sm:px-6 transition-all duration-300 ease-in-out ${
+          isMobileMenuOpen
+            ? "translate-x-0 opacity-100"
+            : "translate-x-full opacity-0"
+        } lg:hidden overflow-hidden`}
         onClick={() => setIsMobileMenuOpen(false)}
       >
-        <div 
-          onClick={(e) => e.stopPropagation()} 
-          className="flex flex-col space-y-4 sm:space-y-6 w-full max-w-sm">
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="flex flex-col space-y-4 sm:space-y-6 w-full max-w-sm"
+        >
           <button
             onClick={() => {
-              onNavigate && onNavigate("about");
+              onNavigate?.("about");
               setIsMobileMenuOpen(false);
             }}
-            className={`mobile-link ${theme === "dark" ? "text-white" : "text-black"}`}
+            className={`mobile-link ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
           >
             About BaFT
           </button>
 
           <button
             onClick={() => {
-              onNavigate && onNavigate("contact");
+              onNavigate?.("contact");
               setIsContactModalOpen(true);
               setIsMobileMenuOpen(false);
             }}
-             className={`mobile-link ${theme === "dark" ? "text-white" : "text-black"}`}
+            className={`mobile-link ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
           >
             Let's Chat
           </button>
+
           <button
             onClick={() => {
-              onNavigate && onNavigate("signup");
+              onNavigate?.("signup");
               setIsSignUpModalOpen(true);
               setIsMobileMenuOpen(false);
             }}
-            className={`mobile-link ${theme === "dark" ? "text-white" : "text-black"}`}
+            className={`mobile-link ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
           >
             Sign Up
           </button>
@@ -155,7 +193,6 @@ export const Navbar = ({ onNavigate }) => {
         isOpen={isSignUpModalOpen}
         onClose={() => setIsSignUpModalOpen(false)}
       />
-    </>
+    </div>
   );
 };
-
