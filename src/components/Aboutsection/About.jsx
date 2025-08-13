@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 
 // ReadMoreText Component (placeholder - replace with your actual component)
-const ReadMoreText = ({ content, maxLength, onExpandChange }) => {
+const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const truncatedContent = content.substring(0, maxLength);
-  const shouldShowReadMore = content.length > maxLength;
-  const additionalContent = content.substring(maxLength);
+  const safeMax = Math.max(0, Math.min(maxLength, content.length));
+  const truncatedContent = content.substring(0, safeMax);
+  const shouldShowReadMore = content.length > safeMax;
+  const additionalContent = content.substring(safeMax);
 
   const handleToggle = () => {
     const newState = !isExpanded;
@@ -17,11 +18,9 @@ const ReadMoreText = ({ content, maxLength, onExpandChange }) => {
   return (
     <div className="leading-relaxed pr-2">
       <p
-        className="transition-all duration-1000 ease-out"
+        className="transition-all duration-1000 ease-out text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] text-[#909090]"
         style={{
           fontFamily: "Inter, sans-serif",
-          fontSize: "24px",
-          color: "#909090",
         }}
       >
         {truncatedContent}
@@ -241,7 +240,7 @@ const InteractiveTeamImage = () => {
   };
 
   return (
-    <div className="relative" style={{ width: "553px", height: "782px" }}>
+    <div className="relative w-full max-w-[553px] h-[420px] sm:h-[520px] md:h-[640px] lg:h-[782px]">
       {/* Main Image Container */}
       <div
         className="relative w-full h-full overflow-hidden"
@@ -359,7 +358,7 @@ const AboutBaft = () => {
       data-theme="light"
       className="bg-white min-h-screen flex items-center justify-center"
     >
-      <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 items-start">
+      <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-8 md:gap-y-10 gap-x-6 md:gap-x-12 lg:gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 items-start max-w-[1200px] mx-auto w-full">
         {/* Left Column */}
         <div
           className="transition-all duration-1200 ease-in-out"
@@ -379,12 +378,9 @@ const AboutBaft = () => {
             Know our story
           </p>
           <h1
-            className="leading-none mb-6 md:mb-8 font-bold transition-all duration-1200 ease-out"
+            className="leading-tight md:leading-none mb-4 md:mb-6 lg:mb-8 font-bold transition-all duration-1200 ease-out text-[34px] sm:text-[44px] md:text-[54px] lg:text-[64px] text-[#1966BB]"
             style={{
               fontFamily: "EB Garamond, serif",
-              fontSize: "64px",
-              lineHeight: 1.1,
-              color: "#1966BB",
             }}
           >
             <span className="block">About BaFT</span>
