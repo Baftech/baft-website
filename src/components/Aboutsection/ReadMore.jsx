@@ -1,26 +1,34 @@
 import React, { useState } from "react";
 
-const ReadMore = ({
-  content,
-  maxLength = 150,
-  className = "",
-  buttonClassName = ""
-}) => {
+const ReadMore = ({ content, maxLength = 150, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!content) return null;
-
   const isLong = content.length > maxLength;
+
+  const handleToggle = () => {
+    const newState = !isExpanded;
+    setIsExpanded(newState);
+    if (onExpandChange) onExpandChange(newState);
+  };
+
+  // Decide which text to show
   const textToShow = isExpanded || !isLong ? content : content.slice(0, maxLength) + "...";
 
+  // Split text into paragraphs based on newlines
+  const paragraphs = textToShow.split(/\n+/);
+
   return (
-    <div className={className}>
-      <p className="text-sm text-gray-600 leading-relaxed pr-2">{textToShow}</p>
+    <div>
+      {paragraphs.map((para, i) => (
+        <p key={i} className="mb-4 leading-relaxed text-gray-700 text-lg" style={{ lineHeight: 1.8 }}>
+          {para}
+        </p>
+      ))}
+
       {isLong && (
         <button
-          type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className={`mt-3 text-sm font-medium text-[rgba(25,102,187,1)] hover:text-blue-700 transition-colors duration-200 focus:outline-none ${buttonClassName}`}
+          onClick={handleToggle}
+          className="mt-2 text-blue-700 hover:text-blue-900 font-medium text-sm"
         >
           {isExpanded ? "Read Less" : "Read More"}
         </button>
