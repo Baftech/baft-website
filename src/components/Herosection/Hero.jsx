@@ -79,7 +79,8 @@ const Hero = () => {
   
 
   return (
-    <div id="hero_container" className="relative w-full h-[300vh]">
+    <div id="hero_container" className="relative w-full h-screen">
+
       {/* Original Hero Section */}
       <div 
         id="Hero" 
