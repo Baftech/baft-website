@@ -1,5 +1,6 @@
 import React from 'react'
 import Hero from '../components/Herosection/Hero'
+import { Navbar } from '../components/Navbar/Navbar'
 import BaFT_Coin from '../components/Mainsection/BaFT_Coin'
 import B_Instant from '../components/Mainsection/B_Instant'
 import B_Fast from '../components/Mainsection/B_Fast'
@@ -13,11 +14,10 @@ import Footer from '../components/Footer/Footer'
 const Home = () => {
   return (
     <div>
+      <Navbar />
       <Hero />
       <main>
-        <BaFT_Coin />
-
-        <B_Instant />
+        
 
         <B_Fast />
 
