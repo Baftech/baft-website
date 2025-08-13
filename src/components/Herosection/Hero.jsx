@@ -75,8 +75,10 @@ const Hero = () => {
         data-theme='dark' 
         className="absolute top-0 w-full h-screen bg-black overflow-hidden z-10"
       >
-        <GridBackground className="absolute inset-0 z-0" />
-        <div className="absolute inset-0 z-5 bg-gradient-to-b from-transparent to-black to-[65%]" />
+
+        <GridBackground />
+        {/* <GridBackground className="absolute inset-0 z-0" />
+        <div className="absolute inset-0 z-5 bg-gradient-to-b from-transparent to-black to-[65%]" /> */}
         
         {/* Video */}
         <div className="absolute top-20 rounded-lg overflow-hidden mb-5 z-10">
