@@ -17,8 +17,6 @@ const Home = () => {
       <Navbar />
       <Hero />
       <main>
-        
-
         <B_Fast />
 
         <Features />

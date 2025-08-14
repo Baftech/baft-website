@@ -2,85 +2,178 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FaCreditCard, FaUser, FaGift, FaShieldAlt } from 'react-icons/fa';
 
 // CardStack Component
-const CardStack = ({ items }) => {
-  const [activeIndex, setActiveIndex] = useState(0);
+const CardStack = ({ items, activeIndex, setActiveIndex }) => {
+  const [isCardStackActive, setIsCardStackActive] = useState(false);
+  const [scrollLocked, setScrollLocked] = useState(false);
   const containerRef = useRef(null);
   const cardRefs = useRef([]);
+  const accumulatedDelta = useRef(0);
+  const scrollThreshold = 100; // Pixels of scroll needed to advance to next card
 
   useEffect(() => {
+    const handleWheel = (e) => {
+      if (!containerRef.current) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const isInView = rect.top <= window.innerHeight && rect.bottom >= 0;
+
+      if (!isInView) return;
+
+      // Check if we're in the card stack section
+      if (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.5) {
+        if (!isCardStackActive) {
+          setIsCardStackActive(true);
+          setScrollLocked(true);
+        }
+
+        // Prevent default scrolling when cards are active
+        if (activeIndex < items.length - 1 || (e.deltaY < 0 && activeIndex > 0)) {
+          e.preventDefault();
+          
+          // Accumulate scroll delta (considering direction)
+          accumulatedDelta.current += Math.abs(e.deltaY);
+          
+          // Advance to next/previous card when threshold is reached
+          if (accumulatedDelta.current >= scrollThreshold) {
+            let nextIndex;
+            
+            if (e.deltaY > 0) {
+              // Scrolling down - advance to next card
+              nextIndex = Math.min(activeIndex + 1, items.length - 1);
+            } else {
+              // Scrolling up - go to previous card
+              nextIndex = Math.max(activeIndex - 1, 0);
+            }
+            
+            setActiveIndex(nextIndex);
+            accumulatedDelta.current = 0;
+            
+            // If we've reached the last card and scrolling down, allow normal scrolling after a brief delay
+            if (nextIndex === items.length - 1 && e.deltaY > 0) {
+              setTimeout(() => {
+                setScrollLocked(false);
+                setIsCardStackActive(false);
+              }, 500);
+            }
+          }
+        }
+      } else if (isCardStackActive && rect.bottom < window.innerHeight * 0.5) {
+        // Reset when scrolled past the section
+        setIsCardStackActive(false);
+        setScrollLocked(false);
+        setActiveIndex(0);
+        accumulatedDelta.current = 0;
+      }
+    };
+
     const handleScroll = () => {
       if (!containerRef.current) return;
 
       const rect = containerRef.current.getBoundingClientRect();
-      const containerHeight = rect.height;
-      const scrollProgress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight + containerHeight)));
       
-      // Calculate which card should be active based on scroll progress
-      const newActiveIndex = Math.min(items.length - 1, Math.floor(scrollProgress * items.length * 1.5));
-      setActiveIndex(newActiveIndex);
+      // Reset card stack when scrolling back up past the section
+      if (rect.top > window.innerHeight) {
+        setActiveIndex(0);
+        setIsCardStackActive(false);
+        setScrollLocked(false);
+        accumulatedDelta.current = 0;
+      }
     };
 
+    // Add wheel event listener with passive: false to allow preventDefault
+    window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial call
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [items.length]);
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [items.length, activeIndex, isCardStackActive, setActiveIndex]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-96">
-      <div className="relative w-80 h-80 mx-auto" style={{ perspective: '1000px' }}>
-        <div className="absolute inset-0 flex items-end justify-center"
+    <div ref={containerRef} className="relative w-full h-[500px]">
+      <div className="relative w-full h-full mx-auto" style={{ perspective: '1500px', perspectiveOrigin: 'center center' }}>
+        <div className="absolute inset-0 flex items-center justify-center"
              style={{ transformStyle: 'preserve-3d' }}>
           {items.map((item, index) => {
+  // Calculate position relative to active card
+  const offsetFromActive = index - activeIndex;
   const isActive = index === activeIndex;
-  const isFuture = index > activeIndex;
-
-  let transform = 'rotate(0deg)';  // angle -0 deg = no rotation
-  let zIndex = items.length - index;
+  
+  // Show all cards but with different positioning
+  let transform = '';
+  let zIndex = items.length - Math.abs(offsetFromActive);
   let opacity = 1;
-  let top = 30; // px
-  let left = -0.1; // px (negligible)
 
-  if (isFuture) {
-    // Cards behind - you can tweak if needed, for now set opacity 0 (hidden)
-    opacity = 0;
-    zIndex = items.length - index;
-    // offset can be zeroed or adjusted if you want them stacked behind
-    transform = 'rotate(0deg)';
-  } else if (isActive) {
-    // Active card styles, use the given styles exactly
+  if (isActive) {
+    // Active card - front and center
+    transform = 'translate(-50%, -50%) translateY(0px) scale(1)';
+    zIndex = items.length + 10;
     opacity = 1;
-    zIndex = items.length + 20;
-    top = 30;
-    left = -0.1;
-    transform = 'rotate(0deg)';
   } else {
-    // Past cards — you can position them as you wish, for now keep them normal
-    opacity = 0.95;
-    zIndex = items.length + index;
+    // Stack cards behind with offset based on their distance from active card
+    const stackOffset = Math.abs(offsetFromActive) * 8; // 8px offset per card
+    const scaleDown = 1 - (Math.abs(offsetFromActive) * 0.03); // Slight scale reduction
+    const yOffset = Math.abs(offsetFromActive) * 3; // Slight vertical offset
+    
+    transform = `translate(-50%, -50%) translateY(${yOffset}px) translateX(0px) scale(${scaleDown})`;
+    
+    // Position cards behind based on their order
+    if (offsetFromActive > 0) {
+      // Future cards - stack behind
+      transform = `translate(-50%, -50%) translateY(${yOffset + stackOffset}px) translateX(0px) scale(${scaleDown})`;
+    } else {
+      // Past cards - also stack behind but less visible
+      transform = `translate(-50%, -50%) translateY(${yOffset + stackOffset}px) translateX(0px) scale(${scaleDown})`;
+      opacity = 0.7;
+    }
   }
 
   return (
     <div
       key={item.id}
       ref={el => cardRefs.current[index] = el}
-      className="absolute transition-all duration-1200 ease-out"
+      className="absolute transition-all duration-500 ease-out"
       style={{
-        width: '608.4px',
-        height: '631.9px',
-        opacity,
-        top: `${top}px`,
-        left: `${left}px`,
+        width: '320px',
+        height: '400px',
+        top: '50%',
+        left: '50%',
         transform,
         zIndex,
-        transformStyle: 'preserve-3d',
+        opacity,
       }}
     >
-      <img 
-        src={item.src}
-        alt={item.alt}
-        className="w-full h-full object-cover rounded-2xl shadow-lg" 
-      />
+      {/* Card with Image */}
+      <div 
+        className="w-full h-full rounded-2xl relative overflow-hidden"
+        style={{
+          boxShadow: isActive 
+            ? '0 20px 40px rgba(0,0,0,0.25), 0 8px 16px rgba(0,0,0,0.1)' 
+            : '0 8px 20px rgba(0,0,0,0.15)'
+        }}
+      >
+        {/* Card Image */}
+        <img 
+          src={item.src}
+          alt={item.alt}
+          className="w-full h-full object-cover rounded-2xl" 
+          style={{
+            filter: isActive ? 'none' : 'brightness(0.8) saturate(0.9)',
+          }}
+        />
+        
+        {/* Card Content Overlay */}
+        <div className="absolute bottom-6 left-6 right-6 text-white">
+          <h3 className="font-bold text-xl drop-shadow-lg">{item.name}</h3>
+          <p className="text-base opacity-90 drop-shadow-lg">{item.designation}</p>
+        </div>
+        
+        {/* Debug info - remove this later */}
+        <div className="absolute top-2 left-2 bg-black bg-opacity-50 p-1 rounded text-xs text-white">
+          Card {index}: {item.name}
+        </div>
+      </div>
     </div>
   );
 })}
@@ -93,81 +186,65 @@ const CardStack = ({ items }) => {
 
 // Main Features Component
 const Features = () => {
-  const [activeFeature, setActiveFeature] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const featuresRef = useRef(null);
 
-  const cardsData = [
-    {
-      id: 1,
-      src: "baft_card1.svg",
-      alt: "Card 1",
-      name: "BAFT Card 1",
-      designation: "Premium Design"
-    },
-    {
-      id: 2,
-      src: "baft_card2.svg", 
-      alt: "Card 2",
-      name: "BAFT Card 2", 
-      designation: "Secure Payment"
-    },
-    {
-      id: 3,
-      src: "baft_card3.svg",
-      alt: "Card 3",
-      name: "BAFT Card 3",
-      designation: "Instant Transfer"
-    },
-    {
-      id: 4,
-      src: "baft_card4.svg",
-      alt: "Card 4",
-      name: "BAFT Card 4",
-      designation: "Global Access"
-    }
-  ];
-
+  // Combined data where cards and features match in order
   const featuresData = [
     {
       icon: FaCreditCard,
       title: "Pay Bills",
-      description: "Sort your bills with automated payments and reminders."
+      description: "Sort your bills with automated payments and reminders.",
+      card: {
+        id: 1,
+        src: "baft_card1.svg",
+        alt: "Pay Bills Card",
+        name: "Pay Bills",
+        designation: "Automated Payments"
+      }
     },
     {
       icon: FaUser,
       title: "Manage Account",
-      description: "Control your finances with management tools and insights."
+      description: "Control your finances with management tools and insights.",
+      card: {
+        id: 2,
+        src: "baft_card2.svg", 
+        alt: "Manage Account Card",
+        name: "Manage Account", 
+        designation: "Financial Control"
+      }
     },
     {
       icon: FaGift,
       title: "Rewards", 
-      description: "Earn points and redeem them for rewards and benefits."
+      description: "Earn points and redeem them for rewards and benefits.",
+      card: {
+        id: 3,
+        src: "baft_card3.svg",
+        alt: "Rewards Card",
+        name: "Rewards",
+        designation: "Earn & Redeem"
+      }
     },
     {
       icon: FaShieldAlt,
       title: "Seamless Payments",
-      description: "Send and receive coins instantly with just a few taps."
+      description: "Send and receive coins instantly with just a few taps.",
+      card: {
+        id: 4,
+        src: "baft_card4.svg",
+        alt: "Seamless Payments Card",
+        name: "Seamless Payments",
+        designation: "Instant Transfers"
+      }
     }
   ];
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!featuresRef.current) return;
+  // Extract cards data for the CardStack component
+  const cardsData = featuresData.map(feature => feature.card);
 
-      const rect = featuresRef.current.getBoundingClientRect();
-      const containerHeight = rect.height;
-      const scrollProgress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight + containerHeight)));
-      
-    
-      const newActiveFeature = Math.min(featuresData.length - 1, Math.floor(scrollProgress * featuresData.length * 1.5));
-      setActiveFeature(newActiveFeature);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [featuresData.length]);
+  // No separate scroll effect needed as activeIndex is controlled by CardStack
 
   return (
     <div className="min-h-screen bg-gray-50 py-20">
@@ -198,7 +275,7 @@ const Features = () => {
               <ul className="space-y-4 md:space-y-6 lg:space-y-8 text-sm md:text-base">
                 {featuresData.map((feature, index) => {
                   const IconComponent = feature.icon;
-                  const isActive = index === activeFeature;
+                  const isActive = index === activeIndex;
                   
                   return (
                     <li 
@@ -218,7 +295,7 @@ const Features = () => {
                         <h6 className={`font-semibold text-sm md:text-base transition-colors duration-300 ${
                           isActive ? 'text-[rgba(25,102,187,1)]' : 'text-gray-700'
                         }`}>
-                          {feature.title}
+                          {feature.title} {isActive && `(Active: ${index})`}
                         </h6>
                         <p className={`text-sm md:text-base transition-colors duration-300 ${
                           isActive ? 'text-[rgba(25,102,187,1)]' : 'text-gray-600'
@@ -235,7 +312,11 @@ const Features = () => {
           
           {/* Right Column: CardStack */}
           <div className="relative flex items-center justify-center w-full order-1 lg:order-2">
-            <CardStack items={cardsData} />
+            <CardStack 
+              items={cardsData} 
+              activeIndex={activeIndex}
+              setActiveIndex={setActiveIndex}
+            />
           </div>
         </div>
       </section>
