@@ -95,18 +95,21 @@ const Video_Component = () => {
           >
             <span className="block">The Video</span>
           </h1>
-          <p className="text-sm text-gray-600 leading-relaxed pr-2">
+          <p className="text-sm text-gray-600 leading-relaxed pr-2" style={{
+                  fontFamily: "Inter",
+                  fontWeight: 400,
+                  fontStyle: "normal",
+                  fontSize: "24px",
+                  lineHeight: "147%",
+                  letterSpacing: "0px",
+                  verticalAlign: "middle",
+                }}>
             BaFT Technologies is a next-gen neo-banking startup headquartered
             in Bangalore, proudly founded in 2025. We're a tight-knit team of
             financial innovators and tech experts on a mission: to reimagine
             financial services in India with customer-first solutions.
           </p>
-          <button
-            className="bg-[rgba(25,102,187,1)] text-white py-2 px-4 rounded"
-            onClick={() => setShowFullVideo(true)}
-          >
-            Watch Now
-          </button>
+         
         </div>
       </div>
 
