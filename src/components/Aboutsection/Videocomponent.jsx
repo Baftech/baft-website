@@ -76,14 +76,24 @@ const Video_Component = () => {
 
         {/* Right Column */}
         <div className="w-[479px] h-[245px] p-4 flex flex-col justify-start items-start space-y-2">
-          <p className="text-sm text-blue-600 font-medium flex items-center gap-1">
-            <span className="text-xs">🔹</span> Know Our Story
+          <p
+            className="font-normal mb-2 flex items-center gap-2 transition-all duration-1200 ease-out"
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "20px",
+              color: "#092646",
+            }}
+          >
+            <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
+            Know our story
           </p>
           <h1
-            className="text-3xl font-bold text-blue-600 leading-tight"
-            style={{ fontFamily: "EB Garamond" }}
+            className="leading-tight md:leading-none mb-4 md:mb-6 lg:mb-8 font-bold transition-all duration-1200 ease-out text-[34px] sm:text-[44px] md:text-[54px] lg:text-[64px] text-[#1966BB]"
+            style={{
+              fontFamily: "EB Garamond, serif",
+            }}
           >
-            The Video
+            <span className="block">The Video</span>
           </h1>
           <p className="text-sm text-gray-600 leading-relaxed pr-2">
             BaFT Technologies is a next-gen neo-banking startup headquartered
