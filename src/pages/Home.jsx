@@ -22,7 +22,7 @@ const Home = () => {
         <Features />
      
       
-        {/* <Videocomponent /> */}
+        <Videocomponent />
 
       <SafeSecure />
       <About />
