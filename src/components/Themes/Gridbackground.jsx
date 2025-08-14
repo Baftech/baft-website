@@ -31,20 +31,30 @@ export const GridBackground = () => {
     function drawGrid() {
       ctx.clearRect(0, 0, W, H)
 
-      // More subtle vertical lines with uniform opacity
+      // Vertical lines with fade effect from top to bottom
       for (let x = 0; x <= W; x += gridSize) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)' // Uniform opacity
-        ctx.lineWidth = 0.8
+        // Create gradient for each vertical line
+        const gradient = ctx.createLinearGradient(0, 0, 0, H)
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.25)') // More visible at top
+        gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.08)') // Start fading
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.02)') // Almost invisible at bottom
+        
+        ctx.strokeStyle = gradient
+        ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(x, 0)
         ctx.lineTo(x, H)
         ctx.stroke()
       }
 
-      // More subtle horizontal lines with uniform opacity
+      // Horizontal lines with fade effect based on their position
       for (let y = 0; y <= H; y += gridSize) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)' // Uniform opacity
-        ctx.lineWidth = 0.8
+        // Calculate fade factor based on vertical position
+        const fadeProgress = y / H // 0 at top, 1 at bottom
+        const opacity = 0.25 * (1 - fadeProgress * 0.9) // Start at 0.25, fade to 0.025
+        
+        ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
+        ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(0, y)
         ctx.lineTo(W, y)
@@ -131,7 +141,8 @@ export const GridBackground = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none"
+      className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
+      style={{ zIndex: 1 }}
     />
   )
 }

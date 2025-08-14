@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const ReadMore = ({ content, maxLength = 150, onExpandChange }) => {
+const ReadMore = ({ content, maxLength = 151, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const isLong = content.length > maxLength;

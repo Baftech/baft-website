@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 
 // ReadMoreText Component (placeholder - replace with your actual component)
-const ReadMoreText = ({ content, maxLength, onExpandChange }) => {
+const ReadMoreText = ({ content, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const truncatedContent = content.substring(0, maxLength);
-  const shouldShowReadMore = content.length > maxLength;
-  const additionalContent = content.substring(maxLength);
+  // Find the position of "enjoyable experience" to use as the break point
+  const targetPhrase = "enjoyable experience";
+  const targetIndex = content.indexOf(targetPhrase);
+  const breakPoint = targetIndex + targetPhrase.length;
+  
+  const truncatedContent = content.substring(0, breakPoint);
+  const shouldShowReadMore = content.length > breakPoint;
+  const additionalContent = content.substring(breakPoint);
 
   const handleToggle = () => {
     const newState = !isExpanded;
@@ -26,16 +31,13 @@ const ReadMoreText = ({ content, maxLength, onExpandChange }) => {
       >
         {truncatedContent}
         {!isExpanded && shouldShowReadMore && "..."}
-        <span
-          className="inline-block overflow-hidden transition-all duration-1200 ease-in-out"
-          style={{
-            maxHeight: isExpanded ? "500px" : "0px",
-            opacity: isExpanded ? 1 : 0,
-            transform: `translateY(${isExpanded ? "0px" : "-10px"})`,
-          }}
-        >
-          {additionalContent}
-        </span>
+        {isExpanded && (
+          <>
+            <br />
+            <br />
+            {additionalContent}
+          </>
+        )}
       </p>
       {shouldShowReadMore && (
         <div
@@ -391,13 +393,11 @@ const AboutBaft = () => {
           </h1>
 
           <ReadMoreText 
-          
             content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
-                \n\n\n
+                \n\n\n\n
 Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BAFT Technology was born.
 \n\n\n
 At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
-            maxLength={150}
             onExpandChange={setIsExpanded}
             className="whitespace-pre-line leading-relaxed"
           />
