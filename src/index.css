@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap'); /*EB-Garamond*/
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap'); /*Inter*/
+@import url('/fonts/GeneralSans_Complete/Fonts/WEB/css/general-sans.css');
 @import "tailwindcss";
 
 @utility flex-center{
@@ -84,4 +85,32 @@
   mask-image: linear-gradient(to top, transparent 0%, rgba(0,0,0,1) 75%);
   mask-repeat: no-repeat;
   mask-size: cover;
+}
+
+@keyframes coinFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-15px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(-25px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(-2deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.bg-gradient-radial {
+  background-image: radial-gradient(circle, var(--tw-gradient-stops));
 }
