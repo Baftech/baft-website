@@ -468,7 +468,7 @@ const Hero = () => {
           id="B_coin"
           src="b-coin image.png"
           alt="BaFT Coin Image"
-          className="w-[500px] h-auto p-10"
+          className="w-[500px] h-auto p-10 opacity-30"
         />
         <div className="absolute flex flex-col items-center">
           <h6
