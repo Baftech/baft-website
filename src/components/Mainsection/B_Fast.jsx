@@ -144,7 +144,7 @@ const B_Fast = () => {
         <video
           src="/bfast_video.mp4"
           alt="Bfast animation"
-          className="w-[1500px] max-w-full h-auto mt-6"
+          className="w-[1500px] max-w-full h-auto mt-2"
           autoPlay
           loop
           muted
