@@ -8,7 +8,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const Hero = () => {
   const [showOverlayText, setShowOverlayText] = useState(false);
-
+  const [startCoinAnimation, setStartCoinAnimation] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowOverlayText(true);
@@ -34,10 +34,10 @@ const Hero = () => {
     gsap.to("#videoElement", { 
       opacity: 1, 
       duration: 1,
-      delay: 0.5
+      delay: 0.9
     });
 
-    // Step 2: After exactly 5 seconds from start, shrink video and show text
+    // Step 2: After exactly 9 seconds from start, shrink video and show text
     setTimeout(() => {
       console.log("Starting video shrink animation"); // Debug log
       
@@ -82,7 +82,7 @@ const Hero = () => {
         ease: "power2.out"
       });
       
-    }, 5500); // 5.5 seconds total (0.5 delay + 5 seconds)
+    }, 9500); // 5.5 seconds total (0.5 delay + 5 seconds)
 
     // Add scroll listener for top of page detection
     const handleScroll = () => {
