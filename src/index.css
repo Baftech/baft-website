@@ -63,3 +63,13 @@
     --color-primary: #1E90FF;
     --color-secondary: #FF6347;
 }
+
+#grid_container {
+  opacity: 0;
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, rgba(0,0,0,1) 100%);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: cover;
+  mask-image: linear-gradient(to top, transparent 0%, rgba(0,0,0,1) 100%);
+  mask-repeat: no-repeat;
+  mask-size: cover;
+}
