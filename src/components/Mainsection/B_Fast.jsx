@@ -141,10 +141,14 @@ const B_Fast = () => {
           One Tap. Zero Wait.
         </p>
 
-        <img
-          src="/baft_video.gif"
+        <video
+          src="/bfast_video.mp4"
           alt="Bfast animation"
           className="w-[1500px] max-w-full h-auto mt-6"
+          autoPlay
+          loop
+          muted
+          playsInline
         />
       </div>
     </div>
