@@ -7,21 +7,9 @@ gsap.registerPlugin(ScrollTrigger);
 const Videocomponent = () => {
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
+  const imageRef = useRef(null);
   const textRef = useRef([]);
-  const [showFullVideo, setShowFullVideo] = useState(false);
-  const [scrollDir, setScrollDir] = useState("down");
-
-  // Detect scroll direction
-  useEffect(() => {
-    let lastScroll = window.scrollY;
-    const updateScrollDir = () => {
-      const newScroll = window.scrollY;
-      setScrollDir(newScroll > lastScroll ? "down" : "up");
-      lastScroll = newScroll > 0 ? newScroll : 0;
-    };
-    window.addEventListener("scroll", updateScrollDir);
-    return () => window.removeEventListener("scroll", updateScrollDir);
-  }, []);
+  const textContainerRef = useRef(null);
 
   // Scroll animations for entering section
   useEffect(() => {
@@ -35,7 +23,7 @@ const Videocomponent = () => {
         },
       });
 
-      tl.from(videoRef.current, {
+      tl.from(imageRef.current, {
         scale: 0.9,
         opacity: 0,
         duration: 1,
@@ -58,50 +46,124 @@ const Videocomponent = () => {
     return () => ctx.revert();
   }, []);
 
-  // GSAP ScrollTrigger to handle enlarged overlay video
+  // GSAP ScrollTrigger for proper section pinning and animations
   useEffect(() => {
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: "top 80%",
-      end: "bottom top",
-      onEnter: () => {
-        if (scrollDir === "up") {
-          setShowFullVideo(true);
+    const ctx = gsap.context(() => {
+      // Main ScrollTrigger with pin and animations
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "center center", // Start when section center reaches viewport center
+          end: "+=100vh", // Pin for 100vh of scrolling
+          pin: true, // Pin the section
+          scrub: 1, // Smooth scrub animation
+          onUpdate: (self) => {
+            console.log('Scroll progress:', self.progress); // Debug log
+          }
         }
-      },
-      onEnterBack: () => {
-        if (scrollDir === "up") {
-          setShowFullVideo(true);
+      });
+
+      // Set initial state - static layout
+      tl.set([imageRef.current, videoRef.current, textContainerRef.current], {
+        clearProps: "all" // Clear any previous transforms
+      });
+      
+      // Stage 1: Keep static for first part (0-40% of timeline)
+      tl.to({}, { duration: 0.4 }); // Empty animation to create delay
+      
+      // Stage 2: Start image to video transition (40-50%)
+      tl.to(imageRef.current, {
+        opacity: 0,
+        duration: 0.1,
+        ease: "none"
+      }, 0.4)
+      .to(videoRef.current, {
+        opacity: 1,
+        duration: 0.1,
+        ease: "none"
+      }, 0.4);
+      
+      // Stage 3: Video moves from left to center and scales (50-100%)
+      tl.to(videoRef.current, {
+        x: window.innerWidth * 0.25, // Move to center
+        y: -50, // Move up slightly
+        scale: 1.8, // Scale up
+        zIndex: 50,
+        duration: 0.5,
+        ease: "power2.out"
+      }, 0.5);
+      
+      // Stage 4: Paragraph slides right with opacity fade (50-100%)
+      tl.to(textContainerRef.current, {
+        x: window.innerWidth, // Move completely right
+        opacity: 0, // Fade out
+        duration: 0.5,
+        ease: "power2.out"
+      }, 0.5);
+
+      // Auto-play video when it's visible and scaled
+      tl.call(() => {
+        if (videoRef.current) {
+          videoRef.current.play().catch(error => {
+            console.log('Video play failed:', error);
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(e => console.log('Muted play also failed:', e));
+          });
         }
-      },
-      onLeave: () => {
-        if (scrollDir === "down") {
-          setShowFullVideo(false);
-        }
-      },
-    });
-  }, [scrollDir]);
+      }, null, 0.7); // Call at 70% of timeline
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section
       ref={sectionRef}
-      className="bg-white min-h-screen flex items-center justify-center relative"
+      className="bg-white min-h-[150vh] flex items-center justify-center relative overflow-hidden"
     >
-      <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10">
+      <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 relative z-[1]">
         {/* Left Column */}
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center relative">
+          {/* Initial Static Image */}
+          <img
+            ref={imageRef}
+            src="/video_com.png"
+            alt="Video Preview"
+            className="w-full h-auto rounded-lg shadow-lg transition-all duration-300 relative"
+            style={{
+              transformOrigin: "center center"
+            }}
+          />
+          
+          {/* Video Element (initially hidden) */}
           <video
             ref={videoRef}
-            className="w-full h-auto rounded-lg shadow-lg"
+            className="w-full h-auto rounded-lg shadow-lg transition-all duration-300 absolute top-0 left-0 opacity-0"
             controls
             muted
+            playsInline
+            preload="metadata"
+            style={{
+              transformOrigin: "center center"
+            }}
+            onError={(e) => {
+              console.error('Video error:', e.target.error);
+            }}
+            onLoadedData={() => {
+              console.log('Video loaded successfully');
+            }}
           >
-            <source src="/video.mp4" type="video/mp4" />
+            <source src="/BAFT Vid 2_1.mp4" type="video/mp4" />
+            <source src="/bfast_video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
           </video>
         </div>
 
         {/* Right Column */}
-        <div className="w-[479px] h-[245px] p-4 flex flex-col justify-start items-start space-y-2">
+        <div 
+          ref={textContainerRef}
+          className="w-[479px] h-[245px] p-4 flex flex-col justify-start items-start space-y-2"
+        >
           <p
             ref={(el) => (textRef.current[0] = el)}
             className="font-normal mb-2 flex items-center gap-2"
@@ -144,37 +206,19 @@ const Videocomponent = () => {
         </div>
       </div>
 
-      {/* Enlarged Video Overlay */}
-      {showFullVideo && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center">
-          <div
-            className="relative w-[90%] max-w-5xl"
-            style={{ animation: "fadeZoomIn 0.5s ease-out forwards" }}
-          >
-            <video
-              className="w-full h-auto rounded-lg shadow-lg"
-              autoPlay
-              controls
-              muted
-              ref={(el) => {
-                if (el) el.play();
-              }}
-            >
-              <source src="/video.mp4" type="video/mp4" />
-            </video>
-            <button
-              onClick={() => setShowFullVideo(false)}
-              className="absolute top-4 right-4 text-white text-2xl bg-black bg-opacity-50 rounded-full px-3 py-1 opacity-0 animate-fadeIn"
-              style={{ animationDelay: "0.4s", animationFillMode: "forwards" }}
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Inline keyframes */}
       <style jsx>{`
+        @keyframes scaleIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
         @keyframes fadeZoomIn {
           0% {
             opacity: 0;
