@@ -157,7 +157,7 @@ const Hero = () => {
 
     if (scrollTop === 0) {
       resetAnimation();
-      setTimeout(startVideoShrinkAnimation, 5500);
+      setTimeout(startVideoShrinkAnimation, 9500);
     }
   };
 
