@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { GridBackground } from "../Themes/Gridbackground";
+import {GridBackground} from "../Themes/Gridbackground";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -459,9 +459,9 @@ const Hero = () => {
       </div>
 
       {/* BaFT Coin Section */}
-      <div
+      <div 
         id="baft_coin_section"
-        data-theme="dark"
+        data-theme="dark" 
         className="absolute top-0 w-full h-screen bg-black text-white flex items-center justify-center z-20"
       >
         <img
@@ -470,6 +470,8 @@ const Hero = () => {
           alt="BaFT Coin Image"
           className="w-[500px] h-auto p-10"
         />
+
+        {/* Text Overlay */}
         <div className="absolute flex flex-col items-center">
           <h6
             id="introduction"
@@ -477,6 +479,7 @@ const Hero = () => {
           >
             Introducing
           </h6>
+
           <h1
             id="baft_coin_text"
             className="text-[130px] eb-garamond-Baftcoin drop-shadow-[0_0_25px_rgba(255,215,0,0.7)]"
@@ -486,7 +489,7 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* B-Instant Section */}
+      {/* B_Instant Section */}
       <div
         id="b_instant_section"
         data-theme="dark"
@@ -623,8 +626,10 @@ const Hero = () => {
                 style={{
                   fontFamily: '"Inter", sans-serif',
                   fontWeight: 200,
+                  fontStyle: "italic",
                   fontSize: "75.35px",
-                  textShadow: "0 0 20px rgba(255, 215, 0, 0.5)"
+                  fontOpticalSizing: "auto",
+                  textShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
                 }}
               >
                 Instantly
@@ -632,10 +637,12 @@ const Hero = () => {
             </div>
           </div>
         </div>
+
+        {/* Background glow */}
         <div className="absolute inset-0 bg-gradient-radial from-amber-900/10 via-transparent to-transparent pointer-events-none z-0" />
       </div>
     </div>
   );
-};
+}
 
 export default Hero;

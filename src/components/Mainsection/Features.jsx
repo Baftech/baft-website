@@ -99,7 +99,7 @@ const CardStack = ({ items, activeIndex, setActiveIndex }) => {
   // Calculate position relative to active card
   const offsetFromActive = index - activeIndex;
   const isActive = index === activeIndex;
-  
+
   // Show all cards but with different positioning
   let transform = '';
   let zIndex = items.length - Math.abs(offsetFromActive);
@@ -154,9 +154,9 @@ const CardStack = ({ items, activeIndex, setActiveIndex }) => {
         }}
       >
         {/* Card Image */}
-        <img 
-          src={item.src}
-          alt={item.alt}
+      <img 
+        src={item.src}
+        alt={item.alt}
           className="w-full h-full object-cover rounded-2xl" 
           style={{
             filter: isActive ? 'none' : 'brightness(0.8) saturate(0.9)',
