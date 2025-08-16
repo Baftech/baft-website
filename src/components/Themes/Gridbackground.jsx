@@ -10,7 +10,7 @@ export const GridBackground = () => {
 
     // Increased grid size to match Figma design
     const gridSize = 100 // Was 100, now larger for more spacing
-    const speed = 2 // Slightly slower animation
+    const speed = 10 // Slightly slower animation
 
     let progress1 = 0 
     let progress2 = 0 
