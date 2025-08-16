@@ -1,17 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
-// Updated ReadMoreText from my earlier fix
+// Updated ReadMoreText with animation
 const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [maxHeight, setMaxHeight] = useState("0px");
+  const contentRef = useRef(null);
 
   const isLong = content.length > maxLength;
-  const safeMax = Math.max(0, Math.min(maxLength, content.length));
 
-  const textToShow = isExpanded || !isLong
-    ? content
-    : content.substring(0, safeMax) + "...";
-
-  const paragraphs = textToShow
+  // Split content into paragraphs
+  const paragraphs = content
     .split(/\n+/)
     .map((para) => para.trim())
     .filter((para) => para.length > 0);
@@ -22,19 +20,39 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
     if (onExpandChange) onExpandChange(newState);
   };
 
+  useEffect(() => {
+    if (contentRef.current) {
+      if (isExpanded) {
+        setMaxHeight(`${contentRef.current.scrollHeight}px`);
+      } else {
+        setMaxHeight("200px"); // collapsed preview height
+      }
+    }
+  }, [isExpanded]);
+
   return (
     <div className="leading-relaxed pr-2">
-      {paragraphs.map((para, i) => (
-        <p
-          key={i}
-          className="transition-all duration-1000 ease-out text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] text-[#909090] mb-6"
-          style={{
-            fontFamily: "Inter, sans-serif",
-          }}
-        >
-          {para}
-        </p>
-      ))}
+      <div
+        ref={contentRef}
+        style={{
+          maxHeight: maxHeight,
+          overflow: "hidden",
+          transition: "max-height 1s ease, opacity 0.8s ease",
+          opacity: isExpanded ? 1 : 0.9,
+        }}
+      >
+        {paragraphs.map((para, i) => (
+          <p
+            key={i}
+            className="text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] text-[#909090] mb-6"
+            style={{
+              fontFamily: "Inter, sans-serif",
+            }}
+          >
+            {para}
+          </p>
+        ))}
+      </div>
 
       {isLong && (
         <button
@@ -66,8 +84,6 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
     </div>
   );
 };
-
-// InteractiveTeamImage stays the same as before
 const InteractiveTeamImage = () => {
   const [hoveredMember, setHoveredMember] = useState(null);
   const [isUserInteracting, setIsUserInteracting] = useState(false);
@@ -341,7 +357,7 @@ const InteractiveTeamImage = () => {
   );
 };
 
-
+// AboutBaft remains the same, just consumes the updated ReadMoreText
 const AboutBaft = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -351,11 +367,16 @@ const AboutBaft = () => {
       data-theme="light"
       className="bg-white min-h-screen flex items-center justify-center"
     >
-      <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-8 md:gap-y-10 gap-x-6 md:gap-x-12 lg:gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 items-start max-w-[1200px] mx-auto w-full">
-        
+      <div
+        className={`mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-8 md:gap-y-10 gap-x-6 md:gap-x-12 lg:gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 max-w-[1200px] mx-auto w-full ${
+          isExpanded ? "items-start" : "items-center"
+        }`}
+      >
         {/* Left Column */}
         <div
-          className="transition-all duration-1200 ease-in-out"
+          className={`transition-all duration-1200 ease-in-out flex flex-col h-full ${
+            isExpanded ? "justify-start" : "justify-center"
+          }`}
           style={{
             transform: `translateY(${isExpanded ? "-20px" : "0px"})`,
           }}
@@ -390,7 +411,7 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
           />
         </div>
 
-        {/* Right Column - Interactive Team Image */}
+        {/* Right Column (unchanged) */}
         <div className="flex justify-center">
           <InteractiveTeamImage />
         </div>
