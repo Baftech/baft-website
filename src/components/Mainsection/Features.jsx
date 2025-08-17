@@ -104,7 +104,7 @@ const CardStack = ({ items, activeIndex, setActiveIndex }) => {
         }
       `}</style>
 
-      <div ref={containerRef} className="relative w-full h-[500px]">
+      <div ref={containerRef} className="relative w-full h-[600px]">
         <div className="relative w-full h-full mx-auto" style={{ perspective: '1500px', perspectiveOrigin: 'center center' }}>
           <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
             {items.map((item, index) => {
@@ -271,21 +271,21 @@ const Features = () => {
   const cardsData = featuresData.map(feature => feature.card);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-20">
+    <div className="min-h-screen bg-white">
       <section 
         ref={featuresRef}
         id="features" 
         data-theme="light" 
-        className="bg-white min-h-screen flex items-center justify-center"
+        className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 lg:px-12"
       >
-        <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10">
+        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
           {/* Left Column */}
           <div className="flex flex-col justify-center order-2 lg:order-1">
-            <p className="text-sm text-[rgba(25,102,187,1)] font-medium mb-2 flex items-center gap-2">
+            <p className="text-sm text-[rgba(25,102,187,1)] font-medium mb-3 flex items-center gap-2">
               <span className="text-xs">🔹</span> Features
             </p>
             <h1
-              className="leading-none mb-6 md:mb-8 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[rgba(25,102,187,1)]"
+              className="leading-none mb-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[rgba(25,102,187,1)]"
               style={{
                 fontFamily: "EB Garamond, serif",
                 lineHeight: 1.1,
@@ -296,7 +296,7 @@ const Features = () => {
             </h1>
 
             <div className="flex flex-col justify-center">
-              <ul className="space-y-4 md:space-y-6 lg:space-y-8 text-sm md:text-base">
+              <ul className="space-y-5 md:space-y-6 text-base md:text-lg">
                 {featuresData.map((feature, index) => {
                   const IconComponent = feature.icon;
                   const isActive = index === activeIndex;
