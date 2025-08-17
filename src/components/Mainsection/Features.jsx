@@ -162,8 +162,8 @@ const CardStack = ({ items, activeIndex, setActiveIndex }) => {
                   key={item.id}
                   className={`absolute ${isCurrentlyAnimating ? '' : 'transition-all duration-[800ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]'}`}
                   style={{
-                    width: '320px',
-                    height: '400px',
+                    width: '280px',
+                    height: '360px',
                     top: '50%',
                     left: '50%',
                     transform: isCurrentlyAnimating ? 'translate(-50%, -50%)' : transform,
@@ -335,7 +335,7 @@ const Features = () => {
           </div>
           
           {/* Right Column: CardStack */}
-          <div className="relative flex items-center justify-center w-full order-1 lg:order-2">
+          <div className="relative flex items-center justify-center w-full order-1 lg:order-2 lg:pl-8">
             <CardStack 
               items={cardsData} 
               activeIndex={activeIndex}
