@@ -139,10 +139,21 @@ export const GridBackground = () => {
   }, [])
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
-      style={{ zIndex: 1 }}
-    />
+    <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
+      {/* Blue tint overlay */}
+      <div 
+        className="absolute inset-0 bg-blue-900/20 pointer-events-none"
+        style={{ 
+          background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.15) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(147, 197, 253, 0.05) 100%)',
+          zIndex: 1
+        }}
+      />
+      {/* Grid canvas */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 2 }}
+      />
+    </div>
   )
 }

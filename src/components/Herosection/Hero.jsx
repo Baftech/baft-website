@@ -27,7 +27,7 @@ const Hero = () => {
   });
 
   const initializeAnimation = () => {
-    gsap.set(["#baft_coin_section", "#b_instant_section"], { opacity: 0 });
+    gsap.set(["#baft_coin_section"], { opacity: 0 });
     gsap.set("#Hero", { opacity: 1 });
     gsap.set("#videoElement", { opacity: 0, scale: 1, y: 0, x: 0 });
     gsap.set("#grid_container", { opacity: 0 });
@@ -39,25 +39,72 @@ const Hero = () => {
   };
 
   const startVideoShrinkAnimation = () => {
-      gsap.to("#videoElement", {
-      scale: 0.4,
-      x: 0,
-      y: "20%",
-      opacity: 0.9,
-      borderRadius: "20px",
-        duration: 1.5,
-        ease: "power2.out",
+    // First, expand the grid container to fill the screen
+    gsap.to("#grid_container", { 
+      opacity: 1, 
+      duration: 1.2,
+      ease: "power2.out"
     });
 
-    gsap.to("#grid_container", { opacity: 1, duration: 1.5 });
+    // Create smooth morphing transition from grid to video
+    const timeline = gsap.timeline({
+      ease: "power2.out"
+    });
+
+    timeline
+      // Step 1: Grid expands and video starts appearing
+      .to("#grid_container", {
+        scale: 1.1,
+        duration: 0.8,
+        ease: "power2.out"
+      }, 0)
+      .to("#videoElement", {
+        opacity: 0.3,
+        scale: 0.8,
+        duration: 0.8,
+        ease: "power2.out"
+      }, 0.2)
+
+      // Step 2: Grid fades out as video becomes more prominent
+      .to("#grid_container", {
+        opacity: 0.7,
+        scale: 1.2,
+        duration: 0.6,
+        ease: "power2.out"
+      }, 0.8)
+      .to("#videoElement", {
+        opacity: 0.7,
+        scale: 0.6,
+        duration: 0.6,
+        ease: "power2.out"
+      }, 0.8)
+
+      // Step 3: Final transition to shrunk video state
+      .to("#grid_container", {
+        opacity: 0.3,
+        scale: 1.5,
+        duration: 0.8,
+        ease: "power2.out"
+      }, 1.4)
+      .to("#videoElement", {
+        scale: 0.4,
+        x: 0,
+        y: "20%",
+        opacity: 0.9,
+        borderRadius: "20px",
+        duration: 0.8,
+        ease: "power2.out"
+      }, 1.4);
+
+    // Show text and scroll button after video transition
       gsap.to("#text", {
         opacity: 1,
         y: 0,
         scale: 1,
         visibility: "visible",
-        duration: 2,
-        delay: 0.3,
-      ease: "power2.out",
+      duration: 1.5,
+      delay: 2.2,
+        ease: "power2.out"
       });
       
       gsap.to("#scroll_button", {
@@ -65,8 +112,8 @@ const Hero = () => {
         y: 0,
         visibility: "visible",
         duration: 1.5,
-      delay: 1,
-      ease: "power2.out",
+      delay: 2.5,
+        ease: "power2.out"
       });
   };
       
@@ -80,18 +127,22 @@ const Hero = () => {
   };
         
   const resetAnimation = () => {
-        gsap.killTweensOf(["#videoElement", "#text", "#grid_container"]);
+    // Kill all ongoing animations
+    gsap.killTweensOf(["#videoElement", "#text", "#grid_container", "#scroll_button"]);
+        
+    // Reset all elements to initial state
         gsap.set("#text", { opacity: 0, y: 50, scale: 0.8, visibility: "hidden" });
-        gsap.set("#grid_container", { opacity: 0 });
+    gsap.set("#grid_container", { opacity: 0, scale: 1 });
         gsap.set("#scroll_button", { opacity: 0, visibility: "hidden", y: 20 });
         gsap.set("#videoElement", { 
           scale: 1,
           x: 0,
           y: 0,
           opacity: 1,
-      borderRadius: "20px",
+          borderRadius: "20px"
         });
         
+    // Reset video playback
         const video = document.getElementById("videoElement");
         if (video) {
           video.currentTime = 0;
@@ -116,35 +167,47 @@ const Hero = () => {
   };
 
   const reverseAnimation = () => {
-        gsap.to("#text", {
+    // Create smooth reverse transition from shrunk video back to full screen
+    const reverseTimeline = gsap.timeline({
+      ease: "power2.in"
+    });
+
+    reverseTimeline
+      // Step 1: Hide text and scroll button
+      .to("#text", {
           opacity: 0,
           y: 50,
           scale: 0.8,
           visibility: "hidden",
-          duration: 0.8,
-      ease: "power2.in",
-    });
-    gsap.to("#grid_container", { opacity: 0, duration: 0.8 });
-        gsap.to("#scroll_button", {
+        duration: 0.6,
+          ease: "power2.in"
+      }, 0)
+      .to("#scroll_button", {
           opacity: 0,
           y: 20,
           visibility: "hidden",
-          duration: 0.8,
-      ease: "power2.in",
-        });
-        
-        setTimeout(() => {
-          gsap.killTweensOf("#videoElement");
-          gsap.to("#videoElement", {
+        duration: 0.6,
+          ease: "power2.in"
+      }, 0)
+
+      // Step 2: Video expands back to full screen
+      .to("#videoElement", {
             scale: 1,
             x: 0,
             y: 0,
             opacity: 1,
             borderRadius: "20px",
             duration: 1.2,
-        ease: "power2.out",
-      });
-    }, 300);
+            ease: "power2.out"
+      }, 0.3)
+
+      // Step 3: Grid container smoothly fades out
+      .to("#grid_container", {
+        opacity: 0,
+        scale: 1,
+        duration: 1.0,
+            ease: "power2.out"
+      }, 0.6);
   };
 
 

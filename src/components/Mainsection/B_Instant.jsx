@@ -14,11 +14,36 @@ const B_Instant = () => {
   }, []);
 
   useGSAP(() => {
-    // Set initial states for coin animations
-    gsap.set("#top_coin", { x: 0, y: 0, scale: 0.8, opacity: 0.7, zIndex: 1 });
-    gsap.set("#center_coin", { scale: 0.8, opacity: 0.7, zIndex: 2 });
-    gsap.set("#bottom_coin", { x: 0, y: 0, scale: 0.8, opacity: 0.7, zIndex: 1 });
-    gsap.set("#instant_content", { opacity: 0, y: 50, scale: 0.9 });
+    // Set initial states for coin animations with unique IDs
+    gsap.set("#instant_top_coin", { x: 0, y: 0, scale: 0.8, opacity: 0.7, zIndex: 1 });
+    gsap.set("#instant_center_coin", { scale: 0.8, opacity: 0.7, zIndex: 2 });
+    gsap.set("#instant_bottom_coin", { x: 0, y: 0, scale: 0.8, opacity: 0.7, zIndex: 1 });
+    gsap.set("#instant_text_content", { opacity: 0, y: 50, scale: 0.9 });
+
+    // Create basic timeline animation for immediate feedback
+    const basicTimeline = gsap.timeline({ 
+      delay: 0.5,
+      scrollTrigger: {
+        trigger: "#b_instant_section",
+        start: "top 85%",
+        toggleActions: "play none none reverse"
+      }
+    });
+
+    basicTimeline
+      .to("#instant_text_content", {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1,
+        ease: "power2.out"
+      })
+      .to("#instant_center_coin", {
+        scale: 1,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "<0.2");
 
     // Create scroll-triggered animation for B-Instant section
     ScrollTrigger.create({
@@ -26,47 +51,51 @@ const B_Instant = () => {
       start: "top 80%", // Start when section enters viewport
       end: "bottom 20%", // End when section nearly exits viewport
       scrub: 1, // Smooth scroll-linked animation
+      markers: false, // Set to true for debugging
       onUpdate: (self) => {
         const progress = self.progress;
         
-        // Text animation - appears earlier and stays visible
-        gsap.set("#instant_content", {
-          y: (1 - progress) * 50, // Start 50px below, move to 0
-          scale: 0.9 + (progress * 0.1), // Scale from 0.9 to 1.0
-          opacity: Math.max(0.8, progress) // Start at 80% opacity, fade in to 100%
-        });
-        
-        // Center coin animation - smooth scaling and positioning
-        gsap.set("#center_coin", {
-          scale: 0.8 + (progress * 0.2), // Scale from 0.8 to 1.0
-          opacity: Math.max(0.8, progress), // High opacity throughout
-          zIndex: 2
-        });
-        
-        // Top coin animation - move diagonally up-left
-        gsap.set("#top_coin", {
-          x: progress * -80, // Move left as animation progresses
-          y: progress * -60, // Move up as animation progresses
-          scale: 0.8 + (progress * 0.2),
-          opacity: Math.max(0.7, progress * 0.9),
-          zIndex: progress > 0.6 ? 3 : 1 // Come to front after 60% progress
-        });
-        
-        // Bottom coin animation - move diagonally down-right
-        gsap.set("#bottom_coin", {
-          x: progress * 80, // Move right as animation progresses
-          y: progress * 60, // Move down as animation progresses
-          scale: 0.8 + (progress * 0.2),
-          opacity: Math.max(0.7, progress * 0.9),
-          zIndex: 1
-        });
+        // Only animate if progress is significant
+        if (progress > 0.1) {
+          // Text animation - appears earlier and stays visible
+          gsap.set("#instant_text_content", {
+            y: (1 - progress) * 30, // Start 30px below, move to 0
+            scale: 0.95 + (progress * 0.05), // Scale from 0.95 to 1.0
+            opacity: Math.max(0.7, progress) // Start at 70% opacity, fade in to 100%
+          });
+          
+          // Center coin animation - smooth scaling and positioning
+          gsap.set("#instant_center_coin", {
+            scale: 0.9 + (progress * 0.1), // Scale from 0.9 to 1.0
+            opacity: Math.max(0.9, progress), // High opacity throughout
+            zIndex: 2
+          });
+          
+          // Top coin animation - move diagonally up-left
+          gsap.set("#instant_top_coin", {
+            x: progress * -80, // Move left as animation progresses
+            y: progress * -60, // Move up as animation progresses
+            scale: 0.8 + (progress * 0.2),
+            opacity: Math.max(0.7, progress * 0.95),
+            zIndex: progress > 0.6 ? 3 : 1 // Come to front after 60% progress
+          });
+          
+          // Bottom coin animation - move diagonally down-right
+          gsap.set("#instant_bottom_coin", {
+            x: progress * 80, // Move right as animation progresses
+            y: progress * 60, // Move down as animation progresses
+            scale: 0.8 + (progress * 0.2),
+            opacity: Math.max(0.7, progress * 0.95),
+            zIndex: 1
+          });
+        }
       }
     });
 
     // Cleanup function
     return () => {
       ScrollTrigger.getAll().forEach(trigger => {
-        if (trigger.trigger === "#b_instant_section") {
+        if (trigger.trigger && trigger.trigger.id === "b_instant_section") {
           trigger.kill();
         }
       });
@@ -88,7 +117,7 @@ const B_Instant = () => {
           
           {/* Bottom Coin - Starts behind center, moves diagonally down-right, stays behind */}
           <div
-            id="bottom_coin"
+            id="instant_bottom_coin"
             className="absolute inset-0 w-full h-auto"
             style={{ zIndex: 1 }}
           >
@@ -104,7 +133,7 @@ const B_Instant = () => {
 
           {/* Center Coin - This stays in place and is always visible */}
           <div
-            id="center_coin"
+            id="instant_center_coin"
             className="relative w-full h-auto"
             style={{ zIndex: 2 }}
           >
@@ -120,7 +149,7 @@ const B_Instant = () => {
 
           {/* Top Coin - Starts behind center, moves diagonally up-left, ends up in front */}
           <div
-            id="top_coin"
+            id="instant_top_coin"
             className="absolute inset-0 w-full h-auto"
             style={{ zIndex: 1 }}
           >
@@ -146,7 +175,7 @@ const B_Instant = () => {
 
         {/* Overlay Text */}
         <div
-          id="instant_content"
+          id="instant_text_content"
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none px-4 sm:px-6 md:px-8"
           style={{ opacity: 0, transform: "translateY(50px)" }}
         >
