@@ -1,0 +1,150 @@
+/* ===========================
+   Safe & Secure Section
+=========================== */
+.safe-secure-container {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  margin: clamp(80px, 10vw, 150px) auto;
+  padding: clamp(50px, 6vw, 90px);
+  background: #000;
+  border-radius: 2.5rem;
+  min-height: 480px;
+}
+
+.safe-secure-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: clamp(50px, 6vw, 100px);
+  height: 100%;
+}
+
+/* ===========================
+   Text Section
+=========================== */
+.safe-secure-text {
+  flex: 1;
+  max-width: 650px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.safe-secure-title {
+  font-family: 'EB Garamond', serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3.7rem);
+  line-height: 1.2;
+  color: #fff;
+  margin: 0;
+}
+
+.safe-secure-description {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: clamp(1rem, 1.5vw, 1.4rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+/* ===========================
+   Logo Section
+=========================== */
+.safe-secure-logo {
+  flex: 0 0 380px;
+  width: 380px;
+  height: 380px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.security-logo-wrapper {
+  width: 95%;
+  height: 95%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%; /* Make wrapper circular */
+  overflow: hidden; /* Ensures light beam stays within circular bounds */
+}
+
+.security-logo-svg {
+  width: 150%;
+  height: 150%;
+  object-fit: contain;
+  position: relative;
+  z-index: 1; /* under the sweep */
+}
+
+/* ===========================
+   Diagonal Light Sweep Effect (Circular Clipped)
+=========================== */
+.security-logo-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0) 40%,
+    rgba(255,255,255,0.35) 50%,
+    rgba(255,255,255,0) 60%
+  );
+  transform: rotate(20deg);
+  animation: diagonalSweep 4s linear infinite;
+  z-index: 2;            /* sits above the SVG */
+  pointer-events: none;  /* doesn't block interaction */
+  /* The circular border-radius and overflow:hidden on parent clips this to circle */
+}
+
+@keyframes diagonalSweep {
+  0%   { transform: translateX(-100%) rotate(20deg); }
+  100% { transform: translateX(100%) rotate(20deg); }
+}
+
+/* ===========================
+   Responsive
+=========================== */
+@media (max-width: 1200px) {
+  .safe-secure-logo {
+    flex: 0 0 350px;
+    width: 350px;
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .safe-secure-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+  .safe-secure-text {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+  .safe-secure-logo {
+    flex: 0 0 280px;
+    width: 280px;
+    height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .safe-secure-container {
+    margin: clamp(40px, 8vw, 80px) auto;
+    padding: clamp(30px, 5vw, 50px);
+  }
+  .safe-secure-logo {
+    flex: 0 0 220px;
+    width: 220px;
+    height: 220px;
+  }
+}
