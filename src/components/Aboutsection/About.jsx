@@ -48,7 +48,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
         {paragraphs.map((para, i) => (
           <p
             key={i}
-            className="text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] text-[#909090] mb-6"
+            className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#909090] mb-4 sm:mb-5 md:mb-6"
             style={{
               fontFamily: "Inter, sans-serif",
             }}
@@ -61,12 +61,9 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       {isLong && (
         <button
           onClick={handleToggle}
-          className="mt-2 transition-all duration-500 ease-out"
+          className="mt-2 transition-all duration-500 ease-out w-32 sm:w-36 md:w-40 lg:w-44 h-12 sm:h-14 md:h-16 text-sm sm:text-base"
           style={{
             fontFamily: "Inter, sans-serif",
-            fontSize: "16px",
-            width: "177px",
-            height: "64px",
             borderRadius: "200px",
             backgroundColor: "#E3EDFF",
             color: "#092646",
@@ -88,6 +85,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
     </div>
   );
 };
+
 const InteractiveTeamImage = () => {
   const [hoveredMember, setHoveredMember] = useState(null);
   const [isUserInteracting, setIsUserInteracting] = useState(false);
@@ -251,12 +249,12 @@ const InteractiveTeamImage = () => {
         };
     }
   };
- return (
-    <div className="relative w-full max-w-[553px] h-[420px] sm:h-[520px] md:h-[640px] lg:h-[782px]">
+
+  return (
+    <div className="relative w-full max-w-[280px] sm:max-w-[350px] md:max-w-[420px] lg:max-w-[500px] xl:max-w-[553px] h-[240px] sm:h-[300px] md:h-[360px] lg:h-[480px] xl:h-[520px] 2xl:h-[782px]">
       {/* Main Image Container */}
       <div
-        className="relative w-full h-full overflow-hidden"
-        style={{ borderRadius: "24px", backgroundColor: "#f3f4f6" }}
+        className="relative w-full h-full overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100"
         onMouseEnter={handleMouseEnterImage}
         onMouseLeave={handleMouseLeaveImage}
       >
@@ -267,9 +265,9 @@ const InteractiveTeamImage = () => {
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{
             objectPosition: "center center",
-            opacity: activeImageId === "full" ? 1 : 0.999, // Slightly transparent when not active to prevent z-index issues
+            opacity: activeImageId === "full" ? 1 : 0.999,
             transition: "opacity 1200ms ease-in-out",
-            zIndex: 1, // Always stays at base level
+            zIndex: 1,
           }}
         />
 
@@ -305,20 +303,16 @@ const InteractiveTeamImage = () => {
           return (
             <div
               key={member.id}
-              className="absolute z-30 pointer-events-none"
+              className="absolute z-30 pointer-events-none max-w-[150px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[260px] xl:max-w-[280px]"
               style={{
                 ...member.textPosition,
-                maxWidth: "280px",
               }}
             >
               <div className="text-white">
                 <h3
+                  className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold leading-tight mb-1 sm:mb-2"
                   style={{
                     fontFamily: "EB Garamond, serif",
-                    fontWeight: "bold",
-                    fontSize: member.id === "vibha" ? "24px" : "26px",
-                    lineHeight: "1.1",
-                    marginBottom: "4px",
                     textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
                     ...memberAnimationStyles.name,
                   }}
@@ -326,11 +320,10 @@ const InteractiveTeamImage = () => {
                   {member.name}
                 </h3>
                 <p
+                  className="text-xs sm:text-sm md:text-base lg:text-lg leading-tight"
                   style={{
                     fontFamily: "Inter, sans-serif",
                     fontWeight: "150",
-                    fontSize: "14px",
-                    lineHeight: "1.2",
                     textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
                     ...memberAnimationStyles.role,
                   }}
@@ -361,15 +354,27 @@ const InteractiveTeamImage = () => {
   );
 };
 
-// AboutBaft remains the same, just consumes the updated ReadMoreText
+// AboutBaft with responsive ScrollTrigger animations
 const AboutBaft = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const sectionRef = useRef(null);
   const textContainerRef = useRef(null);
   const imageRef = useRef(null);
 
+  // Check if screen is desktop size
   useEffect(() => {
-    if (!sectionRef.current) return;
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 1024); // lg breakpoint and above
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  useEffect(() => {
+    if (!sectionRef.current || !isDesktop) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -413,17 +418,17 @@ const AboutBaft = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isDesktop]);
 
   return (
     <section
       id="about"
       ref={sectionRef}
       data-theme="light"
-      className="bg-white min-h-screen flex items-center justify-center"
+      className={`bg-white ${isDesktop ? 'min-h-screen' : 'py-8 sm:py-12 md:py-16 lg:py-20'} flex items-center justify-center`}
     >
       <div
-        className={`mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-8 md:gap-y-10 gap-x-6 md:gap-x-12 lg:gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 max-w-[1200px] mx-auto w-full ${
+        className={`mt-2 sm:mt-4 md:mt-6 lg:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-6 sm:gap-y-8 md:gap-y-10 gap-x-4 sm:gap-x-6 md:gap-x-8 lg:gap-x-12 xl:gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-6 md:py-8 lg:py-10 max-w-[1200px] mx-auto w-full ${
           isExpanded ? "items-start" : "items-center"
         }`}
       >
@@ -438,18 +443,17 @@ const AboutBaft = () => {
           }}
         >
           <p
-            className="font-normal mb-2 flex items-center gap-2 transition-all duration-1200 ease-out"
+            className="font-normal mb-2 flex items-center gap-2 transition-all duration-1200 ease-out text-sm sm:text-base md:text-lg lg:text-xl"
             style={{
               fontFamily: "Inter, sans-serif",
-              fontSize: "20px",
               color: "#092646",
             }}
           >
-            <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
+            <img src="/SVG.svg" alt="Icon" className="w-4 h-4 sm:w-5 sm:h-5 " />
             Know our story
           </p>
           <h1
-            className="leading-tight md:leading-none mb-4 md:mb-6 lg:mb-8 font-bold transition-all duration-1200 ease-out text-[34px] sm:text-[44px] md:text-[54px] lg:text-[64px] text-[#1966BB]"
+            className="leading-tight md:leading-none mb-3 sm:mb-4 md:mb-6 lg:mb-8 font-bold transition-all duration-1200 ease-out text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl text-[#1966BB]"
             style={{
               fontFamily: "EB Garamond, serif",
             }}
@@ -468,7 +472,7 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
         </div>
 
         {/* Right Column */}
-        <div className="flex justify-center" ref={imageRef}>
+       <div className="flex justify-center rounded-2xl overflow-hidden" ref={imageRef}>
           <InteractiveTeamImage />
         </div>
       </div>
