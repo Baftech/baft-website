@@ -1,3 +1,23 @@
+/* Main container */
+.pre-footer-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Canvas styling */
+.starfield-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
 /* Concentric circles background wrapper */
 .concentric-wrapper {
   position: absolute;
@@ -47,6 +67,68 @@
   animation-delay: 2s;
 }
 
+/* SVG container */
+.svg-container {
+  position: absolute;
+  left: 50%;
+  top: 33px;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1337px;
+  height: auto;
+  opacity: 0.37;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.svg-object, .svg-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Text container */
+.text-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.main-heading {
+  max-width: 932px;
+  width: 100%;
+  font-family: "Satoshi", sans-serif;
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 1.34;
+  margin: 0;
+  background: linear-gradient(101.23deg, #EDEDED 24.07%, #B6B6B6 96.8%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.sub-heading {
+  max-width: 932px;
+  width: 100%;
+  font-family: "Satoshi", sans-serif;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.36;
+  margin: 8px 0 0;
+  color: #9898A8;
+}
+
 /* Pulse animation with softer brightness */
 @keyframes pulse {
   0% {
@@ -67,5 +149,106 @@
 @media (prefers-reduced-motion: reduce) {
   .concentric-circle {
     animation: none;
+  }
+}
+
+/* Media queries for responsiveness */
+@media screen and (max-width: 1200px) {
+  .concentric-circle:nth-child(5) {
+    width: 750px;
+    height: 750px;
+  }
+  .concentric-circle:nth-child(4) {
+    width: 600px;
+    height: 600px;
+  }
+  .concentric-circle:nth-child(3) {
+    width: 450px;
+    height: 450px;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .main-heading {
+    font-size: 48px;
+  }
+  .sub-heading {
+    font-size: 18px;
+  }
+  .concentric-circle:nth-child(5) {
+    width: 600px;
+    height: 600px;
+  }
+  .concentric-circle:nth-child(4) {
+    width: 500px;
+    height: 500px;
+  }
+  .concentric-circle:nth-child(3) {
+    width: 400px;
+    height: 400px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .main-heading {
+    font-size: 36px;
+  }
+  .sub-heading {
+    font-size: 16px;
+  }
+  .concentric-circle:nth-child(5) {
+    width: 500px;
+    height: 500px;
+  }
+  .concentric-circle:nth-child(4) {
+    width: 400px;
+    height: 400px;
+  }
+  .concentric-circle:nth-child(3) {
+    width: 300px;
+    height: 300px;
+  }
+  .concentric-circle:nth-child(2) {
+    width: 250px;
+    height: 250px;
+  }
+  .concentric-circle:nth-child(1) {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .main-heading {
+    font-size: 28px;
+  }
+  .sub-heading {
+    font-size: 14px;
+  }
+  .concentric-circle:nth-child(5) {
+    width: 350px;
+    height: 350px;
+  }
+  .concentric-circle:nth-child(4) {
+    width: 300px;
+    height: 300px;
+  }
+  .concentric-circle:nth-child(3) {
+    width: 250px;
+    height: 250px;
+  }
+  .concentric-circle:nth-child(2) {
+    width: 200px;
+    height: 200px;
+  }
+  .concentric-circle:nth-child(1) {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  .pre-footer-container {
+    height: 600px;
   }
 }

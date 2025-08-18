@@ -100,24 +100,11 @@ const Pre_footer = () => {
 
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#000",
-        overflow: "hidden",
-      }}
-    >
+    <div className="pre-footer-container">
       {/* Starfield Background */}
       <canvas
         ref={canvasRef}
         className="starfield-canvas"
-        style={{ position: "absolute", inset: 0, zIndex: 0 }}
       />
 
       {/* Concentric Circles */}
@@ -130,85 +117,25 @@ const Pre_footer = () => {
       </div>
 
       {/* SVG Layer */}
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: 33,
-          transform: "translateX(-50%)",
-          width: 1337,
-          height: 963,
-          opacity: 0.37,
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      >
+      <div className="svg-container">
         <object
           data={`${import.meta.env.BASE_URL}pre_footer.svg`}
           type="image/svg+xml"
           aria-label="Star Animation"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            pointerEvents: "none",
-          }}
+          className="svg-object"
         >
           <img
             src={`${import.meta.env.BASE_URL}pre_footer.svg`}
             alt="Star Animation"
-            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            className="svg-fallback"
           />
         </object>
       </div>
 
       {/* Text */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          zIndex: 2,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-        }}
-      >
-        <h1
-          style={{
-            width: 932,
-            height: 86,
-            fontFamily: "Satoshi, sans-serif",
-            fontWeight: 700,
-            fontSize: 64,
-            lineHeight: "86px",
-            margin: 0,
-            background:
-              "linear-gradient(101.23deg, #EDEDED 24.07%, #B6B6B6 96.8%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          Banking was never easy…
-        </h1>
-        <p
-          style={{
-            width: 932,
-            height: 30,
-            fontFamily: "Satoshi, sans-serif",
-            fontWeight: 500,
-            fontSize: 22,
-            lineHeight: "30px",
-            margin: "8px 0 0",
-            color: "#9898A8",
-          }}
-        >
-          BAFT – Built for You, Powered by Tech
-        </p>
+      <div className="text-container">
+        <h1 className="main-heading">Banking was never easy…</h1>
+        <p className="sub-heading">BAFT – Built for You, Powered by Tech</p>
       </div>
     </div>
   );
