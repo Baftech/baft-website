@@ -4,6 +4,7 @@ import "./Navbar.css";
 import ContactModal from "./ContactModal";
 import SignUpModal from "./SignUpModal";
 import { HiMenu, HiX } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 
 export const Navbar = ({ onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -11,6 +12,7 @@ export const Navbar = ({ onNavigate }) => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [theme, setTheme] = useState("dark"); // default
+  const navigate = useNavigate();
 
   // Detect theme based on section in view
   useEffect(() => {
@@ -19,7 +21,10 @@ export const Navbar = ({ onNavigate }) => {
       let currentTheme = theme;
       sections.forEach((section) => {
         const rect = section.getBoundingClientRect();
-        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+        if (
+          rect.top <= window.innerHeight / 2 &&
+          rect.bottom >= window.innerHeight / 2
+        ) {
           currentTheme = section.getAttribute("data-theme");
         }
       });
@@ -37,7 +42,7 @@ export const Navbar = ({ onNavigate }) => {
     const handleScroll = () => {
       // Don't hide navbar on mobile when menu is open
       if (isMobileMenuOpen) return;
-      
+
       if (window.scrollY > lastScrollY && window.scrollY > 50) {
         setShowNavbar(false);
       } else {
@@ -53,17 +58,26 @@ export const Navbar = ({ onNavigate }) => {
     <>
       {/* Navbar */}
       <div
-        className={`navbar-container ${theme}-theme transition-transform duration-300 ${showNavbar ? "translate-y-0" : "-translate-y-full"
-          }`}
+        className={`navbar-container ${theme}-theme transition-transform duration-300 ${
+          showNavbar ? "translate-y-0" : "-translate-y-full"
+        }`}
       >
         {/* Left group */}
         <div className="hidden lg:flex gap-2 xl:gap-4">
           <button
-            onClick={() => onNavigate && onNavigate("about")}
-            className="nav-btn"
+            onClick={() => {
+              document
+                .getElementById("about")
+                ?.scrollIntoView({ behavior: "smooth" });
+              setIsMobileMenuOpen(false);
+            }}
+            className={`mobile-link ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
           >
             About BaFT
           </button>
+
           <button
             onClick={() => setIsContactModalOpen(true)}
             className="nav-btn"
@@ -73,7 +87,10 @@ export const Navbar = ({ onNavigate }) => {
         </div>
 
         {/* Center logo */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-1 items-center">
+        <div
+          id="hero_container"
+          className="absolute left-1/2 transform -translate-x-1/2 flex gap-1 items-center"
+        >
           <img
             src={theme === "dark" ? "logo.png" : "logo1.png"}
             alt="Logo"
@@ -91,34 +108,52 @@ export const Navbar = ({ onNavigate }) => {
         <div className="lg:hidden absolute top-3 right-4 z-[110]">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`p-2 rounded-lg transition-all duration-300 ${theme === "dark" ? "text-white" : "text-black hover:bg-black/20"}`}
+            className={`p-2 rounded-lg transition-all duration-300 ${
+              theme === "dark" ? "text-white" : "text-black hover:bg-black/20"
+            }`}
           >
             {isMobileMenuOpen ? (
-              <HiX className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
+              <HiX
+                className={`w-6 h-6 ${
+                  theme === "dark" ? "text-white" : "text-black"
+                }`}
+              />
             ) : (
-              <HiMenu className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
+              <HiMenu
+                className={`w-6 h-6 ${
+                  theme === "dark" ? "text-white" : "text-black"
+                }`}
+              />
             )}
-
           </button>
         </div>
       </div>
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 ${theme === "dark" ? "bg-black/95" : "bg-white/95"
-          } backdrop-blur-lg z-[105] flex flex-col justify-center items-center space-y-4 sm:space-y-6 px-4 sm:px-6 transition-all duration-300 ease-in-out ${isMobileMenuOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-          } lg:hidden overflow-hidden`}
+        className={`fixed inset-0 ${
+          theme === "dark" ? "bg-black/95" : "bg-white/95"
+        } backdrop-blur-lg z-[105] flex flex-col justify-center items-center space-y-4 sm:space-y-6 px-4 sm:px-6 transition-all duration-300 ease-in-out ${
+          isMobileMenuOpen
+            ? "translate-x-0 opacity-100"
+            : "translate-x-full opacity-0"
+        } lg:hidden overflow-hidden`}
         onClick={() => setIsMobileMenuOpen(false)}
       >
-        <div 
-          onClick={(e) => e.stopPropagation()} 
-          className="flex flex-col space-y-4 sm:space-y-6 w-full max-w-sm">
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="flex flex-col space-y-4 sm:space-y-6 w-full max-w-sm"
+        >
           <button
             onClick={() => {
-              onNavigate && onNavigate("about");
+              document
+                .getElementById("about")
+                ?.scrollIntoView({ behavior: "smooth" });
               setIsMobileMenuOpen(false);
             }}
-            className={`mobile-link ${theme === "dark" ? "text-white" : "text-black"}`}
+            className={`mobile-link ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
           >
             About BaFT
           </button>
@@ -129,7 +164,9 @@ export const Navbar = ({ onNavigate }) => {
               setIsContactModalOpen(true);
               setIsMobileMenuOpen(false);
             }}
-             className={`mobile-link ${theme === "dark" ? "text-white" : "text-black"}`}
+            className={`mobile-link ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
           >
             Let's Chat
           </button>
@@ -139,7 +176,9 @@ export const Navbar = ({ onNavigate }) => {
               setIsSignUpModalOpen(true);
               setIsMobileMenuOpen(false);
             }}
-            className={`mobile-link ${theme === "dark" ? "text-white" : "text-black"}`}
+            className={`mobile-link ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
           >
             Sign Up
           </button>
@@ -158,4 +197,3 @@ export const Navbar = ({ onNavigate }) => {
     </>
   );
 };
-
