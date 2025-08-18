@@ -11,26 +11,30 @@ const B_Fast = () => {
   const canvasRef = useRef(null);
   const overlayRef = useRef(null);
 
-  // Starfield effect
+  // === Canvas Starfield ===
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.scale(dpr, dpr);
     };
+
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
     const stars = [];
-    const starCount = Math.floor((canvas.width * canvas.height) / 8000);
+    const starCount = Math.floor((window.innerWidth * window.innerHeight) / 8000);
 
     for (let i = 0; i < starCount; i++) {
       stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
         radius: Math.random() * 1.5 + 0.5,
+        alpha: Math.random(),
       });
     }
 
@@ -39,42 +43,41 @@ const B_Fast = () => {
 
     function draw() {
       ctx.save();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.translate(window.innerWidth / 2, window.innerHeight / 2);
       ctx.rotate(rotationAngle);
-      ctx.translate(-canvas.width / 2, -canvas.height / 2);
+      ctx.translate(-window.innerWidth / 2, -window.innerHeight / 2);
 
       for (let star of stars) {
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#000000";
+        ctx.fillStyle = `rgba(0, 0, 0, ${star.alpha})`;
         ctx.fill();
       }
 
       ctx.restore();
-      rotationAngle += 0.0005; // Slow rotation
-
+      rotationAngle += 0.0005;
       rafId = requestAnimationFrame(draw);
     }
 
-    rafId = requestAnimationFrame(draw);
+    draw();
 
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
       cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", resizeCanvas);
     };
   }, []);
 
-  // GSAP scroll animation
+  // === GSAP ScrollTrigger Animation ===
   useGSAP(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.current,
-        start: "top top", // Start as soon as section reaches top
-        end: "bottom bottom", // Run until section leaves viewport
+        start: "top top",
+        end: "bottom bottom",
         scrub: true,
-        pin: true, // Keep section full-screen during scroll
+        pin: true,
       },
     });
 
@@ -94,64 +97,63 @@ const B_Fast = () => {
       tl.scrollTrigger?.kill();
       tl.kill();
     };
-  }, [sectionRef, contentRef, overlayRef]);
+  }, []);
 
   return (
-    <div
+    <section
       ref={sectionRef}
       className="relative flex flex-col justify-center items-center min-h-screen overflow-hidden bg-white"
+      aria-label="B-Fast hero section"
     >
-      {/* Black overlay */}
+      {/* Black Overlay */}
       <div
         ref={overlayRef}
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundColor: "#000",
-          zIndex: 20,
-          pointerEvents: "none",
-        }}
+        className="absolute inset-0 bg-black z-20 pointer-events-none"
+        aria-hidden="true"
       />
 
-      {/* Starfield */}
+      {/* Starfield Canvas */}
       <canvas
         ref={canvasRef}
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 0,
-          background: "transparent",
-        }}
+        className="absolute inset-0 z-0 bg-transparent"
+        role="presentation"
       />
 
       {/* Content */}
       <div
         ref={contentRef}
-        className="flex flex-col items-center relative z-10 text-center"
+        className="relative z-10 flex flex-col items-center text-center"
       >
-        <h1
-          className="text-[130px] eb-garamond-Bfast bg-gradient-to-r from-[#9AB5D2] to-[#092646] bg-clip-text text-transparent"
-        >
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[130px] eb-garamond-Bfast bg-gradient-to-r from-[#9AB5D2] to-[#092646] bg-clip-text text-transparent">
           B-Fast
         </h1>
 
-        <p
-          className="text-[28px] inter-Bfast_sub bg-gradient-to-r from-[#777575] to-[#092646] bg-clip-text text-transparent mt-4"
-        >
+        <p className="mt-4 text-lg sm:text-xl md:text-2xl inter-Bfast_sub bg-gradient-to-r from-[#777575] to-[#092646] bg-clip-text text-transparent">
           One Tap. Zero Wait.
         </p>
 
-        <video
-          src="/bfast_video.mp4"
-          alt="Bfast animation"
-          className="w-[1500px] max-w-full h-auto mt-2"
-          autoPlay
-          loop
-          muted
-          playsInline
-        />
+        {/* Responsive Video */}
+        <div className="relative w-full max-w-[1500px] aspect-video mt-4">
+          <video
+            src="/bfast_video.mp4"
+            className="absolute top-0 left-0 w-full h-full object-contain"
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-hidden="true"
+          />
+        </div>
       </div>
-    </div>
+
+      {/* Fallback for JS-disabled users */}
+      <noscript>
+        <style>{`.no-js-hidden { display: none; }`}</style>
+        <div className="bg-black text-white p-6 text-center z-30">
+          Please enable JavaScript to experience the full B-Fast animation.
+        </div>
+      </noscript>
+    </section>
   );
 };
 
