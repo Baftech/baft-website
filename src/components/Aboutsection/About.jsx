@@ -1,4 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Updated ReadMoreText with animation
 const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
@@ -360,10 +364,61 @@ const InteractiveTeamImage = () => {
 // AboutBaft remains the same, just consumes the updated ReadMoreText
 const AboutBaft = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const sectionRef = useRef(null);
+  const textContainerRef = useRef(null);
+  const imageRef = useRef(null);
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "center center",
+          end: "+=100vh",
+          pin: true,
+          scrub: 1,
+        },
+      });
+
+      // Keep layout static for the first 40% of scroll
+      tl.to({}, { duration: 0.4 });
+
+      // Animate the left text column out after 40%
+      tl.to(
+        textContainerRef.current,
+        {
+          x: "-100vw",
+          opacity: 0,
+          duration: 0.2,
+          ease: "power2.out",
+        },
+        0.4
+      );
+
+      // Right image: enlarge and move to center after 40%
+      tl.to(
+        imageRef.current,
+        {
+          scale: 1.5,
+          xPercent: -50,
+          yPercent: -50,
+          transformOrigin: "center center",
+          duration: 0.6,
+          ease: "power2.out",
+        },
+        0.4
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section
       id="about"
+      ref={sectionRef}
       data-theme="light"
       className="bg-white min-h-screen flex items-center justify-center"
     >
@@ -374,6 +429,7 @@ const AboutBaft = () => {
       >
         {/* Left Column */}
         <div
+          ref={textContainerRef}
           className={`transition-all duration-1200 ease-in-out flex flex-col h-full ${
             isExpanded ? "justify-start" : "justify-center"
           }`}
@@ -411,8 +467,8 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
           />
         </div>
 
-        {/* Right Column (unchanged) */}
-        <div className="flex justify-center">
+        {/* Right Column */}
+        <div className="flex justify-center" ref={imageRef}>
           <InteractiveTeamImage />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -9,153 +9,233 @@ const B_Instant = () => {
   const [showOverlayText, setShowOverlayText] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowOverlayText(true);
-    }, 1000); // delay text animation
+    const timer = setTimeout(() => setShowOverlayText(true), 1000);
     return () => clearTimeout(timer);
   }, []);
 
   useGSAP(() => {
-    // Coin separation animation
-    const coinTimeline = gsap.timeline({ delay: 0.5 });
-    
-    coinTimeline
-      .to("#top-coin", {
-        x: -150,
-        y: -120,
-        rotation: -15,
-        duration: 1.5,
-        ease: "power2.out",
-      })
-      .to("#bottom-coin", {
-        x: 150,
-        y: 120,
-        rotation: 15,
-        duration: 1.5,
-        ease: "power2.out",
-      }, 0); // Start at the same time as top coin
+    // Set initial states for coin animations with unique IDs
+    gsap.set("#instant_top_coin", { x: 0, y: 0, scale: 0.8, opacity: 0.7, zIndex: 1 });
+    gsap.set("#instant_center_coin", { scale: 0.8, opacity: 0.7, zIndex: 2 });
+    gsap.set("#instant_bottom_coin", { x: 0, y: 0, scale: 0.8, opacity: 0.7, zIndex: 1 });
+    gsap.set("#instant_text_content", { opacity: 0, y: 50, scale: 0.9 });
 
-    // Text animation
-    const t1 = gsap.timeline({
+    // Create basic timeline animation for immediate feedback
+    const basicTimeline = gsap.timeline({ 
+      delay: 0.5,
       scrollTrigger: {
-        trigger: "#introduction",
-        start: "top 80%",
-        toggleActions: "play none none reverse",
-        markers: false,
-      },
+        trigger: "#b_instant_section",
+        start: "top 85%",
+        toggleActions: "play none none reverse"
+      }
     });
-    t1.fromTo(
-      "#instant",
-      { opacity: 0, y: 100 },
-      {
+
+    basicTimeline
+      .to("#instant_text_content", {
         opacity: 1,
         y: 0,
+        scale: 1,
         duration: 1,
-        stagger: 0.2,
-        scrollTrigger: {
-          trigger: "#b_instant",
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-          markers: false,
-        },
+        ease: "power2.out"
+      })
+      .to("#instant_center_coin", {
+        scale: 1,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "<0.2");
+
+    // Create scroll-triggered animation for B-Instant section
+    ScrollTrigger.create({
+      trigger: "#b_instant_section",
+      start: "top 80%", // Start when section enters viewport
+      end: "bottom 20%", // End when section nearly exits viewport
+      scrub: 1, // Smooth scroll-linked animation
+      markers: false, // Set to true for debugging
+      onUpdate: (self) => {
+        const progress = self.progress;
+        
+        // Only animate if progress is significant
+        if (progress > 0.1) {
+          // Text animation - appears earlier and stays visible
+          gsap.set("#instant_text_content", {
+            y: (1 - progress) * 30, // Start 30px below, move to 0
+            scale: 0.95 + (progress * 0.05), // Scale from 0.95 to 1.0
+            opacity: Math.max(0.7, progress) // Start at 70% opacity, fade in to 100%
+          });
+          
+          // Center coin animation - smooth scaling and positioning
+          gsap.set("#instant_center_coin", {
+            scale: 0.9 + (progress * 0.1), // Scale from 0.9 to 1.0
+            opacity: Math.max(0.9, progress), // High opacity throughout
+            zIndex: 2
+          });
+          
+          // Top coin animation - move diagonally up-left
+          gsap.set("#instant_top_coin", {
+            x: progress * -80, // Move left as animation progresses
+            y: progress * -60, // Move up as animation progresses
+            scale: 0.8 + (progress * 0.2),
+            opacity: Math.max(0.7, progress * 0.95),
+            zIndex: progress > 0.6 ? 3 : 1 // Come to front after 60% progress
+          });
+          
+          // Bottom coin animation - move diagonally down-right
+          gsap.set("#instant_bottom_coin", {
+            x: progress * 80, // Move right as animation progresses
+            y: progress * 60, // Move down as animation progresses
+            scale: 0.8 + (progress * 0.2),
+            opacity: Math.max(0.7, progress * 0.95),
+            zIndex: 1
+          });
+        }
       }
-    );
-    
+    });
+
+    // Cleanup function
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.trigger && trigger.trigger.id === "b_instant_section") {
+          trigger.kill();
+        }
+      });
+    };
   }, []);
 
   return (
     <section
-      
-      className="relative bg-black w-full min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden"
+      id="b_instant_section"
+      data-theme="dark"
+      className="relative w-full min-h-screen bg-black flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 overflow-hidden"
       style={{ isolation: "isolate" }}
     >
-      {/* Stacked Coins Container */}
-      <div className="absolute inset-0 flex items-center justify-center z-10">
-        {/* Bottom Coin - behind others */}
-        <img 
-          id="bottom-coin"
-          src="/b-coin.svg" 
-          alt="Bottom Coin" 
-          className="absolute w-80 h-80 object-contain"
-          style={{ zIndex: 1 }}
-        />
+      {/* Centered container */}
+      <div className="relative flex items-center justify-center w-full h-full max-w-7xl mx-auto">
         
-        {/* Center Coin - middle layer */}
-        <img 
-          id="center-coin"
-          src="/b-coin.svg" 
-          alt="Center Coin" 
-          className="absolute w-80 h-80 object-contain"
-          style={{ zIndex: 2 }}
-        />
-        
-        {/* Top Coin - front layer */}
-        <img 
-          id="top-coin"
-          src="/b-coin.svg" 
-          alt="Top Coin" 
-          className="absolute w-80 h-80 object-contain"
-          style={{ zIndex: 3 }}
-        />
-      </div>
-      <div className="relative flex flex-col items-center justify-center w-full max-w-5xl mx-auto">
-        {/* Overlay text */}
-        <div
-          id="instant"
-          className={`absolute inset-0 flex flex-row items-center justify-center gap-4 whitespace-nowrap z-20 pointer-events-none transition-opacity duration-500 ${
-            showOverlayText ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <span
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-amber-50"
-            style={{
-              fontFamily: '"Inter", sans-serif',
-              fontWeight: 200,
-              fontStyle: "italic",
-              fontSize: "75.35px",
-              fontOpticalSizing: "auto",
-              textShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
-            }}
+        {/* Coin Stack Container */}
+        <div className="relative max-w-[20rem] sm:max-w-[24rem] md:max-w-[28rem] lg:max-w-[30rem] w-full h-auto">
+          
+          {/* Bottom Coin - Starts behind center, moves diagonally down-right, stays behind */}
+          <div
+            id="instant_bottom_coin"
+            className="absolute inset-0 w-full h-auto"
+            style={{ zIndex: 1 }}
           >
-            B-Coin
-            <br />
-            Instant Value
-          </span>
-
-          <span
-            className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-white"
-            style={{
-              fontSize: "75.35px",
-              textShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
-            }}
-          >
-            <br />—
-          </span>
-          <div id="instant" className="flex flex-col items-center">
-            <span
-             
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-amber-50"
+            <img
+              src="/b-coin.svg"
+              alt="Bottom coin"
+              className="w-full h-auto object-contain"
               style={{
-                fontFamily: '"EB Garamond", serif',
-                fontWeight: 500,
-                fontSize: "84.04px",
-                fontStyle: "normal",
-                textShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
+                filter: "drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)) brightness(0.9)",
               }}
-            >
-              <br />
-              <br />
-              SHARED
-            </span>
+            />
+          </div>
 
+          {/* Center Coin - This stays in place and is always visible */}
+          <div
+            id="instant_center_coin"
+            className="relative w-full h-auto"
+            style={{ zIndex: 2 }}
+          >
+            <img
+              src="/b-coin.svg"
+              alt="Center coin"
+              className="w-full h-auto object-contain"
+              style={{
+                filter: "drop-shadow(0 0 25px rgba(255, 215, 0, 0.4)) brightness(1.2)",
+              }}
+            />
+          </div>
+
+          {/* Top Coin - Starts behind center, moves diagonally up-left, ends up in front */}
+          <div
+            id="instant_top_coin"
+            className="absolute inset-0 w-full h-auto"
+            style={{ zIndex: 1 }}
+          >
+            <img
+              src="/b-coin.svg"
+              alt="Top coin"
+              className="w-full h-auto object-contain"
+              style={{
+                filter: "drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)) brightness(1.1)",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Transparent Black Overlay between coins and text */}
+        <div 
+          className="absolute inset-0 bg-black bg-opacity-20 z-10 pointer-events-none"
+          style={{ 
+            background: 'rgba(0, 0, 0, 0.2)',
+            backdropFilter: 'blur(1px)'
+          }}
+        ></div>
+
+        {/* Overlay Text */}
+        <div
+          id="instant_text_content"
+          className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none px-4 sm:px-6 md:px-8"
+          style={{ opacity: 0, transform: "translateY(50px)" }}
+        >
+          <div className="flex flex-col items-start leading-tight text-center sm:text-left">
+            {/* First line group */}
+            <div className="flex flex-col">
+              <span
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl text-amber-50"
+                style={{
+                  fontFamily: '"Inter", sans-serif',
+                  fontWeight: 200,
+                  fontStyle: "italic",
+                  fontOpticalSizing: "auto",
+                  textShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
+                }}
+              >
+                B-Coin
+              </span>
+              <div className="flex items-baseline flex-wrap">
+                <span
+                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl text-amber-50 mr-1 sm:mr-2"
+                  style={{
+                    fontFamily: '"Inter", sans-serif',
+                    fontWeight: 200,
+                    fontStyle: "italic",
+                    fontOpticalSizing: "auto",
+                    textShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
+                  }}
+                >
+                  Instant Value
+                </span>
+                <span
+                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-semibold text-white"
+                  style={{
+                    textShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
+                  }}
+                >
+                  —
+                </span>
+                <span
+                  className="ml-1 sm:ml-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl text-white font-serif font-bold"
+                  style={{
+                    fontFamily: '"EB Garamond", serif',
+                    fontWeight: 500,
+                    fontStyle: "normal",
+                    textShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
+                  }}
+                >
+                  SHARED
+                </span>
+              </div>
+            </div>
+
+            {/* Second line */}
             <span
-              
-              className="mb-5 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-amber-50"
+              className="self-end text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl text-amber-50 mt-2 sm:mt-0"
               style={{
                 fontFamily: '"Inter", sans-serif',
                 fontWeight: 200,
                 fontStyle: "italic",
-                fontSize: "75.35px",
                 fontOpticalSizing: "auto",
                 textShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
               }}

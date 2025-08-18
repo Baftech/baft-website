@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { FaGoogle, FaMicrosoft } from 'react-icons/fa';
 import './SignUpModal.css';
 import Thanks_page from './Thanks_page';
 
@@ -139,27 +138,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
                 </button>
               </form>
               
-              {/* Divider */}
-              <div className="signup-divider">
-                <div className="signup-divider-line"></div>
-                <span className="signup-divider-text">or continue with</span>
-                <div className="signup-divider-line"></div>
-              </div>
-              
-              {/* Social Login Buttons */}
-              <div className="signup-social-buttons">
-                <button className="signup-social-button" type="button">
-                  <FaGoogle className="signup-social-icon" />
-                  <span>Sign Up with Google Account</span>
-                  <span className="signup-arrow">→</span>
-                </button>
-                
-                <button className="signup-social-button" type="button">
-                  <FaMicrosoft className="signup-social-icon" />
-                  <span>Sign Up with Outlook Account</span>
-                  <span className="signup-arrow">→</span>
-                </button>
-              </div>
+              {/* No divider or social login buttons as requested */}
             </div>
           </>
         )}
