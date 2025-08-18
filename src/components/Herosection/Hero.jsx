@@ -363,7 +363,8 @@ const VideoElement = () => {
         id="videoGradient"
         className="absolute inset-0 z-20 pointer-events-none"
         style={{
-          background: getResponsiveGradient(),
+          // Use backgroundImage instead of background to avoid conflict with backgroundClip
+          backgroundImage: getResponsiveGradient(),
         }}
       />
       <video
@@ -523,11 +524,11 @@ const OverlayText = () => {
             fontSize: getResponsiveFontSize(),
             lineHeight: getResponsiveLineHeight(),
             textAlign: "center",
-            background: getResponsiveGradientText(),
+            backgroundImage: getResponsiveGradientText(),
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
-            textFillColor: "transparent",
+            color: "transparent",
             flex: "none",
             order: 1,
             flexGrow: 0,
