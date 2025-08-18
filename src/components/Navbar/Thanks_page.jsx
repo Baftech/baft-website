@@ -1,6 +1,6 @@
 import React from "react";
-import "./ThanksPage.css";
-import logo from "../assets/logo.png"; // adjust path to your logo
+import "./Thanks_Page.css";
+// import logo from "../assets/logo.png"; // adjust path to your logo
 
 const ThanksPage = () => {
   return (

@@ -16,7 +16,7 @@ const Home = () => {
     <div>
       <Navbar />
       <Hero />
-      <B_Instant />
+      
       <main>
         <B_Fast />
 
