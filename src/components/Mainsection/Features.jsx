@@ -281,19 +281,26 @@ const Features = () => {
         <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
           {/* Left Column */}
           <div className="flex flex-col justify-center order-2 lg:order-1">
-            <p className="text-sm text-[rgba(25,102,187,1)] font-medium mb-3 flex items-center gap-2">
-              <span className="text-xs">🔹</span> Features
-            </p>
+           <p
+            className="font-normal mb-2 flex items-center gap-2 transition-all duration-1200 ease-out"
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "20px",
+              color: "#092646",
+            }}
+          >
+            <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
+            Features
+          </p>
             <h1
-              className="leading-none mb-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[rgba(25,102,187,1)]"
-              style={{
-                fontFamily: "EB Garamond, serif",
-                lineHeight: 1.1,
-              }}
-            >
-              <span className="block">All in</span>
-              <span className="block">One Place</span>
-            </h1>
+            className="leading-tight md:leading-none mb-4 md:mb-6 lg:mb-8 font-bold transition-all duration-1200 ease-out text-[34px] sm:text-[44px] md:text-[54px] lg:text-[64px] text-[#1966BB]"
+            style={{
+              fontFamily: "EB Garamond, serif",
+            }}
+          >
+            <span className="block">All in</span>
+            <span className="block">One Place</span>
+          </h1>
 
             <div className="flex flex-col justify-center">
               <ul className="space-y-5 md:space-y-6 text-base md:text-lg">
