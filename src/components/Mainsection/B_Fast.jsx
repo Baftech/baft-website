@@ -12,23 +12,20 @@ const B_Fast = () => {
   const overlayRef = useRef(null);
 
   // === Canvas Starfield ===
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+useEffect(() => {
+  const canvas = canvasRef.current;
+  const ctx = canvas.getContext("2d");
 
-    const resizeCanvas = () => {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      ctx.scale(dpr, dpr);
-    };
+  let stars = [];
+  let rafId = 0;
+  let rotationAngle = 0;
 
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+  const createStars = () => {
+    const starCount = Math.floor(
+      (window.innerWidth * window.innerHeight) / 8000
+    );
 
-    const stars = [];
-    const starCount = Math.floor((window.innerWidth * window.innerHeight) / 8000);
-
+    stars = [];
     for (let i = 0; i < starCount; i++) {
       stars.push({
         x: Math.random() * window.innerWidth,
@@ -37,37 +34,54 @@ const B_Fast = () => {
         alpha: Math.random(),
       });
     }
+  };
 
-    let rotationAngle = 0;
-    let rafId = 0;
+  const resizeCanvas = () => {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform before scaling
+    ctx.scale(dpr, dpr);
+    createStars(); // regenerate stars on resize
+  };
 
-    function draw() {
-      ctx.save();
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
 
-      ctx.translate(window.innerWidth / 2, window.innerHeight / 2);
-      ctx.rotate(rotationAngle);
-      ctx.translate(-window.innerWidth / 2, -window.innerHeight / 2);
+  function draw() {
+    ctx.save();
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-      for (let star of stars) {
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 0, 0, ${star.alpha})`;
-        ctx.fill();
-      }
+    ctx.translate(window.innerWidth / 2, window.innerHeight / 2);
+    ctx.rotate(rotationAngle);
+    ctx.translate(-window.innerWidth / 2, -window.innerHeight / 2);
 
-      ctx.restore();
-      rotationAngle += 0.0005;
-      rafId = requestAnimationFrame(draw);
+    for (let star of stars) {
+      const gradient = ctx.createRadialGradient(
+        star.x, star.y, 0,
+        star.x, star.y, star.radius * 3
+      );
+      gradient.addColorStop(0, `rgba(0,0,0,${star.alpha})`);
+      gradient.addColorStop(1, "rgba(0,0,0,0)");
+
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    draw();
+    ctx.restore();
+    rotationAngle += 0.0005;
+    rafId = requestAnimationFrame(draw);
+  }
 
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", resizeCanvas);
-    };
-  }, []);
+  draw();
+
+  return () => {
+    cancelAnimationFrame(rafId);
+    window.removeEventListener("resize", resizeCanvas);
+  };
+}, []);
 
   // === GSAP ScrollTrigger Animation ===
   useGSAP(() => {
@@ -133,10 +147,10 @@ const B_Fast = () => {
         </p>
 
         {/* Responsive Video */}
-        <div className="relative w-full max-w-[1500px] aspect-video mt-4">
+        <div className="relative w-full max-w-[1500px] mt-4">
           <video
             src="/bfast_video.mp4"
-            className="absolute top-0 left-0 w-full h-full object-contain"
+            className="w-full h-auto object-contain"
             autoPlay
             loop
             muted
