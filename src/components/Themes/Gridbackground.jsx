@@ -62,19 +62,6 @@ export const GridBackground = () => {
       }
     }
 
-    function drawSharpLine(x, y, dx, dy, length = 120) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)'
-      ctx.lineWidth = 1.2
-      ctx.shadowBlur = 3
-      ctx.shadowColor = 'rgba(255,255,255,0.2)'
-      ctx.beginPath()
-      ctx.moveTo(x, y)
-      ctx.lineTo(x + dx * length, y + dy * length)
-      ctx.stroke()
-
-      ctx.shadowBlur = 0
-      ctx.shadowColor = 'transparent'
-    }
 
     // New function for fading tail effect
     function drawFadingLine(x, y, dx, dy, segments = 8, totalLength = 150) {
