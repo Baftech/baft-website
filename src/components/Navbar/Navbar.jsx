@@ -71,7 +71,7 @@ export const Navbar = ({ onNavigate }) => {
                 ?.scrollIntoView({ behavior: "smooth" });
               setIsMobileMenuOpen(false);
             }}
-            className={`mobile-link ${
+            className={`nav-btn ${
               theme === "dark" ? "text-white" : "text-black"
             }`}
           >
@@ -89,7 +89,7 @@ export const Navbar = ({ onNavigate }) => {
         {/* Center logo */}
         <div
           id="hero_container"
-          className="absolute left-1/2 transform -translate-x-1/2 flex gap-1 items-center"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-1 items-center"
         >
           <img
             src={theme === "dark" ? "logo.png" : "logo1.png"}
