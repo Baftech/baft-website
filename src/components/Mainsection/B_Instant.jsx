@@ -16,6 +16,26 @@ const B_Instant = () => {
   }, []);
 
   useGSAP(() => {
+    // Coin separation animation
+    const coinTimeline = gsap.timeline({ delay: 0.5 });
+    
+    coinTimeline
+      .to("#top-coin", {
+        x: -150,
+        y: -120,
+        rotation: -15,
+        duration: 1.5,
+        ease: "power2.out",
+      })
+      .to("#bottom-coin", {
+        x: 150,
+        y: 120,
+        rotation: 15,
+        duration: 1.5,
+        ease: "power2.out",
+      }, 0); // Start at the same time as top coin
+
+    // Text animation
     const t1 = gsap.timeline({
       scrollTrigger: {
         trigger: "#introduction",
@@ -49,7 +69,35 @@ const B_Instant = () => {
       className="relative bg-black w-full min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden"
       style={{ isolation: "isolate" }}
     >
-        <img id="stacked_coins" src="/b-coin.svg" alt="Stacked Coins" />
+      {/* Stacked Coins Container */}
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        {/* Bottom Coin - behind others */}
+        <img 
+          id="bottom-coin"
+          src="/b-coin.svg" 
+          alt="Bottom Coin" 
+          className="absolute w-80 h-80 object-contain"
+          style={{ zIndex: 1 }}
+        />
+        
+        {/* Center Coin - middle layer */}
+        <img 
+          id="center-coin"
+          src="/b-coin.svg" 
+          alt="Center Coin" 
+          className="absolute w-80 h-80 object-contain"
+          style={{ zIndex: 2 }}
+        />
+        
+        {/* Top Coin - front layer */}
+        <img 
+          id="top-coin"
+          src="/b-coin.svg" 
+          alt="Top Coin" 
+          className="absolute w-80 h-80 object-contain"
+          style={{ zIndex: 3 }}
+        />
+      </div>
       <div className="relative flex flex-col items-center justify-center w-full max-w-5xl mx-auto">
         {/* Overlay text */}
         <div
