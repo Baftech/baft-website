@@ -1,70 +1,55 @@
-.thanks-page-container {
+.thanks-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center horizontally */
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.checkmark-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: radial-gradient(
-    101.87% 101.85% at 50% 11.4%, 
-    #090E65 0%, 
-    rgba(55, 102, 183, 0.9) 78.84%, 
-    rgba(25, 25, 25, 0.95) 100%
-  );
-  overflow: hidden;
-}
-
-.thanks-card {
-  position: relative;
-  width: 420px;
-  padding: 40px 30px;
-  border-radius: 20px;
-  background: linear-gradient(
-    180deg, 
-    rgba(255, 255, 255, 0.1) 0%, 
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  backdrop-filter: blur(30px);
-  text-align: center;
-  color: white;
-  box-shadow: 0px 10px 40px rgba(0,0,0,0.3);
-}
-
-.close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.thanks-logo {
-  width: 80px;
-  margin: 0 auto;
-  display: block;
-}
-
-.signup-tagline {
-  margin-top: 12px;
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.checkmark {
-  font-size: 50px;
   margin: 30px 0 20px;
-  color: #fff;
 }
 
-.thanks-title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 10px;
+.checkmark-svg {
+  width: 70px;
+  height: 70px;
+  stroke: #00ff95;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+  box-shadow: inset 0px 0px 0px #00ff95;
+  border-radius: 50%;
 }
 
-.thanks-message {
-  font-size: 14px;
-  opacity: 0.85;
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3;
+  stroke: #00ff95;
+  fill: none;
+  animation: circleDraw 0.6s ease-out forwards;
+}
+
+.checkmark-path {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 3;
+  stroke: #00ff95;
+  stroke-linecap: round;
+  animation: checkDraw 0.4s ease-out forwards 0.6s;
+}
+
+@keyframes circleDraw {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes checkDraw {
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
