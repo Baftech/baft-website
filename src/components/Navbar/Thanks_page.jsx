@@ -5,13 +5,13 @@ const ThanksPage = () => {
   return (
     <div className="thanks-page-container">
       <div className="thanks-card">
-        {/* Close button */}
+        {/* Close button
         <button
           className="close-btn"
           onClick={() => (window.location.href = "/")}
         >
           ✕
-        </button>
+        </button> */}
         <div className="signup-header">
           <img src="/logo.png" alt="BaFT Logo" className="signup-logo" />
           <p className="signup-tagline">Build for You, Powered by Tech</p>
@@ -35,10 +35,12 @@ const ThanksPage = () => {
           </svg>
         </div>
 
-        <h2 className="thanks-title">Thanks for reaching out!</h2>
-        <p className="thanks-message">
-          We’ve received your inquiry and will be in touch shortly.
-        </p>
+        <div className="thanks-text">
+          <h2 className="thanks-title">Thanks for reaching out!</h2>
+          <p className="thanks-message font-light text-white opacity-85">
+            We’ve received your inquiry and will be in touch shortly.
+          </p>
+        </div>
       </div>
     </div>
   );
