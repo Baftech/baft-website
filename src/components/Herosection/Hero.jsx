@@ -7,6 +7,26 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const Hero = () => {
+  let coinFloatTween = null;
+
+  const startBaftCoinFloat = () => {
+    if (coinFloatTween) return;
+    coinFloatTween = gsap.to("#B_coin", {
+      y: -20,
+      duration: 1.8,
+      yoyo: true,
+      repeat: -1,
+      ease: "sine.inOut",
+    });
+  };
+
+  const stopBaftCoinFloat = () => {
+    if (coinFloatTween) {
+      coinFloatTween.kill();
+      coinFloatTween = null;
+      gsap.set("#B_coin", { y: 0 });
+    }
+  };
   const [showOverlayText, setShowOverlayText] = useState(false);
   const [coinAnimationStarted, setCoinAnimationStarted] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
@@ -196,6 +216,17 @@ const Hero = () => {
       onLeaveBack: reverseAnimation,
       onEnterBack: startVideoShrinkAnimation,
     });
+
+    // Floating coin only while BaFT Coin section is in view
+    ScrollTrigger.create({
+      trigger: "#baft_coin_section",
+      start: "top center",
+      end: "bottom center",
+      onEnter: startBaftCoinFloat,
+      onEnterBack: startBaftCoinFloat,
+      onLeave: stopBaftCoinFloat,
+      onLeaveBack: stopBaftCoinFloat,
+    });
   };
 
   const reverseAnimation = () => {
@@ -295,7 +326,9 @@ const Hero = () => {
         stagger: 0.2,
         duration: 1,
       })
+      .call(() => startBaftCoinFloat())
       .to("#baft_coin_section", { opacity: 0, duration: 1 }, "+=1")
+      .call(() => stopBaftCoinFloat(), null, "<")
       .to("#Hero", { opacity: 0, duration: 0.5 }, "<") // Hide entire hero section background
       .to("#b_instant_section", { opacity: 1, y: 0, duration: 1 }, "<")
       .call(() => startCoinAnimation()); // Trigger coin animation when BInstantSection is visible
