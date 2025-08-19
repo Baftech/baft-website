@@ -115,3 +115,7 @@
 .bg-gradient-radial {
   background-image: radial-gradient(circle, var(--tw-gradient-stops));
 }
+
+.cards-wrapper {
+  margin-top: -2rem; /* shifts upward by 2rem */
+}

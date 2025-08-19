@@ -1,5 +1,6 @@
 import React from "react";
 import Hero from "../components/Herosection/Hero";
+import Hero_1 from "../components/Herosection/Hero_1";
 import { Navbar } from "../components/Navbar/Navbar";
 import BaFT_Coin from "../components/Mainsection/BaFT_Coin";
 import B_Instant from "../components/Mainsection/B_Instant";
@@ -15,7 +16,7 @@ const Home = () => {
   return (
     <div>
       <Navbar />
-      <Hero />
+      <Hero_1/>
 
       <main>
         <B_Fast />

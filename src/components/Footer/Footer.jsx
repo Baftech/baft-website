@@ -18,16 +18,19 @@ const SignupForm = () => {
 
   return (
     <section
-      className="text-white mx-auto w-full max-w-[1000px]"
+      className="relative text-white mx-auto w-full max-w-screen-xl overflow-visible px-4 sm:px-6 lg:px-8"
       style={{
         borderRadius: "30px",
-        background: "linear-gradient(92.61deg, #092646 3.49%, #3766B7 98.57%)",
+        background:
+          "linear-gradient(92.61deg, #092646 3.49%, #3766B7 98.57%)",
       }}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-4 px-4 py-4 md:px-6 lg:px-10 lg:py-6">
-        <div className="flex flex-col justify-center order-2 md:order-1">
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 md:gap-x-8 py-8 md:py-10 lg:py-14 relative z-10">
+        {/* Left Content */}
+        <div className="flex flex-col justify-center text-center md:text-left order-2 md:order-1">
           <h2
-            className="text-xl md:text-2xl font-semibold mx-2 md:mx-6 mb-1"
+            className="text-2xl sm:text-3xl lg:text-4xl font-semibold mb-3"
             style={{
               fontFamily: "EB Garamond",
               fontWeight: 700,
@@ -38,58 +41,68 @@ const SignupForm = () => {
             Sign Up
           </h2>
           <p
-            className="text-xs text-gray-200 mx-2 md:mx-6 mb-3"
+            className="text-sm sm:text-base text-gray-200 mb-6"
             style={{
               fontFamily: "Inter",
               fontWeight: 400,
               letterSpacing: "-1%",
-              lineHeight: "120%",
+              lineHeight: "150%",
             }}
           >
             Get early access, updates, and exclusive perks. Enter your email
-            below - no spam, we promise.
+            below – no spam, we promise.
           </p>
-          <div className="flex flex-col sm:flex-row items-center gap-2 mb-4 md:mb-8 mx-2 md:mx-6">
+
+          {/* Input + Button */}
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col sm:flex-row items-center gap-3"
+          >
             <input
               type="email"
               placeholder="Enter Your Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full sm:flex-1 px-3 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white placeholder-white/60 border border-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 mb-2 sm:mb-0"
-              style={{ borderRadius: "17.15px", borderWidth: "0.4px" }}
+              className="w-full sm:flex-1 px-4 py-2.5 rounded-full bg-white/10 backdrop-blur-sm text-white placeholder-white/60 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/30"
+              style={{ borderRadius: "17.15px" }}
             />
             <button
-              onClick={handleSubmit}
-              className="w-full sm:w-auto px-4 py-2 bg-white text-black rounded-full font-medium hover:bg-gray-100 transition"
-              style={{ minWidth: "90px" }}
+              type="submit"
+              className="w-full sm:w-auto px-5 py-2.5 bg-white text-black rounded-full font-medium hover:bg-gray-100 transition"
+              style={{ minWidth: "110px" }}
             >
               <span
                 style={{
                   fontFamily: "Inter",
                   fontWeight: 500,
-                  fontSize: "11px",
-                  lineHeight: "14px",
-                  textAlign: "center",
-                  display: "inline-block",
+                  fontSize: "13px",
+                  lineHeight: "16px",
                 }}
               >
                 Subscribe
               </span>
             </button>
-          </div>
-        </div>
-        <div className="relative flex items-center justify-center w-full order-1 md:order-2">
-          <img
-            src="/hand_iphone_image.svg"
-            alt="Signup Illustration"
-            className="w-[200px] md:w-[250px] lg:w-[350px] max-w-full rounded-3xl object-contain"
-            style={{ filter: "drop-shadow(0 0 12px rgba(55, 102, 183, 0.6))" }}
-          />
+          </form>
         </div>
       </div>
+
+      {/* Image floating outside container */}
+      <div className="absolute left-1/2 md:left-auto md:right-8 -top-6 md:-top-10 lg:-top-12 transform -translate-x-1/2 md:translate-x-0 z-20">
+      
+  <img
+    src="/hand_iphone_image.svg"
+    alt="Signup Illustration"
+    className="w-[160px] sm:w-[200px] md:w-[260px] lg:w-[320px] object-contain"
+  />
+  
+
+</div>
+
     </section>
   );
 };
+
+
 
 const socialLinks = [
   {
