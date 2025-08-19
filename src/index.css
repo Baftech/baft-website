@@ -53,13 +53,13 @@
 
 }
 
-@dark-theme{
+:root[data-theme="dark"]{
     --color-background: #000000;
     --color-text: #FFFFFF;
     --color-primary: #1E90FF;
     --color-secondary: #FF6347;
 }
-@light-theme{
+:root[data-theme="light"]{
     --color-background: #FFFFFF;
     --color-text: #000000;
     --color-primary: #1E90FF;

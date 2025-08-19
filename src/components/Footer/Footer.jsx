@@ -199,15 +199,12 @@ const Footer = () => {
             ].map(({ label, href }, idx) => (
               <p
                 key={idx}
-                className={
-                  idx === 0 ? "mb-1 font-semibold" : "mb-0 font-medium"
-                }
+                className={idx === 0 ? "mb-1 font-semibold" : "mb-0 font-medium"}
                 style={{
                   fontFamily: idx === 0 ? "EB Garamond" : "Inter",
                   fontSize: idx === 0 ? 14 : 13,
                   lineHeight: "150%",
                   letterSpacing: "0.04em",
-                  textAlign: "center",
                   textAlign: window.innerWidth >= 768 ? "right" : "center",
                 }}
               >

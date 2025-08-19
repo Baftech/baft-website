@@ -4,7 +4,6 @@ import "./Navbar.css";
 import ContactModal from "./ContactModal";
 import SignUpModal from "./SignUpModal";
 import { HiMenu, HiX } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
 
 export const Navbar = ({ onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -12,7 +11,6 @@ export const Navbar = ({ onNavigate }) => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [theme, setTheme] = useState("dark"); // default
-  const navigate = useNavigate();
 
   // Detect theme based on section in view
   useEffect(() => {
