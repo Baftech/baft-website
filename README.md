@@ -1,4 +1,4 @@
-# BAFT Website
+# BaFT Website
 
 This is the official landing page for the BAFT, targeting Gen-Z users with a futuristic fintech UX.
 
