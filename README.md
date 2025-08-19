@@ -4,7 +4,7 @@ This is the official landing page for the BAFT, targeting Gen-Z users with a fut
 
 Tech Stack
 
-- React (CRA)
+- React (VITE)
 - React Router
 - Tailwind CSS 
 - GitHub for version control
