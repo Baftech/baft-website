@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -10,6 +10,8 @@ const B_Fast = () => {
   const contentRef = useRef(null);
   const canvasRef = useRef(null);
   const overlayRef = useRef(null);
+  const videoRef = useRef(null);
+  const [shouldShowVideo, setShouldShowVideo] = useState(false);
 
   // === Canvas Starfield ===
 useEffect(() => {
@@ -85,6 +87,15 @@ useEffect(() => {
 
   // === GSAP ScrollTrigger Animation ===
   useGSAP(() => {
+    // Immediately hide the video to prevent it from showing in hero section
+    if (videoRef.current) {
+      gsap.set(videoRef.current, { 
+        opacity: 0, 
+        visibility: "hidden",
+        scale: 0.95 // Start slightly smaller for better animation
+      });
+    }
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.current,
@@ -105,12 +116,63 @@ useEffect(() => {
       { opacity: 0, y: 50 },
       { opacity: 1, y: 0, ease: "power1.out" },
       0.1
+    ).call(() => {
+      // Show video element when it's time
+      setShouldShowVideo(true);
+    }, [], 0.2
+    ).fromTo(
+      videoRef.current,
+      { opacity: 0, visibility: "hidden", scale: 0.95 },
+      { opacity: 1, visibility: "visible", scale: 1, ease: "power2.out" },
+      0.3
     );
 
     return () => {
       tl.scrollTrigger?.kill();
       tl.kill();
     };
+  }, []);
+
+  // Additional useEffect to ensure video is hidden on mount
+  useEffect(() => {
+    if (videoRef.current) {
+      // Force hide the video immediately
+      gsap.set(videoRef.current, { 
+        opacity: 0, 
+        visibility: "hidden",
+        scale: 0.95
+      });
+      
+      // Also set CSS properties as backup
+      videoRef.current.style.opacity = "0";
+      videoRef.current.style.visibility = "hidden";
+      videoRef.current.style.transform = "scale(0.95)";
+    }
+
+    // Cleanup function to reset video state
+    return () => {
+      setShouldShowVideo(false);
+    };
+  }, []);
+
+  // Effect to handle scroll direction and hide video when scrolling up
+  useEffect(() => {
+    let lastScrollY = window.pageYOffset;
+    
+    const handleScroll = () => {
+      const currentScrollY = window.pageYOffset;
+      const sectionTop = sectionRef.current?.offsetTop || 0;
+      
+      // If scrolling up and we're above the section, hide the video
+      if (currentScrollY < lastScrollY && currentScrollY < sectionTop) {
+        setShouldShowVideo(false);
+      }
+      
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -146,18 +208,33 @@ useEffect(() => {
           One Tap. Zero Wait.
         </p>
 
-        {/* Responsive Video */}
-        <div className="relative w-full max-w-[1500px] mt-4">
-          <video
-            src="/bfast_video.mp4"
-            className="w-full h-auto object-contain"
-            autoPlay
-            loop
-            muted
-            playsInline
-            aria-hidden="true"
-          />
-        </div>
+        {/* Responsive Video - Initially hidden */}
+        {shouldShowVideo && (
+          <div className="relative w-full max-w-[1500px] mt-4">
+            <video
+              ref={videoRef}
+              src="/bfast_video.mp4"
+              className="w-full h-auto object-contain opacity-0"
+              autoPlay={false}
+              loop
+              muted
+              playsInline
+              aria-hidden="true"
+              style={{ 
+                opacity: 0, 
+                visibility: "hidden",
+                position: "relative",
+                zIndex: 1
+              }}
+              onLoadStart={() => {
+                // Ensure video is hidden when it starts loading
+                if (videoRef.current) {
+                  gsap.set(videoRef.current, { opacity: 0, visibility: "hidden" });
+                }
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Fallback for JS-disabled users */}
