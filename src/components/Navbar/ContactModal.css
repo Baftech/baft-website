@@ -18,3 +18,42 @@
   backdrop-filter: blur(29.7px); /* Note: limited browser support */
   border-radius: 42.18px;
 }
+
+/* Contact Modal Send Button Hover Effects */
+.contact-send-button {
+  position: relative;
+  overflow: hidden;
+  width: 120.29px !important;
+  height: 42.56px !important;
+  align-self: center;
+}
+
+.contact-send-button::before {
+  content: "Send";
+  transition: transform 0.3s ease;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.contact-send-button:hover::before {
+  transform: scale(0.9);
+}
+
+.contact-send-button::after {
+  content: "•";
+  transition: all 0.3s ease;
+  font-size: 18px;
+  margin-left: 4px;
+}
+
+.contact-send-button:hover::after {
+  content: "→";
+  font-size: 16px;
+  transform: translateX(2px);
+}
+
+.contact-send-button:hover {
+  background: white !important;
+  color: #333 !important;
+  transition: all 1.5s ease;
+}

@@ -62,10 +62,10 @@
 .fancy {
   --offset: 2px;
   background: transparent;
-  border-radius: 25px;
+  border-radius: 200px;
   position: relative;
-  height: 40px;
-  width: 106px;
+  height: 64px;
+  width: 196px;
   max-width: 100%;
   overflow: hidden;
 }
@@ -76,8 +76,8 @@
   left: 50%;
   transform: translate(-50%, -50%);
   aspect-ratio: 1;
-  width: 100%;
-  animation: rotate 2s linear infinite;
+  width: 250%;
+  animation: rotate 5s linear infinite;
   filter: blur(0.5px);
 }
 .fancy::after {
@@ -101,8 +101,8 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 44px; /* iOS minimum touch target */
-  min-width: 44px;
+  min-height: 64px;
+  min-width: 124px;
 }
 
 /* Mobile nav button improvements */
@@ -151,10 +151,10 @@
 /* Animation */
 @keyframes rotate {
   from {
-    transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
+    transform: translate(-50%, -50%) scale(8) rotate(0turn);
   }
   to {
-    transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
+    transform: translate(-50%, -50%) scale(8) rotate(1turn);
   }
 }
 
@@ -170,22 +170,25 @@
 .dark-theme .nav-btn:hover {
   background: white;
   color: black;
+  transition: all 1.0s ease;
 }
 .dark-theme .fancy::before {
-  background: conic-gradient(transparent 270deg, white, transparent);
+  background: conic-gradient(transparent 230deg, 
+    rgba(255,255,255,0.1) 285deg,
+    rgba(255,255,255,0.5) 28deg,
+    white 310deg,
+    rgba(255,255,255,0.5) 292deg,
+    rgba(255,255,255,0.1) 295deg,
+    transparent 320deg);
 }
 .dark-theme .fancy::after {
   background: black;
 }
-.dark-theme .fancy:hover::after {
-  background: white;
-}
+
 .dark-theme .fancy button {
   color: white;
 }
-.dark-theme .fancy:hover button {
-  color: black;
-}
+
 .dark-theme .mobile-link {
   color: white;
 }
@@ -205,9 +208,14 @@
 .light-theme .nav-btn:hover {
   background: #0a2d52 !important;
   color: white !important;
+  transition: all 1.0s ease;
 }
 .light-theme .fancy::before {
-  background: conic-gradient(transparent 270deg, #092646, transparent);
+  background: conic-gradient(    transparent 270deg, 
+  
+    #092646 290deg,
+
+    transparent 300deg);
 }
 .light-theme .fancy::after {
   background: white;
@@ -215,9 +223,7 @@
 .light-theme .fancy button {
   color: #092646;
 }
-.light-theme .fancy:hover button {
-  color: black;
-}
+
 .light-theme .mobile-link {
   color: #092646;
 }

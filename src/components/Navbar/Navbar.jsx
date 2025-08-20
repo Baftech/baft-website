@@ -4,7 +4,7 @@ import "./Navbar.css";
 import ContactModal from "./ContactModal";
 import SignUpModal from "./SignUpModal";
 import { HiMenu, HiX } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
+
 
 export const Navbar = ({ onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -12,7 +12,7 @@ export const Navbar = ({ onNavigate }) => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [theme, setTheme] = useState("dark"); // default
-  const navigate = useNavigate();
+
 
   // Detect theme based on section in view
   useEffect(() => {
@@ -71,7 +71,7 @@ export const Navbar = ({ onNavigate }) => {
                 ?.scrollIntoView({ behavior: "smooth" });
               setIsMobileMenuOpen(false);
             }}
-            className={`nav-btn ${
+            className={`w-[124px] h-16 rounded-[200px] nav-btn ${
               theme === "dark" ? "text-white" : "text-black"
             }`}
           >
@@ -80,7 +80,7 @@ export const Navbar = ({ onNavigate }) => {
 
           <button
             onClick={() => setIsContactModalOpen(true)}
-            className="nav-btn"
+            className="w-[124px] h-16 rounded-[200px] nav-btn"
           >
             Let's Chat
           </button>
@@ -89,7 +89,7 @@ export const Navbar = ({ onNavigate }) => {
         {/* Center logo */}
         <div
           id="hero_container"
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-1 items-center"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-1 items-center justify-center"
         >
           <img
             src={theme === "dark" ? "logo.png" : "logo1.png"}
@@ -101,7 +101,12 @@ export const Navbar = ({ onNavigate }) => {
 
         {/* Right signup */}
         <div className="fancy hidden lg:block">
-          <button onClick={() => setIsSignUpModalOpen(true)}>Signup</button>
+          <button
+            onClick={() => setIsSignUpModalOpen(true)}
+            className="w-[124px] h-16 rounded-[200px]"
+          >
+            Sign Up
+          </button>
         </div>
 
         {/* Mobile menu toggle */}

@@ -1,15 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './SignUpModal.css';
 import Thanks_page from './Thanks_page';
 
 const SignUpModal = ({ isOpen, onClose }) => {
   const [showThanks, setShowThanks] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     contactNumber: '',
     autoFill: false
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => setIsAnimating(true), 10);
+    } else {
+      setIsAnimating(false);
+      setIsClosing(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -23,20 +34,13 @@ const SignUpModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you can add form validation and API call
     console.log('Form submitted:', formData);
     setShowThanks(true);
   };
 
   const handleClose = () => {
-    setShowThanks(false);
-    setFormData({
-      name: '',
-      email: '',
-      contactNumber: '',
-      autoFill: false
-    });
-    onClose();
+    setIsClosing(true);
+    setTimeout(() => onClose(), 800);
   };
 
   const handleThanksClose = () => {
@@ -47,13 +51,14 @@ const SignUpModal = ({ isOpen, onClose }) => {
       contactNumber: '',
       autoFill: false
     });
-    onClose();
+    handleClose();
   };
 
   return (
     <div data-theme="dark" className="signup-modal-backdrop">
-      <div className="signup-modal-container">
-        {/* Close Button */}
+      <div className={`signup-modal-container transition-all duration-800 ease-out ${
+        isAnimating && !isClosing ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-8'
+      }`}>
         <button
           onClick={handleClose}
           className="signup-close-button"
@@ -65,13 +70,11 @@ const SignUpModal = ({ isOpen, onClose }) => {
           <Thanks_page onClose={handleThanksClose} />
         ) : (
           <>
-            {/* Logo */}
             <div className="signup-header">
               <img src="/logo.png" alt="BaFT Logo" className="signup-logo" />
-              <p className="signup-tagline">Build for You, Powered by Tech</p>
+              <p className="signup-tagline">Built for You, Powered by Tech</p>
             </div>
             
-            {/* Sign Up Form Container */}
             <div className="signup-form-container">
               <div className="signup-title-section">
                 <h3 className="signup-title">Sign Up</h3>
@@ -115,7 +118,6 @@ const SignUpModal = ({ isOpen, onClose }) => {
                   />
                 </div>
                 
-                {/* Auto-fill checkbox */}
                 <div className="signup-checkbox-container">
                   <input
                     type="checkbox"
@@ -134,11 +136,8 @@ const SignUpModal = ({ isOpen, onClose }) => {
                   type="submit"
                   className="signup-send-button"
                 >
-                  Send •
                 </button>
               </form>
-              
-              {/* No divider or social login buttons as requested */}
             </div>
           </>
         )}

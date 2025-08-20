@@ -150,7 +150,7 @@ const Videocomponent = () => {
               color: "#909090",
             }}
           >
-            BaFT Technologies is a next-gen neo-banking startup headquartered in
+            BaFT Technology is a next-gen neo-banking startup headquartered in
             Bangalore, proudly founded in 2025. We're a tight-knit team of
             financial innovators and tech experts on a mission: to reimagine
             financial services in India with customer-first solutions.

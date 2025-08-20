@@ -7,14 +7,21 @@
   margin-bottom: 1.5rem; /* 24px */
 }
 .thanks-message {
-  font-weight: 300;   /* light */
+  font-weight: 200;   /* light */
   font-size: clamp(0.8rem, 1.5vw, 1rem); /* smaller + responsive */
   line-height: 1.5;
   color: #ffffff;
   opacity: 0.85;
   margin-top: 0.5rem;
 }
+.thanks-card{
+  position: relative;
+  width: 100%;
+  max-width: 480px; /* max width for larger screens */
+  height: auto; /* auto height to fit content */
+  padding: 2rem; /* consistent padding */
 
+}
 
 /* Responsive text container */
 .thanks-text {
@@ -22,7 +29,7 @@
   padding: 0 1rem;
   font-family: 'Inter', sans-serif;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 500;
   font-size: clamp(1rem, 2vw, 1.25rem); /* scales with screen */
   line-height: 1.6;
   text-align: center;
