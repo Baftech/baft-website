@@ -173,13 +173,15 @@
   transition: all 1.0s ease;
 }
 .dark-theme .fancy::before {
-  background: conic-gradient(transparent 230deg, 
-    rgba(255,255,255,0.1) 285deg,
-    rgba(255,255,255,0.5) 28deg,
-    white 310deg,
-    rgba(255,255,255,0.5) 292deg,
-    rgba(255,255,255,0.1) 295deg,
-    transparent 320deg);
+  background: conic-gradient(transparent 0deg,
+  transparent 250deg, 
+  rgba(255,255,255,0.1) 270deg,
+  rgba(255,255,255,0.5) 285deg,
+  white 300deg,
+  rgba(255,255,255,0.5) 315deg,
+  rgba(255,255,255,0.1) 330deg,
+  transparent 350deg,
+  transparent 360deg);
 }
 .dark-theme .fancy::after {
   background: black;
@@ -211,11 +213,17 @@
   transition: all 1.0s ease;
 }
 .light-theme .fancy::before {
-  background: conic-gradient(    transparent 270deg, 
-  
-    #092646 290deg,
-
-    transparent 300deg);
+background: conic-gradient(
+  transparent 0deg,
+  transparent 250deg, 
+  rgba(9, 38, 70, 0.1) 270deg,
+  rgba(9, 38, 70, 0.5) 285deg,
+  #092646 300deg,
+  rgba(9, 38, 70, 0.5) 315deg,
+  rgba(9, 38, 70, 0.1) 330deg,
+  transparent 350deg,
+  transparent 360deg
+);
 }
 .light-theme .fancy::after {
   background: white;

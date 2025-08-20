@@ -89,12 +89,12 @@ export const Navbar = ({ onNavigate }) => {
         {/* Center logo */}
         <div
           id="hero_container"
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-1 items-center justify-center"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[38%] flex gap-1 items-center justify-center"
         >
           <img
             src={theme === "dark" ? "logo.png" : "logo1.png"}
             alt="Logo"
-            className="w-12 xs:w-14 sm:w-16 md:w-18 lg:w-20 h-auto"
+            className="w-16 xs:w-18 sm:w-20 md:w-24 lg:w-28 xl:w-30 h-auto"
             loading="eager"
           />
         </div>

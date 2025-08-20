@@ -135,7 +135,7 @@ const Pre_footer = () => {
       {/* Text */}
       <div className="text-container">
         <h1 className="main-heading">Banking was never easy…</h1>
-        <p className="sub-heading">BAFT – Built for You, Powered by Tech</p>
+        <p className="sub-heading">BaFT – Built for You, Powered by Tech</p>
       </div>
     </div>
   );
