@@ -5,7 +5,7 @@ import ContactModal from "./ContactModal";
 import SignUpModal from "./SignUpModal";
 import { HiMenu, HiX } from "react-icons/hi";
 
-export const Navbar = ({ onNavigate }) => {
+export const Navbar = ({ onNavigate, currentSlide }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
@@ -34,6 +34,22 @@ export const Navbar = ({ onNavigate }) => {
     return () => window.removeEventListener("scroll", handleScrollTheme);
   }, [theme]);
 
+  // Recompute theme on slide change
+  useEffect(() => {
+    const sections = document.querySelectorAll("[data-theme]");
+    let currentTheme = theme;
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      if (
+        rect.top <= window.innerHeight / 2 &&
+        rect.bottom >= window.innerHeight / 2
+      ) {
+        currentTheme = section.getAttribute("data-theme");
+      }
+    });
+    setTheme(currentTheme);
+  }, [currentSlide]);
+
   // Hide/show on scroll
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -59,36 +75,33 @@ export const Navbar = ({ onNavigate }) => {
         className={`navbar-container ${theme}-theme transition-transform duration-300 ${
           showNavbar ? "translate-y-0" : "-translate-y-full"
         }`}
-        style={{
-          background: theme === "light" ? 'linear-gradient(to bottom, #092646 0%, #3766B7 100%)' : 'transparent'
-        }}
       >
         {/* Left group */}
-        {theme !== "light" && (
-        <div className="hidden lg:flex gap-2 xl:gap-4">
-          <button
-            onClick={() => {
-              document
-                .getElementById("about")
-                ?.scrollIntoView({ behavior: "smooth" });
-              setIsMobileMenuOpen(false);
-            }}
-            className={`nav-btn ${
-              theme === "dark" ? "text-white" : "text-white"
-            }`}
-          >
-            About BaFT
-          </button>
+        {theme !== "light" && theme !== "features" && (
+          <div className="hidden lg:flex gap-2 xl:gap-4">
+            <button
+              onClick={() => {
+                document
+                  .getElementById("about")
+                  ?.scrollIntoView({ behavior: "smooth" });
+                setIsMobileMenuOpen(false);
+              }}
+              className={`nav-btn ${
+                theme === "dark" ? "text-white" : "text-[#092646]"
+              }`}
+            >
+              About BaFT
+            </button>
 
-          <button
-            onClick={() => setIsContactModalOpen(true)}
-            className={`nav-btn ${
-              theme === "dark" ? "text-white" : "text-white"
-            }`}
-          >
-            Let's Chat
-          </button>
-        </div>
+            <button
+              onClick={() => setIsContactModalOpen(true)}
+              className={`nav-btn ${
+                theme === "dark" ? "text-white" : "text-[#092646]"
+              }`}
+            >
+              Let's Chat
+            </button>
+          </div>
         )}
 
         {/* Center logo */}
@@ -99,7 +112,7 @@ export const Navbar = ({ onNavigate }) => {
           <img
             src="/logo.png"
             alt="Logo"
-            className="w-12 xs:w-14 sm:w-16 md:w-18 lg:w-20 h-auto logo-blue-filter"
+            className={`w-12 xs:w-14 sm:w-16 md:w-18 lg:w-20 h-auto ${theme === 'dark' ? 'logo-white-filter' : 'logo-blue-filter'}`}
             loading="eager"
           />
         </div>
@@ -151,7 +164,7 @@ export const Navbar = ({ onNavigate }) => {
           onClick={(e) => e.stopPropagation()}
           className="flex flex-col space-y-4 sm:space-y-6 w-full max-w-sm"
         >
-          {theme !== "light" && (
+          {theme !== "light" && theme !== "features" && (
             <button
               onClick={() => {
                 document
@@ -160,7 +173,7 @@ export const Navbar = ({ onNavigate }) => {
                 setIsMobileMenuOpen(false);
               }}
               className={`mobile-link ${
-                theme === "dark" ? "text-white" : "text-black"
+                theme === "dark" ? "text-white" : "text-[#092646]"
               }`}
             >
               About BaFT
@@ -174,12 +187,12 @@ export const Navbar = ({ onNavigate }) => {
               setIsMobileMenuOpen(false);
             }}
             className={`mobile-link ${
-              theme === "dark" ? "text-white" : "text-black"
+              theme === "dark" ? "text-white" : "text-[#092646]"
             }`}
           >
             Let's Chat
           </button>
-          {theme !== "light" && (
+          {theme !== "light" && theme !== "features" && (
             <button
               onClick={() => {
                 onNavigate && onNavigate("signup");
@@ -187,7 +200,7 @@ export const Navbar = ({ onNavigate }) => {
                 setIsMobileMenuOpen(false);
               }}
               className={`mobile-link ${
-                theme === "dark" ? "text-white" : "text-black"
+                theme === "dark" ? "text-white" : "text-[#092646]"
               }`}
             >
               Sign Up

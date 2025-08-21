@@ -234,3 +234,9 @@
 .logo-blue-filter:hover {
   filter: brightness(0) saturate(100%) invert(25%) sepia(100%) saturate(2000%) hue-rotate(220deg) brightness(0.4) saturate(100%);
 }
+
+/* White logo filter for dark sections */
+.logo-white-filter {
+  filter: brightness(0) invert(1);
+  transition: filter 0.2s ease;
+}

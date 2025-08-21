@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { gsap } from "gsap";
 import { FaCreditCard, FaUser, FaGift, FaShieldAlt } from "react-icons/fa";
 
@@ -33,7 +33,7 @@ const Cards = () => {
     },
   ];
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!cardsRef.current) return;
 
     const cardElements = gsap.utils.toArray(cardsRef.current.children);
@@ -74,7 +74,7 @@ const Cards = () => {
     return () => clearInterval(interval);
   }, []);
   return (
-    <div className="h-screen bg-white">
+    <div className="h-screen bg-white" data-theme="features">
       <section
         id="features"
         className="px-6 lg:px-24 h-screen flex items-center justify-center"
@@ -119,7 +119,7 @@ const Cards = () => {
                   >
                     <IconComponent
                       className={`text-2xl ${
-                        isActive ? "text-[#1966BB]" : "text-[#1966BB]"
+                        isActive ? "text-[#1966BB]" : "text-[#1966BB]" 
                       }`}
                     />
                     <div>
@@ -147,7 +147,7 @@ const Cards = () => {
          {/* Right Column - Horizontal Cylinder */}
 <div
   className="relative w-full flex items-center justify-end perspective-[1200px] order-1 lg:order-2"
-  style={{ marginTop: "100px" }}
+  style={{ marginTop: "100px", willChange: "transform, opacity", backfaceVisibility: "hidden", transformStyle: "preserve-3d" }}
   ref={cardsRef}
 >
 
@@ -161,6 +161,9 @@ const Cards = () => {
     src={feature.image}
     alt={feature.title}
     className="w-full h-full object-fill"
+    loading="eager"
+    decoding="async"
+    fetchPriority="high"
   />
 </div>
 
