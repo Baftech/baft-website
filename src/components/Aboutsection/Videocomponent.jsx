@@ -1,87 +1,262 @@
-import React from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
+import React, { useRef, useEffect, useState } from "react";
 
-const Videocomponent = () => {
-  useGSAP(() => {
-    // Simple entrance animation
-    gsap.fromTo("#video_image", 
-      { opacity: 0, scale: 0.8 },
-      { opacity: 1, scale: 1, duration: 1.2, ease: "power2.out" }
-    );
-    
-    gsap.fromTo("#video_title", 
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1, delay: 0.2, ease: "power2.out" }
-    );
-    
-    gsap.fromTo("#video_description", 
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1, delay: 0.4, ease: "power2.out" }
-    );
-  }, []);
+const Videocomponent = ({ slide = false }) => {
+  const mainContainerRef = useRef(null);
+  const videoSectionRef = useRef(null);
+  const videoRef = useRef(null);
+  const [animationProgress, setAnimationProgress] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+
+  // Slide mode: expand on the first wheel/keydown within this slide; initial view stays normal
+  useEffect(() => {
+    if (!slide) return;
+    const onWheel = (e) => {
+      if (expanded) return;
+      setExpanded(true);
+      setAnimationProgress(1);
+      if (videoRef.current) {
+        videoRef.current.play().catch(() => {
+          videoRef.current.muted = true;
+          videoRef.current.play().catch(() => {});
+        });
+      }
+    };
+    const onKey = (e) => {
+      if (expanded) return;
+      if (["ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) {
+        setExpanded(true);
+        setAnimationProgress(1);
+        if (videoRef.current) {
+          videoRef.current.play().catch(() => {
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(() => {});
+          });
+        }
+      }
+    };
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [slide, expanded]);
+
+  // Standalone scroll mode: original behavior
+  useEffect(() => {
+    if (slide) return; // Skip in slide mode
+    const handleScroll = () => {
+      if (!mainContainerRef.current || !videoSectionRef.current) return;
+      const container = mainContainerRef.current;
+      const scrollTop = container.scrollTop;
+      const windowHeight = window.innerHeight;
+      const videoSectionStart = 0;
+      const videoSectionEnd = windowHeight;
+      if (scrollTop >= videoSectionStart && scrollTop <= videoSectionEnd) {
+        const sectionScroll = scrollTop - videoSectionStart;
+        if (sectionScroll >= 1) {
+          setAnimationProgress(1);
+          if (videoRef.current && videoRef.current.paused) {
+            videoRef.current.play().catch((error) => {
+              videoRef.current.muted = true;
+              videoRef.current.play().catch(() => {});
+            });
+          }
+        } else {
+          setAnimationProgress(0);
+        }
+      } else if (scrollTop < videoSectionStart) {
+        setAnimationProgress(0);
+        if (videoRef.current && !videoRef.current.paused) {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+        }
+      }
+    };
+
+    const handleWheel = () => {
+      if (!mainContainerRef.current) return;
+      const container = mainContainerRef.current;
+      const scrollTop = container.scrollTop;
+      const windowHeight = window.innerHeight;
+      const videoSectionStart = 0;
+      const videoSectionEnd = windowHeight;
+      if (scrollTop >= videoSectionStart && scrollTop < videoSectionEnd && animationProgress === 0) {
+        setAnimationProgress(1);
+        if (videoRef.current && videoRef.current.paused) {
+          videoRef.current.play().catch(() => {
+              videoRef.current.muted = true;
+            videoRef.current.play().catch(() => {});
+          });
+        }
+      }
+    };
+
+    const container = mainContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll, { passive: true });
+      container.addEventListener('wheel', handleWheel, { passive: true });
+      handleScroll();
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+        container.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, [animationProgress, slide]);
+
+  const textStyle = {
+    transform: `translateX(${animationProgress * 120}vw)`,
+    opacity: Math.max(0, 1 - animationProgress * 1.5),
+    transition: animationProgress > 0 ? 'all 3s ease-out' : 'none',
+  };
+
+  const videoStyle = {
+    transform: `scale(${1 + animationProgress * 1.5})`,
+    transformOrigin: "center center",
+    transition: animationProgress > 0 ? 'all 2s ease-out' : 'none',
+  };
 
   return (
-    <section className="bg-white w-full h-screen flex items-center justify-center relative overflow-hidden">
-      <div className="mt-4 md:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-10 gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-10 items-center max-w-[1200px] mx-auto w-full">
-        {/* Left Column - Image */}
-        <div className="flex items-center justify-center relative w-full h-full">
-          <img
-            id="video_image"
-            src="/video_com.png"
-            alt="BaFT Technologies Video Preview"
-            className="max-w-full h-auto rounded-lg shadow-lg transition-all duration-300 relative mx-auto"
+    <div 
+      ref={mainContainerRef}
+      style={{
+        height: '100vh',
+        overflowY: slide ? 'hidden' : 'scroll',
+        scrollSnapType: slide ? undefined : 'y mandatory',
+        scrollBehavior: slide ? undefined : 'smooth'
+      }}
+    >
+    <section
+        ref={videoSectionRef}
             style={{
-              transformOrigin: "center center",
-              display: "block",
-              maxHeight: "400px",
-              objectFit: "contain",
-              borderRadius: "33.72px",
-            }}
-          />
-        </div>
+          height: slide ? '100vh' : '200vh',
+          backgroundColor: 'white',
+          position: 'relative'
+        }}
+        data-theme="light"
+      >
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '5rem',
+            alignItems: 'center',
+            maxWidth: '1200px',
+            width: '100%',
+            padding: '0 2rem'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative'
+            }}>
+              <video
+                ref={videoRef}
+                muted
+                playsInline
+                preload="metadata"
+                poster="/video_com.png"
+            style={{
+                  ...videoStyle,
+                  maxWidth: '100%',
+                  height: 'auto',
+                  borderRadius: '33.72px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  maxHeight: '400px',
+                  objectFit: 'contain',
+                }}
+              >
+                <source src="/sample-5s.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
 
-        {/* Right Column - Text Content */}
-        <div className="flex flex-col justify-start items-start space-y-2">
-          <p
-            className="font-normal mb-2 flex items-center gap-2"
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "20px",
-              color: "#092646",
-            }}
-          >
-            <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
+            <div style={{
+              ...textStyle,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start',
+              alignItems: 'flex-start',
+              gap: '0.5rem'
+            }}>
+              <p style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '20px',
+                color: '#092646',
+                marginBottom: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <span style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#1966BB',
+                  clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)'
+                }}></span>
             Know our story
           </p>
-          <h1
-            id="video_title"
-            className="leading-tight md:leading-none mb-4 md:mb-6 lg:mb-8 font-bold text-[34px] sm:text-[44px] md:text-[54px] lg:text-[64px] text-[#1966BB]"
-            style={{
-              fontFamily: "EB Garamond, serif",
-            }}
-          >
-            <span className="block">The Video</span>
+              
+              <h1 style={{
+                fontFamily: 'EB Garamond, serif',
+                fontSize: 'clamp(34px, 8vw, 64px)',
+                fontWeight: 'bold',
+                color: '#1966BB',
+                lineHeight: '1.1',
+                marginBottom: '1rem'
+              }}>
+                The Video
           </h1>
-          <p
-            id="video_description"
-            className="text-gray-600 leading-relaxed pr-2"
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontWeight: 400,
-              fontSize: "18px",
-              lineHeight: "1.6",
-              color: "#909090",
-            }}
-          >
-            BaFT Technologies is a next-gen neo-banking startup headquartered in
+              
+              <p style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '18px',
+                color: '#909090',
+                lineHeight: '1.6',
+                fontWeight: 400
+              }}>
+                BaFT Technology is a next-gen neo-banking startup headquartered in
             Bangalore, proudly founded in 2025. We're a tight-knit team of
             financial innovators and tech experts on a mission: to reimagine
             financial services in India with customer-first solutions.
           </p>
         </div>
       </div>
-    </section>
+        </div>
+      </section>
+
+      {/* Debug Info hidden in slide mode */}
+      {!slide && (
+        <div style={{
+          position: 'fixed',
+          top: '1rem',
+          right: '1rem',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          borderRadius: '0.5rem',
+          fontSize: '12px',
+          zIndex: 1000
+        }}>
+          <div>Animation: {Math.round(animationProgress * 100)}%</div>
+          <div>Video: {videoRef.current?.paused === false ? 'Playing' : 'Paused'}</div>
+          <div>ScrollTop: {mainContainerRef.current?.scrollTop || 0}</div>
+          <div>Section Scroll: {Math.max(0, (mainContainerRef.current?.scrollTop || 0) - 0)}</div>
+          <div>Window Height: {window.innerHeight}</div>
+        </div>
+      )}
+      </div>
   );
 };
 

@@ -11,6 +11,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [theme, setTheme] = useState("dark"); // default
+  const isFeatures = theme === "features";
 
   // Detect theme based on section in view
   useEffect(() => {
@@ -50,6 +51,13 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
     setTheme(currentTheme);
   }, [currentSlide]);
 
+  // Close mobile menu if entering features slide
+  useEffect(() => {
+    if (isFeatures && isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  }, [isFeatures, isMobileMenuOpen]);
+
   // Hide/show on scroll
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -74,10 +82,10 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
       <div
         className={`navbar-container ${theme}-theme transition-transform duration-300 ${
           showNavbar ? "translate-y-0" : "-translate-y-full"
-        }`}
+        } ${isFeatures ? 'pointer-events-none bg-transparent shadow-none' : ''}`}
       >
         {/* Left group */}
-        {theme !== "light" && theme !== "features" && (
+        {theme !== "light" && !isFeatures && (
           <div className="hidden lg:flex gap-2 xl:gap-4">
             <button
               onClick={() => {
@@ -107,7 +115,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
         {/* Center logo */}
         <div
           id="hero_container"
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-1 items-center"
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-1 items-center ${isFeatures ? 'pointer-events-auto' : ''}`}
         >
           <img
             src="/logo.png"
@@ -118,38 +126,24 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
         </div>
 
         {/* Right signup (hidden in light section) */}
-        {theme !== "light" && (
+        {!isFeatures && (
           <div className="fancy hidden lg:block">
             <button onClick={() => setIsSignUpModalOpen(true)}>Signup</button>
           </div>
         )}
-
-        {/* Mobile menu toggle */}
-        <div className="lg:hidden absolute top-3 right-4 z-[110]">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`p-2 rounded-lg transition-all duration-300 ${
-              theme === "dark" ? "text-white" : "text-black hover:bg-black/20"
-            }`}
-          >
-            {isMobileMenuOpen ? (
-              <HiX
-                className={`w-6 h-6 ${
-                  theme === "dark" ? "text-white" : "text-black"
-                }`}
-              />
-            ) : (
-              <HiMenu
-                className={`w-6 h-6 ${
-                  theme === "dark" ? "text-white" : "text-black"
-                }`}
-              />
-            )}
-          </button>
-        </div>
       </div>
 
+      {/* Fixed Signup button when on Features slide (navbar hidden) */}
+      {isFeatures && (
+        <div className="hidden lg:block fixed top-3 right-4 z-[110] pointer-events-auto">
+          <div className="fancy">
+            <button onClick={() => setIsSignUpModalOpen(true)}>Signup</button>
+          </div>
+        </div>
+      )}
+
       {/* Mobile menu */}
+      {!isFeatures && (
       <div
         className={`fixed inset-0 ${
           theme === "dark" ? "bg-black/95" : "bg-white/95"
@@ -208,6 +202,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
           )}
         </div>
       </div>
+      )}
 
       {/* Modals */}
       <ContactModal

@@ -154,7 +154,7 @@ const Cards = () => {
   {featuresData.map((feature, index) => (
    <div
   key={index}
-  className="absolute w-[28rem] flex flex-col items-center justify-center scale-125"
+  className="absolute w-[26rem] flex flex-col items-center justify-center scale-125"
   
 >
   <img

@@ -13,6 +13,8 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const handleSlideChange = useCallback((newIndex) => {
     if (newIndex >= 0 && newIndex < totalSlides && !isTransitioning) {
       console.log("SlideContainer: Changing from slide", slideIndex, "to", newIndex);
+      console.log("Total slides:", totalSlides);
+      console.log("Previous slide index:", previousSlideIndex);
       
       // Store previous slide index for transition effects
       setPreviousSlideIndex(slideIndex);
@@ -30,6 +32,13 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         setIsTransitioning(false);
         setTransitionDirection('none');
       }, 1200); // Increased duration for smoother banner transition
+    } else {
+      console.log("SlideContainer: Invalid slide change attempt", {
+        newIndex,
+        totalSlides,
+        isTransitioning,
+        currentSlideIndex: slideIndex
+      });
     }
   }, [totalSlides, onSlideChange, isTransitioning, slideIndex]);
 
@@ -38,6 +47,10 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     
     const now = Date.now();
     if (now - lastScrollTime.current < scrollCooldown || isTransitioning) {
+      console.log("Scroll blocked:", { 
+        cooldown: now - lastScrollTime.current < scrollCooldown, 
+        transitioning: isTransitioning 
+      });
       return; // Still in cooldown or transitioning
     }
     
@@ -50,7 +63,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       if (slideIndex < totalSlides - 1) {
         newIndex = slideIndex + 1;
       } else {
-        // At last slide, do nothing
+        console.log("At last slide, scroll down blocked");
         return;
       }
     } else {
@@ -58,11 +71,13 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       if (slideIndex > 0) {
         newIndex = slideIndex - 1;
       } else {
-        // At first slide, do nothing
+        console.log("At first slide, scroll up blocked");
+        return;
       }
     }
     
     if (newIndex !== slideIndex) {
+      console.log("Wheel scroll: changing from slide", slideIndex + 1, "to", newIndex + 1);
       lastScrollTime.current = now;
       handleSlideChange(newIndex);
     }
@@ -115,28 +130,51 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   // Update slide index when currentSlide prop changes
   useEffect(() => {
     if (currentSlide !== undefined && currentSlide !== slideIndex) {
-      setSlideIndex(currentSlide);
+      // Validate the slide index
+      if (currentSlide >= 0 && currentSlide < totalSlides) {
+        console.log("External slide change: from", slideIndex + 1, "to", currentSlide + 1);
+        setSlideIndex(currentSlide);
+        setPreviousSlideIndex(slideIndex);
+      } else {
+        console.error("Invalid slide index:", currentSlide, "Total slides:", totalSlides);
+      }
     }
-  }, [currentSlide, slideIndex]);
+  }, [currentSlide, slideIndex, totalSlides]);
 
   const childrenArray = React.Children.toArray(children);
   const currentChild = childrenArray[slideIndex];
   const previousChild = childrenArray[previousSlideIndex];
 
-  // Seamless slide-up condition: slide 4 (index 3) -> slide 5 (index 4)
-  const isSeamlessUp = isTransitioning && transitionDirection === 'up' && previousSlideIndex === 3 && slideIndex === 4;
-  // Seamless slide-down condition: slide 5 (index 4) -> slide 4 (index 3)
-  const isSeamlessDown = isTransitioning && transitionDirection === 'down' && previousSlideIndex === 4 && slideIndex === 3;
+  // Validate slide indices
+  if (slideIndex < 0 || slideIndex >= totalSlides) {
+    console.error("Invalid slide index:", slideIndex, "Total slides:", totalSlides);
+    return null;
+  }
+
+  if (!currentChild) {
+    console.error("No content found for slide:", slideIndex);
+    return null;
+  }
+
+  // Seamless transition conditions
+  const isSeamlessUp = isTransitioning && transitionDirection === 'up' && 
+    ((previousSlideIndex === 3 && slideIndex === 4) || (previousSlideIndex === 4 && slideIndex === 5));
+  const isSeamlessDown = isTransitioning && transitionDirection === 'down' && 
+    ((previousSlideIndex === 4 && slideIndex === 3) || (previousSlideIndex === 5 && slideIndex === 4));
   const isSeamless = isSeamlessUp || isSeamlessDown;
 
   return (
     <div className="slide-container relative w-full h-screen overflow-hidden">
       {isSeamless ? (
         <>
-          <div className={`absolute inset-0 w-full h-full ${isSeamlessUp ? 'seamless-up-prev' : 'seamless-down-prev'}`}>
+          <div className={`absolute inset-0 w-full h-full ${
+            isSeamlessUp ? 'seamless-up-prev' : 'seamless-down-prev'
+          }`}>
             {previousChild}
           </div>
-          <div className={`absolute inset-0 w-full h-full ${isSeamlessUp ? 'seamless-up-next' : 'seamless-down-next'}`}>
+          <div className={`absolute inset-0 w-full h-full ${
+            isSeamlessUp ? 'seamless-up-next' : 'seamless-down-next'
+          }`}>
             {currentChild}
           </div>
         </>
@@ -159,6 +197,17 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
               : 'banner-transition-down'
           }`}
         />
+      )}
+
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed top-4 left-4 bg-black/80 text-white p-2 rounded text-xs z-50 pointer-events-none">
+          <div>Slide: {slideIndex + 1}/{totalSlides}</div>
+          <div>Previous: {previousSlideIndex + 1}</div>
+          <div>Transitioning: {isTransitioning ? 'Yes' : 'No'}</div>
+          <div>Direction: {transitionDirection}</div>
+          <div>Seamless: {isSeamless ? 'Yes' : 'No'}</div>
+        </div>
       )}
     </div>
   );
