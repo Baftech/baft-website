@@ -59,8 +59,12 @@ export const Navbar = ({ onNavigate }) => {
         className={`navbar-container ${theme}-theme transition-transform duration-300 ${
           showNavbar ? "translate-y-0" : "-translate-y-full"
         }`}
+        style={{
+          background: theme === "light" ? 'linear-gradient(to bottom, #092646 0%, #3766B7 100%)' : 'transparent'
+        }}
       >
         {/* Left group */}
+        {theme !== "light" && (
         <div className="hidden lg:flex gap-2 xl:gap-4">
           <button
             onClick={() => {
@@ -70,7 +74,7 @@ export const Navbar = ({ onNavigate }) => {
               setIsMobileMenuOpen(false);
             }}
             className={`nav-btn ${
-              theme === "dark" ? "text-white" : "text-black"
+              theme === "dark" ? "text-white" : "text-white"
             }`}
           >
             About BaFT
@@ -78,11 +82,14 @@ export const Navbar = ({ onNavigate }) => {
 
           <button
             onClick={() => setIsContactModalOpen(true)}
-            className="nav-btn"
+            className={`nav-btn ${
+              theme === "dark" ? "text-white" : "text-white"
+            }`}
           >
             Let's Chat
           </button>
         </div>
+        )}
 
         {/* Center logo */}
         <div
@@ -90,17 +97,19 @@ export const Navbar = ({ onNavigate }) => {
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-1 items-center"
         >
           <img
-            src={theme === "dark" ? "logo.png" : "logo1.png"}
+            src="/logo.png"
             alt="Logo"
-            className="w-12 xs:w-14 sm:w-16 md:w-18 lg:w-20 h-auto"
+            className="w-12 xs:w-14 sm:w-16 md:w-18 lg:w-20 h-auto logo-blue-filter"
             loading="eager"
           />
         </div>
 
-        {/* Right signup */}
-        <div className="fancy hidden lg:block">
-          <button onClick={() => setIsSignUpModalOpen(true)}>Signup</button>
-        </div>
+        {/* Right signup (hidden in light section) */}
+        {theme !== "light" && (
+          <div className="fancy hidden lg:block">
+            <button onClick={() => setIsSignUpModalOpen(true)}>Signup</button>
+          </div>
+        )}
 
         {/* Mobile menu toggle */}
         <div className="lg:hidden absolute top-3 right-4 z-[110]">
@@ -142,19 +151,21 @@ export const Navbar = ({ onNavigate }) => {
           onClick={(e) => e.stopPropagation()}
           className="flex flex-col space-y-4 sm:space-y-6 w-full max-w-sm"
         >
-          <button
-            onClick={() => {
-              document
-                .getElementById("about")
-                ?.scrollIntoView({ behavior: "smooth" });
-              setIsMobileMenuOpen(false);
-            }}
-            className={`mobile-link ${
-              theme === "dark" ? "text-white" : "text-black"
-            }`}
-          >
-            About BaFT
-          </button>
+          {theme !== "light" && (
+            <button
+              onClick={() => {
+                document
+                  .getElementById("about")
+                  ?.scrollIntoView({ behavior: "smooth" });
+                setIsMobileMenuOpen(false);
+              }}
+              className={`mobile-link ${
+                theme === "dark" ? "text-white" : "text-black"
+              }`}
+            >
+              About BaFT
+            </button>
+          )}
 
           <button
             onClick={() => {
@@ -168,18 +179,20 @@ export const Navbar = ({ onNavigate }) => {
           >
             Let's Chat
           </button>
-          <button
-            onClick={() => {
-              onNavigate && onNavigate("signup");
-              setIsSignUpModalOpen(true);
-              setIsMobileMenuOpen(false);
-            }}
-            className={`mobile-link ${
-              theme === "dark" ? "text-white" : "text-black"
-            }`}
-          >
-            Sign Up
-          </button>
+          {theme !== "light" && (
+            <button
+              onClick={() => {
+                onNavigate && onNavigate("signup");
+                setIsSignUpModalOpen(true);
+                setIsMobileMenuOpen(false);
+              }}
+              className={`mobile-link ${
+                theme === "dark" ? "text-white" : "text-black"
+              }`}
+            >
+              Sign Up
+            </button>
+          )}
         </div>
       </div>
 

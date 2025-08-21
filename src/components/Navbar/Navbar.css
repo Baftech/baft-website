@@ -224,3 +224,13 @@
 .light-theme .mobile-link:hover {
   background: rgba(0, 0, 0, 0.05);
 }
+
+/* Logo blue filter to fix white shade issue */
+.logo-blue-filter {
+  filter: brightness(0) saturate(100%) invert(15%) sepia(100%) saturate(2000%) hue-rotate(200deg) brightness(0.3) saturate(100%);
+  transition: filter 0.3s ease;
+}
+
+.logo-blue-filter:hover {
+  filter: brightness(0) saturate(100%) invert(25%) sepia(100%) saturate(2000%) hue-rotate(220deg) brightness(0.4) saturate(100%);
+}

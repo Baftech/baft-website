@@ -16,6 +16,8 @@
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
     "@fortawesome/react-fontawesome": "^0.2.3",
     "@gsap/react": "^2.1.2",
+    "@react-three/drei": "^10.7.3",
+    "@react-three/fiber": "^9.3.0",
     "@tailwindcss/vite": "^4.1.11",
     "font-awesome-icons": "^1.6.0",
     "framer-motion": "^12.23.12",

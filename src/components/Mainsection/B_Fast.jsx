@@ -1,249 +1,77 @@
-import React, { useRef, useEffect, useState } from "react";
-import gsap from "gsap";
+import React, { useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import gsap from "gsap";
 
 const B_Fast = () => {
-  const sectionRef = useRef(null);
   const contentRef = useRef(null);
-  const canvasRef = useRef(null);
-  const overlayRef = useRef(null);
   const videoRef = useRef(null);
-  const [shouldShowVideo, setShouldShowVideo] = useState(false);
 
-  // === Canvas Starfield ===
-useEffect(() => {
-  const canvas = canvasRef.current;
-  const ctx = canvas.getContext("2d");
-
-  let stars = [];
-  let rafId = 0;
-  let rotationAngle = 0;
-
-  const createStars = () => {
-    const starCount = Math.floor(
-      (window.innerWidth * window.innerHeight) / 8000
-    );
-
-    stars = [];
-    for (let i = 0; i < starCount; i++) {
-      stars.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        radius: Math.random() * 1.5 + 0.5,
-        alpha: Math.random(),
-      });
-    }
-  };
-
-  const resizeCanvas = () => {
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform before scaling
-    ctx.scale(dpr, dpr);
-    createStars(); // regenerate stars on resize
-  };
-
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
-
-  function draw() {
-    ctx.save();
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-    ctx.translate(window.innerWidth / 2, window.innerHeight / 2);
-    ctx.rotate(rotationAngle);
-    ctx.translate(-window.innerWidth / 2, -window.innerHeight / 2);
-
-    for (let star of stars) {
-      const gradient = ctx.createRadialGradient(
-        star.x, star.y, 0,
-        star.x, star.y, star.radius * 3
-      );
-      gradient.addColorStop(0, `rgba(0,0,0,${star.alpha})`);
-      gradient.addColorStop(1, "rgba(0,0,0,0)");
-
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.restore();
-    rotationAngle += 0.0005;
-    rafId = requestAnimationFrame(draw);
-  }
-
-  draw();
-
-  return () => {
-    cancelAnimationFrame(rafId);
-    window.removeEventListener("resize", resizeCanvas);
-  };
-}, []);
-
-  // === GSAP ScrollTrigger Animation ===
   useGSAP(() => {
-    // Immediately hide the video to prevent it from showing in hero section
-    if (videoRef.current) {
-      gsap.set(videoRef.current, { 
-        opacity: 0, 
-        visibility: "hidden",
-        scale: 0.95 // Start slightly smaller for better animation
-      });
-    }
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true,
-        pin: true,
-      },
-    });
-
-    tl.fromTo(
-      overlayRef.current,
-      { opacity: 1 },
-      { opacity: 0, ease: "power2.out" },
-      0
-    ).fromTo(
-      contentRef.current,
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, ease: "power1.out" },
-      0.1
-    ).call(() => {
-      // Show video element when it's time
-      setShouldShowVideo(true);
-    }, [], 0.2
-    ).fromTo(
-      videoRef.current,
-      { opacity: 0, visibility: "hidden", scale: 0.95 },
-      { opacity: 1, visibility: "visible", scale: 1, ease: "power2.out" },
-      0.3
-    );
-
-    return () => {
-      tl.scrollTrigger?.kill();
-      tl.kill();
-    };
-  }, []);
-
-  // Additional useEffect to ensure video is hidden on mount
-  useEffect(() => {
-    if (videoRef.current) {
-      // Force hide the video immediately
-      gsap.set(videoRef.current, { 
-        opacity: 0, 
-        visibility: "hidden",
-        scale: 0.95
-      });
-      
-      // Also set CSS properties as backup
-      videoRef.current.style.opacity = "0";
-      videoRef.current.style.visibility = "hidden";
-      videoRef.current.style.transform = "scale(0.95)";
-    }
-
-    // Cleanup function to reset video state
-    return () => {
-      setShouldShowVideo(false);
-    };
-  }, []);
-
-  // Effect to handle scroll direction and hide video when scrolling up
-  useEffect(() => {
-    let lastScrollY = window.pageYOffset;
+    // Initially hide everything
+    gsap.set(contentRef.current, { opacity: 0, y: -100 });
+    gsap.set(videoRef.current, { opacity: 0, scale: 0.8 });
     
-    const handleScroll = () => {
-      const currentScrollY = window.pageYOffset;
-      const sectionTop = sectionRef.current?.offsetTop || 0;
+    // Start video animation first
+    setTimeout(() => {
+      // Show video first - fade in from position
+      gsap.to(videoRef.current, {
+        opacity: 1,
+        scale: 1,
+        duration: 1.2,
+        ease: "power2.out"
+      });
       
-      // If scrolling up and we're above the section, hide the video
-      if (currentScrollY < lastScrollY && currentScrollY < sectionTop) {
-        setShouldShowVideo(false);
-      }
-      
-      lastScrollY = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+      // Show text after video animation - slide down from top
+      setTimeout(() => {
+        gsap.to(contentRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 1.5,
+          ease: "power2.out"
+        });
+      }, 600);
+    }, 300);
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative flex flex-col justify-center items-center min-h-screen overflow-hidden bg-white"
-      aria-label="B-Fast hero section"
-    >
-      {/* Black Overlay */}
-      <div
-        ref={overlayRef}
-        className="absolute inset-0 bg-black z-20 pointer-events-none"
-        aria-hidden="true"
-      />
+    <section className="relative w-full h-screen bg-white overflow-hidden" data-theme="light">
+      {/* Content Container */}
+      <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 bg-white">
+        {/* Text Content */}
+        <div
+          ref={contentRef}
+          className="text-center mb-16"
+          style={{ marginTop: '80px' }}
+        >
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[130px] eb-garamond-Bfast bg-gradient-to-r from-[#9AB5D2] to-[#092646] bg-clip-text text-transparent mb-4">
+            B-Fast
+          </h1>
 
-      {/* Starfield Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 z-0 bg-transparent"
-        role="presentation"
-      />
-
-      {/* Content */}
-      <div
-        ref={contentRef}
-        className="relative z-10 flex flex-col items-center text-center"
-      >
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[130px] eb-garamond-Bfast bg-gradient-to-r from-[#9AB5D2] to-[#092646] bg-clip-text text-transparent">
-          B-Fast
-        </h1>
-
-        <p className="mt-4 text-lg sm:text-xl md:text-2xl inter-Bfast_sub bg-gradient-to-r from-[#777575] to-[#092646] bg-clip-text text-transparent">
-          One Tap. Zero Wait.
-        </p>
-
-        {/* Responsive Video - Initially hidden */}
-        {shouldShowVideo && (
-          <div className="relative w-full max-w-[1500px] mt-4">
-            <video
-              ref={videoRef}
-              src="/bfast_video.mp4"
-              className="w-full h-auto object-contain opacity-0"
-              autoPlay={false}
-              loop
-              muted
-              playsInline
-              aria-hidden="true"
-              style={{ 
-                opacity: 0, 
-                visibility: "hidden",
-                position: "relative",
-                zIndex: 1
-              }}
-              onLoadStart={() => {
-                // Ensure video is hidden when it starts loading
-                if (videoRef.current) {
-                  gsap.set(videoRef.current, { opacity: 0, visibility: "hidden" });
-                }
-              }}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Fallback for JS-disabled users */}
-      <noscript>
-        <style>{`.no-js-hidden { display: none; }`}</style>
-        <div className="bg-black text-white p-6 text-center z-30">
-          Please enable JavaScript to experience the full B-Fast animation.
+          <p className="text-lg sm:text-xl md:text-2xl inter-Bfast_sub bg-gradient-to-r from-[#777575] to-[#092646] bg-clip-text text-transparent">
+            One Tap. Zero Wait.
+          </p>
         </div>
-      </noscript>
+
+        {/* Semi-transparent layer between text and video */}
+        <div className="w-full max-w-[600px] h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-8 opacity-70"></div>
+
+        {/* Video Section */}
+        <div className="relative w-full max-w-[1000px] h-[100px] md:h-[350px] flex items-center justify-center bg-white" style={{ marginTop: '-100px' }}>
+          <video
+            ref={videoRef}
+            src="/bfast_video.mp4"
+            className="w-full h-full object-cover rounded-lg"
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{ 
+              opacity: 0,
+              transform: "scale(0.8)"
+            }}
+          />
+        </div>
+      </div>
     </section>
   );
 };

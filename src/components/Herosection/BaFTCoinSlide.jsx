@@ -4,40 +4,45 @@ import gsap from "gsap";
 
 const BaFTCoinSlide = () => {
   useGSAP(() => {
-    // Initially hide all elements below the screen
-    gsap.set("#introduction", { y: 100, opacity: 0 });
-    gsap.set("#baft_coin_text", { y: 100, opacity: 0 });
-    gsap.set("#B_coin", { y: 100, opacity: 0 });
+    // Wait a bit for the slide to be fully visible before starting animations
+    const timer = setTimeout(() => {
+      // Initially hide all elements below the screen
+      gsap.set("#introduction", { y: 100, opacity: 0 });
+      gsap.set("#baft_coin_text", { y: 100, opacity: 0 });
+      gsap.set("#B_coin", { y: 100, opacity: 0 });
 
-    // Create a timeline for sequential animations
-    const tl = gsap.timeline();
-    
-    // Each element slides up with 1 second delay
-    tl.to("#introduction", {
-      y: 0,
-      opacity: 1,
-      duration: 1.2,
-      ease: "power2.out"
-    })
-    .to("#baft_coin_text", {
-      y: 0,
-      opacity: 1,
-      duration: 1.2,
-      ease: "power2.out"
-    }, "-=0.2") // Start slightly before previous animation ends
-    .to("#B_coin", {
-      y: 0,
-      opacity: 0.3,
-      duration: 1.2,
-      ease: "power2.out"
-    }, "-=0.2") // Start slightly before previous animation ends
-    .to("#B_coin", {
-      y: -20,
-      duration: 0.8,
-      ease: "power2.inOut",
-      yoyo: true,
-      repeat: -1
-    }, "+=0.5"); // Start bounce after a small delay
+      // Create a timeline for sequential animations
+      const tl = gsap.timeline();
+      
+      // Each element slides up with 1 second delay
+      tl.to("#introduction", {
+        y: 0,
+        opacity: 1,
+        duration: 1.2,
+        ease: "power2.out"
+      })
+      .to("#baft_coin_text", {
+        y: 0,
+        opacity: 1,
+        duration: 1.2,
+        ease: "power2.out"
+      }, "-=0.2") // Start slightly before previous animation ends
+      .to("#B_coin", {
+        y: 0,
+        opacity: 0.3,
+        duration: 1.2,
+        ease: "power2.out"
+      }, "-=0.2") // Start slightly before previous animation ends
+      .to("#B_coin", {
+        y: -20,
+        duration: 0.8,
+        ease: "power2.inOut",
+        yoyo: true,
+        repeat: -1
+      }, "+=0.5"); // Start bounce after a small delay
+    }, 100); // Small delay to ensure slide is fully rendered
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -48,7 +53,7 @@ const BaFTCoinSlide = () => {
     >
       <img
         id="B_coin"
-        src="/b-coin image.png"
+        src="/b-coin.svg"
         alt="BaFT Coin Image"
         className="w-64 sm:w-80 md:w-96 lg:w-[500px] h-auto p-6 sm:p-8 md:p-10 opacity-30"
       />
