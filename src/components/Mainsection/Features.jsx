@@ -52,11 +52,11 @@ const Cards = () => {
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -60, z: -100, scale: 0.9, opacity: 0.9, rotateY: 30, zIndex: 5 }, immediate);
+          setOrAnimate(card, { x: -80, z: -80, scale: 0.85, opacity: 0.8, rotateY: 20, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 60, z: -100, scale: 0.9, opacity: 0.9, rotateY: -30, zIndex: 5 }, immediate);
+          setOrAnimate(card, { x: 80, z: -80, scale: 0.85, opacity: 0.8, rotateY: -20, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: 0, z: -300, scale: 1, opacity: 0, rotateY: 0, zIndex: 0 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -160 : 160, z: -120, scale: 0.7, opacity: 0.6, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
         }
       });
     };
@@ -154,7 +154,7 @@ const Cards = () => {
   {featuresData.map((feature, index) => (
    <div
   key={index}
-  className="absolute w-[26rem] flex flex-col items-center justify-center scale-125"
+  className="absolute w-[32rem] flex flex-col items-center justify-center scale-150"
   
 >
   <img

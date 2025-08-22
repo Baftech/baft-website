@@ -7,23 +7,18 @@ const Videocomponent = ({ slide = false }) => {
   const [animationProgress, setAnimationProgress] = useState(0);
   const [expanded, setExpanded] = useState(false);
 
-  // Slide mode: expand on the first wheel/keydown within this slide; initial view stays normal
+  // Slide mode: show normal view first, then expand on interaction
   useEffect(() => {
     if (!slide) return;
-    const onWheel = (e) => {
-      if (expanded) return;
-      setExpanded(true);
-      setAnimationProgress(1);
-      if (videoRef.current) {
-        videoRef.current.play().catch(() => {
-          videoRef.current.muted = true;
-          videoRef.current.play().catch(() => {});
-        });
-      }
-    };
-    const onKey = (e) => {
-      if (expanded) return;
-      if (["ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) {
+    
+    // Reset to normal view when entering slide
+    setExpanded(false);
+    setAnimationProgress(0);
+    
+    // Add a delay before allowing expansion to ensure normal view is visible
+    const timer = setTimeout(() => {
+      const onWheel = (e) => {
+        if (expanded) return;
         setExpanded(true);
         setAnimationProgress(1);
         if (videoRef.current) {
@@ -32,14 +27,32 @@ const Videocomponent = ({ slide = false }) => {
             videoRef.current.play().catch(() => {});
           });
         }
-      }
-    };
-    window.addEventListener("wheel", onWheel, { passive: true });
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("keydown", onKey);
-    };
+      };
+      
+      const onKey = (e) => {
+        if (expanded) return;
+        if (["ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) {
+          setExpanded(true);
+          setAnimationProgress(1);
+          if (videoRef.current) {
+            videoRef.current.play().catch(() => {
+              videoRef.current.muted = true;
+              videoRef.current.play().catch(() => {});
+            });
+          }
+        }
+      };
+      
+      window.addEventListener("wheel", onWheel, { passive: true });
+      window.addEventListener("keydown", onKey);
+      
+      return () => {
+        window.removeEventListener("wheel", onWheel);
+        window.removeEventListener("keydown", onKey);
+      };
+    }, 1000); // 1 second delay to show normal view first
+    
+    return () => clearTimeout(timer);
   }, [slide, expanded]);
 
   // Standalone scroll mode: original behavior
@@ -113,10 +126,25 @@ const Videocomponent = ({ slide = false }) => {
   };
 
   const videoStyle = {
-    transform: `scale(${1 + animationProgress * 1.5})`,
+    transform: `scale(${1 + animationProgress * 2})`,
     transformOrigin: "center center",
     transition: animationProgress > 0 ? 'all 2s ease-out' : 'none',
   };
+
+  // Container expansion style - stretches to the right
+  const containerStyle = {
+    transform: `translateX(${animationProgress * 50}vw)`,
+    width: `${100 + animationProgress * 100}%`,
+    transition: animationProgress > 0 ? 'all 2.5s ease-out' : 'none',
+  };
+
+  // Grid transition style
+  const gridStyle = {
+    transition: animationProgress > 0 ? 'all 2.5s ease-out' : 'none',
+  };
+
+  // Show expansion hint after delay
+  const showExpansionHint = slide && !expanded && animationProgress === 0;
 
   return (
     <div 
@@ -131,7 +159,7 @@ const Videocomponent = ({ slide = false }) => {
     <section
         ref={videoSectionRef}
             style={{
-          height: slide ? '100vh' : '200vh',
+          height: '100vh',
           backgroundColor: 'white',
           position: 'relative'
         }}
@@ -146,15 +174,16 @@ const Videocomponent = ({ slide = false }) => {
           justifyContent: 'center',
           overflow: 'hidden'
         }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '5rem',
-            alignItems: 'center',
-            maxWidth: '1200px',
-            width: '100%',
-            padding: '0 2rem'
-          }}>
+                     <div style={{
+             display: 'grid',
+             gridTemplateColumns: animationProgress > 0 ? '1fr' : '1fr 1fr',
+             gap: animationProgress > 0 ? '0' : '5rem',
+             alignItems: 'center',
+             maxWidth: '1200px',
+             width: '100%',
+             padding: '0 2rem',
+             ...containerStyle
+           }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -180,6 +209,27 @@ const Videocomponent = ({ slide = false }) => {
                 <source src="/sample-5s.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+              
+              {/* Expansion hint */}
+              {showExpansionHint && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-40px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: 'rgba(25, 102, 187, 0.9)',
+                  color: 'white',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  fontSize: '14px',
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: '500',
+                  animation: 'pulse 2s infinite',
+                  zIndex: 10
+                }}>
+                  Scroll or press Space to expand
+                </div>
+              )}
             </div>
 
             <div style={{
@@ -236,6 +286,8 @@ const Videocomponent = ({ slide = false }) => {
         </div>
       </section>
 
+
+
       {/* Debug Info hidden in slide mode */}
       {!slide && (
         <div style={{
@@ -256,6 +308,17 @@ const Videocomponent = ({ slide = false }) => {
           <div>Window Height: {window.innerHeight}</div>
         </div>
       )}
+      
+      {/* CSS for pulse animation */}
+      <style>
+        {`
+          @keyframes pulse {
+            0% { opacity: 1; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.7; transform: translateX(-50%) scale(1.05); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1); }
+          }
+        `}
+      </style>
       </div>
   );
 };

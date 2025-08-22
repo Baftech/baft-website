@@ -12,6 +12,9 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
   const [showNavbar, setShowNavbar] = useState(true);
   const [theme, setTheme] = useState("dark"); // default
   const isFeatures = theme === "features";
+  
+  // Debug logging
+  console.log("Current slide:", currentSlide, "Theme:", theme, "isFeatures:", isFeatures);
 
   // Detect theme based on section in view
   useEffect(() => {
@@ -37,18 +40,21 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
 
   // Recompute theme on slide change
   useEffect(() => {
-    const sections = document.querySelectorAll("[data-theme]");
-    let currentTheme = theme;
-    sections.forEach((section) => {
-      const rect = section.getBoundingClientRect();
-      if (
-        rect.top <= window.innerHeight / 2 &&
-        rect.bottom >= window.innerHeight / 2
-      ) {
-        currentTheme = section.getAttribute("data-theme");
-      }
-    });
-    setTheme(currentTheme);
+    // Direct theme detection based on currentSlide
+    if (currentSlide === 4) { // Features slide (slide 5, index 4)
+      setTheme("features");
+      console.log("Features slide detected - showing fixed signup button");
+    } else if (currentSlide === 0) { // Hero slide
+      setTheme("dark");
+    } else if (currentSlide === 5) { // Video slide (slide 6, index 5)
+      setTheme("light");
+    } else if (currentSlide === 6) { // Safe & Secure slide (slide 7, index 6)
+      setTheme("light");
+    } else if (currentSlide === 7) { // Footer slide (slide 8, index 7)
+      setTheme("light");
+    } else {
+      setTheme("dark"); // Default theme for other slides
+    }
   }, [currentSlide]);
 
   // Close mobile menu if entering features slide
@@ -135,8 +141,8 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
 
       {/* Fixed Signup button when on Features slide (navbar hidden) */}
       {isFeatures && (
-        <div className="hidden lg:block fixed top-3 right-4 z-[110] pointer-events-auto">
-          <div className="fancy">
+        <div className="fixed top-6 right-8 z-[9999] pointer-events-auto" style={{border: '2px solid red'}}>
+          <div className="fancy fixed-signup">
             <button onClick={() => setIsSignUpModalOpen(true)}>Signup</button>
           </div>
         </div>
