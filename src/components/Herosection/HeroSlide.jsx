@@ -70,7 +70,7 @@ const Hero = () => {
       </div>
 
       {/* Text appears later */}
-      <div id="text" className="relative z-20 text-center px-4 mt-20">
+      <div id="text" className="relative z-20 text-center px-4 mt-25">
         <p
   style={{
     fontFamily: "General Sans, sans-serif",
