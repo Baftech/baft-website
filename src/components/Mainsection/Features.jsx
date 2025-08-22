@@ -74,7 +74,7 @@ const Cards = () => {
     return () => clearInterval(interval);
   }, []);
   return (
-    <div className="h-screen bg-white" data-theme="features">
+    <div className="h-screen bg-white" data-theme="light">
       <section
         id="features"
         className="px-6 lg:px-24 h-screen flex items-center justify-center"

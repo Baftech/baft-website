@@ -9,39 +9,39 @@ function Coin({ texture, position, animate, target }) {
   const materialRef = useRef();
   // animate opacity separately
   const [opacity, setOpacity] = useState(0);
-  
   useFrame(() => {
     if (animate && ref.current) {
-      // Slower coin movement - reduced from 0.02 to 0.008
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.008);
+      ref.current.position.lerp(new THREE.Vector3(...target), 0.02);
 
-      // Slower opacity fade - reduced from 0.02 to 0.008
+       // 🔹 Fade in opacity (approaches 1 slowly)
       if (materialRef.current) {
         materialRef.current.opacity = THREE.MathUtils.lerp(
           materialRef.current.opacity,
           1,
-          0.008
+          0.02
         );
       }
     }
+    
   });
 
   // Compensation: farther coins scaled up, closer coins scaled down
-  const scaleFactor = 1.5 - position[2] * 0.3;
+  const scaleFactor = 1.9 - position[2] * 0.3;
 
   return (
     <mesh
       ref={ref}
       position={position}
       scale={[scaleFactor, scaleFactor, 1]}
-      rotation={[-0.4, 0, 0]} // 🔹 tilt ~23°
+      rotation={[0, 0, 0]} // 🔹 tilt ~23°
     >
       <planeGeometry args={[2, 2]} />
-      <meshBasicMaterial
+
+        <meshBasicMaterial
         ref={materialRef}
         map={texture}
         transparent
-        opacity={0} // start invisible
+        opacity={1} // start invisible
       />
     </mesh>
   );
@@ -54,24 +54,30 @@ const CoinStack = ({ startAnimation }) => {
     <>
       {/* Bottom coin */}
       <Coin
+        opacity={1}
         texture={coinTexture}
-        position={[0.3, -0.3, -0.3]}
+        position={[0.3, -0.4, -0.4]}
         animate={startAnimation}
-        target={[0.5, -0.5, -0.5]}
+        target={[0.6, -0.6, -0.6]}
       />
+
+
 
       {/* Middle coin */}
       <Coin
+        opacity={1}
         texture={coinTexture}
         position={[0, 0, 0]}
         animate={startAnimation}
         target={[0, 0, 0]}
+        
       />
 
       {/* Top coin */}
       <Coin
+        opacity={1}
         texture={coinTexture}
-        position={[-0.3, 0.3, 0.3]}
+        position={[-0.3, 0.4, 0.4]}
         animate={startAnimation}
         target={[-0.5, 0.5, 0.5]}
       />
@@ -87,7 +93,7 @@ const BInstantSection = () => {
       {/* Background glow */}
       <div
         className="absolute inset-0 pointer-events-none z-0"
-            style={{
+        style={{
           background:
             "radial-gradient(41.99% 33.2% at 50% 50%, #092646 28.37%, rgba(9, 38, 70, 0) 100%)",
         }}
@@ -95,7 +101,7 @@ const BInstantSection = () => {
 
       {/* THREE.JS CANVAS */}
       <Canvas
-        camera={{ position: [0, 0, 5], fov: 50 }}
+        camera={{ position: [0, 0, 6], fov: 50 }}
         className="w-full h-full relative z-10"
       >
         <Suspense fallback={null}>
@@ -104,56 +110,55 @@ const BInstantSection = () => {
         </Suspense>
       </Canvas>
 
+      {/* 🔹 Dark transparent film (above coins, below text) */}
+      <div
+        className="absolute inset-0 z-15 pointer-events-none"
+        style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+      />
+
       {/* Overlay Text */}
       <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
         <motion.div
           className="flex flex-col items-start leading-tight text-center"
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ 
-            duration: 2.5, // Increased from 1.2 to 2.5 seconds
-            ease: "easeOut",
-            delay: 0.3 // Added small delay before text starts
-          }}
+          transition={{ duration: 1.3, ease: "easeOut" }}
           onAnimationComplete={() => setStartCoinAnimation(true)} // 👈 start coins when text finishes
         >
-            <span
+          <span
             className="text-amber-50 italic"
-              style={{
-                fontWeight: 200,
+            style={{
+              fontWeight: 200,
               fontSize: "75px",
               textShadow: "0 0 20px rgba(255,215,0,0.5)",
-              }}
-            >
-              B-Coin
-            </span>
+            }}
+          >
+            B-Coin
+          </span>
           <div className="flex items-baseline">
-              <span
+            <span
               className="mr-2 text-amber-50 italic"
-                style={{
-                  fontWeight: 200,
+              style={{
+                fontWeight: 200,
                 fontSize: "75px",
                 textShadow: "0 0 20px rgba(255,215,0,0.5)",
-                }}
-              >
-                Instant Value
-              </span>
-              <span
+              }}
+            >
+              Instant Value
+            </span>
+            <span
               className="text-white"
               style={{ fontSize: "75px", fontWeight: 400 }}
-              >
-                —
-              </span>
-              <span
+            >
+              —
+            </span>
+            <span
               className="ml-2 shared-word text-white uppercase"
-                style={{
-                fontSize: "84px",
-                  fontWeight: 500,
-                }}
-              >
-                SHARED
-              </span>
-            </div>
+              style={{ fontSize: "84px", fontWeight: 500 }}
+            >
+              SHARED
+            </span>
+          </div>
           <span
             className="self-end text-amber-50 italic"
             style={{
@@ -166,8 +171,8 @@ const BInstantSection = () => {
           </span>
         </motion.div>
       </div>
-  </div>
-);
+    </div>
+  );
 };
 
 export default BInstantSection;

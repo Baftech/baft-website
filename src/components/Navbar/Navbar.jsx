@@ -6,35 +6,24 @@ import SignUpModal from "./SignUpModal";
 import { HiMenu, HiX } from "react-icons/hi";
 
 
-export const Navbar = ({ onNavigate }) => {
+export const Navbar = ({ onNavigate, currentSlide }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [theme, setTheme] = useState("dark"); // default
 
-
-  // Detect theme based on section in view
+  // Determine theme based on current slide
   useEffect(() => {
-    const handleScrollTheme = () => {
-      const sections = document.querySelectorAll("[data-theme]");
-      let currentTheme = theme;
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect();
-        if (
-          rect.top <= window.innerHeight / 2 &&
-          rect.bottom >= window.innerHeight / 2
-        ) {
-          currentTheme = section.getAttribute("data-theme");
-        }
-      });
-      setTheme(currentTheme);
-    };
-
-    window.addEventListener("scroll", handleScrollTheme);
-    handleScrollTheme();
-    return () => window.removeEventListener("scroll", handleScrollTheme);
-  }, [theme]);
+    // Define which slides should have light theme (white backgrounds)
+    const lightThemeSlides = [3, 4, 5, 6, 7]; // B-Fast (3), Features (4), Video (5), SafeSecure (6), Footer (7)
+    
+    if (lightThemeSlides.includes(currentSlide)) {
+      setTheme("light");
+    } else {
+      setTheme("dark");
+    }
+  }, [currentSlide]);
 
   // Hide/show on scroll
   useEffect(() => {

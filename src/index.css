@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap'); /*EB-Garamond*/
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap'); /*Inter*/
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap'); /*Satoshi via Fontshare*/
 @import url('/fonts/GeneralSans_Complete/Fonts/WEB/css/general-sans.css');
@@ -12,50 +13,93 @@
   background-color: black;
 }
 
-
-.eb-garamond-introduction{
+.eb-garamond-intro {
   font-family: "EB Garamond", serif;
   font-optical-sizing: auto;
   font-weight: 400;
-  font-style: regular;
-  color:#FFFFFF;
-
+  font-style: normal;
 }
 
-.eb-garamond-Baftcoin{
+.eb-garamond-baftcoin {
   font-family: "EB Garamond", serif;
   font-optical-sizing: auto;
   font-weight: 500;
-  font-style: regular;
-  color: linear-gradient(197.98deg, #999999 12.89%, #3D3D3D 73.42%);
-
+  font-style: normal;
 }
 
-.eb-garamond-Bfast{
+.coin-text {
+  font-family: "EB Garamond", serif;
+  font-weight: 500;
+  line-height: 116%;
+  background: linear-gradient(180deg, #FFFFFF 38.23%, #000000 147.25%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.eb-garamond-heading {
   font-family: "EB Garamond", serif;
   font-optical-sizing: auto;
   font-weight: 700;
-  font-style: regular;
-  color: linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%);
+  font-style: normal;
+}
 
+.eb-garamond-Bfast {
+  font-family: "EB Garamond", serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  background: linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 .inter-Bfast_sub {
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
   font-weight: 500;
-  font-style: medium;
-  color:#777575;
-
+  font-style: normal;
+  background: linear-gradient(to right, #777575, #092646);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
-.eb-garamond{
+.shared-word {
   font-family: "EB Garamond", serif;
-  font-optical-sizing: auto;
   font-weight: 500;
-  font-style: regular;
-  color: linear-gradient(197.98deg, #999999 12.89%, #3D3D3D 73.42%);
+  font-style: normal;
+  font-size: 84.04px;
+  line-height: 116%;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-align: right;
+  display: inline-block;
+  color: #fff;
+  text-shadow: 0px 0px 34px #FFFFFF40;
+}
 
+/* public/fonts/GeneralSans-Regular.woff2 assumed */
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Regular.woff2") format("woff2"),
+       url("/fonts/GeneralSans-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Bold.woff2") format("woff2"),
+       url("/fonts/GeneralSans-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 :root[data-theme="dark"]{

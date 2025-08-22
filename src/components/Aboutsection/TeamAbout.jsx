@@ -28,7 +28,7 @@ const TeamAbout = () => {
   ];
 
   return (
-    <div className="bg-white min-h-screen flex items-center justify-center py-20">
+    <div className="bg-white min-h-screen flex items-center justify-center py-20" data-theme="light">
       <div className="max-w-7xl mx-auto px-16">
         {/* Top Video Section */}
         <div className="relative mb-32">
