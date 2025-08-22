@@ -106,28 +106,37 @@ const Hero = () => {
       </div>
 
       {/* Placeholder container (final position) */}
-      <div className="relative z-10 flex justify-center items-center mt-10 w-full">
-        <div
-          ref={placeholderRef}
-          className="w-[600px] h-[300px] rounded-lg shadow-lg"
-          style={{ overflow: "hidden" }}
-        />
-      </div>
+      {/* Placeholder container (final position) */}
+<div className="relative z-10 flex justify-center items-center mt-5 w-full">
+  <div
+    ref={placeholderRef}
+    className="w-[600px] h-[320px] rounded-[220px] shadow-lg bg-black"
+    style={{ overflow: "hidden" }}
+  />
+</div>
 
-      {/* Floating fullscreen wrapper (GSAP animates this into placeholder) */}
-      <div ref={wrapperRef} style={{ overflow: "hidden" }}>
-        <video
-          ref={videoRef}
-          src="/BAFT Vid 2_1.mp4"
-          autoPlay
-          muted
-          playsInline
-          disablePictureInPicture
-          controlsList="nodownload nofullscreen noremoteplayback"
-          className="w-full h-full object-cover pointer-events-none"
-          onEnded={() => videoRef.current.pause()}
-        />
-      </div>
+{/* Floating fullscreen wrapper (GSAP animates this into placeholder) */}
+<div
+  ref={wrapperRef}
+  style={{
+    overflow: "hidden",
+    borderRadius: "220px", // 👈 ensures smooth rounded edges
+    background: "black",   // 👈 fills behind video so no edges leak
+  }}
+>
+  <video
+    ref={videoRef}
+    src="/BAFT Vid 2_1.mp4"
+    autoPlay
+    muted
+    playsInline
+    disablePictureInPicture
+    controlsList="nodownload nofullscreen noremoteplayback"
+    className="w-full h-full object-cover pointer-events-none video-blend"
+    onEnded={() => videoRef.current.pause()}
+  />
+</div>
+
     </div>
   );
 };
