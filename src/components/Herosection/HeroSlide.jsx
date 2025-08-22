@@ -84,21 +84,23 @@ const Hero = () => {
   The new-age finance app for your digital-first life.
 </p>
 
-
-      <h1
+<h1
   style={{
     fontFamily: "EB Garamond",
     fontWeight: 700,
     fontSize: "clamp(72px, 8vw, 120px)",
     lineHeight: "1.3em",
     textAlign: "center",
-    background: "linear-gradient(180deg, #999999 0%, #161616 100%)", // smooth vertical spread
+    backgroundImage: "linear-gradient(180deg, #ffffff 0%, #cccccc 15%, #161616 100%)",
+    backgroundClip: "text",
     WebkitBackgroundClip: "text",
+    color: "transparent",
     WebkitTextFillColor: "transparent",
   }}
 >
   Do Money, Differently.
 </h1>
+
 
 
       </div>
