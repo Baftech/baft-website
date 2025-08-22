@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faWhatsapp,
   faInstagram,
   faLinkedin,
   faFacebook,
 } from "@fortawesome/free-brands-svg-icons";
-
+import Thanks from "./Thanks";
 const SignupForm = () => {
   const [email, setEmail] = useState("");
-
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Email submitted:", email);
     setEmail("");
+    setIsSubmitted(true);
   };
 
   return (
@@ -21,10 +21,12 @@ const SignupForm = () => {
       className="relative text-white mx-auto w-full max-w-screen-xl overflow-visible px-4 sm:px-6 lg:px-8"
       style={{
         borderRadius: "30px",
-        background:
-          "linear-gradient(92.61deg, #092646 3.49%, #3766B7 98.57%)",
+        background: "linear-gradient(92.61deg, #092646 3.49%, #3766B7 98.57%)",
       }}
     >
+      {isSubmitted && (
+        <Thanks isOpen={true} onClose={() => setIsSubmitted(false)} />
+      )}
       {/* Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 md:gap-x-8 py-8 md:py-10 lg:py-14 relative z-10">
         {/* Left Content */}
@@ -44,7 +46,7 @@ const SignupForm = () => {
             className="text-sm sm:text-base text-gray-200 mb-6"
             style={{
               fontFamily: "Inter",
-              fontWeight: 400,
+              fontWeight: 200,
               letterSpacing: "-1%",
               lineHeight: "150%",
             }}
@@ -68,7 +70,12 @@ const SignupForm = () => {
             />
             <button
               type="submit"
-              className="w-full sm:w-auto px-5 py-2.5 bg-white text-black rounded-full font-medium hover:bg-gray-100 transition"
+              disabled={!email.trim()}
+              className={`cursor-pointer w-full sm:w-auto px-5 py-2.5 rounded-full font-medium transition ${
+                email.trim()
+                  ? "bg-white text-black hover:bg-gray-100"
+                  : "bg-gray-400 text-gray-600 cursor-not-allowed"
+              }`}
               style={{ minWidth: "110px" }}
             >
               <span
@@ -86,50 +93,43 @@ const SignupForm = () => {
         </div>
       </div>
 
-      {/* Image floating outside container */}
-      <div className="absolute left-1/2 md:left-auto md:right-8 -top-6 md:-top-10 lg:-top-12 transform -translate-x-1/2 md:translate-x-0 z-20">
-      
-  <img
-    src="/hand_iphone_image.svg"
-    alt="Signup Illustration"
-    className="w-[160px] sm:w-[200px] md:w-[260px] lg:w-[320px] object-contain"
-  />
-  
-
-</div>
-
+      {/* Image positioned at bottom right of the component */}
+      <div className="absolute right-4 md:right-8 -bottom-0 md:-bottom-3 lg:-bottom-5.5 z-20">
+        <img
+          src="/hand_iphone_image.svg"
+          alt="Signup Illustration"
+          className="w-[200px] sm:w-[245px] md:w-[300px] lg:w-[350px] object-contain"
+        />
+      </div>
     </section>
   );
 };
-
-
 
 const socialLinks = [
   {
     id: 1,
     icon: <FontAwesomeIcon icon={faInstagram} />,
-    url: "https://www.instagram.com/",
-  },
-  {
-    id: 2,
-    icon: <FontAwesomeIcon icon={faWhatsapp} />,
-    url: "https://wa.me/1234567890",
+    url: "https://www.instagram.com/baft_tech?igsh=dTFueG81Z3pmbzk0&utm_source=qr",
   },
   {
     id: 3,
     icon: <FontAwesomeIcon icon={faLinkedin} />,
-    url: "https://www.linkedin.com/",
+    url: "https://www.linkedin.com/company/baft-technology/",
   },
   {
     id: 4,
     icon: <FontAwesomeIcon icon={faFacebook} />,
-    url: "https://www.facebook.com/",
+    url: "https://www.facebook.com/share/1Aj45FuP4i/?mibextid=wwXIfr",
   },
 ];
 
 const Footer = () => {
   return (
-    <footer id="footer" data-theme="dark" className="bg-gray-100 py-6 md:py-12 px-4">
+    <footer
+      id="footer"
+      data-theme="dark"
+      className="bg-gray-100 py-6 md:py-12 px-4"
+    >
       <div className="max-w-full mx-auto">
         <div className="mb-6 md:mb-8">
           <SignupForm />
@@ -155,7 +155,8 @@ const Footer = () => {
               className="font-normal text-[14px] md:text-[16px] leading-[1.2] tracking-[-0.01em] text-[#3E3E3E] text-center md:text-left"
               style={{ fontFamily: "Inter" }}
             >
-              Bengaluru, Karnataka
+              3rd Floor, No. 38, Greenleaf Extension, 3rd Cross, 80 Feet Rd, 4th
+              Block, Koramangala, Bengaluru, Karnataka 560034
             </p>
           </div>
 
@@ -199,13 +200,15 @@ const Footer = () => {
             ].map(({ label, href }, idx) => (
               <p
                 key={idx}
-                className={idx === 0 ? "mb-1 font-semibold" : "mb-0 font-medium"}
+                className={
+                  idx === 0 ? "mb-1 font-semibold" : "mb-0 font-medium"
+                }
                 style={{
                   fontFamily: idx === 0 ? "EB Garamond" : "Inter",
                   fontSize: idx === 0 ? 14 : 13,
                   lineHeight: "150%",
                   letterSpacing: "0.04em",
-                  textAlign: window.innerWidth >= 768 ? "right" : "center",
+                  textAlign: "center",
                 }}
               >
                 {href ? (
