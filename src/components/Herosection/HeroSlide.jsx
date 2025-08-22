@@ -70,7 +70,7 @@ const Hero = () => {
       </div>
 
       {/* Text appears later */}
-      <div id="text" className="relative z-20 text-center px-4 mt-25">
+      <div id="text" className="relative z-20 text-center px-4 mt-40">
         <p
   style={{
     fontFamily: "General Sans, sans-serif",
@@ -106,11 +106,16 @@ const Hero = () => {
       </div>
 
       {/* Placeholder container (final position) */}
-      {/* Placeholder container (final position) */}
 <div className="relative z-10 flex justify-center items-center mt-5 w-full">
   <div
     ref={placeholderRef}
-    className="w-[600px] h-[320px] rounded-[220px] shadow-lg bg-black"
+    className="
+      w-[clamp(280px,80vw,600px)]   /* responsive width: min 280px, max 600px */
+      h-[clamp(150px,42vw,320px)]  /* responsive height: min 150px, max 320px */
+      rounded-[220px]
+      shadow-lg
+      bg-black
+    "
     style={{ overflow: "hidden" }}
   />
 </div>
@@ -118,12 +123,14 @@ const Hero = () => {
 {/* Floating fullscreen wrapper (GSAP animates this into placeholder) */}
 <div
   ref={wrapperRef}
+  className="w-full"
   style={{
     overflow: "hidden",
-    borderRadius: "220px", // 👈 ensures smooth rounded edges
-    background: "black",   // 👈 fills behind video so no edges leak
+    borderRadius: "220px", // 👈 stays rounded
+    background: "black",   // 👈 ensures no edges leak
   }}
 >
+
   <video
     ref={videoRef}
     src="/BAFT Vid 2_1.mp4"
