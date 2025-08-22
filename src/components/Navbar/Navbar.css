@@ -69,6 +69,34 @@
   max-width: 100%;
   overflow: hidden;
 }
+
+/* Fixed signup button when navbar is hidden */
+.fancy.fixed-signup {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+/* Enhanced styling for features section signup button */
+.fancy.fixed-signup button {
+  color: #1966BB !important;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+/* Hover effects for features section signup button */
+.fancy.fixed-signup:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.fancy.fixed-signup:hover button {
+  color: #092646 !important;
+}
 .fancy::before {
   content: '';
   position: absolute;

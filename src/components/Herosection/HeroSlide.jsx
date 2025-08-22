@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { GridBackground } from "../Themes/Gridbackground";
 
-const HeroSlide = () => {
+const Hero = () => {
   const videoRef = useRef(null);
   const wrapperRef = useRef(null);
   const placeholderRef = useRef(null);
@@ -27,39 +27,43 @@ const HeroSlide = () => {
 
     // Step 1: fade in fullscreen
     tl.to(wrapperRef.current, { opacity: 1, duration: 1, delay: 0.5 })
+
       // Step 2: shrink into placeholder after 9s
-      .to(
-        wrapperRef.current,
-        {
-          width: () => placeholderRef.current.offsetWidth,
-          height: () => placeholderRef.current.offsetHeight,
-          borderRadius: "220px",
-          top: () => placeholderRef.current.getBoundingClientRect().top,
-          left: () => placeholderRef.current.getBoundingClientRect().left,
-          x: 0,
-          y: 0,
-          duration: 1.5,
-          ease: "power2.out",
-        },
-        "+=9"
-      )
-      // Step 3: fade in grid + text at the same time as shrink
-      .to("#grid_container", { opacity: 1, duration: 1.5 }, "<")
-      .to(
-        "#text",
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 2,
-          ease: "power2.out",
-        },
-        "<"
-      );
+      // Step 2: shrink into placeholder after 9s
+.to(
+  wrapperRef.current,
+  {
+    width: () => placeholderRef.current.offsetWidth,
+    height: () => placeholderRef.current.offsetHeight,
+    borderRadius: "220px",
+    top: () => placeholderRef.current.getBoundingClientRect().top,
+    left: () => placeholderRef.current.getBoundingClientRect().left,
+    x: 0,
+    y: 0,
+    duration: 1.5,
+    ease: "power2.out",
+  },
+  "+=9"
+)
+
+// Step 3: fade in grid + text **at the same time as shrink**
+.to("#grid_container", { opacity: 1, duration: 1.5 }, "<")
+.to(
+  "#text",
+  {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    duration: 2,
+    ease: "power2.out",
+  },
+  "<" // 👈 same time as shrink
+);
+
   }, []);
 
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center" data-theme="dark">
+    <div className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center">
       {/* Grid overlay */}
       <div id="grid_container" className="absolute inset-0 opacity-0 z-0">
         <GridBackground />
@@ -68,39 +72,42 @@ const HeroSlide = () => {
       {/* Text appears later */}
       <div id="text" className="relative z-20 text-center px-4 mt-20">
         <p
-          style={{
-            fontFamily: "General Sans, sans-serif",
-            fontWeight: 500,
-            fontSize: "24px",
-            lineHeight: "100%",
-            color: "#777575",
-            marginBottom: "1rem",
-          }}
-        >
-          The new-age finance app for your digital-first life.
-        </p>
+  style={{
+    fontFamily: "General Sans, sans-serif",
+    fontWeight: 500,
+    fontSize: "24px",
+    lineHeight: "100%",
+    color: "#777575",
+    marginBottom: "1rem",
+  }}
+>
+  The new-age finance app for your digital-first life.
+</p>
 
-        <h1
-          style={{
-            fontFamily: "EB Garamond",
-            fontWeight: 700,
-            fontSize: "clamp(72px, 8vw, 120px)",
-            lineHeight: "1.3em",
-            textAlign: "center",
-            background: "linear-gradient(180deg, #999999 0%, #161616 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          Do Money, Differently.
-        </h1>
+
+      <h1
+  style={{
+    fontFamily: "EB Garamond",
+    fontWeight: 700,
+    fontSize: "clamp(72px, 8vw, 120px)",
+    lineHeight: "1.3em",
+    textAlign: "center",
+    background: "linear-gradient(180deg, #999999 0%, #161616 100%)", // smooth vertical spread
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  }}
+>
+  Do Money, Differently.
+</h1>
+
+
       </div>
 
       {/* Placeholder container (final position) */}
       <div className="relative z-10 flex justify-center items-center mt-10 w-full">
         <div
           ref={placeholderRef}
-          className="relative w-full max-w-[1000px] h-[600px]"
+          className="w-[600px] h-[300px] rounded-lg shadow-lg"
           style={{ overflow: "hidden" }}
         />
       </div>
@@ -123,4 +130,4 @@ const HeroSlide = () => {
   );
 };
 
-export default HeroSlide;
+export default Hero;

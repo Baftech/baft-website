@@ -7,7 +7,8 @@ import BInstantSection from "../components/Herosection/BInstantSection";
 import B_Fast from "../components/Mainsection/B_Fast";
 import Cards from "../components/Mainsection/Features";
 import Videocomponent from "../components/Aboutsection/Videocomponent";
-import { Footer } from "../components/Footer/Footer";
+import SafeSecure from "../components/Mainsection/SafeSecure";
+import Footer from "../components/Footer/Footer";
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -37,7 +38,7 @@ const Home = () => {
     <div className="min-h-screen">
       <Navbar currentSlide={currentSlide} />
 
-      {/* PowerPoint-style slide system - now with 7 slides */}
+      {/* PowerPoint-style slide system - now with 8 slides */}
       <SlideContainer currentSlide={currentSlide} onSlideChange={handleSlideChange}>
         {/* Slide 1: Hero Section */}
         <HeroSlide />
@@ -51,7 +52,9 @@ const Home = () => {
         <Cards />
         {/* Slide 6: Video Component */}
         <Videocomponent slide />
-        {/* Slide 7: Footer */}
+        {/* Slide 7: Safe & Secure Section */}
+        <SafeSecure />
+        {/* Slide 8: Footer */}
         <Footer />
       </SlideContainer>
     </div>

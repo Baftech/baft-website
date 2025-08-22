@@ -8,7 +8,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [transitionDirection, setTransitionDirection] = useState('none');
   const totalSlides = React.Children.count(children);
   const lastScrollTime = useRef(0);
-  const scrollCooldown = 800; // 800ms cooldown between scrolls
+  const scrollCooldown = 600; // 600ms cooldown between scrolls for smoother transitions
 
   const handleSlideChange = useCallback((newIndex) => {
     if (newIndex >= 0 && newIndex < totalSlides && !isTransitioning) {
@@ -31,7 +31,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       setTimeout(() => {
         setIsTransitioning(false);
         setTransitionDirection('none');
-      }, 1200); // Increased duration for smoother banner transition
+      }, 1000); // Optimized duration for seamless transitions
     } else {
       console.log("SlideContainer: Invalid slide change attempt", {
         newIndex,
@@ -158,9 +158,13 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
 
   // Seamless transition conditions
   const isSeamlessUp = isTransitioning && transitionDirection === 'up' && 
-    ((previousSlideIndex === 3 && slideIndex === 4) || (previousSlideIndex === 4 && slideIndex === 5));
+    ((previousSlideIndex === 3 && slideIndex === 4) || 
+     (previousSlideIndex === 4 && slideIndex === 5) ||
+     (previousSlideIndex === 5 && slideIndex === 6));
   const isSeamlessDown = isTransitioning && transitionDirection === 'down' && 
-    ((previousSlideIndex === 4 && slideIndex === 3) || (previousSlideIndex === 5 && slideIndex === 4));
+    ((previousSlideIndex === 4 && slideIndex === 3) || 
+     (previousSlideIndex === 5 && slideIndex === 4) ||
+     (previousSlideIndex === 6 && slideIndex === 5));
   const isSeamless = isSeamlessUp || isSeamlessDown;
 
   return (
