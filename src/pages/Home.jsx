@@ -7,7 +7,7 @@ import BInstantSection from "../components/Herosection/BInstantSection";
 import B_Fast from "../components/Mainsection/B_Fast";
 import Cards from "../components/Mainsection/Features";
 import Videocomponent from "../components/Aboutsection/Videocomponent";
-import { Footer } from "../components/Footer/Footer";
+import Footer from "../components/Footer/Footer";
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
