@@ -2,16 +2,15 @@
    Container
 =========================== */
 .safe-secure-container {
-  width: 90%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: clamp(40px, 5vw, 80px);
-  background: rgba(0, 0, 0, 0.9);
-  border-radius: 1.8rem;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 95%;              /* take up more horizontal space */
+  max-width: 1600px;       /* allow very wide stretch */
+  margin: 0 auto;          /* keep it centered */
+  padding: clamp(60px, 6vw, 100px);
+  background: #000;
+  border-radius: 37px;
 }
+
+
 
 /* ===========================
    Layout
@@ -46,9 +45,10 @@
 
 .safe-secure-description {
   font-family: 'Inter', sans-serif;
-  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+  font-weight: 400;             /* Regular weight */
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.8);
+  color: #aaa;                  /* light gray like the reference */
   margin: 0;
 }
 
@@ -57,12 +57,12 @@
 =========================== */
 .safe-secure-logo {
   flex: 0 0 auto;
-  width: min(65vw, 280px);   /* responsive size */
-  aspect-ratio: 1 / 1;       /* keep perfect circle */
+  width: min(65vw, 280px);
+  aspect-ratio: 1 / 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 1.5rem auto 0;     /* balanced spacing */
+  margin: 1.5rem auto 0;
   position: relative;
 }
 
@@ -74,19 +74,24 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background: radial-gradient(circle at center, #1a1a1a 0%, #000 80%);
-  border: 2px solid #333;
+  background: radial-gradient(circle at center, #1a1a1a 0%, #000 85%);
+  border: 3px solid transparent;
+  background-clip: padding-box;
   position: relative;
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
 }
 
+
+/* metallic dotted rim effect */
+
+/* SVG inside */
 .security-logo-svg {
-  width: 120%;
-  height: 120%;
+  width: 150%;
+  height: 150%;
   object-fit: contain;
   position: relative;
   z-index: 1;
 }
-
 /* ===========================
    Diagonal Sweep (only inside logo)
 =========================== */

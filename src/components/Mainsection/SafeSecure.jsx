@@ -4,7 +4,7 @@ import "./SafeSecure.css";
 const SafeSecure = () => {
   return (
     <div className="h-screen bg-white" data-theme="light">
-      <section className="h-screen flex items-center justify-center px-6 lg:px-24">
+      <section className="h-screen flex items-center justify-center px-3 lg:px-16">
         <div className="w-full max-w-7xl">
           <div className="safe-secure-container">
             <div className="safe-secure-content">
