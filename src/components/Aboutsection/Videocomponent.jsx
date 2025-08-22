@@ -240,21 +240,15 @@ const Videocomponent = ({ slide = false }) => {
               alignItems: 'flex-start',
               gap: '0.5rem'
             }}>
-              <p style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '20px',
-                color: '#092646',
-                marginBottom: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <span style={{
-                  width: '20px',
-                  height: '20px',
-                  backgroundColor: '#1966BB',
-                  clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)'
-                }}></span>
+               <p
+            className="font-normal mb-2 flex items-center gap-2"
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "20px",
+              color: "#092646",
+            }}
+          >
+            <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
             Know our story
           </p>
               
