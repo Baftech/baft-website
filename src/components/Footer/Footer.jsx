@@ -22,6 +22,7 @@ const SignupForm = () => {
       style={{
         borderRadius: "30px",
         background: "linear-gradient(92.61deg, #092646 3.49%, #3766B7 98.57%)",
+        width:"95%"
       }}
     >
       {isSubmitted && (
