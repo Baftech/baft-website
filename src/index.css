@@ -168,3 +168,79 @@
 .cards-wrapper {
   margin-top: -2rem; /* shifts upward by 2rem */
 }
+
+/* Touch-friendly optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Touch-friendly button and interactive elements */
+button, 
+.nav-btn, 
+[role="button"],
+input[type="button"],
+input[type="submit"] {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch-friendly form elements */
+input, 
+textarea, 
+select {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent text selection on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Allow text selection in specific areas */
+  .allow-text-selection,
+  input,
+  textarea {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+}
+
+/* Touch gesture feedback */
+.touch-feedback {
+  transition: transform 0.1s ease;
+}
+
+.touch-feedback:active {
+  transform: scale(0.95);
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Ensure proper touch scrolling */
+  body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
+  }
+  
+  /* Touch-friendly spacing */
+  .touch-spacing {
+    padding: 16px;
+    margin: 16px;
+  }
+  
+  /* Touch-friendly text sizes */
+  .touch-text {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+}

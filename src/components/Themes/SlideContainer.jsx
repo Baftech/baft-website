@@ -9,6 +9,12 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const totalSlides = React.Children.count(children);
   const lastScrollTime = useRef(0);
   const scrollCooldown = 600; // 600ms cooldown between scrolls for smoother transitions
+  
+  // Touch gesture handling
+  const touchStartY = useRef(0);
+  const touchEndY = useRef(0);
+  const minSwipeDistance = 50; // Minimum distance for swipe to be recognized
+  const touchCooldown = 800; // Touch cooldown for mobile devices
 
   const handleSlideChange = useCallback((newIndex) => {
     if (newIndex >= 0 && newIndex < totalSlides && !isTransitioning) {
@@ -41,6 +47,52 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       });
     }
   }, [totalSlides, onSlideChange, isTransitioning, slideIndex]);
+
+  // Touch gesture handlers
+  const handleTouchStart = useCallback((e) => {
+    if (isTransitioning) return;
+    touchStartY.current = e.touches[0].clientY;
+  }, [isTransitioning]);
+
+  const handleTouchMove = useCallback((e) => {
+    if (isTransitioning) return;
+    e.preventDefault(); // Prevent default scrolling during touch
+  }, [isTransitioning]);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (isTransitioning) return;
+    
+    const now = Date.now();
+    if (now - lastScrollTime.current < touchCooldown) {
+      return; // Still in cooldown
+    }
+    
+    touchEndY.current = e.changedTouches[0].clientY;
+    const distance = touchStartY.current - touchEndY.current;
+    
+    // Check if swipe distance is sufficient
+    if (Math.abs(distance) > minSwipeDistance) {
+      let newIndex = slideIndex;
+      
+      if (distance > 0) {
+        // Swipe up - go to next slide
+        if (slideIndex < totalSlides - 1) {
+          newIndex = slideIndex + 1;
+        }
+      } else {
+        // Swipe down - go to previous slide
+        if (slideIndex > 0) {
+          newIndex = slideIndex - 1;
+        }
+      }
+      
+      if (newIndex !== slideIndex) {
+        console.log("Touch swipe: changing from slide", slideIndex + 1, "to", newIndex + 1);
+        lastScrollTime.current = now;
+        handleSlideChange(newIndex);
+      }
+    }
+  }, [slideIndex, totalSlides, handleSlideChange, isTransitioning]);
 
   const handleWheel = useCallback((e) => {
     e.preventDefault();
@@ -117,15 +169,24 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   useEffect(() => {
     const handleWheelEvent = (e) => handleWheel(e);
     const handleKeyDownEvent = (e) => handleKeyDown(e);
+    const handleTouchStartEvent = (e) => handleTouchStart(e);
+    const handleTouchMoveEvent = (e) => handleTouchMove(e);
+    const handleTouchEndEvent = (e) => handleTouchEnd(e);
     
     document.addEventListener("wheel", handleWheelEvent, { passive: false });
     document.addEventListener("keydown", handleKeyDownEvent);
+    document.addEventListener("touchstart", handleTouchStartEvent, { passive: false });
+    document.addEventListener("touchmove", handleTouchMoveEvent, { passive: false });
+    document.addEventListener("touchend", handleTouchEndEvent, { passive: false });
     
     return () => {
       document.removeEventListener("wheel", handleWheelEvent);
       document.removeEventListener("keydown", handleKeyDownEvent);
+      document.removeEventListener("touchstart", handleTouchStartEvent);
+      document.removeEventListener("touchmove", handleTouchMoveEvent);
+      document.removeEventListener("touchend", handleTouchEndEvent);
     };
-  }, [handleWheel, handleKeyDown]);
+  }, [handleWheel, handleKeyDown, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   // Update slide index when currentSlide prop changes
   useEffect(() => {
@@ -213,6 +274,52 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
           <div>Seamless: {isSeamless ? 'Yes' : 'No'}</div>
         </div>
       )}
+
+      {/* Mobile bottom navigation */}
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 pointer-events-none md:hidden">
+        <div className="flex gap-3 bg-black/20 backdrop-blur-sm rounded-full px-4 py-2 pointer-events-auto">
+          <button
+            onClick={() => slideIndex > 0 && handleSlideChange(slideIndex - 1)}
+            disabled={slideIndex === 0}
+            className={`p-2 rounded-full transition-all duration-300 ${
+              slideIndex === 0 
+                ? 'text-white/30 cursor-not-allowed' 
+                : 'text-white hover:bg-white/20'
+            }`}
+            aria-label="Previous slide"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          </button>
+          
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalSlides }, (_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === slideIndex ? 'bg-white' : 'bg-white/40'
+                }`}
+              />
+            ))}
+          </div>
+          
+          <button
+            onClick={() => slideIndex < totalSlides - 1 && handleSlideChange(slideIndex + 1)}
+            disabled={slideIndex === totalSlides - 1}
+            className={`p-2 rounded-full transition-all duration-300 ${
+              slideIndex === totalSlides - 1 
+                ? 'text-white/30 cursor-not-allowed' 
+                : 'text-white hover:bg-white/20'
+            }`}
+            aria-label="Next slide"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
