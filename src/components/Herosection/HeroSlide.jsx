@@ -26,7 +26,7 @@ const Hero = () => {
     gsap.set("#text", { opacity: 0, y: 50, scale: 0.9 });
 
     // Step 1: fade in fullscreen
-    tl.to(wrapperRef.current, { opacity: 1, duration: 1, delay: 0.5 })
+    tl.to(wrapperRef.current, { opacity: 1, duration: 1.4, delay: 0.6 })
 
       // Step 2: shrink into placeholder after 9s
       // Step 2: shrink into placeholder after 9s
@@ -40,21 +40,21 @@ const Hero = () => {
     left: () => placeholderRef.current.getBoundingClientRect().left,
     x: 0,
     y: 0,
-    duration: 1.5,
+    duration: 1.8,
     ease: "power2.out",
   },
-  "+=9"
+  "+=9.2"
 )
 
 // Step 3: fade in grid + text **at the same time as shrink**
-.to("#grid_container", { opacity: 1, duration: 1.5 }, "<")
+.to("#grid_container", { opacity: 1, duration: 1.8 }, "<")
 .to(
   "#text",
   {
     opacity: 1,
     y: 0,
     scale: 1,
-    duration: 2,
+    duration: 2.2,
     ease: "power2.out",
   },
   "<" // 👈 same time as shrink

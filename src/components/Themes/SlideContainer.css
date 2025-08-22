@@ -19,12 +19,12 @@
 /* Banner-style transition effects */
 .banner-transition-up {
   background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.7) 45%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.1) 90%, transparent 100%);
-  animation: bannerRevealUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: bannerRevealUp 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .banner-transition-down {
   background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.7) 45%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.1) 90%, transparent 100%);
-  animation: bannerRevealDown 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: bannerRevealDown 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes bannerRevealUp {
@@ -215,11 +215,11 @@
 
 /* Seamless slide-up between slide 4 -> 5 */
 .seamless-up-prev {
-  animation: seamlessPrevUp 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: seamlessPrevUp 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .seamless-up-next {
-  animation: seamlessNextUp 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: seamlessNextUp 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes seamlessPrevUp {
@@ -234,11 +234,21 @@
 
 /* Seamless slide-down between slide 5 -> 4 */
 .seamless-down-prev {
-  animation: seamlessPrevDown 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: seamlessPrevDown 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .seamless-down-next {
-  animation: seamlessNextDown 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: seamlessNextDown 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Handoff animation: preview expands into full video */
+.handoff-expand-enter {
+  animation: handoffExpand 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes handoffExpand {
+  0% { transform: scale(1) translateZ(0); border-radius: 33.72px; opacity: 1; }
+  100% { transform: scale(1.8) translateZ(0); border-radius: 0px; opacity: 1; }
 }
 
 @keyframes seamlessPrevDown {

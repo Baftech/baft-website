@@ -17,7 +17,7 @@ const B_Fast = () => {
       gsap.to(videoRef.current, {
         opacity: 1,
         scale: 1,
-        duration: 1.2,
+        duration: 1.6,
         ease: "power2.out"
       });
       
@@ -26,11 +26,11 @@ const B_Fast = () => {
         gsap.to(contentRef.current, {
           opacity: 1,
           y: 0,
-          duration: 1.5,
+          duration: 1.8,
           ease: "power2.out"
         });
-      }, 600);
-    }, 300);
+      }, 700);
+    }, 350);
   }, []);
 
   return (

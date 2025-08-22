@@ -5,150 +5,104 @@ const Videocomponent = ({ slide = false }) => {
   const videoSectionRef = useRef(null);
   const videoRef = useRef(null);
   const [animationProgress, setAnimationProgress] = useState(0);
-  const [expanded, setExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  // Slide mode: show normal view first, then expand on interaction
+  // Handle scroll-based expansion in slide mode
   useEffect(() => {
     if (!slide) return;
-    
-    // Reset to normal view when entering slide
-    setExpanded(false);
-    setAnimationProgress(0);
-    
-    // Add a delay before allowing expansion to ensure normal view is visible
-    const timer = setTimeout(() => {
-      const onWheel = (e) => {
-        if (expanded) return;
-        setExpanded(true);
-        setAnimationProgress(1);
-        if (videoRef.current) {
-          videoRef.current.play().catch(() => {
-            videoRef.current.muted = true;
-            videoRef.current.play().catch(() => {});
-          });
-        }
-      };
-      
-      const onKey = (e) => {
-        if (expanded) return;
-        if (["ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) {
-          setExpanded(true);
-          setAnimationProgress(1);
-          if (videoRef.current) {
-            videoRef.current.play().catch(() => {
-              videoRef.current.muted = true;
-              videoRef.current.play().catch(() => {});
-            });
-          }
-        }
-      };
-      
-      window.addEventListener("wheel", onWheel, { passive: true });
-      window.addEventListener("keydown", onKey);
-      
-      return () => {
-        window.removeEventListener("wheel", onWheel);
-        window.removeEventListener("keydown", onKey);
-      };
-    }, 1000); // 1 second delay to show normal view first
-    
-    return () => clearTimeout(timer);
-  }, [slide, expanded]);
 
-  // Standalone scroll mode: original behavior
-  useEffect(() => {
-    if (slide) return; // Skip in slide mode
-    const handleScroll = () => {
-      if (!mainContainerRef.current || !videoSectionRef.current) return;
-      const container = mainContainerRef.current;
-      const scrollTop = container.scrollTop;
-      const windowHeight = window.innerHeight;
-      const videoSectionStart = 0;
-      const videoSectionEnd = windowHeight;
-      if (scrollTop >= videoSectionStart && scrollTop <= videoSectionEnd) {
-        const sectionScroll = scrollTop - videoSectionStart;
-        if (sectionScroll >= 1) {
-          setAnimationProgress(1);
-          if (videoRef.current && videoRef.current.paused) {
-            videoRef.current.play().catch((error) => {
-              videoRef.current.muted = true;
-              videoRef.current.play().catch(() => {});
-            });
-          }
-        } else {
-          setAnimationProgress(0);
-        }
-      } else if (scrollTop < videoSectionStart) {
-        setAnimationProgress(0);
-        if (videoRef.current && !videoRef.current.paused) {
-          videoRef.current.pause();
-          videoRef.current.currentTime = 0;
-        }
+    const handleScroll = (e) => {
+      if (isExpanded) return;
+      
+      // Trigger expansion on any scroll
+      // Mark global handoff so SlideContainer ignores wheel during expansion
+      if (typeof window !== 'undefined') {
+        window.__videoHandoffActive = true;
       }
+
+      // Lock global scroll briefly to keep focus on expanding preview
+      const prevent = (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        return false;
+      };
+      document.addEventListener('wheel', prevent, { passive: false });
+      document.addEventListener('touchmove', prevent, { passive: false });
+      document.addEventListener('keydown', prevent, { passive: false });
+
+      setIsExpanded(true);
+      setAnimationProgress(1);
+      
+      // Don't play video here - it will play in the expanded section
+      // Just trigger the expansion animation
+
+      // Ensure the section is in view
+      try {
+        videoSectionRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
+      } catch {}
+
+      // Release locks after animation completes
+      setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          window.__videoHandoffActive = false;
+        }
+        document.removeEventListener('wheel', prevent);
+        document.removeEventListener('touchmove', prevent);
+        document.removeEventListener('keydown', prevent);
+      }, 1600);
     };
 
-    const handleWheel = () => {
-      if (!mainContainerRef.current) return;
-      const container = mainContainerRef.current;
-      const scrollTop = container.scrollTop;
-      const windowHeight = window.innerHeight;
-      const videoSectionStart = 0;
-      const videoSectionEnd = windowHeight;
-      if (scrollTop >= videoSectionStart && scrollTop < videoSectionEnd && animationProgress === 0) {
-        setAnimationProgress(1);
-        if (videoRef.current && videoRef.current.paused) {
-          videoRef.current.play().catch(() => {
-              videoRef.current.muted = true;
-            videoRef.current.play().catch(() => {});
-          });
-        }
-      }
-    };
-
+    // Add scroll listener
     const container = mainContainerRef.current;
     if (container) {
-      container.addEventListener('scroll', handleScroll, { passive: true });
-      container.addEventListener('wheel', handleWheel, { passive: true });
-      handleScroll();
+      container.addEventListener('wheel', handleScroll, { passive: false });
+      container.addEventListener('touchmove', handleScroll, { passive: false });
     }
+
     return () => {
       if (container) {
-        container.removeEventListener('scroll', handleScroll);
-        container.removeEventListener('wheel', handleWheel);
+        container.removeEventListener('wheel', handleScroll);
+        container.removeEventListener('touchmove', handleScroll);
       }
     };
-  }, [animationProgress, slide]);
+  }, [slide, isExpanded]);
 
-  const textStyle = {
-    transform: `translateX(${animationProgress * 120}vw)`,
-    opacity: Math.max(0, 1 - animationProgress * 1.5),
-    transition: animationProgress > 0 ? 'all 3s ease-out' : 'none',
+  // Animation styles
+  // Keep video perfectly centered and fit within viewport as it expands
+  const containerStyle = {
+    transition: animationProgress > 0 ? 'all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
   };
 
   const videoStyle = {
-    transform: `scale(${1 + animationProgress * 2})`,
-    transformOrigin: "center center",
-    transition: animationProgress > 0 ? 'all 2s ease-out' : 'none',
+    width: animationProgress > 0 ? '100vw' : 'min(100%, 1000px)',
+    height: 'auto',
+    maxHeight: animationProgress > 0 ? '70vh' : '400px',
+    transform: 'none',
+    transformOrigin: 'center center',
+    borderRadius: `${Math.max(0, 33.72 - (animationProgress * 33.72))}px`,
+    transition: animationProgress > 0
+      ? 'width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-radius 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      : 'none',
+    objectFit: 'contain',
+    display: 'block',
+    margin: '0 auto',
   };
 
-  // Container expansion style - stretches to the right
-  const containerStyle = {
-    transform: `translateX(${animationProgress * 50}vw)`,
-    width: `${100 + animationProgress * 100}%`,
-    transition: animationProgress > 0 ? 'all 2.5s ease-out' : 'none',
+  const textStyle = {
+    transform: `translateX(${animationProgress * 100}vw)`,
+    opacity: Math.max(0, 1 - animationProgress * 1.5),
+    transition: animationProgress > 0 ? 'all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
   };
 
-  // Grid transition style
   const gridStyle = {
-    transition: animationProgress > 0 ? 'all 2.5s ease-out' : 'none',
+    gap: `${5 - (animationProgress * 5)}rem`,
+    transition: animationProgress > 0 ? 'all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
   };
-
-  // Show expansion hint after delay
-  const showExpansionHint = slide && !expanded && animationProgress === 0;
 
   return (
     <div 
       ref={mainContainerRef}
+      className="relative w-full h-screen overflow-hidden"
       style={{
         height: '100vh',
         overflowY: slide ? 'hidden' : 'scroll',
@@ -156,9 +110,9 @@ const Videocomponent = ({ slide = false }) => {
         scrollBehavior: slide ? undefined : 'smooth'
       }}
     >
-    <section
+      <section
         ref={videoSectionRef}
-            style={{
+        style={{
           height: '100vh',
           backgroundColor: 'white',
           position: 'relative'
@@ -174,44 +128,40 @@ const Videocomponent = ({ slide = false }) => {
           justifyContent: 'center',
           overflow: 'hidden'
         }}>
-                     <div style={{
-             display: 'grid',
-             gridTemplateColumns: animationProgress > 0 ? '1fr' : '1fr 1fr',
-             gap: animationProgress > 0 ? '0' : '5rem',
-             alignItems: 'center',
-             maxWidth: '1200px',
-             width: '100%',
-             padding: '0 2rem',
-             ...containerStyle
-           }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            ...gridStyle,
+            alignItems: 'center',
+            maxWidth: '1200px',
+            width: '100%',
+            padding: '0 2rem',
+            ...containerStyle
+          }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              position: 'relative'
+              position: 'relative',
+              width: '100%',
+              height: '100vh',
+              overflow: 'hidden'
             }}>
-              <video
-                ref={videoRef}
-                muted
-                playsInline
-                preload="metadata"
-                poster="/video_com.png"
-            style={{
+              {/* Preview image - shows poster until expansion */}
+              <img
+                src="/video_com.png"
+                alt="Video Preview"
+                style={{
                   ...videoStyle,
-                  maxWidth: '100%',
-                  height: 'auto',
-                  borderRadius: '33.72px',
+                  maxWidth: animationProgress > 0 ? '100vw' : '100%',
+                  maxHeight: animationProgress > 0 ? '70vh' : '400px',
                   boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  maxHeight: '400px',
-                  objectFit: 'contain',
+                  objectFit: 'contain'
                 }}
-              >
-                <source src="/sample-5s.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+              />
               
               {/* Expansion hint */}
-              {showExpansionHint && (
+              {!isExpanded && (
                 <div style={{
                   position: 'absolute',
                   bottom: '-40px',
@@ -227,7 +177,7 @@ const Videocomponent = ({ slide = false }) => {
                   animation: 'pulse 2s infinite',
                   zIndex: 10
                 }}>
-                  Scroll or press Space to expand
+                  Scroll to expand
                 </div>
               )}
             </div>
@@ -240,17 +190,17 @@ const Videocomponent = ({ slide = false }) => {
               alignItems: 'flex-start',
               gap: '0.5rem'
             }}>
-               <p
-            className="font-normal mb-2 flex items-center gap-2"
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "20px",
-              color: "#092646",
-            }}
-          >
-            <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
-            Know our story
-          </p>
+              <p
+                className="font-normal mb-2 flex items-center gap-2"
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "20px",
+                  color: "#092646",
+                }}
+              >
+                <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
+                Know our story
+              </p>
               
               <h1 style={{
                 fontFamily: 'EB Garamond, serif',
@@ -261,7 +211,7 @@ const Videocomponent = ({ slide = false }) => {
                 marginBottom: '1rem'
               }}>
                 The Video
-          </h1>
+              </h1>
               
               <p style={{
                 fontFamily: 'Inter, sans-serif',
@@ -271,38 +221,15 @@ const Videocomponent = ({ slide = false }) => {
                 fontWeight: 400
               }}>
                 BaFT Technology is a next-gen neo-banking startup headquartered in
-            Bangalore, proudly founded in 2025. We're a tight-knit team of
-            financial innovators and tech experts on a mission: to reimagine
-            financial services in India with customer-first solutions.
-          </p>
-        </div>
-      </div>
+                Bangalore, proudly founded in 2025. We're a tight-knit team of
+                financial innovators and tech experts on a mission: to reimagine
+                financial services in India with customer-first solutions.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-
-
-      {/* Debug Info hidden in slide mode */}
-      {!slide && (
-        <div style={{
-          position: 'fixed',
-          top: '1rem',
-          right: '1rem',
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          color: 'white',
-          padding: '0.5rem 1rem',
-          borderRadius: '0.5rem',
-          fontSize: '12px',
-          zIndex: 1000
-        }}>
-          <div>Animation: {Math.round(animationProgress * 100)}%</div>
-          <div>Video: {videoRef.current?.paused === false ? 'Playing' : 'Paused'}</div>
-          <div>ScrollTop: {mainContainerRef.current?.scrollTop || 0}</div>
-          <div>Section Scroll: {Math.max(0, (mainContainerRef.current?.scrollTop || 0) - 0)}</div>
-          <div>Window Height: {window.innerHeight}</div>
-        </div>
-      )}
-      
       {/* CSS for pulse animation */}
       <style>
         {`
@@ -313,7 +240,7 @@ const Videocomponent = ({ slide = false }) => {
           }
         `}
       </style>
-      </div>
+    </div>
   );
 };
 

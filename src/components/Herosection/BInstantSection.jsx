@@ -120,9 +120,9 @@ const BInstantSection = () => {
       <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
         <motion.div
           className="flex flex-col items-start leading-tight text-center"
-          initial={{ y: 100, opacity: 0 }}
+          initial={{ y: 120, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1.3, ease: "easeOut" }}
+          transition={{ duration: 1.8, ease: "easeOut" }}
           onAnimationComplete={() => setStartCoinAnimation(true)} // 👈 start coins when text finishes
         >
           <span

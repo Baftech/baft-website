@@ -15,7 +15,8 @@ const BaFTCoin = () => {
       gsap.from(".intro-text", {
         opacity: 0,
         y: 40,
-        duration: 1,
+        duration: 1.4,
+        ease: "power2.out",
         scrollTrigger: {
           trigger: introRef.current,
           start: "top center",
@@ -25,9 +26,10 @@ const BaFTCoin = () => {
       // Fade & scale in "BaFT Coin"
       gsap.from(".coin-text", {
         opacity: 0,
-        scale: 0.8,
-        duration: 1,
-        delay: 0.5,
+        scale: 0.9,
+        duration: 1.6,
+        delay: 0.3,
+        ease: "power2.out",
         scrollTrigger: {
           trigger: introRef.current,
           start: "top center",
@@ -40,7 +42,7 @@ const BaFTCoin = () => {
         repeat: -1,
         yoyo: true,
         ease: "power1.inOut",
-        duration: 3,
+        duration: 3.4,
       });
     }, introRef);
 

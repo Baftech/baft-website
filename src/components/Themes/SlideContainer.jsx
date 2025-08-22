@@ -8,13 +8,13 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [transitionDirection, setTransitionDirection] = useState('none');
   const totalSlides = React.Children.count(children);
   const lastScrollTime = useRef(0);
-  const scrollCooldown = 600; // 600ms cooldown between scrolls for smoother transitions
+  const scrollCooldown = 900; // was 600ms, slightly slower for smoother pacing
   
   // Touch gesture handling
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
   const minSwipeDistance = 50; // Minimum distance for swipe to be recognized
-  const touchCooldown = 800; // Touch cooldown for mobile devices
+  const touchCooldown = 1000; // was 800ms, slightly slower for smoother pacing
 
   const handleSlideChange = useCallback((newIndex) => {
     if (newIndex >= 0 && newIndex < totalSlides && !isTransitioning) {
@@ -37,7 +37,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       setTimeout(() => {
         setIsTransitioning(false);
         setTransitionDirection('none');
-      }, 1000); // Optimized duration for seamless transitions
+      }, 1400); // was 1000ms, give more time for smoother CSS animations
     } else {
       console.log("SlideContainer: Invalid slide change attempt", {
         newIndex,
@@ -96,6 +96,11 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
 
   const handleWheel = useCallback((e) => {
     e.preventDefault();
+    // Respect handoff blocks from slides (e.g., video expansion)
+    if (typeof window !== 'undefined' && window.__videoHandoffActive) {
+      lastScrollTime.current = Date.now();
+      return;
+    }
     
     const now = Date.now();
     if (now - lastScrollTime.current < scrollCooldown || isTransitioning) {
@@ -221,11 +226,13 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const isSeamlessUp = isTransitioning && transitionDirection === 'up' && 
     ((previousSlideIndex === 3 && slideIndex === 4) || 
      (previousSlideIndex === 4 && slideIndex === 5) ||
-     (previousSlideIndex === 5 && slideIndex === 6));
+     (previousSlideIndex === 5 && slideIndex === 6) ||
+     (previousSlideIndex === 6 && slideIndex === 7));
   const isSeamlessDown = isTransitioning && transitionDirection === 'down' && 
     ((previousSlideIndex === 4 && slideIndex === 3) || 
      (previousSlideIndex === 5 && slideIndex === 4) ||
-     (previousSlideIndex === 6 && slideIndex === 5));
+     (previousSlideIndex === 6 && slideIndex === 5) ||
+     (previousSlideIndex === 7 && slideIndex === 6));
   const isSeamless = isSeamlessUp || isSeamlessDown;
 
   return (
@@ -244,7 +251,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
           </div>
         </>
       ) : (
-        <div className="w-full h-full transition-all duration-[800ms] ease-in-out">
+        <div className="w-full h-full transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]">
           {currentChild || (
             <div className="w-full h-full bg-yellow-500 flex items-center justify-center text-black text-2xl">
               No slide content found for index {slideIndex}
