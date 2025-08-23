@@ -5,110 +5,64 @@ const Pre_footer = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-  const canvas = canvasRef.current;
-  const ctx = canvas.getContext("2d");
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
 
-  const resizeCanvas = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  };
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
 
-  const stars = [];
-  const shootingStars = [];
-  const starCount = Math.floor(canvas.width * canvas.height / 3000);
+    const stars = [];
+    const starCount = Math.floor(canvas.width * canvas.height / 9000); // fewer stars
 
-  for (let i = 0; i < starCount; i++) {
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      radius: Math.random() * 1.5 + 0.5,
-      opacity: 0.05 + Math.random() * 0.25, // Dimmer stars
-    });
-  }
-
-  let rotationAngle = 0; // For rotation effect
-
-  function draw() {
-    ctx.save();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Rotate around center
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.rotate(rotationAngle);
-    ctx.translate(-canvas.width / 2, -canvas.height / 2);
-
-    // Stars
-    for (let i = 0; i < stars.length; i++) {
-      const star = stars[i];
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
-      ctx.fill();
-    }
-
-    ctx.restore();
-
-    // Shooting stars (only diagonal)
-    if (Math.random() < 0.008) {
-      const fromLeft = Math.random() < 0.5;
-      shootingStars.push({
-        x: fromLeft ? 0 : canvas.width,
-        y: 0,
-        length: Math.random() * 80 + 20,
-        speed: Math.random() * 6 + 4,
-        angle: fromLeft ? Math.PI / 4 : (3 * Math.PI) / 4, // 45° or 135°
-        life: 1,
+    for (let i = 0; i < starCount; i++) {
+      stars.push({
+        radius: Math.random() * 1.5 + 0.5,
+        opacity: 0.05 + Math.random() * 0.3,
+        angle: Math.random() * Math.PI * 2, // polar angle
+        dist: Math.random() * (Math.min(canvas.width, canvas.height) / 2),
       });
     }
 
-    for (let i = 0; i < shootingStars.length; i++) {
-      const s = shootingStars[i];
-      s.x += Math.cos(s.angle) * s.speed;
-      s.y += Math.sin(s.angle) * s.speed;
-      s.life -= 0.01;
+    let rotationSpeed = 0.0005; // galaxy swirl
 
-      if (s.life > 0) {
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+
+      // Rotating galaxy stars
+      for (let i = 0; i < stars.length; i++) {
+        const star = stars[i];
+        star.angle += rotationSpeed;
+
+        const x = cx + Math.cos(star.angle) * star.dist;
+        const y = cy + Math.sin(star.angle) * star.dist;
+
         ctx.beginPath();
-        ctx.moveTo(s.x, s.y);
-        ctx.lineTo(
-          s.x - Math.cos(s.angle) * s.length,
-          s.y - Math.sin(s.angle) * s.length
-        );
-        ctx.strokeStyle = `rgba(255, 255, 255, ${s.life})`;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      } else {
-        shootingStars.splice(i, 1);
-        i--;
+        ctx.arc(x, y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+        ctx.fill();
       }
+
+      requestAnimationFrame(draw);
     }
 
-    // Increment rotation slowly
-    rotationAngle += 0.0001;
+    draw();
 
-    requestAnimationFrame(draw);
-  }
-
-  requestAnimationFrame(draw);
-
-  return () => {
-    window.removeEventListener("resize", resizeCanvas);
-  };
-}, []);
-
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+    };
+  }, []);
 
   return (
-    <>
     <div className="pre-footer-container">
-      {/* Starfield Background */}
-      <canvas
-        ref={canvasRef}
-        className="starfield-canvas"
-      />
+      <canvas ref={canvasRef} className="starfield-canvas" />
 
-      {/* Concentric Circles */}
       <div className="concentric-wrapper">
         <div className="concentric-circle" />
         <div className="concentric-circle" />
@@ -117,29 +71,11 @@ const Pre_footer = () => {
         <div className="concentric-circle" />
       </div>
 
-      {/* SVG Layer */}
-      <div className="svg-container">
-        <object
-          data={`${import.meta.env.BASE_URL}pre_footer.svg`}
-          type="image/svg+xml"
-          aria-label="Star Animation"
-          className="svg-object"
-        >
-          <img
-            src={`${import.meta.env.BASE_URL}pre_footer.svg`}
-            alt="Star Animation"
-            className="svg-fallback"
-          />
-        </object>
-      </div>
-
-      {/* Text */}
       <div className="text-container">
         <h1 className="main-heading">Banking was never easy…</h1>
-        <p className="sub-heading">BAFT – Built for You, Powered by Tech</p>
+        <p className="sub-heading">BaFT – Built for You, Powered by Tech</p>
       </div>
     </div>
-    </>
   );
 };
 
