@@ -77,11 +77,11 @@ const BaFTCoin = () => {
           onComplete: () => {
             // Start floating animation after fade-in completes - smoother floating
             animationRef.current = gsap.to(coinRef.current, {
-              y: -15,
+              y: -12,
               repeat: -1,
               yoyo: true,
-              ease: "power1.inOut",
-              duration: 4.2,
+              ease: "power2.inOut",
+              duration: 3.5,
               transformOrigin: "center center", // Ensure rotation happens around center
             });
             

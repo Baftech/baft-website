@@ -57,7 +57,7 @@ const Home = () => {
         {/* Slide 8: Safe & Secure Section */}
         <SafeSecure />
         {/* Slide 9: Pre-footer */}
-        {/* <AboutBaft /> */}
+        <AboutBaft />
         <Pre_footer/>
       </SlideContainer>
       
