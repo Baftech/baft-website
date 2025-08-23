@@ -201,6 +201,11 @@
   box-sizing: border-box;
 }
 
+/* Prevent textarea from being resizable */
+.contact-input[rows] {
+  resize: none;
+}
+
 .contact-input:nth-child(1) {
   animation: inputFadeIn 0.8s ease-out 0.5s both;
 }
