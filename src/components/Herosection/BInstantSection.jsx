@@ -11,14 +11,14 @@ function Coin({ texture, position, animate, target }) {
   const [opacity, setOpacity] = useState(0);
   useFrame(() => {
     if (animate && ref.current) {
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.02);
+      ref.current.position.lerp(new THREE.Vector3(...target), 0.012); // Reduced from 0.02 to 0.012 for smoother movement
 
        // 🔹 Fade in opacity (approaches 1 slowly)
       if (materialRef.current) {
         materialRef.current.opacity = THREE.MathUtils.lerp(
           materialRef.current.opacity,
           1,
-          0.02
+          0.012 // Reduced from 0.02 to 0.012 for smoother opacity transition
         );
       }
     }
@@ -86,7 +86,7 @@ const CoinStack = ({ startAnimation }) => {
 };
 
 const BInstantSection = () => {
-  const [startCoinAnimation, setStartCoinAnimation] = useState(false);
+  const [startCoinAnimation, setStartCoinAnimation] = useState(true); // Changed to true to start immediately
 
   return (
     <div className="relative w-full h-screen bg-black">
@@ -122,8 +122,7 @@ const BInstantSection = () => {
           className="flex flex-col items-start leading-tight text-center"
           initial={{ y: 120, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1.8, ease: "easeOut" }}
-          onAnimationComplete={() => setStartCoinAnimation(true)} // 👈 start coins when text finishes
+          transition={{ duration: 2.0, ease: [0.25, 0.1, 0.25, 1] }} // Custom cubic-bezier for smoother motion
         >
           <span
             className="text-amber-50 italic"
