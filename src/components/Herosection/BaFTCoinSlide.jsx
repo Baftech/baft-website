@@ -92,7 +92,7 @@ const BaFTCoin = () => {
         ref={coinRef}
         src="/b-coin image.png"
         alt="BaFT Coin"
-        className="absolute w-56 h-auto sm:w-64 md:w-72 lg:w-96 xl:w-96 opacity-0 z-10 top-1/5 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute w-56 h-auto sm:w-64 md:w-72 lg:w-96 xl:w-96 opacity-0 z-10 top-3/5 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
       />
 
       {/* Overlay Text */}
