@@ -16,6 +16,35 @@
   z-index: 5;
 }
 
+/* Scrollable slide content */
+.slide-container .overflow-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.slide-container .overflow-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.slide-container .overflow-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.slide-container .overflow-auto::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.slide-container .overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Smooth scrolling for slide content */
+.scroll-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Banner-style transition effects */
 .banner-transition-up {
   background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.7) 45%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.1) 90%, transparent 100%);
@@ -261,14 +290,164 @@
   100% { transform: translateY(0); opacity: 1; }
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Extra Small devices (phones, 320px and up) */
+@media (min-width: 320px) {
+  .slide-container {
+    scroll-behavior: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
+  }
+  
+  .slide {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Mobile-first navigation */
+  .mobile-nav {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  }
+  
+  /* Touch-friendly slide indicators */
+  .slide-indicator {
+    width: 10px;
+    height: 10px;
+    margin: 6px;
+  }
+  
+  /* Touch-friendly button sizes */
+  button, .nav-btn {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px;
+  }
+  
+  /* Mobile scrollbar styling */
+  .slide-container .overflow-auto::-webkit-scrollbar {
+    width: 4px;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
   .slide-container {
     scroll-behavior: auto;
   }
   
   .slide {
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .mobile-nav {
+    bottom: 20px;
+  }
+  
+  .slide-indicator {
+    width: 12px;
+    height: 12px;
+    margin: 8px;
+  }
+  
+  button, .nav-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+  .slide-container {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .slide {
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .mobile-nav {
+    bottom: 24px;
+  }
+  
+  .slide-indicator {
+    width: 14px;
+    height: 14px;
+    margin: 10px;
+  }
+  
+  button, .nav-btn {
+    min-height: 40px;
+    min-width: 40px;
+    padding: 8px;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .slide-container {
+    scroll-behavior: smooth;
+  }
+  
+  .slide {
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .slide-indicator {
+    width: 16px;
+    height: 16px;
+    margin: 12px;
+  }
+  
+  button, .nav-btn {
+    min-height: 36px;
+    min-width: 36px;
+    padding: 6px;
+  }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  .slide-container {
+    scroll-behavior: smooth;
+  }
+  
+  .slide {
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .slide-indicator {
+    width: 18px;
+    height: 18px;
+    margin: 14px;
+  }
+}
+
+/* 2K and 4K displays (2560px and up) */
+@media (min-width: 2560px) {
+  .slide-container {
+    scroll-behavior: smooth;
+  }
+  
+  .slide {
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .slide-indicator {
+    width: 20px;
+    height: 20px;
+    margin: 16px;
+  }
+  
+  button, .nav-btn {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px;
   }
 }
 
@@ -282,18 +461,6 @@
     user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
-  }
-  
-  .nav-arrow {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  /* Touch-friendly button sizes */
-  button, .nav-btn {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 12px;
   }
   
   /* Prevent text selection on touch */
@@ -322,31 +489,65 @@
   transform: scale(0.95);
 }
 
-/* Mobile navigation optimizations */
-@media (max-width: 768px) {
-  .slide-container {
-    scroll-behavior: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: none;
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .slide-indicator {
+    border: 1px solid rgba(255, 255, 255, 0.3);
   }
-  
-  .slide {
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  /* Mobile-friendly navigation */
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
   .mobile-nav {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
+    bottom: 12px;
   }
   
-  /* Touch-friendly slide indicators */
+  .slide-indicator {
+    width: 8px;
+    height: 8px;
+    margin: 4px;
+  }
+}
+
+/* Portrait orientation adjustments */
+@media (orientation: portrait) and (max-width: 500px) {
+  .mobile-nav {
+    bottom: 20px;
+  }
+  
   .slide-indicator {
     width: 12px;
     height: 12px;
     margin: 8px;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .slide-container {
+    scroll-behavior: auto;
+  }
+  
+  .slide,
+  .slide-indicator,
+  .nav-arrow,
+  .banner-transition-up,
+  .banner-transition-down {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .slide-indicator {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* Light mode support */
+@media (prefers-color-scheme: light) {
+  .slide-indicator {
+    background-color: rgba(0, 0, 0, 0.6);
   }
 }

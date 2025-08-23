@@ -6,9 +6,11 @@ import {
   faFacebook,
 } from "@fortawesome/free-brands-svg-icons";
 import Thanks from "./Thanks";
+
 const SignupForm = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Email submitted:", email);
@@ -129,7 +131,7 @@ const Footer = () => {
     <footer
       id="footer"
       data-theme="dark"
-      className="bg-gray-100 py-6 md:py-12 px-4"
+      className="fixed bottom-0 left-0 right-0 bg-gray-100 py-6 md:py-12 px-4 z-50 shadow-lg border-t border-gray-200"
     >
       <div className="max-w-full mx-auto">
         <div className="mb-6 md:mb-8">

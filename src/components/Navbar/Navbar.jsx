@@ -46,14 +46,14 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
         }`}
       >
         {/* Left group - Hidden on mobile, visible on lg+ */}
-        <div className="hidden lg:flex gap-2 xl:gap-4">
+        <div className="hidden lg:flex gap-6 xl:gap-8">
           <button
             onClick={() => {
               document
                 .getElementById("about")
                 ?.scrollIntoView({ behavior: "smooth" });
             }}
-            className={`w-16 h-8 lg:w-20 lg:h-10 xl:w-24 xl:h-12 rounded-[200px] nav-btn ${
+            className={`w-20 h-8 lg:w-24 lg:h-10 xl:w-28 xl:h-12 rounded-[200px] nav-btn ${
               theme === "dark" ? "text-white" : "text-black"
             }`}
           >

@@ -62,7 +62,7 @@ const Home = () => {
       </SlideContainer>
       
       {/* Footer - placed outside SlideContainer to be always visible */}
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

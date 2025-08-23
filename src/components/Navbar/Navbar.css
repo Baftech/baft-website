@@ -39,7 +39,7 @@
 
 /* Buttons shared base with 8-point spacing */
 .nav-btn {
-  padding: 3px 6px; /* Further reduced padding for more compact navbar */
+  padding: 4px 8px; /* Increased padding for better text fitting */
   border: none;
   border-radius: 9999px;
   transition: all 0.3s ease;
@@ -47,7 +47,7 @@
   font-optical-sizing: auto;
   font-weight: 500; /* Slightly bolder for better readability */
   font-style: "normal";
-  font-size: 10px; /* Smaller font size for more compact navbar */
+  font-size: 11px; /* Slightly larger font size for better readability */
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -55,30 +55,33 @@
   min-width: 28px;
   letter-spacing: 0.025em; /* Better text spacing */
   white-space: nowrap; /* Prevent text wrapping */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Responsive button sizing using 8-point spacing */
 @media (min-width: 640px) {
   .nav-btn {
-    padding: 4px 10px; /* Reduced padding for more compact navbar */
+    padding: 6px 12px; /* Increased padding for better text fitting */
     min-height: 32px; /* Reduced height for more compact navbar */
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 
 @media (min-width: 768px) {
   .nav-btn {
-    padding: 6px 12px; /* Reduced padding for more compact navbar */
+    padding: 8px 16px; /* Increased padding for better text fitting */
     min-height: 36px; /* Reduced height for more compact navbar */
-    font-size: 12px;
+    font-size: 13px;
   }
 }
 
 @media (min-width: 1024px) {
   .nav-btn {
-    padding: 8px 14px; /* Reduced padding for more compact navbar */
+    padding: 10px 18px; /* Increased padding for better text fitting */
     min-height: 40px; /* Reduced height for more compact navbar */
-    font-size: 13px;
+    font-size: 14px;
   }
 }
 
