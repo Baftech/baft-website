@@ -11,6 +11,7 @@ import SafeSecure from "../components/Mainsection/SafeSecure";
 import Pre_footer from "../components/Footer/Pre_footer";
 import Footer from "../components/Footer/Footer";
 import AboutBaft from "../components/Aboutsection/About";
+import CombinedFooter from "../components/Footer/CombinedFooter";
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -58,7 +59,7 @@ const Home = () => {
         <SafeSecure />
         {/* Slide 9: Pre-footer */}
         <AboutBaft />
-        <Pre_footer/>
+        <CombinedFooter />
       </SlideContainer>
       
       {/* Footer - placed outside SlideContainer to be always visible */}

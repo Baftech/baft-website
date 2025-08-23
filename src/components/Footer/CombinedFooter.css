@@ -1,0 +1,266 @@
+/* Combined Footer Styles */
+.combined-footer {
+  position: relative;
+  width: 100%;
+}
+
+/* Pre-footer Section Styles */
+.pre-footer-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Canvas styling */
+.starfield-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Concentric circles background wrapper */
+.concentric-wrapper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* purely decorative */
+  z-index: 0;
+}
+
+/* Base concentric circle style */
+.concentric-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(144, 202, 249, 0.25); /* softer light blue */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 4s infinite ease-in-out both;
+  box-shadow: 
+    0 0 35px rgba(144, 202, 249, 0.15) inset, 
+    0 0 10px rgba(144, 202, 249, 0.2); /* softer outer glow */
+}
+
+/* Individual sizes and staggered delays */
+.concentric-circle:nth-child(1) {
+  width: 300px;
+  height: 300px;
+  animation-delay: 0s;
+}
+.concentric-circle:nth-child(2) {
+  width: 450px;
+  height: 450px;
+  animation-delay: 0.5s;
+}
+.concentric-circle:nth-child(3) {
+  width: 600px;
+  height: 600px;
+  animation-delay: 1s;
+}
+.concentric-circle:nth-child(4) {
+  width: 750px;
+  height: 750px;
+  animation-delay: 1.5s;
+}
+.concentric-circle:nth-child(5) {
+  width: 900px;
+  height: 900px;
+  animation-delay: 2s;
+}
+
+/* SVG container */
+.svg-container {
+  position: absolute;
+  left: 50%;
+  top: 33px;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1337px;
+  height: auto;
+  opacity: 0.37;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.svg-object, .svg-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Text container */
+.text-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.main-heading {
+  max-width: 932px;
+  width: 100%;
+  font-family: "Satoshi", sans-serif;
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 1.34;
+  margin: 0;
+  background: linear-gradient(101.23deg, #EDEDED 24.07%, #B6B6B6 96.8%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.sub-heading {
+  max-width: 932px;
+  width: 100%;
+  font-family: "Satoshi", sans-serif;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.36;
+  margin: 8px 0 0;
+  color: #9898A8;
+}
+
+/* Main Footer Section Styles */
+.main-footer {
+  position: relative;
+  z-index: 10;
+}
+
+/* Pulse animation with softer brightness */
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.96);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.96);
+    opacity: 0.35;
+  }
+}
+
+/* Accessibility: disable animation for reduced motion users */
+@media (prefers-reduced-motion: reduce) {
+  .concentric-circle {
+    animation: none;
+  }
+}
+
+/* Media queries for responsiveness */
+@media screen and (max-width: 1200px) {
+  .concentric-circle:nth-child(5) {
+    width: 750px;
+    height: 750px;
+  }
+  .concentric-circle:nth-child(4) {
+    width: 600px;
+    height: 600px;
+  }
+  .concentric-circle:nth-child(3) {
+    width: 450px;
+    height: 450px;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .main-heading {
+    font-size: 48px;
+  }
+  .sub-heading {
+    font-size: 18px;
+  }
+  .concentric-circle:nth-child(5) {
+    width: 600px;
+    height: 600px;
+  }
+  .concentric-circle:nth-child(4) {
+    width: 500px;
+    height: 500px;
+  }
+  .concentric-circle:nth-child(3) {
+    width: 400px;
+    height: 400px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .main-heading {
+    font-size: 36px;
+  }
+  .sub-heading {
+    font-size: 16px;
+  }
+  .concentric-circle:nth-child(5) {
+    width: 500px;
+    height: 500px;
+  }
+  .concentric-circle:nth-child(4) {
+    width: 400px;
+    height: 400px;
+  }
+  .concentric-circle:nth-child(3) {
+    width: 300px;
+    height: 300px;
+  }
+  .concentric-circle:nth-child(2) {
+    width: 250px;
+    height: 250px;
+  }
+  .concentric-circle:nth-child(1) {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .main-heading {
+    font-size: 28px;
+  }
+  .sub-heading {
+    font-size: 14px;
+  }
+  .concentric-circle:nth-child(5) {
+    width: 350px;
+    height: 350px;
+  }
+  .concentric-circle:nth-child(4) {
+    width: 300px;
+    height: 300px;
+  }
+  .concentric-circle:nth-child(3) {
+    width: 250px;
+    height: 250px;
+  }
+  .concentric-circle:nth-child(2) {
+    width: 200px;
+    height: 200px;
+  }
+  .concentric-circle:nth-child(1) {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  .pre-footer-container {
+    height: 600px;
+  }
+}
