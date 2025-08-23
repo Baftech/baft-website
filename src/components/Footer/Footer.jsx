@@ -13,9 +13,11 @@ const SignupForm = () => {
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Email submitted:", email);
-    setEmail("");
-    setIsSubmitted(true);
+    if (email) {
+      // Here you can add your email subscription logic
+      setEmail("");
+      setIsSubmitted(true);
+    }
   };
 
   return (

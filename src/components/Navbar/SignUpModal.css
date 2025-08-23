@@ -8,6 +8,16 @@
   justify-content: center;
   z-index: 1000;
   padding: 16px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Main Modal Container */
@@ -31,6 +41,18 @@
   overflow-y: auto;
   box-sizing: border-box;
   position: relative;
+  animation: slideInUp 0.8s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Close Button */
@@ -58,12 +80,39 @@
   justify-content: center;
   text-align: center;
   margin-bottom: 24px;
+  animation: headerFadeIn 0.8s ease-out 0.1s both;
+}
+
+@keyframes headerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .signup-logo {
   width: 120px;
   height: auto;
   margin: 0 auto;
+  animation: logoBounce 0.8s ease-out 0.3s both;
+}
+
+@keyframes logoBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+  50% {
+    transform: scale(1.1) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .signup-tagline {
@@ -71,6 +120,18 @@
   font-family: 'Inter', sans-serif;
   font-size: 15px;
   color: rgba(255, 255, 255, 0.7);
+  animation: taglineSlideIn 0.8s ease-out 0.4s both;
+}
+
+@keyframes taglineSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Form Container */
@@ -83,6 +144,18 @@
   flex-direction: column;
   gap: 16px;
   margin-bottom: 20px;
+  animation: formSlideIn 0.8s ease-out 0.2s both;
+}
+
+@keyframes formSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Title */
@@ -115,6 +188,27 @@
   color: white;
   font-size: 16px;
   outline: none;
+  transition: all 0.3s ease;
+  animation: inputFadeIn 0.8s ease-out 0.4s both;
+}
+
+.signup-input:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.signup-input:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes inputFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .signup-input::placeholder {
@@ -126,12 +220,50 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  animation: checkboxFadeIn 0.8s ease-out 0.6s both;
+}
+
+@keyframes checkboxFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .signup-checkbox-label {
   color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
   cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.signup-checkbox-label:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.signup-checkbox {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.signup-checkbox:checked {
+  animation: checkboxCheck 0.8s ease-out;
+}
+
+@keyframes checkboxCheck {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Send Button */
@@ -146,11 +278,60 @@
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
+  animation: buttonFadeIn 0.8s ease-out 0.7s both;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes buttonFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .signup-send-button:hover {
   background: #357ABD;
   transform: translateY(-2px);
+}
+
+.signup-send-button:active {
+  animation: buttonClick 0.8s ease-out;
+}
+
+@keyframes buttonClick {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Button ripple effect */
+.signup-send-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.8s ease, height 0.8s ease;
+}
+
+.signup-send-button:active::before {
+  width: 300px;
+  height: 300px;
 }
 
 /* Divider */

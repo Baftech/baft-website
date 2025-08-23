@@ -64,6 +64,11 @@ const VideoElement = () => {
           boxShadow: "none",
           border: "none",
           filter: "brightness(1.1) contrast(1.2) saturate(1.1)",
+          willChange: "transform", // Optimize for transform animations
+        }}
+        onPlay={() => {
+          // Ensure video stays playing
+          this?.play?.();
         }}
       />
     </div>
@@ -287,10 +292,10 @@ const startBaftCoinFloat = () => {
   if (coinFloatTween) return;
   coinFloatTween = gsap.to("#B_coin", {
     y: -20,
-    duration: 1.8,
+    duration: 2.4,
     yoyo: true,
     repeat: -1,
-    ease: "sine.inOut",
+    ease: "power2.inOut",
   });
 };
 
@@ -352,6 +357,12 @@ const HeroContainer = () => {
   };
 
   const startVideoShrinkAnimation = () => {
+    // Ensure video is playing before starting animation
+    const video = document.getElementById("videoElement");
+    if (video && video.paused) {
+      video.play().catch(() => {});
+    }
+
     const getResponsiveScale = () => {
       const width = window.innerWidth;
       if (width >= 2560) return 0.35;
@@ -366,36 +377,64 @@ const HeroContainer = () => {
     const targetScale = getResponsiveScale();
     const targetY = computeVideoTargetY();
 
-    gsap.to("#videoElement", {
+    // Create a smooth timeline for all animations
+    const tl = gsap.timeline({
+      ease: "power3.out",
+      smoothChildTiming: true
+    });
+
+    // Start all animations simultaneously for smooth motion
+    tl.to("#videoElement", {
       scale: targetScale,
       x: 0,
       y: targetY,
       opacity: 0.9,
       borderRadius: "0px",
       filter: "brightness(1.0) contrast(1.25) saturate(1.15)",
-      duration: 1.6,
-      ease: "power2.out",
-    });
-
-    gsap.to("#grid_container", { opacity: 1, duration: 1.5 });
-    gsap.to("#text", {
+      duration: 0.8,
+      ease: "power3.out",
+      // Ensure video continues playing during animation
+      onUpdate: () => {
+        const video = document.getElementById("videoElement");
+        if (video && video.paused) {
+          video.play().catch(() => {}); // Ignore autoplay errors
+        }
+      },
+      onStart: () => {
+        // Set up periodic video playback check during animation
+        const video = document.getElementById("videoElement");
+        if (video) {
+          const playCheckInterval = setInterval(() => {
+            if (video.paused) {
+              video.play().catch(() => {});
+            }
+          }, 100); // Check every 100ms during animation
+          
+          // Clear interval when animation completes
+          setTimeout(() => clearInterval(playCheckInterval), 800);
+        }
+      }
+    }, 0)
+    .to("#grid_container", { 
+      opacity: 1, 
+      duration: 0.8,
+      ease: "power2.out"
+    }, 0)
+    .to("#text", {
       opacity: 1,
       y: 0,
       scale: 1,
       visibility: "visible",
-      duration: 2,
-      delay: 0.3,
-      ease: "power2.out",
-    });
-
-    gsap.to("#scroll_button", {
+      duration: 0.8,
+      ease: "power3.out"
+    }, 0.1) // Slight stagger for text
+    .to("#scroll_button", {
       opacity: 1,
       y: 0,
       visibility: "visible",
-      duration: 1.5,
-      delay: 1,
-      ease: "power2.out",
-    });
+      duration: 0.8,
+      ease: "power3.out"
+    }, 0.6); // Delayed appearance for scroll button
   };
 
   const handleScroll = () => {
@@ -450,36 +489,41 @@ const HeroContainer = () => {
   };
 
   const reverseAnimation = () => {
-    gsap.to("#text", {
+    // Create a smooth reverse timeline
+    const tl = gsap.timeline({
+      ease: "power3.in",
+      smoothChildTiming: true
+    });
+
+    tl.to(["#text", "#grid_container", "#scroll_button"], {
       opacity: 0,
+      duration: 0.6,
+      ease: "power3.in",
+      stagger: 0.05
+    })
+    .to("#text", {
       y: 50,
       scale: 0.8,
       visibility: "hidden",
-      duration: 0.8,
-      ease: "power2.in",
-    });
-    gsap.to("#grid_container", { opacity: 0, duration: 0.8 });
-    gsap.to("#scroll_button", {
-      opacity: 0,
+      duration: 0.6,
+      ease: "power3.in"
+    }, 0)
+    .to("#scroll_button", {
       y: 20,
       visibility: "hidden",
+      duration: 0.6,
+      ease: "power3.in"
+    }, 0)
+    .to("#videoElement", {
+      scale: 1,
+      x: 0,
+      y: 0,
+      opacity: 1,
+      borderRadius: "0px",
+      filter: "brightness(1.1) contrast(1.2) saturate(1.1)",
       duration: 0.8,
-      ease: "power2.in",
-    });
-
-    setTimeout(() => {
-      gsap.killTweensOf("#videoElement");
-      gsap.to("#videoElement", {
-        scale: 1,
-        x: 0,
-        y: 0,
-        opacity: 1,
-        borderRadius: "0px",
-        filter: "brightness(1.1) contrast(1.2) saturate(1.1)",
-        duration: 1.2,
-        ease: "power2.out",
-      });
-    }, 300);
+      ease: "power3.out",
+    }, 0.1);
   };
 
   const startCoinAnimation = () => {

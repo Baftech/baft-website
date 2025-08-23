@@ -11,14 +11,14 @@ function Coin({ texture, position, animate, target }) {
   const [opacity, setOpacity] = useState(0);
   useFrame(() => {
     if (animate && ref.current) {
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.012); // Reduced from 0.02 to 0.012 for smoother movement
+      ref.current.position.lerp(new THREE.Vector3(...target), 0.003); // Reduced to 0.003 for buttery smooth movement
 
        // 🔹 Fade in opacity (approaches 1 slowly)
       if (materialRef.current) {
         materialRef.current.opacity = THREE.MathUtils.lerp(
           materialRef.current.opacity,
           1,
-          0.012 // Reduced from 0.02 to 0.012 for smoother opacity transition
+          0.003 // Reduced to 0.003 for buttery smooth opacity transition
         );
       }
     }
@@ -79,14 +79,25 @@ const CoinStack = ({ startAnimation }) => {
         texture={coinTexture}
         position={[-0.3, 0.4, 0.4]}
         animate={startAnimation}
-        target={[-0.5, 0.5, 0.5]}
+        target={[-0.6, 0.6, 0.6]}
       />
     </>
   );
 };
 
 const BInstantSection = () => {
-  const [startCoinAnimation, setStartCoinAnimation] = useState(true); // Changed to true to start immediately
+  const [startCoinAnimation, setStartCoinAnimation] = useState(false); // Changed to false initially
+  const [showCoins, setShowCoins] = useState(false); // New state to control coin visibility
+
+  // Start coin animation after 800ms delay
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setStartCoinAnimation(true);
+      setShowCoins(true); // Show coins after 800ms
+    }, 800);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="relative w-full h-screen bg-black">
@@ -102,7 +113,7 @@ const BInstantSection = () => {
       {/* THREE.JS CANVAS */}
       <Canvas
         camera={{ position: [0, 0, 6], fov: 50 }}
-        className="w-full h-full relative z-10"
+        className="w-full h-full relative z-20"
       >
         <Suspense fallback={null}>
           <ambientLight />
@@ -110,19 +121,34 @@ const BInstantSection = () => {
         </Suspense>
       </Canvas>
 
+      {/* 🔹 Black film that covers coins initially and moves up to reveal them */}
+      <motion.div
+        className="absolute inset-0 z-15 pointer-events-none bg-black"
+        initial={{ y: 0 }}
+        animate={{ y: showCoins ? -100 : 0 }}
+        transition={{ 
+          duration: 0.5, 
+          ease: [0.25, 0.1, 0.25, 1],
+          delay: 0.8 // Start moving after 800ms
+        }}
+      />
+
       {/* 🔹 Dark transparent film (above coins, below text) */}
       <div
-        className="absolute inset-0 z-15 pointer-events-none"
+        className="absolute inset-0 z-25 pointer-events-none"
         style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
       />
 
       {/* Overlay Text */}
-      <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+      <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
         <motion.div
           className="flex flex-col items-start leading-tight text-center"
           initial={{ y: 120, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 2.0, ease: [0.25, 0.1, 0.25, 1] }} // Custom cubic-bezier for smoother motion
+          transition={{ 
+            duration: 3.5, 
+            ease: [0.25, 0.1, 0.25, 1] 
+          }}
         >
           <span
             className="text-amber-50 italic"

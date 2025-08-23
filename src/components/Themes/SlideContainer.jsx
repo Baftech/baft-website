@@ -68,8 +68,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
 
   const handleSlideChange = useCallback((newIndex) => {
     if (newIndex >= 0 && newIndex < totalSlides && !isTransitioning) {
-      console.log("SlideContainer: Changing from slide", slideIndex, "to", newIndex);
-      
       setPreviousSlideIndex(slideIndex);
       const direction = newIndex > slideIndex ? 'up' : 'down';
       setTransitionDirection(direction);
@@ -121,7 +119,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       }
       
       if (newIndex !== slideIndex) {
-        console.log("Touch swipe: changing from slide", slideIndex + 1, "to", newIndex + 1);
         lastScrollTime.current = now;
         handleSlideChange(newIndex);
       }
@@ -167,7 +164,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     }
     
     if (newIndex !== slideIndex) {
-      console.log("Wheel scroll: changing from slide", slideIndex + 1, "to", newIndex + 1);
       lastScrollTime.current = now;
       handleSlideChange(newIndex);
     }
@@ -240,7 +236,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   useEffect(() => {
     if (currentSlide !== undefined && currentSlide !== slideIndex) {
       if (currentSlide >= 0 && currentSlide < totalSlides) {
-        console.log("External slide change: from", slideIndex + 1, "to", currentSlide + 1);
         setSlideIndex(currentSlide);
         setPreviousSlideIndex(slideIndex);
       } else {
@@ -325,127 +320,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
               : 'banner-transition-down'
           }`}
         />
-      )}
-
-
-
-      {/* Scroll indicator for content overflow */}
-      {!isSeamless && (
-        <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-40 pointer-events-none">
-          <div className="flex flex-col items-center gap-2">
-            {canScrollToPrev && (
-              <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" title="Scroll up for more content" />
-            )}
-            {canScrollToNext && (
-              <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" title="Scroll down for more content" />
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Responsive Navigation */}
-      {/* Desktop Navigation - Hidden on mobile */}
-      {!isMobile && (
-        <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-40 pointer-events-none">
-          <div className="flex flex-col gap-4 pointer-events-auto">
-            <button
-              onClick={() => slideIndex > 0 && handleSlideChange(slideIndex - 1)}
-              disabled={slideIndex === 0}
-              className={`p-3 rounded-full bg-black/20 backdrop-blur-sm transition-all duration-300 hover:bg-black/40 ${
-                slideIndex === 0 
-                  ? 'text-white/30 cursor-not-allowed' 
-                  : 'text-white hover:scale-110'
-              }`}
-              aria-label="Previous slide"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-              </svg>
-            </button>
-            
-            <div className="flex flex-col items-center gap-2">
-              {Array.from({ length: totalSlides }, (_, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleSlideChange(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === slideIndex ? 'bg-white' : 'bg-white/40 hover:bg-white/60'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-            
-            <button
-              onClick={() => slideIndex < totalSlides - 1 && handleSlideChange(slideIndex + 1)}
-              disabled={slideIndex === totalSlides - 1}
-              className={`p-3 rounded-full bg-black/20 backdrop-blur-sm transition-all duration-300 hover:bg-black/40 ${
-                slideIndex === totalSlides - 1 
-                  ? 'text-white/30 cursor-not-allowed' 
-                  : 'text-white hover:scale-110'
-              }`}
-              aria-label="Next slide"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile Navigation - Bottom centered, above footer */}
-      {isMobile && (
-        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-40 pointer-events-none">
-          <div className={`flex gap-3 bg-black/20 backdrop-blur-sm rounded-full px-4 py-2 pointer-events-auto ${
-            isLandscape ? 'px-3 py-1' : 'px-4 py-2'
-          }`}>
-            <button
-              onClick={() => slideIndex > 0 && handleSlideChange(slideIndex - 1)}
-              disabled={slideIndex === 0}
-              className={`p-2 rounded-full transition-all duration-300 touch-feedback ${
-                slideIndex === 0 
-                  ? 'text-white/30 cursor-not-allowed' 
-                  : 'text-white hover:bg-white/20'
-              }`}
-              aria-label="Previous slide"
-            >
-              <svg className={`${isLandscape ? 'w-5 h-5' : 'w-6 h-6'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-              </svg>
-            </button>
-            
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalSlides }, (_, index) => (
-                <div
-                  key={index}
-                  className={`rounded-full transition-all duration-300 ${
-                    index === slideIndex ? 'bg-white' : 'bg-white/40'
-                  }`}
-                  style={{
-                    width: isLandscape ? '8px' : '12px',
-                    height: isLandscape ? '8px' : '12px'
-                  }}
-                />
-              ))}
-            </div>
-            
-            <button
-              onClick={() => slideIndex < totalSlides - 1 && handleSlideChange(slideIndex + 1)}
-              disabled={slideIndex === totalSlides - 1}
-              className={`p-2 rounded-full transition-all duration-300 touch-feedback ${
-                slideIndex === totalSlides - 1 
-                  ? 'text-white/30 cursor-not-allowed' 
-                  : 'text-white hover:bg-white/20'
-              }`}
-              aria-label="Next slide"
-            >
-              <svg className={`${isLandscape ? 'w-5 h-5' : 'w-6 h-6'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-          </div>
-        </div>
       )}
 
       {/* Progress bar for mobile */}

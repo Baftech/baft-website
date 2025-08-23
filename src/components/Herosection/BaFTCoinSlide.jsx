@@ -9,6 +9,7 @@ const BaFTCoin = () => {
   const introRef = useRef(null);
   const coinRef = useRef(null);
   const animationRef = useRef(null);
+  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
     // Kill any existing animations first
@@ -17,47 +18,56 @@ const BaFTCoin = () => {
       animationRef.current = null;
     }
 
-    // Reset coin position immediately when component mounts/updates
+    // Reset coin animation properties without affecting position
     if (coinRef.current) {
       gsap.set(coinRef.current, {
         opacity: 0,
         scale: 1,
         rotation: 0,
-        y: 0,
-        x: 0,
-        // Keep the original CSS positioning intact
+        // Don't reset y and x to preserve CSS positioning
       });
     }
 
     const ctx = gsap.context(() => {
-      // Fade in "Introducing" first - smoother with better easing
-      gsap.from(".intro-text", {
+      // Create a timeline for smooth sequencing
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: introRef.current,
+          start: "top center",
+          end: "bottom center",
+          toggleActions: "play none none reverse",
+          onEnter: () => {
+            if (hasAnimatedRef.current) return;
+            hasAnimatedRef.current = true;
+          },
+          onLeave: () => {
+            hasAnimatedRef.current = false;
+          },
+          onEnterBack: () => {
+            if (hasAnimatedRef.current) return;
+            hasAnimatedRef.current = true;
+          },
+          onLeaveBack: () => {
+            hasAnimatedRef.current = false;
+          }
+        }
+      });
+
+      // Sequence the animations properly
+      tl.from(".intro-text", {
         opacity: 0,
-        y: 30,
-        duration: 1.8,
+        y: 40,
+        duration: 2.5,
         ease: "power3.out",
-        scrollTrigger: {
-          trigger: introRef.current,
-          start: "top center",
-        },
-      });
-
-      // Fade & scale in "BaFT Coin" second - smoother scale animation
-      gsap.from(".coin-text", {
+      })
+      .from(".coin-text", {
         opacity: 0,
-        scale: 0.85,
-        y: 20,
-        duration: 2.2,
-        delay: 0.6,
+        scale: 0.8,
+        y: 30,
+        duration: 3.2,
         ease: "power2.out",
-        scrollTrigger: {
-          trigger: introRef.current,
-          start: "top center",
-        },
-      });
-
-      // Fade in coin image last - smoother with subtle scale and rotation
-      gsap.fromTo(coinRef.current, 
+      }, "-=0.8") // Start slightly before previous animation ends
+      .fromTo(coinRef.current, 
         {
           opacity: 0,
           scale: 0.7,
@@ -67,82 +77,43 @@ const BaFTCoin = () => {
           opacity: 0.2,
           scale: 1,
           rotation: 0,
-          duration: 2.4,
-          delay: 1.2,
+          duration: 3.8,
           ease: "power2.out",
-          scrollTrigger: {
-            trigger: introRef.current,
-            start: "top center",
-          },
           onComplete: () => {
-            // Start floating animation after fade-in completes - smoother floating
+            // Start smooth floating animation after fade-in completes
             animationRef.current = gsap.to(coinRef.current, {
-              y: -12,
+              y: -15,
               repeat: -1,
               yoyo: true,
-              ease: "power2.inOut",
-              duration: 3.5,
-              transformOrigin: "center center", // Ensure rotation happens around center
-            });
-            
-            // Add glow effect to text after coin appears
-            gsap.to(".intro-text, .coin-text", {
-              filter: "drop-shadow(0 0 8px rgba(255,215,0,0.4))",
-              duration: 2.8,
-              ease: "power1.out",
+              ease: "power1.inOut",
+              duration: 6,
             });
           }
-        }
-      );
+        }, "-=1.2") // Start slightly before previous animation ends
+      .to(".intro-text, .coin-text", {
+        filter: "drop-shadow(0 0 8px rgba(255,215,0,0.4))",
+        duration: 4,
+        ease: "power1.out",
+      }, "-=2.5"); // Start glow effect during coin animation
     }, introRef);
 
     return () => {
-      // Clean up all GSAP animations and reset coin position
+      // Clean up all GSAP animations without affecting position
       if (coinRef.current) {
         gsap.killTweensOf(coinRef.current);
-        // Reset only the animated properties, preserve positioning
+        // Reset only animation properties, preserve CSS positioning
         gsap.set(coinRef.current, {
           opacity: 0,
           scale: 1,
           rotation: 0,
-          y: 0,
-          x: 0,
-          // Keep the original CSS positioning intact
+          // Don't reset y and x to preserve CSS positioning
         });
       }
+      hasAnimatedRef.current = false;
       // Refresh ScrollTrigger to ensure proper cleanup
       ScrollTrigger.refresh();
       ctx.revert();
     };
-  }, []);
-
-  // Additional effect to maintain coin position
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (coinRef.current) {
-        // Ensure the coin stays in the correct position
-        const rect = coinRef.current.getBoundingClientRect();
-        const sectionRect = introRef.current?.getBoundingClientRect();
-        
-        if (sectionRect) {
-          const expectedTop = sectionRect.height * 0.6; // 60% of section height
-          const currentTop = rect.top - sectionRect.top;
-          
-          // If position is off by more than 10px, reset it
-          if (Math.abs(currentTop - expectedTop) > 10) {
-            gsap.set(coinRef.current, {
-              y: 0,
-              x: 0,
-              top: '60%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)'
-            });
-          }
-        }
-      }
-    }, 1000); // Check every second
-
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -153,19 +124,19 @@ const BaFTCoin = () => {
          <div id="grid_container" className="absolute inset-0 opacity-100 z-0">
                 <GridBackground />
               </div>
-      {/* Background Coin Image */}
-      <img
-        ref={coinRef}
-        src="/b-coin image.png"
-        alt="BaFT Coin"
-        className="absolute w-56 h-auto sm:w-64 md:w-72 lg:w-96 xl:w-96 opacity-0 z-10"
-        style={{
-          top: '60%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          position: 'absolute'
-        }}
-      />
+      {/* Background Coin Image - Centered independently */}
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <img
+          ref={coinRef}
+          src="/b-coin image.png"
+          alt="BaFT Coin"
+          className="w-56 h-auto sm:w-64 md:w-72 lg:w-104 xl:w-104 opacity-0"
+          style={{
+            position: 'relative',
+            top: '5%', // Move down slightly from center
+          }}
+        />
+      </div>
 
       {/* Overlay Text */}
       <div className="z-10">

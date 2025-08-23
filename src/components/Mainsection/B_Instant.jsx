@@ -51,7 +51,6 @@ const B_Instant = () => {
       start: "top 80%", // Start when section enters viewport
       end: "bottom 20%", // End when section nearly exits viewport
       scrub: 1, // Smooth scroll-linked animation
-      markers: false, // Set to true for debugging
       onUpdate: (self) => {
         const progress = self.progress;
         

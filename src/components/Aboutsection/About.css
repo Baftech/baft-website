@@ -78,15 +78,6 @@
   visibility: visible !important;
 }
 
-/* Debug styles - remove in production */
-.debug-border {
-  border: 2px solid red;
-}
-
-.debug-bg {
-  background-color: rgba(255, 0, 0, 0.1);
-}
-
 /* Additional mobile fixes */
 @media (max-width: 1023px) {
   .about-section-mobile {

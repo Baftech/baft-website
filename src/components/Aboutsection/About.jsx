@@ -95,12 +95,10 @@ const InteractiveTeamImage = () => {
   const [loadedImages, setLoadedImages] = useState(
     new Set(["/Property 1=Image.png"])
   );
-  const [imageError, setImageError] = useState(false);
 
   // Add debugging for component dimensions
   useEffect(() => {
-    console.log('InteractiveTeamImage mounted');
-    return () => console.log('InteractiveTeamImage unmounted');
+    return () => {};
   }, []);
 
   const teamMembers = React.useMemo(
@@ -153,11 +151,6 @@ const InteractiveTeamImage = () => {
       const img = new Image();
       img.onload = () => {
         setLoadedImages((prev) => new Set([...prev, src]));
-        console.log('Image loaded:', src);
-      };
-      img.onerror = () => {
-        console.error('Failed to load image:', src);
-        setImageError(true);
       };
       img.src = src;
     });
@@ -295,11 +288,7 @@ const InteractiveTeamImage = () => {
             transition: "opacity 1200ms ease-in-out",
             zIndex: 1,
           }}
-          onLoad={() => console.log('Base image loaded successfully')}
-          onError={(e) => {
-            console.error('Base image failed to load:', e);
-            setImageError(true);
-          }}
+          onLoad={() => {}}
         />
 
         {/* Individual Member Images */}
@@ -381,16 +370,6 @@ const InteractiveTeamImage = () => {
             onMouseEnter={() => handleMouseEnterMember(member.id)}
           />
         ))}
-
-        {/* Fallback display for debugging */}
-        {imageError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-red-100 z-50">
-            <div className="text-center">
-              <p className="text-red-600 font-bold">Image Loading Error</p>
-              <p className="text-red-500 text-sm">Check console for details</p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -412,7 +391,6 @@ const AboutBaft = () => {
     const checkScreenSize = () => {
       const newIsDesktop = window.innerWidth >= 1024; // lg breakpoint and above
       setIsDesktop(newIsDesktop);
-      console.log('Screen size check:', { width: window.innerWidth, isDesktop: newIsDesktop });
     };
 
     checkScreenSize();
@@ -422,50 +400,27 @@ const AboutBaft = () => {
 
   // Log when component mounts and when isDesktop changes
   useEffect(() => {
-    console.log('AboutBaft component mounted, isDesktop:', isDesktop);
-    
     // Log component dimensions
     if (sectionRef.current) {
       const rect = sectionRef.current.getBoundingClientRect();
-      console.log('AboutBaft section dimensions:', {
-        width: rect.width,
-        height: rect.height,
-        top: rect.top,
-        left: rect.left
-      });
     }
   }, [isDesktop]);
 
   // Add effect to log dimensions when mobile layout renders
   useEffect(() => {
     if (!isDesktop) {
-      console.log('Mobile layout rendered');
       
       // Log after a short delay to ensure DOM is ready
       setTimeout(() => {
         const aboutSection = document.getElementById('about');
         if (aboutSection) {
           const rect = aboutSection.getBoundingClientRect();
-          console.log('Mobile About section dimensions:', {
-            width: rect.width,
-            height: rect.height,
-            top: rect.top,
-            left: rect.left,
-            visible: rect.width > 0 && rect.height > 0
-          });
         }
         
         // Check for image container
         const imageContainer = document.querySelector('.about-image-container-mobile');
         if (imageContainer) {
           const rect = imageContainer.getBoundingClientRect();
-          console.log('Image container dimensions:', {
-            width: rect.width,
-            height: rect.height,
-            top: rect.top,
-            left: rect.left,
-            visible: rect.width > 0 && rect.height > 0
-          });
         }
       }, 100);
     }
@@ -660,15 +615,14 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
 
             {/* Right Column - Fixed for mobile/tablet visibility */}
             <div className="about-image-container-mobile">
-              <div className="debug-border debug-bg" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: '100%', height: '100%' }}>
                 {/* Test image to verify layout */}
                 <img 
                   src="/Property 1=Image.png" 
                   alt="Test Image" 
                   className="w-full h-full object-cover object-center rounded-3xl"
                   style={{ minHeight: '400px' }}
-                  onLoad={() => console.log('Test image loaded successfully on mobile')}
-                  onError={(e) => console.error('Test image failed to load on mobile:', e)}
+                  onLoad={() => {}}
                 />
                 {/* Original InteractiveTeamImage */}
                 <div className="absolute inset-0">

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThanksPage from "./Thanks_Page"; // ✅ Import your thanks page
+import "./ContactModal.css";
 
 const ContactModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -33,32 +34,32 @@ const ContactModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="contact-modal-backdrop">
       <div className="absolute inset-0 bg-black/50" onClick={handleClose}></div>
-      <div className="relative bg-gradient-to-b from-[#0A0E65] via-[#3766B7E6] to-[#191919E6] rounded-2xl p-6 w-[95%] max-w-sm shadow-xl border border-white/10 backdrop-blur-lg z-10">
-        <button onClick={handleClose} className="absolute top-4 right-4 text-white/70 hover:text-white text-xl">✕</button>
+      <div className="contact-modal-container">
+        <button onClick={handleClose} className="contact-close-button">✕</button>
 
         {showThanks ? (
           <ThanksPage onClose={handleThanksClose} />
         ) : (
           <>
-            <div className="flex flex-col items-center mb-4">
-              <img src="/logo.png" alt="BaFT Logo" className="h-10" />
-              <p className="text-white/70 text-sm mt-2">Build for You, Powered by Tech</p>
+            <div className="contact-header">
+              <img src="/logo.png" alt="BaFT Logo" className="contact-logo" />
+              <p className="contact-tagline">Build for You, Powered by Tech</p>
             </div>
 
-            <div className="bg-white/10 p-4 rounded-xl shadow-inner border border-white/20">
-              <h3 className="text-white text-lg font-semibold mb-1">Contact Us</h3>
-              <p className="text-blue-100 text-xs mb-4">Have any Query feel free to reach out</p>
+            <div className="contact-form-container">
+              <h3 className="contact-title">Contact Us</h3>
+              <p className="contact-subtitle">Have any Query feel free to reach out</p>
 
-              <form className="space-y-3" onSubmit={handleSubmit}>
+              <form className="contact-form" onSubmit={handleSubmit}>
                 <input
                   type="text"
                   name="name"
                   placeholder="Name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30 text-sm"
+                  className="contact-input"
                 />
                 <input
                   type="email"
@@ -66,7 +67,7 @@ const ContactModal = ({ isOpen, onClose }) => {
                   placeholder="Email Id"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30 text-sm"
+                  className="contact-input"
                 />
                 <textarea
                   name="message"
@@ -74,12 +75,12 @@ const ContactModal = ({ isOpen, onClose }) => {
                   rows="3"
                   value={formData.message}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30 resize-none text-sm"
+                  className="contact-input"
                 ></textarea>
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2 rounded-full shadow-lg transition duration-200 text-sm flex items-center justify-center gap-1"
+                  className="contact-send-button"
                 >
                   Send <span className="text-lg leading-none">•</span>
                 </button>

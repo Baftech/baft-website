@@ -23,9 +23,8 @@ const SignUpModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you can add form validation and API call
-    console.log('Form submitted:', formData);
-    setShowThanks(true);
+    // Here you can send formData to your backend if needed
+    setShowThanks(true); // show thank you message
   };
 
   const handleClose = () => {
