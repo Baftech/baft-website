@@ -251,23 +251,10 @@ const InteractiveTeamImage = () => {
   };
 
   return (
-    <div 
-      className="relative bg-gray-100" 
-      style={{
-        width: '100%',
-        height: '100%',
-        borderRadius: '24px',
-        flex: 'none',
-        order: 1,
-        flexGrow: 0
-      }}
-    >
+    <div className="relative w-full max-w-[280px] sm:max-w-[350px] md:max-w-[420px] lg:max-w-[500px] xl:max-w-[553px] h-[240px] sm:h-[300px] md:h-[360px] lg:h-[480px] xl:h-[520px] 2xl:h-[782px]">
       {/* Main Image Container */}
       <div
-        className="relative w-full h-full overflow-hidden bg-gray-100"
-        style={{
-          borderRadius: '24px'
-        }}
+        className="relative w-full h-full overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100"
         onMouseEnter={handleMouseEnterImage}
         onMouseLeave={handleMouseLeaveImage}
       >
@@ -316,15 +303,14 @@ const InteractiveTeamImage = () => {
           return (
             <div
               key={member.id}
-              className="absolute z-30 pointer-events-none"
+              className="absolute z-30 pointer-events-none max-w-[150px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[260px] xl:max-w-[280px]"
               style={{
                 ...member.textPosition,
-                maxWidth: '280px',
               }}
             >
               <div className="text-white">
                 <h3
-                  className="text-2xl font-bold leading-tight mb-2"
+                  className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold leading-tight mb-1 sm:mb-2"
                   style={{
                     fontFamily: "EB Garamond, serif",
                     textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
@@ -334,7 +320,7 @@ const InteractiveTeamImage = () => {
                   {member.name}
                 </h3>
                 <p
-                  className="text-lg leading-tight"
+                  className="text-xs sm:text-sm md:text-base lg:text-lg leading-tight"
                   style={{
                     fontFamily: "Inter, sans-serif",
                     fontWeight: "150",
@@ -368,16 +354,13 @@ const InteractiveTeamImage = () => {
   );
 };
 
-// AboutBaft with integrated scroll animation
+// AboutBaft with responsive ScrollTrigger animations
 const AboutBaft = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  
   const sectionRef = useRef(null);
   const textContainerRef = useRef(null);
   const imageRef = useRef(null);
-  const triggerRef = useRef(null);
 
   // Check if screen is desktop size
   useEffect(() => {
@@ -390,200 +373,110 @@ const AboutBaft = () => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // Simplified pin screen scroll animation for desktop
   useEffect(() => {
     if (!sectionRef.current || !isDesktop) return;
 
-    const handleScroll = () => {
-      if (!triggerRef.current) return;
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "center center",
+          end: "+=100vh",
+          pin: true,
+          scrub: 1,
+        },
+      });
 
-      const triggerRect = triggerRef.current.getBoundingClientRect();
-      const triggerHeight = triggerRef.current.offsetHeight;
-      const windowHeight = window.innerHeight;
-      
-      // Calculate progress based on trigger position
-      if (triggerRect.top <= 0 && triggerRect.bottom > windowHeight) {
-        // We're in the pinned zone
-        const scrolledIntoTrigger = Math.abs(triggerRect.top);
-        const totalScrollDistance = triggerHeight - windowHeight;
-        const progress = Math.min(scrolledIntoTrigger / totalScrollDistance, 1);
-        
-        setScrollProgress(progress);
-      } else if (triggerRect.top > 0) {
-        // Before the trigger
-        setScrollProgress(0);
-      } else {
-        // After the trigger
-        setScrollProgress(1);
-      }
-    };
+      // Keep layout static for the first 40% of scroll
+      tl.to({}, { duration: 0.4 });
 
-    // Use passive: false to allow preventDefault if needed
-    window.addEventListener('scroll', handleScroll, { passive: false });
-    handleScroll(); // Initialize
-    
-    return () => window.removeEventListener('scroll', handleScroll);
+      // Animate the left text column out after 40%
+      tl.to(
+        textContainerRef.current,
+        {
+          x: "-100vw",
+          opacity: 0,
+          duration: 0.2,
+          ease: "power2.out",
+        },
+        0.4
+      );
+
+      // Right image: enlarge and move to center after 40%
+      tl.to(
+        imageRef.current,
+        {
+          scale: 1.5,
+          xPercent: -50,
+          yPercent: -50,
+          transformOrigin: "center center",
+          duration: 0.6,
+          ease: "power2.out",
+        },
+        0.4
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
   }, [isDesktop]);
 
-  // Animation values - more responsive and smooth
-  // Apply aggressive easing function for faster completion
-  const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
-  const easedProgress = easeOutQuart(scrollProgress);
-  
-  const textTransform = easedProgress * -400; // More aggressive text movement
-  const textOpacity = Math.max(1 - easedProgress * 3, 0); // Much faster fade out
-
   return (
-    <>
-             {/* Desktop scroll animation version */}
-       {isDesktop && (
-         <div ref={triggerRef} className="relative" style={{ height: '300vh' }}>
-          <section
-            id="about"
-            ref={sectionRef}
-            data-theme="light"
-            className="sticky top-0 bg-white flex items-center justify-center"
-            style={{ 
-              height: '100vh',
-              width: '100vw',
-              overflow: 'hidden'
+    <section
+      id="about"
+      ref={sectionRef}
+      data-theme="light"
+      className={`bg-white ${isDesktop ? 'min-h-screen' : 'py-8 sm:py-12 md:py-16 lg:py-20'} flex items-center justify-center`}
+    >
+      <div
+        className={`mt-2 sm:mt-4 md:mt-6 lg:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-6 sm:gap-y-8 md:gap-y-10 gap-x-4 sm:gap-x-6 md:gap-x-8 lg:gap-x-12 xl:gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-6 md:py-8 lg:py-10 max-w-[1200px] mx-auto w-full ${
+          isExpanded ? "items-start" : "items-center"
+        }`}
+      >
+        {/* Left Column */}
+        <div
+          ref={textContainerRef}
+          className={`transition-all duration-1200 ease-in-out flex flex-col h-full ${
+            isExpanded ? "justify-start" : "justify-center"
+          }`}
+          style={{
+            transform: `translateY(${isExpanded ? "-20px" : "0px"})`,
+          }}
+        >
+          <p
+            className="font-normal mb-2 flex items-center gap-2 transition-all duration-1200 ease-out text-sm sm:text-base md:text-lg lg:text-xl"
+            style={{
+              fontFamily: "Inter, sans-serif",
+              color: "#092646",
             }}
           >
-            {easedProgress < 0.3 ? (
-              // Initial state with text and image side by side
-              <div className="w-full max-w-6xl mx-auto px-12 grid grid-cols-2 gap-20 items-center">
-                <div
-                  ref={textContainerRef}
-                  className="flex flex-col justify-center"
-                  style={{
-                    transform: `translateX(${textTransform}px)`,
-                    opacity: textOpacity,
-                  }}
-                >
-                  <p
-                    className="font-normal mb-2 flex items-center gap-2 text-xl"
-                    style={{
-                      fontFamily: "Inter, sans-serif",
-                      color: "#092646",
-                    }}
-                  >
-                    <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
-                    Know our story
-                  </p>
-                  <h1
-                    className="leading-tight mb-8 font-bold text-6xl text-[#1966BB]"
-                    style={{
-                      fontFamily: "EB Garamond, serif",
-                    }}
-                  >
-                    <span className="block">About BaFT</span>
-                  </h1>
-
-                  <ReadMoreText
-                    content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
-
-Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BAFT Technology was born.
-
-At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
-                    onExpandChange={setIsExpanded}
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <div style={{ width: '553px', height: '782px' }}>
-                    <InteractiveTeamImage />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              // Expanded state - large centered image like reference
-              <div 
-                className="flex items-center justify-center w-full h-full"
-                ref={imageRef}
-                style={{
-                  padding: '60px',
-                }}
-              >
-                <div
-                  style={{
-                    width: `${553 + (easedProgress * (750))}px`, // Expands to ~1300px
-                    height: `${782 + (easedProgress * (500))}px`, // Expands to ~1282px  
-                    maxWidth: '80vw',
-                    maxHeight: '80vh',
-                    borderRadius: '32px',
-                    overflow: 'hidden',
-                    boxShadow: '0 40px 120px rgba(0,0,0,0.25)',
-                    transition: 'all 0.1s ease-out',
-                  }}
-                >
-                  <InteractiveTeamImage />
-                </div>
-              </div>
-            )}
-
-            
-          </section>
-        </div>
-      )}
-
-      {/* Mobile/Tablet version - Original Layout */}
-      {!isDesktop && (
-        <section
-          id="about"
-          data-theme="light"
-          className="bg-white py-8 sm:py-12 md:py-16 lg:py-20 flex items-center justify-center"
-        >
-          <div
-            className={`mt-2 sm:mt-4 md:mt-6 lg:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-6 sm:gap-y-8 md:gap-y-10 gap-x-4 sm:gap-x-6 md:gap-x-8 lg:gap-x-12 xl:gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-6 md:py-8 lg:py-10 max-w-[1200px] mx-auto w-full ${
-              isExpanded ? "items-start" : "items-center"
-            }`}
+            <img src="/SVG.svg" alt="Icon" className="w-4 h-4 sm:w-5 sm:h-5 " />
+            Know our story
+          </p>
+          <h1
+            className="leading-tight md:leading-none mb-3 sm:mb-4 md:mb-6 lg:mb-8 font-bold transition-all duration-1200 ease-out text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl text-[#1966BB]"
+            style={{
+              fontFamily: "EB Garamond, serif",
+            }}
           >
-            {/* Left Column */}
-            <div
-              className={`transition-all duration-1200 ease-in-out flex flex-col h-full ${
-                isExpanded ? "justify-start" : "justify-center"
-              }`}
-              style={{
-                transform: `translateY(${isExpanded ? "-20px" : "0px"})`,
-              }}
-            >
-              <p
-                className="font-normal mb-2 flex items-center gap-2 transition-all duration-1200 ease-out text-sm sm:text-base md:text-lg lg:text-xl"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  color: "#092646",
-                }}
-              >
-                <img src="/SVG.svg" alt="Icon" className="w-4 h-4 sm:w-5 sm:h-5" />
-                Know our story
-              </p>
-              <h1
-                className="leading-tight md:leading-none mb-3 sm:mb-4 md:mb-6 lg:mb-8 font-bold transition-all duration-1200 ease-out text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl text-[#1966BB]"
-                style={{
-                  fontFamily: "EB Garamond, serif",
-                }}
-              >
-                <span className="block">About BaFT</span>
-              </h1>
+            <span className="block">About BaFT</span>
+          </h1>
 
-              <ReadMoreText
-                content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
+          <ReadMoreText
+            content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
 
 Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BAFT Technology was born.
 
 At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
-                onExpandChange={setIsExpanded}
-              />
-            </div>
+            onExpandChange={setIsExpanded}
+          />
+        </div>
 
-            {/* Right Column */}
-            <div className="flex justify-center items-center">
-              <InteractiveTeamImage />
-            </div>
-          </div>
-        </section>
-      )}
-    </>
+        {/* Right Column */}
+       <div className="flex justify-center rounded-2xl overflow-hidden" ref={imageRef}>
+          <InteractiveTeamImage />
+        </div>
+      </div>
+    </section>
   );
 };
 

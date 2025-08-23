@@ -5,60 +5,84 @@
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 1rem 1.5rem;
+  padding: 12px 16px; /* Reduced padding for more compact navbar */
   display: flex;
   align-items: center;
   justify-content: space-between;
   transition: transform 0.3s ease-in-out;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  min-height: 56px; /* Reduced height for more compact navbar */
 }
 
-/* Responsive navbar padding */
+/* Responsive navbar padding using 8-point spacing */
 @media (min-width: 640px) {
   .navbar-container {
-    padding: 1.25rem 2rem;
+    padding: 14px 20px; /* 8pt * 1.75 = 14px, 8pt * 2.5 = 20px */
+    min-height: 60px;
   }
 }
 
 @media (min-width: 768px) {
   .navbar-container {
-    padding: 1.5rem 2rem;
+    padding: 16px 24px; /* 8pt * 2 = 16px, 8pt * 3 = 24px */
+    min-height: 64px;
   }
 }
 
 @media (min-width: 1024px) {
   .navbar-container {
-    padding: 1.5rem 2rem;
+    padding: 18px 28px; /* 8pt * 2.25 = 18px, 8pt * 3.5 = 28px */
+    min-height: 68px;
   }
 }
 
-/* Buttons shared base */
+/* Buttons shared base with 8-point spacing */
 .nav-btn {
-  padding: 0.5rem 1rem;
+  padding: 4px 8px; /* Even smaller padding for mobile */
   border: none;
   border-radius: 9999px;
   transition: all 0.3s ease;
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
-  font-weight: 400;
+  font-weight: 500; /* Slightly bolder for better readability */
   font-style: "normal";
+  font-size: 11px; /* Smaller font size for mobile */
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 44px; /* iOS minimum touch target */
-  min-width: 44px;
+  min-height: 32px; /* Smaller height for mobile */
+  min-width: 32px;
+  letter-spacing: 0.025em; /* Better text spacing */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
-/* Mobile nav button improvements */
-@media (max-width: 768px) {
+/* Responsive button sizing using 8-point spacing */
+@media (min-width: 640px) {
   .nav-btn {
-    padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
+    padding: 6px 12px; /* 8pt * 0.75 = 6px, 8pt * 1.5 = 12px */
+    min-height: 36px; /* 8pt * 4.5 = 36px */
+    font-size: 12px;
   }
 }
 
-/* Fancy signup container - responsive */
+@media (min-width: 768px) {
+  .nav-btn {
+    padding: 8px 14px; /* 8pt * 1 = 8px, 8pt * 1.75 = 14px */
+    min-height: 40px; /* 8pt * 5 = 40px */
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nav-btn {
+    padding: 10px 16px; /* 8pt * 1.25 = 10px, 8pt * 2 = 16px */
+    min-height: 44px; /* 8pt * 5.5 = 44px */
+    font-size: 14px;
+  }
+}
+
+/* Fancy signup container - responsive with 8-point spacing */
 .fancy {
   --offset: 2px;
   background: transparent;
@@ -69,6 +93,7 @@
   max-width: 100%;
   overflow: hidden;
 }
+
 .fancy::before {
   content: '';
   position: absolute;
@@ -80,6 +105,7 @@
   animation: rotate 5s linear infinite;
   filter: blur(0.5px);
 }
+
 .fancy::after {
   content: '';
   border-radius: inherit;
@@ -87,6 +113,7 @@
   inset: var(--offset);
   transition: background 0.3s ease;
 }
+
 .fancy button {
   background: transparent;
   border: none;
@@ -98,57 +125,36 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 40px; /* smaller on mobile */
-  min-width: 100px;
+  min-height: 32px; /* Smaller height for mobile */
+  min-width: 64px; /* Smaller width for mobile */
+  font-size: 11px; /* Smaller font size for mobile */
+  font-weight: 500; /* Slightly bolder for better readability */
+  letter-spacing: 0.025em; /* Better text spacing */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
+/* Responsive fancy button sizing using 8-point spacing */
 @media (min-width: 640px) {
-  .fancy button { min-height: 48px; min-width: 110px; }
+  .fancy button { 
+    min-height: 36px; /* 8pt * 4.5 = 36px */
+    min-width: 72px; /* 8pt * 9 = 72px */
+    font-size: 12px;
+  }
 }
+
 @media (min-width: 768px) {
-  .fancy button { min-height: 56px; min-width: 124px; }
-}
-
-/* Mobile nav button improvements */
-@media (max-width: 768px) {
-  .nav-btn {
-    padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
+  .fancy button { 
+    min-height: 40px; /* 8pt * 5 = 40px */
+    min-width: 80px; /* 8pt * 10 = 80px */
+    font-size: 13px;
   }
 }
 
-/* Mobile menu link styles */
-.mobile-link {
-  text-align: center;
-  padding: 1rem 1.5rem;
-  font-size: 1.25rem;
-  border-radius: 0.75rem;
-  transition: all 0.3s ease;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  min-height: 56px; /* Larger touch targets for mobile menu */
-  min-width: 200px;
-  font-family: "Inter", sans-serif;
-  font-weight: 500;
-}
-
-/* Mobile link responsive adjustments */
-@media (max-width: 480px) {
-  .mobile-link {
-    font-size: 1.125rem;
-    padding: 0.875rem 1.25rem;
-    min-height: 52px;
-  }
-}
-
-@media (max-height: 600px) {
-  .mobile-link {
-    padding: 0.625rem 1rem;
-    font-size: 1rem;
-    min-height: 48px;
+@media (min-width: 1024px) {
+  .fancy button { 
+    min-height: 44px; /* 8pt * 5.5 = 44px */
+    min-width: 88px; /* 8pt * 11 = 88px */
+    font-size: 14px;
   }
 }
 
@@ -167,15 +173,18 @@
   background: transparent;
   color: white;
 }
+
 .dark-theme .nav-btn {
   background: transparent;
   color: white;
 }
+
 .dark-theme .nav-btn:hover {
   background: white;
   color: black;
   transition: all 1.0s ease;
 }
+
 .dark-theme .fancy::before {
   background: conic-gradient(transparent 0deg,
   transparent 250deg, 
@@ -187,6 +196,7 @@
   transparent 350deg,
   transparent 360deg);
 }
+
 .dark-theme .fancy::after {
   background: black;
 }
@@ -195,50 +205,41 @@
   color: white;
 }
 
-.dark-theme .mobile-link {
-  color: white;
-}
-.dark-theme .mobile-link:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
 /* ===== LIGHT THEME ===== */
 .light-theme {
   background: white;
   color: #092646;
 }
+
 .light-theme .nav-btn {
   background: white;
   color: #092646;
 }
+
 .light-theme .nav-btn:hover {
   background: #0a2d52 !important;
   color: white !important;
   transition: all 1.0s ease;
 }
+
 .light-theme .fancy::before {
-background: conic-gradient(
-  transparent 0deg,
-  transparent 250deg, 
-  rgba(9, 38, 70, 0.1) 270deg,
-  rgba(9, 38, 70, 0.5) 285deg,
-  #092646 300deg,
-  rgba(9, 38, 70, 0.5) 315deg,
-  rgba(9, 38, 70, 0.1) 330deg,
-  transparent 350deg,
-  transparent 360deg
-);
+  background: conic-gradient(
+    transparent 0deg,
+    transparent 250deg, 
+    rgba(9, 38, 70, 0.1) 270deg,
+    rgba(9, 38, 70, 0.5) 285deg,
+    #092646 300deg,
+    rgba(9, 38, 70, 0.5) 315deg,
+    rgba(9, 38, 70, 0.1) 330deg,
+    transparent 350deg,
+    transparent 360deg
+  );
 }
+
 .light-theme .fancy::after {
   background: white;
 }
+
 .light-theme .fancy button {
   color: #092646;
-}
-
-.light-theme .mobile-link {
-  color: #092646;
-}
-.light-theme .mobile-link:hover {
-  background: rgba(0, 0, 0, 0.05);
 }

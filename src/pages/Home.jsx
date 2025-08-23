@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navbar } from "../components/Navbar/Navbar";
+import {Navbar} from "../components/Navbar/Navbar";
 import SlideContainer from "../components/Themes/SlideContainer";
 import HeroSlide from "../components/Herosection/HeroSlide";
 import BaFTCoinSlide from "../components/Herosection/BaFTCoinSlide";
@@ -8,8 +8,9 @@ import B_Fast from "../components/Mainsection/B_Fast";
 import Cards from "../components/Mainsection/Features";
 import Videocomponent from "../components/Aboutsection/Videocomponent";
 import SafeSecure from "../components/Mainsection/SafeSecure";
-import VideoExpanded from "../components/Aboutsection/VideoExpanded";
+
 import Footer from "../components/Footer/Footer";
+import AboutBaft from "../components/Aboutsection/About";
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -56,6 +57,8 @@ const Home = () => {
         {/* Slide 8: Safe & Secure Section */}
         <SafeSecure />
         {/* Slide 9: Footer */}
+        {/* <AboutBaft /> */}
+
         <Footer />
       </SlideContainer>
     </div>
