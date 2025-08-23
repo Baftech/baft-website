@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import "./About.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -94,6 +95,13 @@ const InteractiveTeamImage = () => {
   const [loadedImages, setLoadedImages] = useState(
     new Set(["/Property 1=Image.png"])
   );
+  const [imageError, setImageError] = useState(false);
+
+  // Add debugging for component dimensions
+  useEffect(() => {
+    console.log('InteractiveTeamImage mounted');
+    return () => console.log('InteractiveTeamImage unmounted');
+  }, []);
 
   const teamMembers = React.useMemo(
     () => [
@@ -145,6 +153,11 @@ const InteractiveTeamImage = () => {
       const img = new Image();
       img.onload = () => {
         setLoadedImages((prev) => new Set([...prev, src]));
+        console.log('Image loaded:', src);
+      };
+      img.onerror = () => {
+        console.error('Failed to load image:', src);
+        setImageError(true);
       };
       img.src = src;
     });
@@ -252,14 +265,14 @@ const InteractiveTeamImage = () => {
 
   return (
     <div 
-      className="relative bg-gray-100" 
+      className="relative bg-gray-100 w-full h-full" 
       style={{
-        width: '100%',
-        height: '100%',
         borderRadius: '24px',
         flex: 'none',
         order: 1,
-        flexGrow: 0
+        flexGrow: 0,
+        minHeight: '400px',
+        minWidth: '300px'
       }}
     >
       {/* Main Image Container */}
@@ -281,6 +294,11 @@ const InteractiveTeamImage = () => {
             opacity: activeImageId === "full" ? 1 : 0.999,
             transition: "opacity 1200ms ease-in-out",
             zIndex: 1,
+          }}
+          onLoad={() => console.log('Base image loaded successfully')}
+          onError={(e) => {
+            console.error('Base image failed to load:', e);
+            setImageError(true);
           }}
         />
 
@@ -363,6 +381,16 @@ const InteractiveTeamImage = () => {
             onMouseEnter={() => handleMouseEnterMember(member.id)}
           />
         ))}
+
+        {/* Fallback display for debugging */}
+        {imageError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-red-100 z-50">
+            <div className="text-center">
+              <p className="text-red-600 font-bold">Image Loading Error</p>
+              <p className="text-red-500 text-sm">Check console for details</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -382,13 +410,66 @@ const AboutBaft = () => {
   // Check if screen is desktop size
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsDesktop(window.innerWidth >= 1024); // lg breakpoint and above
+      const newIsDesktop = window.innerWidth >= 1024; // lg breakpoint and above
+      setIsDesktop(newIsDesktop);
+      console.log('Screen size check:', { width: window.innerWidth, isDesktop: newIsDesktop });
     };
 
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  // Log when component mounts and when isDesktop changes
+  useEffect(() => {
+    console.log('AboutBaft component mounted, isDesktop:', isDesktop);
+    
+    // Log component dimensions
+    if (sectionRef.current) {
+      const rect = sectionRef.current.getBoundingClientRect();
+      console.log('AboutBaft section dimensions:', {
+        width: rect.width,
+        height: rect.height,
+        top: rect.top,
+        left: rect.left
+      });
+    }
+  }, [isDesktop]);
+
+  // Add effect to log dimensions when mobile layout renders
+  useEffect(() => {
+    if (!isDesktop) {
+      console.log('Mobile layout rendered');
+      
+      // Log after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        const aboutSection = document.getElementById('about');
+        if (aboutSection) {
+          const rect = aboutSection.getBoundingClientRect();
+          console.log('Mobile About section dimensions:', {
+            width: rect.width,
+            height: rect.height,
+            top: rect.top,
+            left: rect.left,
+            visible: rect.width > 0 && rect.height > 0
+          });
+        }
+        
+        // Check for image container
+        const imageContainer = document.querySelector('.about-image-container-mobile');
+        if (imageContainer) {
+          const rect = imageContainer.getBoundingClientRect();
+          console.log('Image container dimensions:', {
+            width: rect.width,
+            height: rect.height,
+            top: rect.top,
+            left: rect.left,
+            visible: rect.width > 0 && rect.height > 0
+          });
+        }
+      }, 100);
+    }
+  }, [isDesktop]);
 
   // Simplified pin screen scroll animation for desktop
   useEffect(() => {
@@ -531,13 +612,14 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
         <section
           id="about"
           data-theme="light"
-          className="bg-white py-8 sm:py-12 md:py-16 lg:py-20 flex items-center justify-center"
+          className="about-section-mobile bg-white"
+          style={{ 
+            minHeight: '100vh',
+            width: '100%',
+            position: 'relative'
+          }}
         >
-          <div
-            className={`mt-2 sm:mt-4 md:mt-6 lg:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-y-6 sm:gap-y-8 md:gap-y-10 gap-x-4 sm:gap-x-6 md:gap-x-8 lg:gap-x-12 xl:gap-x-20 px-4 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-6 md:py-8 lg:py-10 max-w-[1200px] mx-auto w-full ${
-              isExpanded ? "items-start" : "items-center"
-            }`}
-          >
+          <div className="about-grid-mobile">
             {/* Left Column */}
             <div
               className={`transition-all duration-1200 ease-in-out flex flex-col h-full ${
@@ -576,9 +658,23 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
               />
             </div>
 
-            {/* Right Column */}
-            <div className="flex justify-center items-center">
-              <InteractiveTeamImage />
+            {/* Right Column - Fixed for mobile/tablet visibility */}
+            <div className="about-image-container-mobile">
+              <div className="debug-border debug-bg" style={{ width: '100%', height: '100%' }}>
+                {/* Test image to verify layout */}
+                <img 
+                  src="/Property 1=Image.png" 
+                  alt="Test Image" 
+                  className="w-full h-full object-cover object-center rounded-3xl"
+                  style={{ minHeight: '400px' }}
+                  onLoad={() => console.log('Test image loaded successfully on mobile')}
+                  onError={(e) => console.error('Test image failed to load on mobile:', e)}
+                />
+                {/* Original InteractiveTeamImage */}
+                <div className="absolute inset-0">
+                  <InteractiveTeamImage />
+                </div>
+              </div>
             </div>
           </div>
         </section>

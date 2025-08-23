@@ -53,7 +53,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
                 .getElementById("about")
                 ?.scrollIntoView({ behavior: "smooth" });
             }}
-            className={`w-20 h-10 lg:w-24 lg:h-12 xl:w-28 xl:h-14 rounded-[200px] nav-btn ${
+            className={`w-16 h-8 lg:w-20 lg:h-10 xl:w-24 xl:h-12 rounded-[200px] nav-btn ${
               theme === "dark" ? "text-white" : "text-black"
             }`}
           >
@@ -62,7 +62,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
 
           <button
             onClick={() => setIsContactModalOpen(true)}
-            className="w-20 h-10 lg:w-24 lg:h-12 xl:w-28 xl:h-14 rounded-[200px] nav-btn"
+            className="w-16 h-8 lg:w-20 lg:h-10 xl:w-24 xl:h-12 rounded-[200px] nav-btn"
           >
             Let's Chat
           </button>
@@ -76,7 +76,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
           <img
             src={theme === "dark" ? "logo.png" : "logo1.png"}
             alt="Logo"
-            className="w-14 h-auto sm:w-16 md:w-18 lg:w-20 xl:w-22"
+            className="w-12 h-auto sm:w-14 md:w-16 lg:w-18 xl:w-20"
             loading="eager"
           />
         </div>
@@ -85,7 +85,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
         <div className="fancy hidden lg:block">
           <button
             onClick={() => setIsSignUpModalOpen(true)}
-            className="w-20 h-10 lg:w-24 lg:h-12 xl:w-28 xl:h-14 rounded-[200px]"
+            className="w-16 h-8 lg:w-20 lg:h-10 xl:w-24 xl:h-12 rounded-[200px]"
           >
             Sign Up
           </button>
