@@ -34,6 +34,9 @@ const Videocomponent = ({ slide = false }) => {
       };
       document.addEventListener('wheel', prevent, { passive: false });
       document.addEventListener('touchmove', prevent, { passive: false });
+      document.addEventListener('touchstart', prevent, { passive: false });
+      document.addEventListener('touchend', prevent, { passive: false });
+      document.addEventListener('scroll', prevent, { passive: false });
       document.addEventListener('keydown', prevent, { passive: false });
 
       // Start the synchronized animation
@@ -53,8 +56,12 @@ const Videocomponent = ({ slide = false }) => {
         }
         document.removeEventListener('wheel', prevent);
         document.removeEventListener('touchmove', prevent);
+        document.removeEventListener('touchstart', prevent);
+        document.removeEventListener('touchend', prevent);
+        document.removeEventListener('scroll', prevent);
+        document.removeEventListener('keydown', prevent);
         setIsAnimating(false);
-      }, 2000);
+      }, 3000); // Increased to match the longest animation duration
     };
 
     // Add scroll listener
@@ -62,37 +69,45 @@ const Videocomponent = ({ slide = false }) => {
     if (container) {
       container.addEventListener('wheel', handleScroll, { passive: false });
       container.addEventListener('touchmove', handleScroll, { passive: false });
+      container.addEventListener('touchstart', handleScroll, { passive: false });
+      container.addEventListener('touchend', handleScroll, { passive: false });
+      // Handle touchpad scrolling
+      container.addEventListener('scroll', handleScroll, { passive: false });
     }
 
     return () => {
       if (container) {
         container.removeEventListener('wheel', handleScroll);
         container.removeEventListener('touchmove', handleScroll);
+        container.removeEventListener('touchstart', handleScroll);
+        container.removeEventListener('touchend', handleScroll);
+        container.removeEventListener('scroll', handleScroll);
+      }
+      // Clean up global handoff
+      if (typeof window !== 'undefined') {
+        window.__videoHandoffActive = false;
       }
     };
   }, [slide, isAnimating, isExpanded]);
 
   // Synchronized animation styles
   const containerStyle = {
-    transition: isExpanded ? 'all 1.8s cubic-bezier(0.23, 1, 0.32, 1)' : 'none',
+    transition: isExpanded ? 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
     transform: isExpanded ? 'scale(1)' : 'scale(1)',
   };
 
   const videoContainerStyle = {
     transition: isExpanded
-      ? 'all 1.8s cubic-bezier(0.23, 1, 0.32, 1)'
+      ? 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
       : 'none',
     transform: isExpanded ? 'translate(calc(50vw - 50%), calc(50vh - 50%))' : 'translateX(0)',
-    position: isExpanded ? 'fixed' : 'relative',
-    top: isExpanded ? '0' : 'auto',
-    left: isExpanded ? '0' : 'auto',
+    position: 'relative',
     width: '100%',
     height: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    zIndex: isExpanded ? 100 : 1,
   };
 
   const videoStyle = {
@@ -101,7 +116,7 @@ const Videocomponent = ({ slide = false }) => {
     maxHeight: isExpanded ? '100vh' : '350px',
     borderRadius: isExpanded ? '0px' : '24px',
     transition: isExpanded
-      ? 'all 1.8s cubic-bezier(0.23, 1, 0.32, 1)'
+      ? 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
       : 'none',
     objectFit: 'contain',
     display: 'block',
@@ -113,7 +128,7 @@ const Videocomponent = ({ slide = false }) => {
     transform: isExpanded ? 'translateX(100vw)' : 'translateX(0)',
     opacity: isExpanded ? 0 : 1,
     transition: isExpanded 
-      ? 'transform 2.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 2s cubic-bezier(0.16, 1, 0.3, 1)' 
+      ? 'transform 5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
       : 'none',
     pointerEvents: isExpanded ? 'none' : 'auto',
   };
@@ -122,7 +137,7 @@ const Videocomponent = ({ slide = false }) => {
     gap: isExpanded ? '0rem' : '3rem',
     gridTemplateColumns: isExpanded ? '1fr 0fr' : '1fr 1fr',
     transition: isExpanded 
-      ? 'gap 3s cubic-bezier(0.16, 1, 0.3, 1), grid-template-columns 3.2s cubic-bezier(0.16, 1, 0.3, 1)' 
+      ? 'gap 4s cubic-bezier(0.25, 0.46, 0.45, 0.94), grid-template-columns 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
       : 'none',
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -166,6 +181,7 @@ const Videocomponent = ({ slide = false }) => {
             padding: isExpanded ? '0' : '0 2rem',
             height: '100%',
             position: 'relative',
+            overflow: 'hidden',
             ...containerStyle
           }}>
             {/* Video Container */}
