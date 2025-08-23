@@ -38,8 +38,7 @@ const Cards = () => {
 
     const cardElements = gsap.utils.toArray(cardsRef.current.children);
     const totalCards = featuresData.length;
-    let totalRotation = 0;
-    const anglePerCard = 360 / totalCards;
+    
     const setOrAnimate = (card, props, immediate) => {
       if (immediate) {
         gsap.set(card, props);
@@ -47,22 +46,56 @@ const Cards = () => {
         gsap.to(card, { ...props, duration: 0.8, ease: "power3.out", overwrite: "auto" });
       }
     };
+    
     const updateCardPositions = (activeIndex, immediate = false) => {
+      // Get screen width for responsive positioning
+      const screenWidth = window.innerWidth;
+      const isMobile = screenWidth < 768;
+      const isTablet = screenWidth >= 768 && screenWidth < 1024;
+      
       cardElements.forEach((card, index) => {
-        if (index === activeIndex) {
-          setOrAnimate(card, { x: 0, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
-        } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -80, z: -80, scale: 0.85, opacity: 0.8, rotateY: 20, zIndex: 9 }, immediate);
-        } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 80, z: -80, scale: 0.85, opacity: 0.8, rotateY: -20, zIndex: 9 }, immediate);
+        if (isMobile) {
+          // Mobile: Stack cards vertically with minimal spacing
+          if (index === activeIndex) {
+            setOrAnimate(card, { x: 0, y: 0, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
+          } else {
+            setOrAnimate(card, { x: 0, y: index < activeIndex ? -20 : 20, z: -20, scale: 0.9, opacity: 0.7, rotateY: 0, zIndex: 5 }, immediate);
+          }
+        } else if (isTablet) {
+          // Tablet: Reduced horizontal spacing
+          if (index === activeIndex) {
+            setOrAnimate(card, { x: 0, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
+          } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
+            setOrAnimate(card, { x: -40, z: -40, scale: 0.9, opacity: 0.8, rotateY: 15, zIndex: 9 }, immediate);
+          } else if (index === (activeIndex + 1) % totalCards) {
+            setOrAnimate(card, { x: 40, z: -40, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
+          } else {
+            setOrAnimate(card, { x: index < activeIndex ? -80 : 80, z: -60, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 20 : -20, zIndex: 7 }, immediate);
+          }
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -160 : 160, z: -120, scale: 0.7, opacity: 0.6, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
+          // Desktop: Full 3D carousel effect
+          if (index === activeIndex) {
+            setOrAnimate(card, { x: 0, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
+          } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
+            setOrAnimate(card, { x: -80, z: -80, scale: 0.85, opacity: 0.8, rotateY: 20, zIndex: 9 }, immediate);
+          } else if (index === (activeIndex + 1) % totalCards) {
+            setOrAnimate(card, { x: 80, z: -80, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
+          } else {
+            setOrAnimate(card, { x: index < activeIndex ? -160 : 160, z: -120, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
+          }
         }
       });
     };
 
     // Instantly place cards on first paint to avoid initial bounce
     updateCardPositions(0, true);
+
+    // Handle window resize for responsive updates
+    const handleResize = () => {
+      updateCardPositions(currentIndex, true);
+    };
+
+    window.addEventListener('resize', handleResize);
 
     let i = 0;
     const interval = setInterval(() => {
@@ -71,39 +104,43 @@ const Cards = () => {
       updateCardPositions(i, false);
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
+
   return (
-    <div className="h-screen bg-white" data-theme="light">
+    <div className="bg-white" data-theme="light">
       <section
         id="features"
-        className="px-6 lg:px-24 h-screen flex items-center justify-center"
+        className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-16 lg:py-20"
       >
-        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="w-full max-w-7xl flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-start lg:items-center">
 
-          {/* Left Column */}
-          <div className="flex flex-col justify-center order-2 lg:order-1">
+          {/* Left Column - Features Text */}
+          <div className="flex flex-col justify-start w-full lg:w-auto order-2 lg:order-1 z-10">
             <p
-              className="font-normal mb-2 flex items-center gap-2"
+              className="font-normal mb-3 sm:mb-4 flex items-center gap-2"
               style={{
                 fontFamily: "Inter, sans-serif",
-                fontSize: "20px",
+                fontSize: "clamp(16px, 4vw, 20px)",
                 color: "#092646",
               }}
             >
-              <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
+              <img src="/SVG.svg" alt="Icon" className="w-4 h-4 sm:w-5 sm:h-5" />
               Features
             </p>
 
             <h1
-              className="leading-tight mb-6 font-bold text-[34px] sm:text-[44px] md:text-[54px] lg:text-[64px] text-[#1966BB]"
+              className="leading-tight mb-6 sm:mb-8 font-bold text-[28px] sm:text-[34px] md:text-[44px] lg:text-[54px] xl:text-[64px] text-[#1966BB]"
               style={{ fontFamily: "EB Garamond, serif" }}
             >
               <span className="block">All in</span>
               <span className="block">One Place</span>
             </h1>
 
-            <ul className="space-y-5 md:space-y-6 text-base md:text-lg">
+            <ul className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6 text-sm sm:text-base md:text-lg">
               {featuresData.map((feature, index) => {
                 const isActive = index === currentIndex;
                 const IconComponent = feature.icon;
@@ -111,27 +148,27 @@ const Cards = () => {
                 return (
                   <li
                     key={index}
-                    className={`feature-item flex items-center gap-3 md:gap-4 p-4 rounded-lg transition-all duration-500 ${
+                    className={`feature-item flex items-center gap-3 sm:gap-4 p-4 rounded-lg transition-all duration-500 ${
                       isActive
                         ? "bg-blue-50 border-l-4 border-[#1966BB] shadow-sm"
                         : "bg-transparent border-l-4 border-transparent"
                     }`}
                   >
                     <IconComponent
-                      className={`text-2xl ${
+                      className={`text-xl sm:text-2xl flex-shrink-0 ${
                         isActive ? "text-[#1966BB]" : "text-[#1966BB]" 
                       }`}
                     />
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h6
-                        className={`font-semibold text-base ${
+                        className={`font-semibold text-sm sm:text-base ${
                           isActive ? "text-[#1966BB]" : "text-[#092646]"
                         }`}
                       >
                         {feature.title}
                       </h6>
                       <p
-                        className={`text-sm ${
+                        className={`text-xs sm:text-sm ${
                           isActive ? "text-[#1966BB]/90" : "text-gray-600"
                         }`}
                       >
@@ -144,31 +181,32 @@ const Cards = () => {
             </ul>
           </div>
 
-         {/* Right Column - Horizontal Cylinder */}
-<div
-  className="relative w-full flex items-center justify-end perspective-[1200px] order-1 lg:order-2"
-  style={{ marginTop: "100px", willChange: "transform, opacity", backfaceVisibility: "hidden", transformStyle: "preserve-3d" }}
-  ref={cardsRef}
->
-
-  {featuresData.map((feature, index) => (
-   <div
-  key={index}
-  className="absolute w-[32rem] flex flex-col items-center justify-center scale-150"
-  
->
-  <img
-    src={feature.image}
-    alt={feature.title}
-    className="w-full h-full object-fill"
-    loading="eager"
-    decoding="async"
-    fetchPriority="high"
-  />
-</div>
-
-  ))}
-</div>
+          {/* Right Column - Phone Mockups (Positioned Below on Mobile) */}
+          <div
+            className="relative w-full flex items-center justify-center lg:justify-end perspective-[1200px] order-1 lg:order-2 mt-20 lg:mt-0"
+            style={{ 
+              willChange: "transform, opacity", 
+              backfaceVisibility: "hidden", 
+              transformStyle: "preserve-3d" 
+            }}
+            ref={cardsRef}
+          >
+            {featuresData.map((feature, index) => (
+              <div
+                key={index}
+                className="absolute w-[16rem] sm:w-[20rem] md:w-[24rem] lg:w-[28rem] xl:w-[32rem] flex flex-col items-center justify-center scale-100 sm:scale-110 md:scale-125 lg:scale-150"
+              >
+                <img
+                  src={feature.image}
+                  alt={feature.title}
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                />
+              </div>
+            ))}
+          </div>
 
         </div>
       </section>

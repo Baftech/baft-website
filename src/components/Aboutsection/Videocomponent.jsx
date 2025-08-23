@@ -4,7 +4,7 @@ const Videocomponent = ({ slide = false }) => {
   const mainContainerRef = useRef(null);
   const videoSectionRef = useRef(null);
   const videoRef = useRef(null);
-  const [animationProgress, setAnimationProgress] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Handle scroll-based expansion in slide mode
@@ -12,15 +12,21 @@ const Videocomponent = ({ slide = false }) => {
     if (!slide) return;
 
     const handleScroll = (e) => {
-      if (isExpanded) return;
+      // Only trigger if not already animating/expanded
+      if (isAnimating || isExpanded) return;
       
-      // Trigger expansion on any scroll
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Mark animation as starting
+      setIsAnimating(true);
+      
       // Mark global handoff so SlideContainer ignores wheel during expansion
       if (typeof window !== 'undefined') {
         window.__videoHandoffActive = true;
       }
 
-      // Lock global scroll briefly to keep focus on expanding preview
+      // Lock global scroll during animation
       const prevent = (evt) => {
         evt.preventDefault();
         evt.stopPropagation();
@@ -30,11 +36,10 @@ const Videocomponent = ({ slide = false }) => {
       document.addEventListener('touchmove', prevent, { passive: false });
       document.addEventListener('keydown', prevent, { passive: false });
 
-      setIsExpanded(true);
-      setAnimationProgress(1);
-      
-      // Don't play video here - it will play in the expanded section
-      // Just trigger the expansion animation
+      // Start the synchronized animation
+      setTimeout(() => {
+        setIsExpanded(true);
+      }, 50);
 
       // Ensure the section is in view
       try {
@@ -48,8 +53,8 @@ const Videocomponent = ({ slide = false }) => {
         }
         document.removeEventListener('wheel', prevent);
         document.removeEventListener('touchmove', prevent);
-        document.removeEventListener('keydown', prevent);
-      }, 1600);
+        setIsAnimating(false);
+      }, 2000);
     };
 
     // Add scroll listener
@@ -65,38 +70,62 @@ const Videocomponent = ({ slide = false }) => {
         container.removeEventListener('touchmove', handleScroll);
       }
     };
-  }, [slide, isExpanded]);
+  }, [slide, isAnimating, isExpanded]);
 
-  // Animation styles
-  // Keep video perfectly centered and fit within viewport as it expands
+  // Synchronized animation styles
   const containerStyle = {
-    transition: animationProgress > 0 ? 'all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+    transition: isExpanded ? 'all 1.8s cubic-bezier(0.23, 1, 0.32, 1)' : 'none',
+    transform: isExpanded ? 'scale(1)' : 'scale(1)',
+  };
+
+  const videoContainerStyle = {
+    transition: isExpanded
+      ? 'all 1.8s cubic-bezier(0.23, 1, 0.32, 1)'
+      : 'none',
+    transform: isExpanded ? 'translate(calc(50vw - 50%), calc(50vh - 50%))' : 'translateX(0)',
+    position: isExpanded ? 'fixed' : 'relative',
+    top: isExpanded ? '0' : 'auto',
+    left: isExpanded ? '0' : 'auto',
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    zIndex: isExpanded ? 100 : 1,
   };
 
   const videoStyle = {
-    width: animationProgress > 0 ? '100vw' : 'min(100%, 1000px)',
-    height: 'auto',
-    maxHeight: animationProgress > 0 ? '70vh' : '400px',
-    transform: 'none',
-    transformOrigin: 'center center',
-    borderRadius: `${Math.max(0, 33.72 - (animationProgress * 33.72))}px`,
-    transition: animationProgress > 0
-      ? 'width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), max-height 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-radius 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    width: isExpanded ? '100vw' : 'min(100%, 500px)',
+    height: isExpanded ? '100vh' : 'auto',
+    maxHeight: isExpanded ? '100vh' : '350px',
+    borderRadius: isExpanded ? '0px' : '24px',
+    transition: isExpanded
+      ? 'all 1.8s cubic-bezier(0.23, 1, 0.32, 1)'
       : 'none',
     objectFit: 'contain',
     display: 'block',
     margin: '0 auto',
+    boxShadow: isExpanded ? 'none' : '0 20px 40px rgba(0,0,0,0.15)',
   };
 
-  const textStyle = {
-    transform: `translateX(${animationProgress * 100}vw)`,
-    opacity: Math.max(0, 1 - animationProgress * 1.5),
-    transition: animationProgress > 0 ? 'all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+  const textContainerStyle = {
+    transform: isExpanded ? 'translateX(100vw)' : 'translateX(0)',
+    opacity: isExpanded ? 0 : 1,
+    transition: isExpanded 
+      ? 'transform 2.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 2s cubic-bezier(0.16, 1, 0.3, 1)' 
+      : 'none',
+    pointerEvents: isExpanded ? 'none' : 'auto',
   };
 
   const gridStyle = {
-    gap: `${5 - (animationProgress * 5)}rem`,
-    transition: animationProgress > 0 ? 'all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+    gap: isExpanded ? '0rem' : '3rem',
+    gridTemplateColumns: isExpanded ? '1fr 0fr' : '1fr 1fr',
+    transition: isExpanded 
+      ? 'gap 3s cubic-bezier(0.16, 1, 0.3, 1), grid-template-columns 3.2s cubic-bezier(0.16, 1, 0.3, 1)' 
+      : 'none',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   };
 
   return (
@@ -115,7 +144,8 @@ const Videocomponent = ({ slide = false }) => {
         style={{
           height: '100vh',
           backgroundColor: 'white',
-          position: 'relative'
+          position: 'relative',
+          overflow: 'hidden'
         }}
         data-theme="light"
       >
@@ -130,72 +160,75 @@ const Videocomponent = ({ slide = false }) => {
         }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
             ...gridStyle,
-            alignItems: 'center',
-            maxWidth: '1200px',
+            maxWidth: isExpanded ? 'none' : '1200px',
             width: '100%',
-            padding: '0 2rem',
+            padding: isExpanded ? '0' : '0 2rem',
+            height: '100%',
+            position: 'relative',
             ...containerStyle
           }}>
+            {/* Video Container */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
               width: '100%',
-              height: '100vh',
-              overflow: 'hidden'
+              height: '100%',
+              overflow: 'hidden',
+              ...videoContainerStyle
             }}>
-              {/* Preview image - shows poster until expansion */}
+              {/* Video/Image */}
               <img
+                ref={videoRef}
                 src="/video_com.png"
                 alt="Video Preview"
-                style={{
-                  ...videoStyle,
-                  maxWidth: animationProgress > 0 ? '100vw' : '100%',
-                  maxHeight: animationProgress > 0 ? '70vh' : '400px',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  objectFit: 'contain'
-                }}
+                style={videoStyle}
               />
               
-              {/* Expansion hint */}
-              {!isExpanded && (
+              {/* Scroll hint - only show when not expanded */}
+              {!isExpanded && !isAnimating && (
                 <div style={{
                   position: 'absolute',
-                  bottom: '-40px',
+                  bottom: '20px',
                   left: '50%',
                   transform: 'translateX(-50%)',
                   backgroundColor: 'rgba(25, 102, 187, 0.9)',
                   color: 'white',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
+                  padding: '12px 24px',
+                  borderRadius: '25px',
                   fontSize: '14px',
                   fontFamily: 'Inter, sans-serif',
                   fontWeight: '500',
-                  animation: 'pulse 2s infinite',
-                  zIndex: 10
+                  animation: 'gentlePulse 3s infinite',
+                  zIndex: 10,
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.2)'
                 }}>
-                  Scroll to expand
+                  Scroll to expand video
                 </div>
               )}
             </div>
 
+            {/* Text Container */}
             <div style={{
-              ...textStyle,
+              ...textContainerStyle,
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'flex-start',
+              justifyContent: 'center',
               alignItems: 'flex-start',
-              gap: '0.5rem'
+              gap: '1rem',
+              padding: '2rem',
+              height: '100%'
             }}>
               <p
                 className="font-normal mb-2 flex items-center gap-2"
                 style={{
                   fontFamily: "Inter, sans-serif",
-                  fontSize: "20px",
+                  fontSize: "18px",
                   color: "#092646",
+                  fontWeight: 500
                 }}
               >
                 <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
@@ -204,10 +237,10 @@ const Videocomponent = ({ slide = false }) => {
               
               <h1 style={{
                 fontFamily: 'EB Garamond, serif',
-                fontSize: 'clamp(34px, 8vw, 64px)',
+                fontSize: 'clamp(32px, 6vw, 56px)',
                 fontWeight: 'bold',
                 color: '#1966BB',
-                lineHeight: '1.1',
+                lineHeight: '1.2',
                 marginBottom: '1rem'
               }}>
                 The Video
@@ -215,10 +248,11 @@ const Videocomponent = ({ slide = false }) => {
               
               <p style={{
                 fontFamily: 'Inter, sans-serif',
-                fontSize: '18px',
-                color: '#909090',
-                lineHeight: '1.6',
-                fontWeight: 400
+                fontSize: '16px',
+                color: '#666666',
+                lineHeight: '1.7',
+                fontWeight: 400,
+                maxWidth: '90%'
               }}>
                 BaFT Technology is a next-gen neo-banking startup headquartered in
                 Bangalore, proudly founded in 2025. We're a tight-knit team of
@@ -230,13 +264,22 @@ const Videocomponent = ({ slide = false }) => {
         </div>
       </section>
 
-      {/* CSS for pulse animation */}
+      {/* CSS for animations */}
       <style>
         {`
-          @keyframes pulse {
-            0% { opacity: 1; transform: translateX(-50%) scale(1); }
-            50% { opacity: 0.7; transform: translateX(-50%) scale(1.05); }
-            100% { opacity: 1; transform: translateX(-50%) scale(1); }
+          @keyframes gentlePulse {
+            0% { 
+              opacity: 1; 
+              transform: translateX(-50%) scale(1); 
+            }
+            50% { 
+              opacity: 0.8; 
+              transform: translateX(-50%) scale(1.02); 
+            }
+            100% { 
+              opacity: 1; 
+              transform: translateX(-50%) scale(1); 
+            }
           }
         `}
       </style>

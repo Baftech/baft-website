@@ -100,6 +100,7 @@ const Pre_footer = () => {
 
 
   return (
+    <>
     <div className="pre-footer-container">
       {/* Starfield Background */}
       <canvas
@@ -138,6 +139,7 @@ const Pre_footer = () => {
         <p className="sub-heading">BAFT – Built for You, Powered by Tech</p>
       </div>
     </div>
+    </>
   );
 };
 

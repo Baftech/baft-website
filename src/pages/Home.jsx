@@ -8,7 +8,7 @@ import B_Fast from "../components/Mainsection/B_Fast";
 import Cards from "../components/Mainsection/Features";
 import Videocomponent from "../components/Aboutsection/Videocomponent";
 import SafeSecure from "../components/Mainsection/SafeSecure";
-
+import Pre_footer from "../components/Footer/Pre_footer";
 import Footer from "../components/Footer/Footer";
 import AboutBaft from "../components/Aboutsection/About";
 
@@ -56,11 +56,13 @@ const Home = () => {
         <Videocomponent slide />
         {/* Slide 8: Safe & Secure Section */}
         <SafeSecure />
-        {/* Slide 9: Footer */}
+        {/* Slide 9: Pre-footer */}
         {/* <AboutBaft /> */}
-
-        <Footer />
+        <Pre_footer/>
       </SlideContainer>
+      
+      {/* Footer - placed outside SlideContainer to be always visible */}
+      <Footer />
     </div>
   );
 };
