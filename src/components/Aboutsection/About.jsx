@@ -8,7 +8,6 @@ gsap.registerPlugin(ScrollTrigger);
 // Updated ReadMoreText with animation
 const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [maxHeight, setMaxHeight] = useState("0px");
   const contentRef = useRef(null);
 
   const isLong = content.length > maxLength;
@@ -25,12 +24,29 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
     if (onExpandChange) onExpandChange(newState);
   };
 
+  // GSAP height animation for smooth transitions - no auto snapping
   useEffect(() => {
     if (contentRef.current) {
+      // Kill any existing tweens to avoid conflicts
+      gsap.killTweensOf(contentRef.current);
+      
       if (isExpanded) {
-        setMaxHeight(`${contentRef.current.scrollHeight}px`);
+        // Get the natural height of the content
+        const contentHeight = contentRef.current.scrollHeight;
+        const targetHeight = Math.max(contentHeight, 200); // Ensure minimum height
+        
+        gsap.to(contentRef.current, {
+          height: targetHeight,
+          duration: 0.8,
+          ease: "power2.out"
+        });
       } else {
-        setMaxHeight("200px"); // collapsed preview height
+        // Collapse back to base height
+        gsap.to(contentRef.current, {
+          height: 200,
+          duration: 0.8,
+          ease: "power2.out"
+        });
       }
     }
   }, [isExpanded]);
@@ -40,10 +56,10 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       <div
         ref={contentRef}
         style={{
-          maxHeight: maxHeight,
+          height: "200px", // Fixed base height - GSAP will animate this
           overflow: "hidden",
-          transition: "max-height 1s ease, opacity 0.8s ease",
           opacity: isExpanded ? 1 : 0.9,
+          transition: "opacity 0.6s ease",
         }}
       >
         {paragraphs.map((para, i) => (
@@ -381,6 +397,13 @@ const AboutBaft = () => {
   const [isDesktop, setIsDesktop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   
+  // Ensure stable initial state
+  useEffect(() => {
+    if (isDesktop) {
+      setScrollProgress(0);
+    }
+  }, [isDesktop]);
+  
   const sectionRef = useRef(null);
   const textContainerRef = useRef(null);
   const imageRef = useRef(null);
@@ -398,76 +421,66 @@ const AboutBaft = () => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // Log when component mounts and when isDesktop changes
-  useEffect(() => {
-    // Log component dimensions
-    if (sectionRef.current) {
-      const rect = sectionRef.current.getBoundingClientRect();
-    }
-  }, [isDesktop]);
-
-  // Add effect to log dimensions when mobile layout renders
-  useEffect(() => {
-    if (!isDesktop) {
-      
-      // Log after a short delay to ensure DOM is ready
-      setTimeout(() => {
-        const aboutSection = document.getElementById('about');
-        if (aboutSection) {
-          const rect = aboutSection.getBoundingClientRect();
-        }
-        
-        // Check for image container
-        const imageContainer = document.querySelector('.about-image-container-mobile');
-        if (imageContainer) {
-          const rect = imageContainer.getBoundingClientRect();
-        }
-      }, 100);
-    }
-  }, [isDesktop]);
+  // Removed unnecessary logging effects that were causing performance issues
 
   // Simplified pin screen scroll animation for desktop
   useEffect(() => {
     if (!sectionRef.current || !isDesktop) return;
 
-    const handleScroll = () => {
-      if (!triggerRef.current) return;
+    let rafId = null;
 
-      const triggerRect = triggerRef.current.getBoundingClientRect();
-      const triggerHeight = triggerRef.current.offsetHeight;
-      const windowHeight = window.innerHeight;
-      
-      // Calculate progress based on trigger position
-      if (triggerRect.top <= 0 && triggerRect.bottom > windowHeight) {
-        // We're in the pinned zone
-        const scrolledIntoTrigger = Math.abs(triggerRect.top);
-        const totalScrollDistance = triggerHeight - windowHeight;
-        const progress = Math.min(scrolledIntoTrigger / totalScrollDistance, 1);
-        
-        setScrollProgress(progress);
-      } else if (triggerRect.top > 0) {
-        // Before the trigger
-        setScrollProgress(0);
-      } else {
-        // After the trigger
-        setScrollProgress(1);
-      }
+    const handleScroll = () => {
+      if (!triggerRef.current || rafId) return;
+
+      rafId = requestAnimationFrame(() => {
+        try {
+          const triggerRect = triggerRef.current.getBoundingClientRect();
+          const triggerHeight = triggerRef.current.offsetHeight;
+          const windowHeight = window.innerHeight;
+          
+          // Calculate progress based on trigger position with better clamping
+          if (triggerRect.top <= 0 && triggerRect.bottom > windowHeight) {
+            // We're in the pinned zone
+            const scrolledIntoTrigger = Math.abs(triggerRect.top);
+            const totalScrollDistance = Math.max(triggerHeight - windowHeight, 1); // Prevent division by zero
+            const progress = Math.max(0, Math.min(scrolledIntoTrigger / totalScrollDistance, 1));
+            
+            // Add threshold to prevent micro-movements
+            if (progress < 0.1) {
+              setScrollProgress(0);
+            } else {
+              setScrollProgress(progress);
+            }
+          } else if (triggerRect.top > 0) {
+            // Before the trigger
+            setScrollProgress(0);
+          } else {
+            // After the trigger
+            setScrollProgress(1);
+          }
+        } catch (error) {
+          console.warn('Scroll calculation error:', error);
+          setScrollProgress(0);
+        } finally {
+          rafId = null;
+        }
+      });
     };
 
-    // Use passive: false to allow preventDefault if needed
-    window.addEventListener('scroll', handleScroll, { passive: false });
-    handleScroll(); // Initialize
+    // Use passive: true for better performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, [isDesktop]);
 
-  // Animation values - more responsive and smooth
-  // Apply aggressive easing function for faster completion
+  // Animation values - only for image expansion, not text movement
   const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
   const easedProgress = easeOutQuart(scrollProgress);
-  
-  const textTransform = easedProgress * -400; // More aggressive text movement
-  const textOpacity = Math.max(1 - easedProgress * 3, 0); // Much faster fade out
 
   return (
     <>
@@ -492,8 +505,10 @@ const AboutBaft = () => {
                   ref={textContainerRef}
                   className="flex flex-col justify-center"
                   style={{
-                    transform: `translateX(${textTransform}px)`,
-                    opacity: textOpacity,
+                    // Completely static text - no scroll-based animations
+                    transform: 'translateX(0px)',
+                    opacity: 1,
+                    transition: 'none',
                   }}
                 >
                   <p
