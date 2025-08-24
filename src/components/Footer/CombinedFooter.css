@@ -2,6 +2,8 @@
 .combined-footer {
   position: relative;
   width: 100%;
+  /* Lightweight smooth scrolling */
+  scroll-behavior: smooth;
 }
 
 /* Pre-footer Section Styles */
@@ -22,6 +24,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
+  pointer-events: none;
 }
 
 /* Concentric circles background wrapper */
@@ -263,4 +266,9 @@
   .pre-footer-container {
     height: 600px;
   }
+}
+
+/* Lightweight smooth scrolling class */
+.smooth-scroll {
+  scroll-behavior: smooth;
 }

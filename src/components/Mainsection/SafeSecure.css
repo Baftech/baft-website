@@ -8,6 +8,13 @@
   padding: clamp(60px, 6vw, 100px);
   background: #000;
   border-radius: 37px;
+  /* Ultra smooth scrolling */
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* Hardware acceleration for smoother performance */
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 
@@ -21,6 +28,8 @@
   align-items: center;
   gap: clamp(20px, 5vw, 60px);
   flex-wrap: wrap;
+  /* Smooth transitions for layout changes */
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* ===========================
@@ -32,6 +41,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+  /* Smooth text transitions */
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .safe-secure-title {
@@ -41,6 +52,11 @@
   line-height: 1.2;
   color: #fff;
   margin: 0;
+  /* Smooth text rendering and transitions */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .safe-secure-description {
@@ -50,6 +66,11 @@
   line-height: 1.6;
   color: #aaa;                  /* light gray like the reference */
   margin: 0;
+  /* Smooth text rendering and transitions */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* ===========================
@@ -64,6 +85,10 @@
   align-items: center;
   margin: 1.5rem auto 0;
   position: relative;
+  /* Ultra smooth logo transitions */
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .security-logo-wrapper {
@@ -79,8 +104,32 @@
   background-clip: padding-box;
   position: relative;
   box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
+  /* Buttery smooth logo wrapper transitions */
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
 }
 
+
+/* Enhanced metallic rim effect with smooth transitions */
+.security-logo-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(45deg, 
+    rgba(255,255,255,0.2) 0%, 
+    rgba(255,255,255,0.05) 25%, 
+    rgba(255,255,255,0.2) 50%, 
+    rgba(255,255,255,0.05) 75%, 
+    rgba(255,255,255,0.2) 100%);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: subtract;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
 
 /* metallic dotted rim effect */
 
@@ -91,6 +140,10 @@
   object-fit: contain;
   position: relative;
   z-index: 1;
+  /* Ultra smooth SVG transitions */
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  transform: translateZ(0);
 }
 /* ===========================
    Diagonal Sweep (only inside logo)
@@ -116,8 +169,20 @@
 }
 
 @keyframes diagonalSweep {
-  0%   { transform: translateX(-100%) rotate(20deg); }
-  100% { transform: translateX(100%) rotate(20deg); }
+  0%   { 
+    transform: translateX(-100%) rotate(20deg);
+    opacity: 0;
+  }
+  20%  { 
+    opacity: 1;
+  }
+  80%  { 
+    opacity: 1;
+  }
+  100% { 
+    transform: translateX(100%) rotate(20deg);
+    opacity: 0;
+  }
 }
 
 /* ===========================
@@ -128,9 +193,13 @@
     flex-direction: column;
     text-align: center;
     gap: 1.2rem;          /* tighter spacing */
+    /* Smooth responsive transitions */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   .safe-secure-logo {
     margin-top: 1rem;     /* reduce gap below text */
+    /* Smooth responsive logo adjustments */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 }
 
@@ -138,11 +207,67 @@
   .safe-secure-container {
     padding: 20px;
     border-radius: 1rem;
+    /* Maintain smooth behavior on mobile */
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   .safe-secure-title {
     font-size: 1.6rem;
   }
   .safe-secure-logo {
     width: min(75vw, 220px);  /* smaller logo for mobile */
+    /* Smooth mobile logo transitions */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
+}
+
+/* ===========================
+   Global Smooth Scrolling Utilities
+=========================== */
+
+/* Buttery smooth scroll class for enhanced scrolling */
+.buttery-smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* Enhanced momentum scrolling on iOS */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  /* Optimized scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.buttery-smooth-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.buttery-smooth-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.buttery-smooth-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.buttery-smooth-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Ultra smooth hover effects for interactive elements */
+.safe-secure-logo:hover .security-logo-wrapper {
+  transform: translateZ(0) scale(1.02);
+  box-shadow: inset 0 0 30px rgba(255,255,255,0.15),
+              0 0 20px rgba(255,255,255,0.1);
+}
+
+.safe-secure-logo:hover .security-logo-svg {
+  transform: translateZ(0) scale(1.05);
+}
+
+/* Enhanced animation timing for ultra smooth feel */
+.security-logo-wrapper::before {
+  animation: diagonalSweep 5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
 }

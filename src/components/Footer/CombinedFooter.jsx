@@ -131,9 +131,13 @@ const socialLinks = [
 
 const CombinedFooter = () => {
   const canvasRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const isVisibleRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const ctx = canvas.getContext("2d");
 
     const resizeCanvas = () => {
@@ -156,14 +160,32 @@ const CombinedFooter = () => {
     }
 
     let rotationSpeed = 0.0005; // galaxy swirl
+    let lastTime = 0;
+    const targetFPS = 30; // Reduced FPS for better scroll performance
+    const frameInterval = 1000 / targetFPS;
 
-    function draw() {
+    function draw(currentTime) {
+      // Skip rendering if not visible to improve scroll performance
+      if (!isVisibleRef.current) {
+        animationFrameRef.current = requestAnimationFrame(draw);
+        return;
+      }
+      
+      // Throttle to target FPS to reduce scroll interference
+      if (currentTime - lastTime < frameInterval) {
+        animationFrameRef.current = requestAnimationFrame(draw);
+        return;
+      }
+      
+      lastTime = currentTime;
+      
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
 
-      // Rotating galaxy stars
+      // Batch rendering for better performance
+      ctx.beginPath();
       for (let i = 0; i < stars.length; i++) {
         const star = stars[i];
         star.angle += rotationSpeed;
@@ -171,24 +193,38 @@ const CombinedFooter = () => {
         const x = cx + Math.cos(star.angle) * star.dist;
         const y = cy + Math.sin(star.angle) * star.dist;
 
-        ctx.beginPath();
+        ctx.moveTo(x + star.radius, y);
         ctx.arc(x, y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
-        ctx.fill();
       }
+      
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.fill();
 
-      requestAnimationFrame(draw);
+      animationFrameRef.current = requestAnimationFrame(draw);
     }
 
-    draw();
+    // Intersection Observer for performance optimization
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(canvas);
+    animationFrameRef.current = requestAnimationFrame(draw);
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      observer.disconnect();
     };
   }, []);
 
   return (
-    <footer id="footer" data-theme="dark" className="combined-footer">
+    <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
       {/* Pre-footer Section with Animation */}
       <div className="pre-footer-container">
         <canvas ref={canvasRef} className="starfield-canvas" />

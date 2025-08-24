@@ -12,20 +12,27 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [canScrollToPrev, setCanScrollToPrev] = useState(true);
   const totalSlides = React.Children.count(children);
   const lastScrollTime = useRef(0);
-  const scrollCooldown = 100; // Reduced for smoother response
+  const scrollCooldown = 50; // Ultra smooth response
   const scrollVelocity = useRef(0);
   const scrollAccumulator = useRef(0);
   const smoothScrollTimer = useRef(null);
+  const velocityDecay = useRef(0.95); // Momentum decay factor
+  const momentumTimer = useRef(null);
   
   // Touch gesture handling
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
   const minSwipeDistance = 50;
-  const touchCooldown = 1000;
+      const touchCooldown = 600; // Reduced for more responsive touch
 
   // Scroll position tracking
   const currentSlideRef = useRef(null);
-  const scrollThreshold = 50; // pixels from edge to trigger slide change
+  const scrollThreshold = 30; // Reduced threshold for smoother transitions
+  const smoothScrollOptions = {
+    behavior: 'smooth',
+    block: 'nearest',
+    inline: 'nearest'
+  };
 
   // Responsive detection
   useEffect(() => {
@@ -82,7 +89,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       setTimeout(() => {
         setIsTransitioning(false);
         setTransitionDirection('none');
-      }, 1400);
+      }, 1200); // Slightly faster for smoother feel
     }
   }, [totalSlides, onSlideChange, isTransitioning, slideIndex]);
 
@@ -145,39 +152,62 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     const deltaY = e.deltaY;
     const timeDelta = now - lastScrollTime.current;
     
-    // Calculate velocity and smooth out harsh scrolling
+    // Enhanced velocity calculation with dampening
     if (timeDelta > 0) {
-      scrollVelocity.current = Math.abs(deltaY) / timeDelta;
+      const rawVelocity = Math.abs(deltaY) / timeDelta;
+      // Apply velocity dampening for smoother feel
+      scrollVelocity.current = scrollVelocity.current * velocityDecay.current + rawVelocity * (1 - velocityDecay.current);
     }
     
-    // Accumulate scroll delta for smoother transitions
-    scrollAccumulator.current += deltaY;
+    // Accumulate scroll delta with velocity-based scaling
+    const velocityFactor = Math.min(scrollVelocity.current / 10, 2); // Cap at 2x
+    const scaledDelta = deltaY * (0.5 + velocityFactor * 0.5); // Dynamic scaling
+    scrollAccumulator.current += scaledDelta;
     
-    // Clear any existing timer
+    // Clear any existing timers
     if (smoothScrollTimer.current) {
       clearTimeout(smoothScrollTimer.current);
     }
+    if (momentumTimer.current) {
+      clearTimeout(momentumTimer.current);
+    }
     
-    // Smooth scroll processing with debouncing
+    // Ultra smooth scroll processing with momentum
     smoothScrollTimer.current = setTimeout(() => {
       const direction = scrollAccumulator.current > 0 ? 1 : -1;
       const absAccumulator = Math.abs(scrollAccumulator.current);
       
-      // Only trigger slide change if accumulator exceeds threshold
-      if (absAccumulator > 50) {
+      // Dynamic threshold based on velocity for more natural feel
+      const dynamicThreshold = Math.max(15, Math.min(40, 25 - scrollVelocity.current * 2));
+      
+      if (absAccumulator > dynamicThreshold) {
         let newIndex = slideIndex;
         
         // Check if we should change slides or allow scrolling within current slide
         if (direction > 0) {
           // Scrolling down
           if (canScrollToNext) {
-            // Allow internal scrolling with smooth behavior
+            // Ultra smooth internal scrolling with velocity-based easing
             if (currentSlideRef.current) {
-              const scrollAmount = Math.min(absAccumulator * 0.5, 200);
+              const baseScrollAmount = Math.min(absAccumulator * 0.25, 120);
+              const velocityBoost = Math.min(scrollVelocity.current * 5, 30);
+              const scrollAmount = baseScrollAmount + velocityBoost;
+              
               currentSlideRef.current.scrollBy({
                 top: scrollAmount,
                 behavior: 'smooth'
               });
+              
+              // Add momentum continuation
+              momentumTimer.current = setTimeout(() => {
+                if (currentSlideRef.current && scrollVelocity.current > 0.1) {
+                  const momentumScroll = scrollVelocity.current * 20;
+                  currentSlideRef.current.scrollBy({
+                    top: momentumScroll,
+                    behavior: 'smooth'
+                  });
+                }
+              }, 100);
             }
             scrollAccumulator.current = 0;
             return;
@@ -190,13 +220,27 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         } else {
           // Scrolling up
           if (canScrollToPrev) {
-            // Allow internal scrolling with smooth behavior
+            // Ultra smooth internal scrolling with velocity-based easing
             if (currentSlideRef.current) {
-              const scrollAmount = Math.min(absAccumulator * 0.5, 200);
+              const baseScrollAmount = Math.min(absAccumulator * 0.25, 120);
+              const velocityBoost = Math.min(scrollVelocity.current * 5, 30);
+              const scrollAmount = baseScrollAmount + velocityBoost;
+              
               currentSlideRef.current.scrollBy({
                 top: -scrollAmount,
                 behavior: 'smooth'
               });
+              
+              // Add momentum continuation
+              momentumTimer.current = setTimeout(() => {
+                if (currentSlideRef.current && scrollVelocity.current > 0.1) {
+                  const momentumScroll = scrollVelocity.current * 20;
+                  currentSlideRef.current.scrollBy({
+                    top: -momentumScroll,
+                    behavior: 'smooth'
+                  });
+                }
+              }, 100);
             }
             scrollAccumulator.current = 0;
             return;
@@ -214,9 +258,12 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         }
       }
       
-      // Reset accumulator
-      scrollAccumulator.current = 0;
-    }, 50); // Debounce scroll events
+      // Gradual accumulator decay for natural feel
+      scrollAccumulator.current *= 0.8;
+      if (Math.abs(scrollAccumulator.current) < 1) {
+        scrollAccumulator.current = 0;
+      }
+    }, 20); // Even more responsive debouncing
     
     lastScrollTime.current = now;
   }, [slideIndex, totalSlides, handleSlideChange, isTransitioning, canScrollToNext, canScrollToPrev]);
@@ -228,9 +275,12 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     
     if (e.key === "ArrowDown" || e.key === "PageDown") {
       if (canScrollToNext) {
-        // Try to scroll within current slide first
+        // Try to scroll within current slide first with smooth easing
         if (currentSlideRef.current) {
-          currentSlideRef.current.scrollBy(0, 100);
+          currentSlideRef.current.scrollBy({
+            top: 80,
+            behavior: 'smooth'
+          });
           return;
         }
       } else if (slideIndex < totalSlides - 1) {
@@ -240,9 +290,12 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       }
     } else if (e.key === "ArrowUp" || e.key === "PageUp") {
       if (canScrollToPrev) {
-        // Try to scroll within current slide first
+        // Try to scroll within current slide first with smooth easing
         if (currentSlideRef.current) {
-          currentSlideRef.current.scrollBy(0, -100);
+          currentSlideRef.current.scrollBy({
+            top: -80,
+            behavior: 'smooth'
+          });
           return;
         }
       } else if (slideIndex > 0) {
@@ -276,9 +329,12 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     document.addEventListener("touchend", handleTouchEndEvent, { passive: false });
     
     return () => {
-      // Clear any pending smooth scroll timer
+      // Clear any pending timers for ultra smooth cleanup
       if (smoothScrollTimer.current) {
         clearTimeout(smoothScrollTimer.current);
+      }
+      if (momentumTimer.current) {
+        clearTimeout(momentumTimer.current);
       }
       
       document.removeEventListener("wheel", handleWheelEvent);
@@ -347,7 +403,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       ) : (
         <div 
           ref={currentSlideRef}
-          className="w-full h-full transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] overflow-auto scroll-smooth custom-scroll"
+          className="w-full h-full transition-all duration-[1000ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] overflow-auto scroll-smooth custom-scroll buttery-smooth-scroll"
           onScroll={() => {
             // Update scroll permissions when user scrolls
             if (currentSlideRef.current) {
