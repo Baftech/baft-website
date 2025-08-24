@@ -120,6 +120,21 @@ const B_Fast = () => {
 
         {/* Video Section */}
         <div className="relative w-full max-w-[1000px] h-[100px] md:h-[350px] flex items-center justify-center bg-white" style={{ marginTop: '-100px' }}>
+          {/* Mild glow behind video */}
+          <div 
+            className="absolute pointer-events-none"
+            style={{
+              position: 'absolute',
+              width: '636.75px',
+              height: '1096.92px',
+              left: 'calc(50% - 636.75px/2 - 230.31px)',
+              top: '237.51px',
+              background: 'rgba(55, 102, 183, 0.1)',
+              filter: 'blur(122px)',
+              transform: 'rotate(-90deg)',
+              zIndex: 1
+            }}
+          />
           {videoError ? (
             <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
               <div className="text-center text-gray-500">
@@ -131,7 +146,7 @@ const B_Fast = () => {
             <video
               ref={videoRef}
               src="/bfast_video.mp4"
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-cover rounded-lg relative z-10"
               autoPlay
               muted
               playsInline
