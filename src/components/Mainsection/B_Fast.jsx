@@ -1,58 +1,103 @@
 import React, { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const B_Fast = () => {
   const contentRef = useRef(null);
   const videoRef = useRef(null);
+  const sectionRef = useRef(null);
+  const overlayRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
 
   useGSAP(() => {
     // Check if refs exist before animating
-    if (!contentRef.current || !videoRef.current) return;
+    if (!contentRef.current || !videoRef.current || !sectionRef.current || !overlayRef.current) return;
     
-    // Initially hide everything
-    gsap.set(contentRef.current, { opacity: 0, y: -100 });
-    gsap.set(videoRef.current, { opacity: 0, scale: 0.8 });
+    // Always set initial heading state for animation
+    gsap.set(contentRef.current, { opacity: 0, y: -80 }); // Heading starts higher and hidden
     
-    // Start video animation first with much longer duration
-    const videoTimer = setTimeout(() => {
-      // Check if ref still exists
-      if (!videoRef.current) return;
-      
-      // Show video first - fade in from position with longer duration
-      gsap.to(videoRef.current, {
-        opacity: 1,
-        scale: 1,
-        duration: 3.2,
-        ease: "power2.out",
-        clearProps: "scale" // Clear transform after animation to prevent conflicts
-      });
-      
-      // Show text after video animation - slide down from top with longer duration
-      const textTimer = setTimeout(() => {
-        // Check if ref still exists
-        if (!contentRef.current) return;
-        
-        gsap.to(contentRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 3.6,
-          ease: "power2.out",
-          clearProps: "y" // Clear transform after animation to prevent conflicts
+    // Always start with overlay hidden, we'll show it conditionally
+    gsap.set(overlayRef.current, { opacity: 0 });
+    
+    // Track scroll direction to determine if coming from bottom
+    let lastScrollY = window.scrollY;
+    let isFromBottom = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Detect scroll direction
+            const currentScrollY = window.scrollY;
+            isFromBottom = currentScrollY < lastScrollY; // scrolling up
+            
+            // Always reset heading before animation
+            gsap.set(contentRef.current, { opacity: 0, y: -80 });
+            
+            const tl = gsap.timeline();
+            
+            if (isFromBottom) {
+              // Coming from bottom → run page reveal
+              gsap.set(overlayRef.current, { opacity: 1 });
+              
+              tl.to(overlayRef.current, {
+                opacity: 0,
+                duration: 2.5,
+                ease: "power2.out"
+              })
+              .to(contentRef.current, {
+                opacity: 1,
+                y: 0,
+                duration: 4.0,
+                ease: "power1.inOut"
+              }, "+=2.0");
+            } else {
+              // Normal scroll from top → just animate heading
+              tl.to(contentRef.current, {
+                opacity: 1,
+                y: 0,
+                duration: 4.0,
+                ease: "power1.inOut",
+                delay: 1.5
+              });
+            }
+            
+            lastScrollY = currentScrollY; // ✅ update scroll position
+          } else {
+            // Reset when leaving
+            gsap.set(contentRef.current, { opacity: 0, y: -80 });
+            lastScrollY = window.scrollY;
+          }
         });
-      }, 1400);
-      
-      // Cleanup function for text timer
-      return () => clearTimeout(textTimer);
-    }, 700);
+      },
+      {
+        threshold: 0.3, // Trigger when 30% of section is visible
+        rootMargin: "0px 0px -20% 0px"
+      }
+    );
     
-    // Cleanup function for video timer
-    return () => clearTimeout(videoTimer);
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    
+    // Cleanup function
+    return () => {
+      observer.disconnect();
+      gsap.killTweensOf([contentRef.current, overlayRef.current]);
+    };
   }, []);
 
   return (
-    <section className="relative w-full h-screen bg-white overflow-hidden" data-theme="light">
+    <section ref={sectionRef} className="relative w-full h-screen bg-white overflow-hidden" data-theme="light">
+      {/* Reveal Overlay - starts covering everything, then fades out */}
+      <div 
+        ref={overlayRef}
+        className="absolute inset-0 bg-white z-50 pointer-events-none"
+      />
+      
       {/* Content Container */}
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 bg-white">
         {/* Text Content */}
@@ -88,7 +133,6 @@ const B_Fast = () => {
               src="/bfast_video.mp4"
               className="w-full h-full object-cover rounded-lg"
               autoPlay
-              loop
               muted
               playsInline
               controls={false}
@@ -97,6 +141,7 @@ const B_Fast = () => {
               onError={() => setVideoError(true)}
               onLoadStart={() => console.log('Video loading started')}
               onCanPlay={() => console.log('Video can start playing')}
+              onEnded={() => console.log('Video playback ended')}
             />
           )}
         </div>
