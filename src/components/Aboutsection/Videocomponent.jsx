@@ -6,10 +6,15 @@ const Videocomponent = ({ slide = false }) => {
   const videoRef = useRef(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const originalBodyOverflowRef = useRef('');
+  const originalBodyTouchActionRef = useRef('');
+  const originalHtmlOverscrollRef = useRef('');
 
   // Handle scroll-based expansion in slide mode
   useEffect(() => {
     if (!slide) return;
+
+    const addOpts = { passive: false, capture: true };
 
     const handleScroll = (e) => {
       // Only trigger if not already animating/expanded
@@ -32,12 +37,29 @@ const Videocomponent = ({ slide = false }) => {
         evt.stopPropagation();
         return false;
       };
-      document.addEventListener('wheel', prevent, { passive: false });
-      document.addEventListener('touchmove', prevent, { passive: false });
-      document.addEventListener('touchstart', prevent, { passive: false });
-      document.addEventListener('touchend', prevent, { passive: false });
-      document.addEventListener('scroll', prevent, { passive: false });
-      document.addEventListener('keydown', prevent, { passive: false });
+      // Save originals and apply strict locks
+      try {
+        originalBodyOverflowRef.current = document.body.style.overflow;
+        originalBodyTouchActionRef.current = document.body.style.touchAction;
+        originalHtmlOverscrollRef.current = document.documentElement.style.overscrollBehavior;
+        document.body.style.overflow = 'hidden';
+        document.body.style.touchAction = 'none';
+        document.documentElement.style.overscrollBehavior = 'none';
+      } catch {}
+
+      document.addEventListener('wheel', prevent, addOpts);
+      document.addEventListener('touchmove', prevent, addOpts);
+      document.addEventListener('touchstart', prevent, addOpts);
+      document.addEventListener('touchend', prevent, addOpts);
+      document.addEventListener('scroll', prevent, addOpts);
+      document.addEventListener('keydown', prevent, addOpts);
+      if (typeof window !== 'undefined') {
+        window.addEventListener('wheel', prevent, addOpts);
+        window.addEventListener('touchmove', prevent, addOpts);
+        window.addEventListener('touchstart', prevent, addOpts);
+        window.addEventListener('touchend', prevent, addOpts);
+        window.addEventListener('scroll', prevent, addOpts);
+      }
 
       // Start the synchronized animation
       setTimeout(() => {
@@ -54,12 +76,24 @@ const Videocomponent = ({ slide = false }) => {
         if (typeof window !== 'undefined') {
           window.__videoHandoffActive = false;
         }
-        document.removeEventListener('wheel', prevent);
-        document.removeEventListener('touchmove', prevent);
-        document.removeEventListener('touchstart', prevent);
-        document.removeEventListener('touchend', prevent);
-        document.removeEventListener('scroll', prevent);
-        document.removeEventListener('keydown', prevent);
+        document.removeEventListener('wheel', prevent, addOpts);
+        document.removeEventListener('touchmove', prevent, addOpts);
+        document.removeEventListener('touchstart', prevent, addOpts);
+        document.removeEventListener('touchend', prevent, addOpts);
+        document.removeEventListener('scroll', prevent, addOpts);
+        document.removeEventListener('keydown', prevent, addOpts);
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('wheel', prevent, addOpts);
+          window.removeEventListener('touchmove', prevent, addOpts);
+          window.removeEventListener('touchstart', prevent, addOpts);
+          window.removeEventListener('touchend', prevent, addOpts);
+          window.removeEventListener('scroll', prevent, addOpts);
+        }
+        try {
+          document.body.style.overflow = originalBodyOverflowRef.current || '';
+          document.body.style.touchAction = originalBodyTouchActionRef.current || '';
+          document.documentElement.style.overscrollBehavior = originalHtmlOverscrollRef.current || '';
+        } catch {}
         setIsAnimating(false);
       }, 3000); // Increased to match the longest animation duration
     };
@@ -67,21 +101,18 @@ const Videocomponent = ({ slide = false }) => {
     // Add scroll listener
     const container = mainContainerRef.current;
     if (container) {
-      container.addEventListener('wheel', handleScroll, { passive: false });
-      container.addEventListener('touchmove', handleScroll, { passive: false });
-      container.addEventListener('touchstart', handleScroll, { passive: false });
-      container.addEventListener('touchend', handleScroll, { passive: false });
-      // Handle touchpad scrolling
-      container.addEventListener('scroll', handleScroll, { passive: false });
+      container.addEventListener('wheel', handleScroll, addOpts);
+      container.addEventListener('touchmove', handleScroll, addOpts);
+      container.addEventListener('touchstart', handleScroll, addOpts);
+      container.addEventListener('touchend', handleScroll, addOpts);
     }
 
     return () => {
       if (container) {
-        container.removeEventListener('wheel', handleScroll);
-        container.removeEventListener('touchmove', handleScroll);
-        container.removeEventListener('touchstart', handleScroll);
-        container.removeEventListener('touchend', handleScroll);
-        container.removeEventListener('scroll', handleScroll);
+        container.removeEventListener('wheel', handleScroll, addOpts);
+        container.removeEventListener('touchmove', handleScroll, addOpts);
+        container.removeEventListener('touchstart', handleScroll, addOpts);
+        container.removeEventListener('touchend', handleScroll, addOpts);
       }
       // Clean up global handoff
       if (typeof window !== 'undefined') {
@@ -151,7 +182,10 @@ const Videocomponent = ({ slide = false }) => {
         height: '100vh',
         overflowY: slide ? 'hidden' : 'scroll',
         scrollSnapType: slide ? undefined : 'y mandatory',
-        scrollBehavior: slide ? undefined : 'smooth'
+        scrollBehavior: slide ? undefined : 'smooth',
+        overscrollBehavior: slide ? 'none' : undefined,
+        overscrollBehaviorY: slide ? 'none' : undefined,
+        touchAction: slide ? 'none' : undefined
       }}
     >
       <section
@@ -160,7 +194,9 @@ const Videocomponent = ({ slide = false }) => {
           height: '100vh',
           backgroundColor: 'white',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          overscrollBehavior: 'none',
+          touchAction: 'none'
         }}
         data-theme="light"
       >
