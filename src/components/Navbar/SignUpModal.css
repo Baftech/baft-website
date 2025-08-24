@@ -7,24 +7,20 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 16px;
-  animation: fadeIn 0.3s ease-out;
+  padding: 8px;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+@media (min-width: 640px) {
+  .signup-modal-backdrop {
+    padding: 16px;
   }
 }
 
 /* Main Modal Container */
 .signup-modal-container {
-  width: 90%;
-  max-width: 450px;
-  max-height: 95vh;
+  width: 95%;
+  max-width: 380px;
+  max-height: 90vh;
   background: radial-gradient(
     112.62% 112.6% at 47.95% 3.5%, 
     #090E65 0%, 
@@ -33,25 +29,36 @@
   );
   border: 2px solid rgba(255, 255, 255, 0.46);
   backdrop-filter: blur(30px);
-  border-radius: 24px;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px;
-  overflow-y: auto;
+  padding: 14px;
+  overflow: hidden;
   box-sizing: border-box;
   position: relative;
-  animation: slideInUp 0.8s ease-out;
 }
 
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
+@media (min-width: 640px) {
+  .signup-modal-container {
+    width: 90%;
+    max-width: 420px;
+    border-radius: 24px;
+    padding: 20px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+}
+
+/* Content Container - Flexible Height */
+.signup-content-container {
+  width: 100%;
+  min-height: 320px;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .signup-content-container {
+    min-height: 360px;
   }
 }
 
@@ -63,9 +70,26 @@
   background: none;
   border: none;
   color: white;
-  font-size: 22px;
+  font-size: 20px;
   cursor: pointer;
   transition: opacity 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  z-index: 30;
+}
+
+@media (min-width: 640px) {
+  .signup-close-button {
+    top: 24px;
+    right: 20px;
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .signup-close-button:hover {
@@ -79,58 +103,38 @@
   align-items: center;   /* center horizontally */
   justify-content: center;
   text-align: center;
-  margin-bottom: 24px;
-  animation: headerFadeIn 0.8s ease-out 0.1s both;
+  margin-bottom: 12px;
 }
 
-@keyframes headerFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@media (min-width: 640px) {
+  .signup-header {
+    margin-bottom: 16px;
   }
 }
 
 .signup-logo {
-  width: 120px;
+  width: 80px;
   height: auto;
   margin: 0 auto;
-  animation: logoBounce 0.8s ease-out 0.3s both;
 }
 
-@keyframes logoBounce {
-  0% {
-    opacity: 0;
-    transform: scale(0.8) translateY(-10px);
-  }
-  50% {
-    transform: scale(1.1) translateY(0);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
+@media (min-width: 640px) {
+  .signup-logo {
+    width: 100px;
   }
 }
 
 .signup-tagline {
-  margin-top: 12px;
+  margin-top: 6px;
   font-family: 'Inter', sans-serif;
-  font-size: 15px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
-  animation: taglineSlideIn 0.8s ease-out 0.4s both;
 }
 
-@keyframes taglineSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+@media (min-width: 640px) {
+  .signup-tagline {
+    margin-top: 8px;
+    font-size: 14px;
   }
 }
 
@@ -138,76 +142,79 @@
 .signup-form-container {
   width: 100%;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 20px;
-  animation: formSlideIn 0.8s ease-out 0.2s both;
+  gap: 10px;
+  margin-bottom: 0;
 }
 
-@keyframes formSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@media (min-width: 640px) {
+  .signup-form-container {
+    border-radius: 16px;
+    padding: 16px;
+    gap: 12px;
   }
 }
 
 /* Title */
 .signup-title {
   font-weight: 600;
-  font-size: 20px;
+  font-size: 16px;
   color: #fff;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
+}
+
+@media (min-width: 640px) {
+  .signup-title {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
 }
 
 .signup-subtitle {
-  font-size: 14px;
+  font-size: 11px;
   color: rgba(255, 255, 255, 0.6);
-  margin: 0 0 10px;
+  margin: 0 0 6px;
+}
+
+@media (min-width: 640px) {
+  .signup-subtitle {
+    font-size: 12px;
+    margin: 0 0 8px;
+  }
 }
 
 /* Form */
 .signup-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .signup-form {
+    gap: 10px;
+  }
 }
 
 .signup-input {
-  padding: 12px 14px;
+  padding: 8px 10px;
   width: 100%;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+  border-radius: 6px;
   border: none;
   color: white;
-  font-size: 16px;
+  font-size: 13px;
   outline: none;
-  transition: all 0.3s ease;
-  animation: inputFadeIn 0.8s ease-out 0.4s both;
 }
 
-.signup-input:nth-child(2) {
-  animation-delay: 0.5s;
-}
-
-.signup-input:nth-child(3) {
-  animation-delay: 0.6s;
-}
-
-@keyframes inputFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+@media (min-width: 640px) {
+  .signup-input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
   }
 }
 
@@ -219,119 +226,216 @@
 .signup-checkbox-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-  animation: checkboxFadeIn 0.8s ease-out 0.6s both;
+  gap: 6px;
+  margin-top: 2px;
 }
 
-@keyframes checkboxFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+@media (min-width: 640px) {
+  .signup-checkbox-container {
+    gap: 8px;
+    margin-top: 4px;
   }
 }
 
 .signup-checkbox-label {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.signup-checkbox-label:hover {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.signup-checkbox {
-  transition: all 0.3s ease;
+  font-size: 11px;
   cursor: pointer;
 }
 
-.signup-checkbox:checked {
-  animation: checkboxCheck 0.8s ease-out;
-}
-
-@keyframes checkboxCheck {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
+@media (min-width: 640px) {
+  .signup-checkbox-label {
+    font-size: 12px;
   }
 }
 
-/* Send Button */
+/* Send Button - Updated with new hover effects */
 .signup-send-button {
-  width: 100%;
-  height: 44px;
+  width: 100px;
+  height: 36px;
   background: #4A90E2;
   border: none;
-  border-radius: 25px;
+  border-radius: 18px;
   color: white;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.3s ease;
-  animation: buttonFadeIn 0.8s ease-out 0.7s both;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   position: relative;
   overflow: hidden;
+  align-self: center;
+  margin-top: 6px;
 }
 
-@keyframes buttonFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.signup-send-button:hover {
-  background: #357ABD;
-  transform: translateY(-2px);
-}
-
-.signup-send-button:active {
-  animation: buttonClick 0.8s ease-out;
-}
-
-@keyframes buttonClick {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.95);
-  }
-  100% {
-    transform: scale(1);
+@media (min-width: 640px) {
+  .signup-send-button {
+    width: 110px;
+    height: 40px;
+    border-radius: 20px;
+    font-size: 14px;
+    gap: 6px;
+    margin-top: 8px;
   }
 }
 
-/* Button ripple effect */
+/* Send text styling with shrink effect */
 .signup-send-button::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.8s ease, height 0.8s ease;
+  content: "Send";
+  transition: transform 1.5s ease;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.signup-send-button:active::before {
-  width: 300px;
-  height: 300px;
+@media (min-width: 640px) {
+  .signup-send-button::before {
+    font-size: 14px;
+  }
+}
+
+.signup-send-button:hover::before {
+  transform: scale(0.9);
+}
+
+/* Dot to arrow transformation */
+.signup-send-button::after {
+  content: "•";
+  transition: all 1.5s ease;
+  font-size: 14px;
+  margin-left: 2px;
+}
+
+@media (min-width: 640px) {
+  .signup-send-button::after {
+    font-size: 16px;
+    margin-left: 4px;
+  }
+}
+
+.signup-send-button:hover::after {
+  content: "→";
+  font-size: 12px;
+  transform: translateX(2px);
+  transition: all 1.0s ease;
+}
+
+@media (min-width: 640px) {
+  .signup-send-button:hover::after {
+    font-size: 14px;
+  }
+}
+
+/* Button background turns white on hover */
+.signup-send-button:hover {
+  background: white;
+  color: #333;
+  transition: all 1.0s ease;
+}
+
+/* Remove old hover effects for button text and arrow icon */
+.signup-send-button .button-text,
+.signup-send-button .arrow-icon {
+  display: none;
+}
+
+/* Thanks Page Styles (added for signup modal) */
+.thanks-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center horizontally */
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 1.5rem; /* 24px */
+}
+
+.thanks-message {
+  font-weight: 200;   /* light */
+  font-size: clamp(0.8rem, 1.5vw, 1rem); /* smaller + responsive */
+  line-height: 1.5;
+  color: #ffffff;
+  opacity: 0.85;
+  margin-top: 0.5rem;
+}
+
+.thanks-page-container {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  padding: 2rem;
+}
+
+/* Responsive text container */
+.thanks-text {
+  margin-top: 1rem;
+  padding: 0 1rem;
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: clamp(1rem, 2vw, 1.25rem); /* scales with screen */
+  line-height: 1.6;
+  text-align: center;
+  color: #FFFFFF;
+  max-width: 90%;   /* don't overflow card */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.thanks-title {
+  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #FFFFFF;
+}
+
+.checkmark-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 30px 0 20px;
+}
+
+.checkmark-svg {
+  width: clamp(50px, 10vw, 70px); /* responsive size */
+  height: clamp(50px, 10vw, 70px);
+  stroke: #ffffff;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+  box-shadow: inset 0px 0px 0px #ffffff;
+  border-radius: 50%;
+}
+
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3;
+  stroke: #ffffff;
+  fill: none;
+  animation: circleDraw 0.6s ease-out forwards;
+}
+
+.checkmark-path {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 3;
+  stroke: #ffffff;
+  stroke-linecap: round;
+  animation: checkDraw 0.4s ease-out forwards 0.6s;
+}
+
+@keyframes circleDraw {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes checkDraw {
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* Divider */
@@ -379,18 +483,53 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* Responsive */
-@media (max-width: 480px) {
+/* Additional mobile responsiveness - for extra small screens */
+@media (max-width: 380px) {
   .signup-modal-container {
-    width: 95%;
-    padding: 16px;
+    width: 98%;
+    padding: 10px;
+    border-radius: 16px;
+    max-width: 340px;
   }
 
   .signup-logo {
-    width: 100px;
+    width: 70px;
+  }
+
+  .signup-tagline {
+    font-size: 11px;
+  }
+
+  .signup-form-container {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .signup-input {
+    padding: 7px 9px;
+    font-size: 12px;
   }
 
   .signup-send-button {
-    font-size: 14px;
+    width: 90px;
+    height: 32px;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .signup-send-button::before {
+    font-size: 12px;
+  }
+
+  .signup-send-button::after {
+    font-size: 13px;
+  }
+
+  .signup-send-button:hover::after {
+    font-size: 11px;
+  }
+
+  .signup-content-container {
+    min-height: 280px;
   }
 }
