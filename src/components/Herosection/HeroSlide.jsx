@@ -70,7 +70,7 @@ const Hero = () => {
       </div>
 
       {/* Text appears later */}
-      <div id="text" className="relative z-20 text-center px-4 mt-40">
+      <div id="text" className="relative z-20 text-center px-4 mt-40 opacity-0">
         <p
   style={{
     fontFamily: "General Sans, sans-serif",
@@ -123,11 +123,17 @@ const Hero = () => {
 {/* Floating fullscreen wrapper (GSAP animates this into placeholder) */}
 <div
   ref={wrapperRef}
-  className="w-full"
+  className="w-full opacity-0"
   style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100vh",
     overflow: "hidden",
-    borderRadius: "220px", // 👈 stays rounded
-    background: "black",   // 👈 ensures no edges leak
+    borderRadius: 0,
+    background: "black",
+    zIndex: 50,
   }}
 >
 
