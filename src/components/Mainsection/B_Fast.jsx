@@ -180,7 +180,6 @@ const B_Fast = () => {
                 }}
                 autoPlay
                 muted
-                loop
                 playsInline
                 controls={false}
                 disablePictureInPicture

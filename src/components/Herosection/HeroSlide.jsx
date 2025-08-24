@@ -8,58 +8,68 @@ const Hero = () => {
   const placeholderRef = useRef(null);
 
   useEffect(() => {
-    const tl = gsap.timeline();
+    let rafId;
+    const start = () => {
+      if (!wrapperRef.current || !placeholderRef.current) {
+        rafId = requestAnimationFrame(start);
+        return;
+      }
+      const tl = gsap.timeline();
 
-    // Step 0: Start fullscreen
-    gsap.set(wrapperRef.current, {
-      opacity: 0,
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100vh",
-      borderRadius: 0,
-      zIndex: 50,
-    });
+      gsap.set(wrapperRef.current, {
+        opacity: 0,
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100vh",
+        borderRadius: 0,
+        zIndex: 50,
+      });
 
-    gsap.set("#grid_container", { opacity: 0 });
-    gsap.set("#text", { opacity: 0, y: 50, scale: 0.9 });
+      gsap.set("#grid_container", { opacity: 0 });
+      gsap.set("#text", { opacity: 0, y: 50, scale: 0.9 });
 
-    // Step 1: fade in fullscreen
-    tl.to(wrapperRef.current, { opacity: 1, duration: 1.4, delay: 0.6 })
+      const safeWidth = () => (placeholderRef.current ? placeholderRef.current.offsetWidth : 0);
+      const safeHeight = () => (placeholderRef.current ? placeholderRef.current.offsetHeight : 0);
+      const safeTop = () => (placeholderRef.current ? placeholderRef.current.getBoundingClientRect().top : 0);
+      const safeLeft = () => (placeholderRef.current ? placeholderRef.current.getBoundingClientRect().left : 0);
 
-      // Step 2: shrink into placeholder after 9s
-      // Step 2: shrink into placeholder after 9s
-.to(
-  wrapperRef.current,
-  {
-    width: () => placeholderRef.current.offsetWidth,
-    height: () => placeholderRef.current.offsetHeight,
-    borderRadius: "220px",
-    top: () => placeholderRef.current.getBoundingClientRect().top,
-    left: () => placeholderRef.current.getBoundingClientRect().left,
-    x: 0,
-    y: 0,
-    duration: 1.8,
-    ease: "power2.out",
-  },
-  "+=9.2"
-)
+      tl.to(wrapperRef.current, { opacity: 1, duration: 1.4, delay: 0.6 })
+        .to(
+          wrapperRef.current,
+          {
+            width: safeWidth,
+            height: safeHeight,
+            borderRadius: "220px",
+            top: safeTop,
+            left: safeLeft,
+            x: 0,
+            y: 0,
+            duration: 1.8,
+            ease: "power2.out",
+          },
+          "+=9.2"
+        )
+        .to("#grid_container", { opacity: 1, duration: 1.8 }, "<")
+        .to(
+          "#text",
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 2.2,
+            ease: "power2.out",
+          },
+          "<"
+        );
+    };
 
-// Step 3: fade in grid + text **at the same time as shrink**
-.to("#grid_container", { opacity: 1, duration: 1.8 }, "<")
-.to(
-  "#text",
-  {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    duration: 2.2,
-    ease: "power2.out",
-  },
-  "<" // 👈 same time as shrink
-);
+    rafId = requestAnimationFrame(start);
 
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (

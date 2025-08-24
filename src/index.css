@@ -83,24 +83,7 @@
   text-shadow: 0px 0px 34px #FFFFFF40;
 }
 
-/* public/fonts/GeneralSans-Regular.woff2 assumed */
-@font-face {
-  font-family: "General Sans";
-  src: url("/fonts/GeneralSans-Regular.woff2") format("woff2"),
-       url("/fonts/GeneralSans-Regular.woff") format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "General Sans";
-  src: url("/fonts/GeneralSans-Bold.woff2") format("woff2"),
-       url("/fonts/GeneralSans-Bold.woff") format("woff");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* General Sans is provided via the imported CSS above */
 
 :root[data-theme="dark"]{
     --color-background: #000000;

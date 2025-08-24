@@ -176,6 +176,19 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     // Otherwise allow native scrolling
   }, [isTransitioning, slideIndex, totalSlides, handleSlideChange]);
 
+  // Attach non-passive wheel listener so preventDefault works without warnings
+  useEffect(() => {
+    const element = currentSlideRef.current;
+    if (!element) return;
+    const wheelListener = (e) => {
+      handleWheel(e);
+    };
+    element.addEventListener('wheel', wheelListener, { passive: false });
+    return () => {
+      element.removeEventListener('wheel', wheelListener);
+    };
+  }, [handleWheel]);
+
   const handleKeyDown = useCallback((e) => {
     if (isTransitioning) return;
     const element = currentSlideRef.current;
@@ -286,7 +299,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
               setCanScrollToNext(canScrollDown);
             }
           }}
-          onWheel={handleWheel}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
