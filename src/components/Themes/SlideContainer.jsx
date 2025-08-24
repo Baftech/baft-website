@@ -7,23 +7,15 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionDirection, setTransitionDirection] = useState('none');
   const [isMobile, setIsMobile] = useState(false);
-  const [isLandscape, setIsLandscape] = useState(false);
   const [canScrollToNext, setCanScrollToNext] = useState(true);
   const [canScrollToPrev, setCanScrollToPrev] = useState(true);
   const totalSlides = React.Children.count(children);
-  const lastScrollTime = useRef(0);
-  const scrollCooldown = 50; // Ultra smooth response
-  const scrollVelocity = useRef(0);
-  const scrollAccumulator = useRef(0);
-  const smoothScrollTimer = useRef(null);
-  const velocityDecay = useRef(0.95); // Momentum decay factor
-  const momentumTimer = useRef(null);
+  const lastNavTime = useRef(0);
+  const navCooldownMs = 300;
   
   // Touch gesture handling
   const touchStartY = useRef(0);
-  const touchEndY = useRef(0);
   const minSwipeDistance = 50;
-      const touchCooldown = 600; // Reduced for more responsive touch
 
   // Scroll position tracking
   const currentSlideRef = useRef(null);
@@ -38,7 +30,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   useEffect(() => {
     const checkDeviceType = () => {
       setIsMobile(window.innerWidth < 768);
-      setIsLandscape(window.innerHeight < window.innerWidth);
     };
 
     checkDeviceType();
@@ -93,257 +84,100 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     }
   }, [totalSlides, onSlideChange, isTransitioning, slideIndex]);
 
-  // Touch gesture handlers
+  // Touch gesture handlers (element-level)
   const handleTouchStart = useCallback((e) => {
     if (isTransitioning) return;
+    if (typeof window !== 'undefined' && window.__videoHandoffActive) return;
     touchStartY.current = e.touches[0].clientY;
   }, [isTransitioning]);
 
-  const handleTouchMove = useCallback((e) => {
-    if (isTransitioning) return;
-    // Don't prevent default - allow natural scrolling within slides
-  }, [isTransitioning]);
+  const handleTouchMove = useCallback(() => {
+    // Allow native scrolling; do not prevent default
+  }, []);
 
   const handleTouchEnd = useCallback((e) => {
     if (isTransitioning) return;
-    
+    if (typeof window !== 'undefined' && window.__videoHandoffActive) return;
     const now = Date.now();
-    if (now - lastScrollTime.current < touchCooldown) return;
-    
-    touchEndY.current = e.changedTouches[0].clientY;
-    const distance = touchStartY.current - touchEndY.current;
-    
-    if (Math.abs(distance) > minSwipeDistance) {
-      let newIndex = slideIndex;
-      
-      if (distance > 0 && canScrollToNext) {
-        // Swipe up - go to next slide only if can't scroll down more
-        if (slideIndex < totalSlides - 1) {
-          newIndex = slideIndex + 1;
-        }
-      } else if (distance < 0 && canScrollToPrev) {
-        // Swipe down - go to previous slide only if can't scroll up more
-        if (slideIndex > 0) {
-          newIndex = slideIndex - 1;
-        }
-      }
-      
-      if (newIndex !== slideIndex) {
-        lastScrollTime.current = now;
-        handleSlideChange(newIndex);
-      }
+    if (now - lastNavTime.current < navCooldownMs) return;
+
+    const endY = e.changedTouches[0].clientY;
+    const distance = touchStartY.current - endY;
+    if (Math.abs(distance) < minSwipeDistance) return;
+
+    const element = currentSlideRef.current;
+    if (!element) return;
+    const atTop = element.scrollTop <= scrollThreshold;
+    const atBottom = element.scrollTop >= (element.scrollHeight - element.clientHeight - scrollThreshold);
+
+    if (distance > 0 && atBottom && slideIndex < totalSlides - 1) {
+      // Swipe up at bottom -> next slide
+      lastNavTime.current = now;
+      handleSlideChange(slideIndex + 1);
+    } else if (distance < 0 && atTop && slideIndex > 0) {
+      // Swipe down at top -> previous slide
+      lastNavTime.current = now;
+      handleSlideChange(slideIndex - 1);
     }
-  }, [slideIndex, totalSlides, handleSlideChange, isTransitioning, canScrollToNext, canScrollToPrev]);
+  }, [isTransitioning, slideIndex, totalSlides, handleSlideChange]);
 
   const handleWheel = useCallback((e) => {
-    // Prevent default to ensure smooth handling
-    e.preventDefault();
-    
-    // Respect handoff blocks from slides (e.g., video expansion)
-    if (typeof window !== 'undefined' && window.__videoHandoffActive) {
-      return;
-    }
-    
-    if (isTransitioning) {
-      return;
-    }
-    
+    if (isTransitioning) return;
+    if (typeof window !== 'undefined' && window.__videoHandoffActive) return;
+
+    const element = currentSlideRef.current;
+    if (!element) return;
+
     const now = Date.now();
-    const deltaY = e.deltaY;
-    const timeDelta = now - lastScrollTime.current;
-    
-    // Enhanced velocity calculation with dampening
-    if (timeDelta > 0) {
-      const rawVelocity = Math.abs(deltaY) / timeDelta;
-      // Apply velocity dampening for smoother feel
-      scrollVelocity.current = scrollVelocity.current * velocityDecay.current + rawVelocity * (1 - velocityDecay.current);
-    }
-    
-    // Accumulate scroll delta with velocity-based scaling
-    const velocityFactor = Math.min(scrollVelocity.current / 10, 2); // Cap at 2x
-    const scaledDelta = deltaY * (0.5 + velocityFactor * 0.5); // Dynamic scaling
-    scrollAccumulator.current += scaledDelta;
-    
-    // Clear any existing timers
-    if (smoothScrollTimer.current) {
-      clearTimeout(smoothScrollTimer.current);
-    }
-    if (momentumTimer.current) {
-      clearTimeout(momentumTimer.current);
-    }
-    
-    // Ultra smooth scroll processing with momentum
-    smoothScrollTimer.current = setTimeout(() => {
-      const direction = scrollAccumulator.current > 0 ? 1 : -1;
-      const absAccumulator = Math.abs(scrollAccumulator.current);
-      
-      // Dynamic threshold based on velocity for more natural feel
-      const dynamicThreshold = Math.max(15, Math.min(40, 25 - scrollVelocity.current * 2));
-      
-      if (absAccumulator > dynamicThreshold) {
-        let newIndex = slideIndex;
-        
-        // Check if we should change slides or allow scrolling within current slide
-        if (direction > 0) {
-          // Scrolling down
-          if (canScrollToNext) {
-            // Ultra smooth internal scrolling with velocity-based easing
-            if (currentSlideRef.current) {
-              const baseScrollAmount = Math.min(absAccumulator * 0.25, 120);
-              const velocityBoost = Math.min(scrollVelocity.current * 5, 30);
-              const scrollAmount = baseScrollAmount + velocityBoost;
-              
-              currentSlideRef.current.scrollBy({
-                top: scrollAmount,
-                behavior: 'smooth'
-              });
-              
-              // Add momentum continuation
-              momentumTimer.current = setTimeout(() => {
-                if (currentSlideRef.current && scrollVelocity.current > 0.1) {
-                  const momentumScroll = scrollVelocity.current * 20;
-                  currentSlideRef.current.scrollBy({
-                    top: momentumScroll,
-                    behavior: 'smooth'
-                  });
-                }
-              }, 100);
-            }
-            scrollAccumulator.current = 0;
-            return;
-          } else if (slideIndex < totalSlides - 1) {
-            newIndex = slideIndex + 1;
-          } else {
-            scrollAccumulator.current = 0;
-            return;
-          }
-        } else {
-          // Scrolling up
-          if (canScrollToPrev) {
-            // Ultra smooth internal scrolling with velocity-based easing
-            if (currentSlideRef.current) {
-              const baseScrollAmount = Math.min(absAccumulator * 0.25, 120);
-              const velocityBoost = Math.min(scrollVelocity.current * 5, 30);
-              const scrollAmount = baseScrollAmount + velocityBoost;
-              
-              currentSlideRef.current.scrollBy({
-                top: -scrollAmount,
-                behavior: 'smooth'
-              });
-              
-              // Add momentum continuation
-              momentumTimer.current = setTimeout(() => {
-                if (currentSlideRef.current && scrollVelocity.current > 0.1) {
-                  const momentumScroll = scrollVelocity.current * 20;
-                  currentSlideRef.current.scrollBy({
-                    top: -momentumScroll,
-                    behavior: 'smooth'
-                  });
-                }
-              }, 100);
-            }
-            scrollAccumulator.current = 0;
-            return;
-          } else if (slideIndex > 0) {
-            newIndex = slideIndex - 1;
-          } else {
-            scrollAccumulator.current = 0;
-            return;
-          }
-        }
-        
-        if (newIndex !== slideIndex) {
-          lastScrollTime.current = now;
-          handleSlideChange(newIndex);
-        }
+    const atTop = element.scrollTop <= scrollThreshold;
+    const atBottom = element.scrollTop >= (element.scrollHeight - element.clientHeight - scrollThreshold);
+
+    if (e.deltaY > 0 && atBottom && slideIndex < totalSlides - 1) {
+      e.preventDefault();
+      if (now - lastNavTime.current >= navCooldownMs) {
+        lastNavTime.current = now;
+        handleSlideChange(slideIndex + 1);
       }
-      
-      // Gradual accumulator decay for natural feel
-      scrollAccumulator.current *= 0.8;
-      if (Math.abs(scrollAccumulator.current) < 1) {
-        scrollAccumulator.current = 0;
+    } else if (e.deltaY < 0 && atTop && slideIndex > 0) {
+      e.preventDefault();
+      if (now - lastNavTime.current >= navCooldownMs) {
+        lastNavTime.current = now;
+        handleSlideChange(slideIndex - 1);
       }
-    }, 20); // Even more responsive debouncing
-    
-    lastScrollTime.current = now;
-  }, [slideIndex, totalSlides, handleSlideChange, isTransitioning, canScrollToNext, canScrollToPrev]);
+    }
+    // Otherwise allow native scrolling
+  }, [isTransitioning, slideIndex, totalSlides, handleSlideChange]);
 
   const handleKeyDown = useCallback((e) => {
     if (isTransitioning) return;
-    
-    let newIndex = slideIndex;
-    
+    const element = currentSlideRef.current;
+    const atTop = element ? element.scrollTop <= scrollThreshold : true;
+    const atBottom = element ? element.scrollTop >= (element.scrollHeight - element.clientHeight - scrollThreshold) : true;
+
     if (e.key === "ArrowDown" || e.key === "PageDown") {
-      if (canScrollToNext) {
-        // Try to scroll within current slide first with smooth easing
-        if (currentSlideRef.current) {
-          currentSlideRef.current.scrollBy({
-            top: 80,
-            behavior: 'smooth'
-          });
-          return;
-        }
-      } else if (slideIndex < totalSlides - 1) {
-        newIndex = slideIndex + 1;
-      } else {
+      if (!atBottom && element) {
+        element.scrollBy({ top: 100, behavior: 'smooth' });
         return;
+      }
+      if (slideIndex < totalSlides - 1) {
+        handleSlideChange(slideIndex + 1);
       }
     } else if (e.key === "ArrowUp" || e.key === "PageUp") {
-      if (canScrollToPrev) {
-        // Try to scroll within current slide first with smooth easing
-        if (currentSlideRef.current) {
-          currentSlideRef.current.scrollBy({
-            top: -80,
-            behavior: 'smooth'
-          });
-          return;
-        }
-      } else if (slideIndex > 0) {
-        newIndex = slideIndex - 1;
-      } else {
+      if (!atTop && element) {
+        element.scrollBy({ top: -100, behavior: 'smooth' });
         return;
       }
+      if (slideIndex > 0) {
+        handleSlideChange(slideIndex - 1);
+      }
     } else if (e.key === "Home") {
-      newIndex = 0;
+      handleSlideChange(0);
     } else if (e.key === "End") {
-      newIndex = totalSlides - 1;
+      handleSlideChange(totalSlides - 1);
     }
-    
-    if (newIndex !== slideIndex) {
-      handleSlideChange(newIndex);
-    }
-  }, [slideIndex, totalSlides, handleSlideChange, isTransitioning, canScrollToNext, canScrollToPrev]);
+  }, [isTransitioning, slideIndex, totalSlides, handleSlideChange]);
 
-  // Add event listeners
-  useEffect(() => {
-    const handleWheelEvent = (e) => handleWheel(e);
-    const handleKeyDownEvent = (e) => handleKeyDown(e);
-    const handleTouchStartEvent = (e) => handleTouchStart(e);
-    const handleTouchMoveEvent = (e) => handleTouchMove(e);
-    const handleTouchEndEvent = (e) => handleTouchEnd(e);
-    
-    document.addEventListener("wheel", handleWheelEvent, { passive: false });
-    document.addEventListener("keydown", handleKeyDownEvent);
-    document.addEventListener("touchstart", handleTouchStartEvent, { passive: false });
-    document.addEventListener("touchmove", handleTouchMoveEvent, { passive: false });
-    document.addEventListener("touchend", handleTouchEndEvent, { passive: false });
-    
-    return () => {
-      // Clear any pending timers for ultra smooth cleanup
-      if (smoothScrollTimer.current) {
-        clearTimeout(smoothScrollTimer.current);
-      }
-      if (momentumTimer.current) {
-        clearTimeout(momentumTimer.current);
-      }
-      
-      document.removeEventListener("wheel", handleWheelEvent);
-      document.removeEventListener("keydown", handleKeyDownEvent);
-      document.removeEventListener("touchstart", handleTouchStartEvent);
-      document.removeEventListener("touchmove", handleTouchMoveEvent);
-      document.removeEventListener("touchend", handleTouchEndEvent);
-    };
-  }, [handleWheel, handleKeyDown, handleTouchStart, handleTouchMove, handleTouchEnd]);
+  // No global listeners; handlers are attached to elements
 
   // Update slide index when currentSlide prop changes
   useEffect(() => {
@@ -386,7 +220,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const isSeamless = isSeamlessUp || isSeamlessDown;
 
   return (
-    <div className="slide-container relative w-full h-screen overflow-hidden">
+    <div className="slide-container relative w-full h-screen overflow-hidden" tabIndex={0} onKeyDown={handleKeyDown}>
       {isSeamless ? (
         <>
           <div className={`absolute inset-0 w-full h-full ${
@@ -415,6 +249,10 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
               setCanScrollToNext(canScrollDown);
             }
           }}
+          onWheel={handleWheel}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {currentChild || (
             <div className="w-full h-full bg-yellow-500 flex items-center justify-center text-black text-2xl">

@@ -1,7 +1,8 @@
 .slide-container {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: y mandatory;
+  /* Disable forced snap to avoid jank; allow natural scrolling */
+  scroll-snap-type: none;
   overscroll-behavior: none;
   /* Enhanced hardware acceleration for buttery smoothness */
   will-change: transform;
@@ -54,7 +55,8 @@
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  scroll-snap-type: y proximity;
+  /* Avoid snapping inside content to keep native feel */
+  scroll-snap-type: none;
 }
 
 /* Buttery smooth scroll enhancements */
@@ -301,7 +303,7 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: none;
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: none;
   }
   
   .custom-scroll {
