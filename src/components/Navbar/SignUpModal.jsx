@@ -127,17 +127,18 @@ const SignUpModal = ({ isOpen, onClose }) => {
                     name="contactNumber"
                     placeholder="Contact Number"
                     className="signup-input"
-                    pattern="^\\+91[0-9]{10}$"
+                    pattern="^\+91[0-9]{10}$"
                     maxLength="13"
                     onFocus={(e) => {
                       if (e.target.value === "") {
-                        e.target.value = "+91 ";
+                        const newValue = "+91";
+                        e.target.value = newValue;
                         setFormData((prev) => ({
                           ...prev,
-                          contactNumber: "+91 ",
+                          contactNumber: newValue,
                         }));
                       }
-                      setTimeout(() => e.setSelectionRange(3, 3), 0);
+                      setTimeout(() => e.target.setSelectionRange(3, 3), 0);
                     }}
                     onKeyDown={(e) => {
                       const cursorPos = e.target.selectionStart;
@@ -151,19 +152,29 @@ const SignUpModal = ({ isOpen, onClose }) => {
                     onInput={(e) => {
                       let value = e.target.value;
 
+                      // Remove any non-digit characters except +
+                      value = value.replace(/[^0-9+]/g, "");
+
+                      // Ensure it starts with +91
                       if (value.length < 3) {
                         value = "+91";
-                      } else {
-                        value = value.replace(/[^0-9+]/g, "");
-                        if (!value.startsWith("+91")) {
-                          value =
-                            "+91" +
-                            value.replace(/^\\+91/, "").replace(/\\+/g, "");
-                        }
+                      } else if (!value.startsWith("+91")) {
+                        // Remove any existing +91 and add it at the beginning
+                        value = "+91" + value.replace(/^\+91/, "").replace(/\+/g, "");
                       }
 
-                      if (value.length > 13) value = value.slice(0, 13);
+                      // Limit to 13 characters (+91 + 10 digits)
+                      if (value.length > 13) {
+                        value = value.slice(0, 13);
+                      }
+
                       e.target.value = value;
+                      
+                      // Update form data
+                      setFormData((prev) => ({
+                        ...prev,
+                        contactNumber: value,
+                      }));
                     }}
                     value={formData.contactNumber}
                     onChange={handleInputChange}
