@@ -6,21 +6,10 @@ import { motion } from "framer-motion";
 
 function Coin({ texture, position, animate, target }) {
   const ref = useRef();
-  const materialRef = useRef();
-  // animate opacity separately
-  const [opacity, setOpacity] = useState(0);
+  
   useFrame(() => {
     if (animate && ref.current) {
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.003); // Reduced to 0.003 for buttery smooth movement
-
-       // 🔹 Fade in opacity (approaches 1 slowly)
-      if (materialRef.current) {
-        materialRef.current.opacity = THREE.MathUtils.lerp(
-          materialRef.current.opacity,
-          1,
-          0.003 // Reduced to 0.003 for buttery smooth opacity transition
-        );
-      }
+      ref.current.position.lerp(new THREE.Vector3(...target), 0.001); // Further reduced for slower, subtler movement
     }
     
   });
@@ -38,10 +27,9 @@ function Coin({ texture, position, animate, target }) {
       <planeGeometry args={[2, 2]} />
 
         <meshBasicMaterial
-        ref={materialRef}
         map={texture}
         transparent
-        opacity={1} // start invisible
+        opacity={1}
       />
     </mesh>
   );
@@ -106,7 +94,7 @@ const BInstantSection = () => {
         className="absolute inset-0 pointer-events-none z-0"
         style={{
           background:
-            "radial-gradient(41.99% 33.2% at 50% 50%, #092646 28.37%, rgba(9, 38, 70, 0) 100%)",
+            "radial-gradient(41.99% 33.2% at 50% 50%, #092646 0%, rgba(9, 38, 70, 0) 100%)",
         }}
       />
 
@@ -127,7 +115,7 @@ const BInstantSection = () => {
         initial={{ y: 0 }}
         animate={{ y: showCoins ? -100 : 0 }}
         transition={{ 
-          duration: 0.5, 
+          duration: 9.5, 
           ease: [0.25, 0.1, 0.25, 1],
           delay: 0.8 // Start moving after 800ms
         }}
