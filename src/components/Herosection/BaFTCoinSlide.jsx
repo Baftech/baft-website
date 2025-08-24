@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GridBackground } from "../Themes/Grid_coins";
@@ -11,7 +11,7 @@ const BaFTCoin = () => {
   const animationRef = useRef(null);
   const hasAnimatedRef = useRef(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Kill any existing animations first
     if (animationRef.current) {
       gsap.killTweensOf(coinRef.current);
@@ -54,19 +54,35 @@ const BaFTCoin = () => {
       });
 
       // Sequence the animations properly
-      tl.from(".intro-text", {
-        opacity: 0,
-        y: 40,
-        duration: 2.5,
-        ease: "power3.out",
-      })
-      .from(".coin-text", {
-        opacity: 0,
-        scale: 0.8,
-        y: 30,
-        duration: 3.2,
-        ease: "power2.out",
-      }, "-=0.8") // Start slightly before previous animation ends
+      tl.fromTo(
+        ".intro-text",
+        {
+          opacity: 0,
+          y: 40,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 2.5,
+          ease: "power3.out",
+        }
+      )
+      .fromTo(
+        ".coin-text",
+        {
+          opacity: 0,
+          scale: 0.8,
+          y: 30,
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 3.2,
+          ease: "power2.out",
+        },
+        "-=0.8"
+      ) // Start slightly before previous animation ends
       .fromTo(coinRef.current, 
         {
           opacity: 0,
@@ -141,12 +157,12 @@ const BaFTCoin = () => {
       {/* Overlay Text */}
       <div className="z-10">
         <h2
-          className="intro-text text-white eb-garamond-intro text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[64px] font-normal mb-4"
+          className="intro-text text-white eb-garamond-intro text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[64px] font-normal mb-4 opacity-0"
         >
           Introducing
         </h2>
         <h1
-          className="coin-text text-4xl sm:text-5xl md:text-6xl lg:text-9xl xl:text-9xl 2xl:text-[160px]"
+          className="coin-text text-4xl sm:text-5xl md:text-6xl lg:text-9xl xl:text-9xl 2xl:text-[160px] opacity-0"
         >
           BaFT Coin
         </h1>
