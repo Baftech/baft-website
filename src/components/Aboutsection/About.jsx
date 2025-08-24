@@ -103,7 +103,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
   );
 };
 
-const InteractiveTeamImage = () => {
+const InteractiveTeamImage = ({ disabled = false }) => {
   const [hoveredMember, setHoveredMember] = useState(null);
   const [isUserInteracting, setIsUserInteracting] = useState(false);
   const [autoHighlight, setAutoHighlight] = useState("full");
@@ -172,9 +172,9 @@ const InteractiveTeamImage = () => {
     });
   }, [teamMembers]);
 
-  // Auto-cycling effect
+  // Auto-cycling effect (paused when disabled)
   React.useEffect(() => {
-    if (!isUserInteracting) {
+    if (!isUserInteracting && !disabled) {
       const interval = setInterval(() => {
         setAutoHighlight((current) => {
           const currentIndex = cycleSequence.findIndex((id) => id === current);
@@ -182,28 +182,45 @@ const InteractiveTeamImage = () => {
           return cycleSequence[nextIndex];
         });
       }, 2500);
-
       return () => clearInterval(interval);
+    } else {
+      // Ensure stable state when disabled or interacting
+      setAutoHighlight('full');
     }
-  }, [isUserInteracting, cycleSequence]);
+  }, [isUserInteracting, disabled, cycleSequence]);
 
-  // Image transition effect
+  // Image transition effect (force full when disabled)
   React.useEffect(() => {
+    if (disabled) {
+      setActiveImageId('full');
+      return;
+    }
     const activeMember = isUserInteracting ? hoveredMember : autoHighlight;
     setActiveImageId(activeMember || "full");
-  }, [autoHighlight, hoveredMember, isUserInteracting]);
+  }, [autoHighlight, hoveredMember, isUserInteracting, disabled]);
+
+  // Reset interaction state when disabled toggles on
+  React.useEffect(() => {
+    if (disabled) {
+      setHoveredMember(null);
+      setIsUserInteracting(false);
+    }
+  }, [disabled]);
 
   const handleMouseEnterImage = () => {
+    if (disabled) return;
     setIsUserInteracting(true);
   };
 
   const handleMouseLeaveImage = () => {
+    if (disabled) return;
     setHoveredMember(null);
     setIsUserInteracting(false);
     setAutoHighlight("full");
   };
 
   const handleMouseEnterMember = (memberId) => {
+    if (disabled) return;
     setHoveredMember(memberId);
   };
 
@@ -288,10 +305,11 @@ const InteractiveTeamImage = () => {
       <div
         className="relative w-full h-full overflow-hidden bg-gray-100"
         style={{
-          borderRadius: '24px'
+          borderRadius: '24px',
+          pointerEvents: disabled ? 'none' : 'auto'
         }}
-        onMouseEnter={handleMouseEnterImage}
-        onMouseLeave={handleMouseLeaveImage}
+        onMouseEnter={disabled ? undefined : handleMouseEnterImage}
+        onMouseLeave={disabled ? undefined : handleMouseLeaveImage}
       >
         {/* Base Image - Full Team */}
         <img
@@ -373,7 +391,7 @@ const InteractiveTeamImage = () => {
         })}
 
         {/* Invisible hover areas */}
-        {teamMembers.map((member) => (
+        {!disabled && teamMembers.map((member) => (
           <div
             key={member.id}
             className="absolute cursor-pointer z-20"
@@ -396,6 +414,12 @@ const AboutBaft = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const isForceAnimatingRef = useRef(false);
+  const originalBodyOverflowRef = useRef('');
+  const originalBodyTouchActionRef = useRef('');
+  const originalHtmlOverscrollRef = useRef('');
+  const [forcedAnimT, setForcedAnimT] = useState(0); // 0..1 during forced expansion
+  const FORCED_DURATION_MS = 5500; // slow expansion
   
   // Ensure stable initial state
   useEffect(() => {
@@ -406,8 +430,10 @@ const AboutBaft = () => {
   
   const sectionRef = useRef(null);
   const textContainerRef = useRef(null);
-  const imageRef = useRef(null);
+  const imageStartRef = useRef(null);
   const triggerRef = useRef(null);
+  const [startRect, setStartRect] = useState(null);
+  const hasDispatchedPinnedEndRef = useRef(false);
 
   // Check if screen is desktop size
   useEffect(() => {
@@ -430,7 +456,7 @@ const AboutBaft = () => {
     let rafId = null;
 
     const handleScroll = () => {
-      if (!triggerRef.current || rafId) return;
+      if (!triggerRef.current || rafId || isForceAnimatingRef.current) return;
 
       rafId = requestAnimationFrame(() => {
         try {
@@ -444,19 +470,38 @@ const AboutBaft = () => {
             const scrolledIntoTrigger = Math.abs(triggerRect.top);
             const totalScrollDistance = Math.max(triggerHeight - windowHeight, 1); // Prevent division by zero
             const progress = Math.max(0, Math.min(scrolledIntoTrigger / totalScrollDistance, 1));
-            
-            // Add threshold to prevent micro-movements
-            if (progress < 0.1) {
-              setScrollProgress(0);
-            } else {
-              setScrollProgress(progress);
+
+            setScrollProgress(progress);
+
+            // Keep navigation fully paused for the entire pinned zone to avoid handoff jank
+            if (typeof window !== 'undefined') {
+              window.__aboutPinnedActive = true;
             }
+
+            // Reset end-dispatch flag while in pinned zone
+            hasDispatchedPinnedEndRef.current = false;
           } else if (triggerRect.top > 0) {
             // Before the trigger
             setScrollProgress(0);
+            if (typeof window !== 'undefined') {
+              window.__aboutPinnedActive = false;
+            }
+            hasDispatchedPinnedEndRef.current = false;
           } else {
             // After the trigger
             setScrollProgress(1);
+            if (typeof window !== 'undefined') {
+              window.__aboutPinnedActive = false;
+            }
+
+            // Fire a one-time event to request advancing to the next slide (pre-footer)
+            if (!hasDispatchedPinnedEndRef.current && typeof window !== 'undefined') {
+              try {
+                const evt = new CustomEvent('aboutPinnedEnded');
+                window.dispatchEvent(evt);
+              } catch {}
+              hasDispatchedPinnedEndRef.current = true;
+            }
           }
         } catch (error) {
           console.warn('Scroll calculation error:', error);
@@ -475,12 +520,272 @@ const AboutBaft = () => {
       if (rafId) {
         cancelAnimationFrame(rafId);
       }
+      if (typeof window !== 'undefined') {
+        window.__aboutPinnedActive = false;
+      }
     };
   }, [isDesktop]);
 
+  // Single scroll-down forced expansion using video component's lock pattern
+  useEffect(() => {
+    if (!sectionRef.current || !isDesktop) return;
+
+    const addOpts = { passive: false, capture: true };
+    const minSwipeDistance = 40;
+    let touchStartY = null;
+
+    const handleWheel = (e) => {
+      if (isForceAnimatingRef.current) return;
+      if (!triggerRef.current) return;
+
+      const rect = triggerRef.current.getBoundingClientRect();
+      const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+      const inPinned = rect.top <= 0 && rect.bottom > windowHeight;
+      if (!inPinned) return;
+
+      // Only trigger on scroll down (positive deltaY) as user moves to bottom section
+      if (typeof e.deltaY !== 'number' || e.deltaY <= 0) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      isForceAnimatingRef.current = true;
+
+      // Global handoff flag so other containers ignore wheel
+      try { if (typeof window !== 'undefined') { window.__videoHandoffActive = true; } } catch {}
+
+      // Strictly lock global scroll/input during animation
+      const prevent = (evt) => { try { evt.preventDefault(); evt.stopPropagation(); } catch {}; return false; };
+      try {
+        originalBodyOverflowRef.current = document.body.style.overflow;
+        originalBodyTouchActionRef.current = document.body.style.touchAction;
+        originalHtmlOverscrollRef.current = document.documentElement.style.overscrollBehavior;
+        document.body.style.overflow = 'hidden';
+        document.body.style.touchAction = 'none';
+        document.documentElement.style.overscrollBehavior = 'none';
+      } catch {}
+
+      document.addEventListener('wheel', prevent, addOpts);
+      document.addEventListener('touchmove', prevent, addOpts);
+      document.addEventListener('touchstart', prevent, addOpts);
+      document.addEventListener('touchend', prevent, addOpts);
+      document.addEventListener('scroll', prevent, addOpts);
+      document.addEventListener('keydown', prevent, addOpts);
+      try {
+        if (typeof window !== 'undefined') {
+          window.addEventListener('wheel', prevent, addOpts);
+          window.addEventListener('touchmove', prevent, addOpts);
+          window.addEventListener('touchstart', prevent, addOpts);
+          window.addEventListener('touchend', prevent, addOpts);
+          window.addEventListener('scroll', prevent, addOpts);
+        }
+      } catch {}
+
+      // Animate progress to 1 over duration
+      const durationMs = FORCED_DURATION_MS; // slow expansion
+      const startTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
+      const startProgress = Math.max(0, Math.min(scrollProgress, 1));
+
+      const step = (nowTs) => {
+        const now = nowTs || (typeof performance !== 'undefined' ? performance.now() : Date.now());
+        const t = Math.max(0, Math.min((now - startTime) / durationMs, 1));
+        const eased = 1 - Math.pow(1 - t, 4);
+        const next = startProgress + (1 - startProgress) * eased;
+        setScrollProgress(next);
+        setForcedAnimT(t);
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          // Release locks and handoff
+          try { if (typeof window !== 'undefined') { window.__videoHandoffActive = false; } } catch {}
+          try { if (typeof window !== 'undefined') { window.__aboutPinnedActive = false; } } catch {}
+          document.removeEventListener('wheel', prevent, addOpts);
+          document.removeEventListener('touchmove', prevent, addOpts);
+          document.removeEventListener('touchstart', prevent, addOpts);
+          document.removeEventListener('touchend', prevent, addOpts);
+          document.removeEventListener('scroll', prevent, addOpts);
+          document.removeEventListener('keydown', prevent, addOpts);
+          try {
+            if (typeof window !== 'undefined') {
+              window.removeEventListener('wheel', prevent, addOpts);
+              window.removeEventListener('touchmove', prevent, addOpts);
+              window.removeEventListener('touchstart', prevent, addOpts);
+              window.removeEventListener('touchend', prevent, addOpts);
+              window.removeEventListener('scroll', prevent, addOpts);
+            }
+          } catch {}
+          try {
+            document.body.style.overflow = originalBodyOverflowRef.current || '';
+            document.body.style.touchAction = originalBodyTouchActionRef.current || '';
+            document.documentElement.style.overscrollBehavior = originalHtmlOverscrollRef.current || '';
+          } catch {}
+
+          // Proactively dispatch end event to advance
+          try {
+            if (typeof window !== 'undefined') {
+              setScrollProgress(1);
+              const evt = new CustomEvent('aboutPinnedEnded');
+              window.dispatchEvent(evt);
+            }
+          } catch {}
+
+          // Avoid duplicate dispatch from scroll handler
+          try { hasDispatchedPinnedEndRef.current = true; } catch {}
+
+          isForceAnimatingRef.current = false;
+          setForcedAnimT(0);
+        }
+      };
+
+      requestAnimationFrame(step);
+    };
+
+    const el = sectionRef.current;
+    el.addEventListener('wheel', handleWheel, addOpts);
+    const handleTouchStart = (e) => {
+      if (!triggerRef.current) return;
+      const rect = triggerRef.current.getBoundingClientRect();
+      const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+      const inPinned = rect.top <= 0 && rect.bottom > windowHeight;
+      if (!inPinned) return;
+      try { touchStartY = e.touches && e.touches[0] ? e.touches[0].clientY : null; } catch { touchStartY = null; }
+    };
+    const handleTouchEnd = (e) => {
+      if (isForceAnimatingRef.current) return;
+      if (!triggerRef.current) return;
+      const rect = triggerRef.current.getBoundingClientRect();
+      const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+      const inPinned = rect.top <= 0 && rect.bottom > windowHeight;
+      if (!inPinned) return;
+      if (touchStartY == null) return;
+      const endY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
+      const distance = touchStartY - endY; // swipe up -> positive distance
+      if (distance < minSwipeDistance) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Trigger the same forced animation as wheel down
+      isForceAnimatingRef.current = true;
+      try { if (typeof window !== 'undefined') { window.__videoHandoffActive = true; } } catch {}
+      const prevent = (evt) => { try { evt.preventDefault(); evt.stopPropagation(); } catch {}; return false; };
+      try {
+        originalBodyOverflowRef.current = document.body.style.overflow;
+        originalBodyTouchActionRef.current = document.body.style.touchAction;
+        originalHtmlOverscrollRef.current = document.documentElement.style.overscrollBehavior;
+        document.body.style.overflow = 'hidden';
+        document.body.style.touchAction = 'none';
+        document.documentElement.style.overscrollBehavior = 'none';
+      } catch {}
+      document.addEventListener('wheel', prevent, addOpts);
+      document.addEventListener('touchmove', prevent, addOpts);
+      document.addEventListener('touchstart', prevent, addOpts);
+      document.addEventListener('touchend', prevent, addOpts);
+      document.addEventListener('scroll', prevent, addOpts);
+      document.addEventListener('keydown', prevent, addOpts);
+      try {
+        if (typeof window !== 'undefined') {
+          window.addEventListener('wheel', prevent, addOpts);
+          window.addEventListener('touchmove', prevent, addOpts);
+          window.addEventListener('touchstart', prevent, addOpts);
+          window.addEventListener('touchend', prevent, addOpts);
+          window.addEventListener('scroll', prevent, addOpts);
+        }
+      } catch {}
+
+      const durationMs = FORCED_DURATION_MS;
+      const startTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
+      const startProgress = Math.max(0, Math.min(scrollProgress, 1));
+      const step = (nowTs) => {
+        const now = nowTs || (typeof performance !== 'undefined' ? performance.now() : Date.now());
+        const t = Math.max(0, Math.min((now - startTime) / durationMs, 1));
+        const eased = 1 - Math.pow(1 - t, 4);
+        const next = startProgress + (1 - startProgress) * eased;
+        setScrollProgress(next);
+        setForcedAnimT(t);
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          try { if (typeof window !== 'undefined') { window.__videoHandoffActive = false; } } catch {}
+          try { if (typeof window !== 'undefined') { window.__aboutPinnedActive = false; } } catch {}
+          document.removeEventListener('wheel', prevent, addOpts);
+          document.removeEventListener('touchmove', prevent, addOpts);
+          document.removeEventListener('touchstart', prevent, addOpts);
+          document.removeEventListener('touchend', prevent, addOpts);
+          document.removeEventListener('scroll', prevent, addOpts);
+          document.removeEventListener('keydown', prevent, addOpts);
+          try {
+            if (typeof window !== 'undefined') {
+              window.removeEventListener('wheel', prevent, addOpts);
+              window.removeEventListener('touchmove', prevent, addOpts);
+              window.removeEventListener('touchstart', prevent, addOpts);
+              window.removeEventListener('touchend', prevent, addOpts);
+              window.removeEventListener('scroll', prevent, addOpts);
+            }
+          } catch {}
+          try {
+            document.body.style.overflow = originalBodyOverflowRef.current || '';
+            document.body.style.touchAction = originalBodyTouchActionRef.current || '';
+            document.documentElement.style.overscrollBehavior = originalHtmlOverscrollRef.current || '';
+          } catch {}
+          try {
+            if (typeof window !== 'undefined') {
+              setScrollProgress(1);
+              const evt = new CustomEvent('aboutPinnedEnded');
+              window.dispatchEvent(evt);
+            }
+          } catch {}
+          try { hasDispatchedPinnedEndRef.current = true; } catch {}
+          isForceAnimatingRef.current = false;
+          setForcedAnimT(0);
+        }
+      };
+      requestAnimationFrame(step);
+    };
+    el.addEventListener('touchstart', handleTouchStart, addOpts);
+    el.addEventListener('touchend', handleTouchEnd, addOpts);
+
+    return () => {
+      el.removeEventListener('wheel', handleWheel, addOpts);
+      el.removeEventListener('touchstart', handleTouchStart, addOpts);
+      el.removeEventListener('touchend', handleTouchEnd, addOpts);
+    };
+  }, [isDesktop, scrollProgress]);
+
+  // Measure starting position/size of the right image placeholder (desktop)
+  useEffect(() => {
+    if (!isDesktop) {
+      setStartRect(null);
+      return;
+    }
+    const measure = () => {
+      if (imageStartRef.current) {
+        const rect = imageStartRef.current.getBoundingClientRect();
+        setStartRect({
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        });
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [isDesktop]);
+
   // Animation values - only for image expansion, not text movement
-  const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
-  const easedProgress = easeOutQuart(scrollProgress);
+  const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easedProgress = easeInOutCubic(scrollProgress);
+  const textShiftX = -300 * easedProgress; // move left as it expands
+  const textShiftY = 0; // no vertical movement
+  const textOpacity = 1 - easedProgress;   // fade out as it expands
+  // Overlay and zoom-out timing based on forced animation time
+  const overlayStartT = 200 / (FORCED_DURATION_MS || 1);
+  const overlayProgress = Math.max(0, Math.min(1, (forcedAnimT - overlayStartT) / Math.max(0.0001, 1 - overlayStartT)));
+  const overlayOpacity = Math.min(1, overlayProgress * 1); // up to 100% black to mask handoff
+  const zoomScale = 1 + 0.10 * overlayProgress; // zoom in up to 110%
+  const disperseOpacity = 1 - 0.2 * overlayProgress; // slight fade of image content under overlay
 
   return (
     <>
@@ -498,79 +803,100 @@ const AboutBaft = () => {
               overflow: 'hidden'
             }}
           >
-            {easedProgress < 0.3 ? (
-              // Initial state with text and image side by side
-              <div className="w-full max-w-6xl mx-auto px-12 grid grid-cols-2 gap-20 items-center">
-                <div
-                  ref={textContainerRef}
-                  className="flex flex-col justify-center"
+            {/* Static grid: text left, measuring placeholder right */}
+            <div className="w-full max-w-6xl mx-auto px-12 grid grid-cols-2 gap-20 items-center">
+              <div
+                ref={textContainerRef}
+                className="flex flex-col justify-center"
+                style={{
+                  transform: `translateX(${textShiftX}px)`,
+                  opacity: textOpacity,
+                  transition: 'none',
+                  pointerEvents: textOpacity < 0.05 ? 'none' : 'auto',
+                }}
+              >
+                <p
+                  className="font-normal mb-2 flex items-center gap-2 text-xl"
                   style={{
-                    // Completely static text - no scroll-based animations
-                    transform: 'translateX(0px)',
-                    opacity: 1,
-                    transition: 'none',
+                    fontFamily: "Inter, sans-serif",
+                    color: "#092646",
                   }}
                 >
-                  <p
-                    className="font-normal mb-2 flex items-center gap-2 text-xl"
-                    style={{
-                      fontFamily: "Inter, sans-serif",
-                      color: "#092646",
-                    }}
-                  >
-                    <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
-                    Know our story
-                  </p>
-                  <h1
-                    className="leading-tight mb-8 font-bold text-6xl text-[#1966BB]"
-                    style={{
-                      fontFamily: "EB Garamond, serif",
-                    }}
-                  >
-                    <span className="block">About BaFT</span>
-                  </h1>
+                  <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
+                  Know our story
+                </p>
+                <h1
+                  className="leading-tight mb-8 font-bold text-6xl text-[#1966BB]"
+                  style={{
+                    fontFamily: "EB Garamond, serif",
+                  }}
+                >
+                  <span className="block">About BaFT</span>
+                </h1>
 
-                  <ReadMoreText
-                    content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
+                <ReadMoreText
+                  content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
 
 Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BAFT Technology was born.
 
 At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
-                    onExpandChange={setIsExpanded}
-                  />
-                </div>
+                  onExpandChange={setIsExpanded}
+                />
+              </div>
 
-                <div className="flex justify-end">
-                  <div style={{ width: '553px', height: '782px' }}>
-                    <InteractiveTeamImage />
+              <div className="flex justify-end">
+                <div
+                  ref={imageStartRef}
+                  style={{ width: '553px', height: '782px', borderRadius: '24px', overflow: 'hidden' }}
+                >
+                  <div className="w-full h-full" style={{ opacity: 1 - easedProgress, transition: 'opacity 120ms linear' }}>
+                    <InteractiveTeamImage disabled={easedProgress > 0.02} />
                   </div>
                 </div>
               </div>
-            ) : (
-              // Expanded state - large centered image like reference
-              <div 
-                className="flex items-center justify-center w-full h-full"
-                ref={imageRef}
-                style={{
-                  padding: '60px',
-                }}
-              >
-                <div
-                  style={{
-                    width: `${553 + (easedProgress * (750))}px`, // Expands to ~1300px
-                    height: `${782 + (easedProgress * (500))}px`, // Expands to ~1282px  
-                    maxWidth: '80vw',
-                    maxHeight: '80vh',
-                    borderRadius: '32px',
-                    overflow: 'hidden',
-                    boxShadow: '0 40px 120px rgba(0,0,0,0.25)',
-                    transition: 'all 0.1s ease-out',
-                  }}
-                >
-                  <InteractiveTeamImage />
-                </div>
-              </div>
-            )}
+            </div>
+
+            {/* Floating overlay image that enlarges from right to full screen */}
+            <div className="fixed inset-0 pointer-events-none">
+              {startRect && (() => {
+                const vw = typeof window !== 'undefined' ? window.innerWidth : 0;
+                const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
+                const targetW = vw; // fill screen width
+                const targetH = vh; // fill screen height
+                const currentW = startRect.width + (targetW - startRect.width) * easedProgress;
+                const currentH = startRect.height + (targetH - startRect.height) * easedProgress;
+                const targetLeft = 0;
+                const targetTop = 0;
+                const currentLeft = startRect.left + (targetLeft - startRect.left) * easedProgress;
+                const currentTop = startRect.top + (targetTop - startRect.top) * easedProgress;
+                const currentRadius = Math.max(0, 24 * (1 - easedProgress));
+                const boxShadowOpacity = 0.25 * (1 - easedProgress);
+
+                return (
+                  <div
+                    className="absolute"
+                    style={{
+                      left: `${currentLeft}px`,
+                      top: `${currentTop}px`,
+                      width: `${currentW}px`,
+                      height: `${currentH}px`,
+                      borderRadius: `${currentRadius}px`,
+                      overflow: 'hidden',
+                      boxShadow: `0 40px 120px rgba(0,0,0,${boxShadowOpacity})`,
+                      pointerEvents: 'none',
+                      transform: `scale(${zoomScale})`,
+                      transformOrigin: 'center center',
+                      transition: 'transform 120ms linear',
+                    }}
+                  >
+                    <div className="relative w-full h-full" style={{ opacity: disperseOpacity }}>
+                      <InteractiveTeamImage disabled={true} />
+                    </div>
+                    <div style={{ position: 'absolute', inset: 0, background: '#000', opacity: overlayOpacity, pointerEvents: 'none' }} />
+                  </div>
+                );
+              })()}
+            </div>
 
             
           </section>

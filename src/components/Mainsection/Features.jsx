@@ -22,7 +22,7 @@ const Cards = () => {
     {
       icon: FaUser,
       image: "/baft_card2.svg",
-      title: "Manage Account",
+      title: "Manage Accounts",
       description: "Control your finances with management tools and insights.",
     },
     {

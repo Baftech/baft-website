@@ -10,8 +10,13 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [canScrollToNext, setCanScrollToNext] = useState(true);
   const [canScrollToPrev, setCanScrollToPrev] = useState(true);
   const totalSlides = React.Children.count(children);
+  const handoffFromAboutRef = useRef(false);
+  const [showAboutCrossfade, setShowAboutCrossfade] = useState(false);
+  const [aboutCrossfadeFadeOut, setAboutCrossfadeFadeOut] = useState(false);
+  const [aboutCrossfadeOpaque, setAboutCrossfadeOpaque] = useState(false);
   const lastNavTime = useRef(0);
   const navCooldownMs = 300;
+  const momentumGuardUntilRef = useRef(0);
   
   // Touch gesture handling
   const touchStartY = useRef(0);
@@ -91,6 +96,9 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       // Match CSS durations: seamless 1.3s, banner overlay 1.6s
       const transitionDurationMs = isSeamlessTransition ? 1300 : 1600;
 
+      // Set a momentum guard immediately so inertial scroll doesn't affect target slide
+      momentumGuardUntilRef.current = Date.now() + transitionDurationMs + 450;
+
       setSlideIndex(newIndex);
       onSlideChange?.(newIndex);
 
@@ -108,24 +116,36 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         if (currentSlideRef.current) {
           currentSlideRef.current.scrollTo({ top: 0, left: 0, behavior: 'auto' });
         }
+        // Extend guard briefly after transition fully ends
+        momentumGuardUntilRef.current = Date.now() + 500;
       }, transitionDurationMs);
     }
   }, [totalSlides, onSlideChange, isTransitioning, slideIndex]);
 
   // Touch gesture handlers (element-level)
   const handleTouchStart = useCallback((e) => {
-    if (isTransitioning) return;
-    if (typeof window !== 'undefined' && window.__videoHandoffActive) return;
+    if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
+      e.preventDefault();
+      return;
+    }
+    if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
     touchStartY.current = e.touches[0].clientY;
   }, [isTransitioning]);
 
-  const handleTouchMove = useCallback(() => {
-    // Allow native scrolling; do not prevent default
-  }, []);
+  const handleTouchMove = useCallback((e) => {
+    if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
+      e.preventDefault();
+      return;
+    }
+    // Allow native scrolling otherwise; do not prevent default
+  }, [isTransitioning]);
 
   const handleTouchEnd = useCallback((e) => {
-    if (isTransitioning) return;
-    if (typeof window !== 'undefined' && window.__videoHandoffActive) return;
+    if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
+      e.preventDefault();
+      return;
+    }
+    if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
     const now = Date.now();
     if (now - lastNavTime.current < navCooldownMs) return;
 
@@ -150,8 +170,12 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   }, [isTransitioning, slideIndex, totalSlides, handleSlideChange]);
 
   const handleWheel = useCallback((e) => {
-    if (isTransitioning) return;
-    if (typeof window !== 'undefined' && window.__videoHandoffActive) return;
+    if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
+      // Prevent momentum scroll from affecting the next slide during transitions
+      e.preventDefault();
+      return;
+    }
+    if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
 
     const element = currentSlideRef.current;
     if (!element) return;
@@ -189,8 +213,50 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     };
   }, [handleWheel]);
 
+  // Listen for About section pinned end to advance to next slide (pre-footer)
+  useEffect(() => {
+    const handleAboutPinnedEnd = () => {
+      if (isTransitioning) return;
+      const nextIndex = Math.min(slideIndex + 1, totalSlides - 1);
+      if (nextIndex !== slideIndex) {
+        handoffFromAboutRef.current = true;
+        // Prepare a black crossfade overlay to cover the handoff
+        setShowAboutCrossfade(true);
+        setAboutCrossfadeOpaque(false); // start transparent
+        setAboutCrossfadeFadeOut(false);
+        // Fade to black quickly
+        setTimeout(() => {
+          setAboutCrossfadeOpaque(true);
+        }, 10);
+        // Once fully black, change slide under cover
+        setTimeout(() => {
+          // Ensure current slide is at top without animation
+          const element = currentSlideRef.current;
+          if (element) {
+            try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
+          }
+          handleSlideChange(nextIndex);
+          // After a short hold, fade the cover out smoothly
+          setTimeout(() => {
+            setAboutCrossfadeFadeOut(true);
+            // Remove overlay after fade completes
+            setTimeout(() => {
+              setShowAboutCrossfade(false);
+              setAboutCrossfadeFadeOut(false);
+              setAboutCrossfadeOpaque(false);
+              handoffFromAboutRef.current = false;
+            }, 720);
+          }, 150);
+        }, 220); // allow ~220ms for fade-in to black
+      }
+    };
+    window.addEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
+    return () => window.removeEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
+  }, [slideIndex, totalSlides, isTransitioning, handleSlideChange]);
+
   const handleKeyDown = useCallback((e) => {
     if (isTransitioning) return;
+    if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
     const element = currentSlideRef.current;
     const atTop = element ? element.scrollTop <= scrollThreshold : true;
     const atBottom = element ? element.scrollTop >= (element.scrollHeight - element.clientHeight - scrollThreshold) : true;
@@ -310,7 +376,18 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
           )}
         </div>
       )}
-      
+      {showAboutCrossfade && (
+        <div 
+          className={`pointer-events-none absolute inset-0 z-40`}
+          style={{ 
+            background: '#000', 
+            opacity: aboutCrossfadeFadeOut ? 0 : (aboutCrossfadeOpaque ? 1 : 0),
+            transition: 'opacity 700ms ease-out', 
+            willChange: 'opacity' 
+          }}
+        />
+      )}
+
       {/* Banner-style transition overlay (disabled for seamless transitions) */}
       {isTransitioning && !isSeamless && (
         <div 

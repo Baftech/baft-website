@@ -148,7 +148,7 @@ const CombinedFooter = () => {
     window.addEventListener("resize", resizeCanvas);
 
     const stars = [];
-    const starCount = Math.floor(canvas.width * canvas.height / 9000); // fewer stars
+    const starCount = Math.floor(canvas.width * canvas.height / 16000); // reduce stars for smoother scroll
 
     for (let i = 0; i < starCount; i++) {
       stars.push({
@@ -161,7 +161,7 @@ const CombinedFooter = () => {
 
     let rotationSpeed = 0.0005; // galaxy swirl
     let lastTime = 0;
-    const targetFPS = 30; // Reduced FPS for better scroll performance
+    const targetFPS = 20; // Further reduced FPS for better scroll performance
     const frameInterval = 1000 / targetFPS;
 
     function draw(currentTime) {
@@ -206,9 +206,10 @@ const CombinedFooter = () => {
     // Intersection Observer for performance optimization
     const observer = new IntersectionObserver(
       ([entry]) => {
-        isVisibleRef.current = entry.isIntersecting;
+        // Only run animation when at least 60% of the footer is visible
+        isVisibleRef.current = entry.isIntersecting && entry.intersectionRatio >= 0.6;
       },
-      { threshold: 0.1 }
+      { threshold: [0, 0.25, 0.5, 0.6, 0.75, 1] }
     );
     
     observer.observe(canvas);
