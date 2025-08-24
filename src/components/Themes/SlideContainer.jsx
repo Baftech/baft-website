@@ -73,14 +73,42 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       const direction = newIndex > slideIndex ? 'up' : 'down';
       setTransitionDirection(direction);
       setIsTransitioning(true);
-      
+
+      // Determine if this change should use seamless transition timing
+      const movingUpSeamless = direction === 'up' && (
+        (slideIndex === 3 && newIndex === 4) ||
+        (slideIndex === 4 && newIndex === 5) ||
+        (slideIndex === 5 && newIndex === 6) ||
+        (slideIndex === 6 && newIndex === 7)
+      );
+      const movingDownSeamless = direction === 'down' && (
+        (slideIndex === 4 && newIndex === 3) ||
+        (slideIndex === 5 && newIndex === 4) ||
+        (slideIndex === 6 && newIndex === 5) ||
+        (slideIndex === 7 && newIndex === 6)
+      );
+      const isSeamlessTransition = movingUpSeamless || movingDownSeamless;
+      // Match CSS durations: seamless 1.3s, banner overlay 1.6s
+      const transitionDurationMs = isSeamlessTransition ? 1300 : 1600;
+
       setSlideIndex(newIndex);
       onSlideChange?.(newIndex);
-      
+
+      // Proactively reset scroll so the next slide always starts at top
+      // Try immediately on next frame and again after transition ends for seamless cases
+      requestAnimationFrame(() => {
+        if (currentSlideRef.current) {
+          currentSlideRef.current.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        }
+      });
+
       setTimeout(() => {
         setIsTransitioning(false);
         setTransitionDirection('none');
-      }, 1200); // Slightly faster for smoother feel
+        if (currentSlideRef.current) {
+          currentSlideRef.current.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        }
+      }, transitionDurationMs);
     }
   }, [totalSlides, onSlideChange, isTransitioning, slideIndex]);
 
@@ -190,6 +218,15 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       }
     }
   }, [currentSlide, slideIndex, totalSlides]);
+
+  // Ensure scroll position is reset whenever the active slide changes
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      if (currentSlideRef.current) {
+        currentSlideRef.current.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+    });
+  }, [slideIndex]);
 
   const childrenArray = React.Children.toArray(children);
   const currentChild = childrenArray[slideIndex];

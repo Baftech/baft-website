@@ -9,6 +9,8 @@ const Cards = () => {
   const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
   const [overlayActive, setOverlayActive] = useState(false);
   const overlayTimerRef = useRef(null);
+  const currentIndexRef = useRef(0);
+  const rotateIntervalRef = useRef(null);
 
   const featuresData = [
     {
@@ -37,82 +39,101 @@ const Cards = () => {
     },
   ];
 
-  useLayoutEffect(() => {
+  // Global vertical offset to move all cards slightly down
+  const CARD_Y_OFFSET = 40; // px
+
+  const setOrAnimate = (card, props, immediate) => {
+    if (immediate) {
+      gsap.set(card, props);
+    } else {
+      gsap.to(card, { ...props, duration: 0.8, ease: "power3.out", overwrite: "auto" });
+    }
+  };
+
+  const updateCardPositions = (activeIndex, immediate = false) => {
     if (!cardsRef.current) return;
 
-    const cardElements = gsap.utils.toArray(cardsRef.current.children);
+    const cardElements = Array.from(cardsRef.current.children);
     const totalCards = featuresData.length;
-    
-    const setOrAnimate = (card, props, immediate) => {
-      if (immediate) {
-        gsap.set(card, props);
-      } else {
-        gsap.to(card, { ...props, duration: 0.8, ease: "power3.out", overwrite: "auto" });
-      }
-    };
-    
-    const updateCardPositions = (activeIndex, immediate = false) => {
-      // Get screen width for responsive positioning
-      const screenWidth = window.innerWidth;
-      const isMobile = screenWidth < 768;
-      const isTablet = screenWidth >= 768 && screenWidth < 1024;
-      
-      cardElements.forEach((card, index) => {
-        if (isMobile) {
-          // Mobile: Stack cards vertically with minimal spacing
-          if (index === activeIndex) {
-            setOrAnimate(card, { x: 0, y: 0, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
-          } else {
-            setOrAnimate(card, { x: 0, y: index < activeIndex ? -20 : 20, z: -20, scale: 0.9, opacity: 0.7, rotateY: 0, zIndex: 5 }, immediate);
-          }
-        } else if (isTablet) {
-          // Tablet: Reduced horizontal spacing
-          if (index === activeIndex) {
-            setOrAnimate(card, { x: 0, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
-          } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-            setOrAnimate(card, { x: -40, z: -40, scale: 0.9, opacity: 0.8, rotateY: 15, zIndex: 9 }, immediate);
-          } else if (index === (activeIndex + 1) % totalCards) {
-            setOrAnimate(card, { x: 40, z: -40, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
-          } else {
-            setOrAnimate(card, { x: index < activeIndex ? -80 : 80, z: -60, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 20 : -20, zIndex: 7 }, immediate);
-          }
+
+    // Get screen width for responsive positioning
+    const screenWidth = window.innerWidth;
+    const isMobile = screenWidth < 768;
+    const isTablet = screenWidth >= 768 && screenWidth < 1024;
+
+    cardElements.forEach((card, index) => {
+      if (isMobile) {
+        // Mobile: Stack cards vertically with minimal spacing
+        if (index === activeIndex) {
+          setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else {
-          // Desktop: Full 3D carousel effect
-          if (index === activeIndex) {
-            setOrAnimate(card, { x: 0, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
-          } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-            setOrAnimate(card, { x: -80, z: -80, scale: 0.85, opacity: 0.8, rotateY: 20, zIndex: 9 }, immediate);
-          } else if (index === (activeIndex + 1) % totalCards) {
-            setOrAnimate(card, { x: 80, z: -80, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
-          } else {
-            setOrAnimate(card, { x: index < activeIndex ? -160 : 160, z: -120, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
-          }
+          setOrAnimate(card, { x: 0, y: index < activeIndex ? CARD_Y_OFFSET - 20 : CARD_Y_OFFSET + 20, z: -20, scale: 0.9, opacity: 0.7, rotateY: 0, zIndex: 5 }, immediate);
         }
-      });
-    };
+      } else if (isTablet) {
+        // Tablet: Reduced horizontal spacing
+        if (index === activeIndex) {
+          setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
+        } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
+          setOrAnimate(card, { x: -40, y: CARD_Y_OFFSET, z: -40, scale: 0.9, opacity: 0.8, rotateY: 15, zIndex: 9 }, immediate);
+        } else if (index === (activeIndex + 1) % totalCards) {
+          setOrAnimate(card, { x: 40, y: CARD_Y_OFFSET, z: -40, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
+        } else {
+          setOrAnimate(card, { x: index < activeIndex ? -80 : 80, y: CARD_Y_OFFSET, z: -60, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 20 : -20, zIndex: 7 }, immediate);
+        }
+      } else {
+        // Desktop: Full 3D carousel effect
+        if (index === activeIndex) {
+          setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
+        } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
+          setOrAnimate(card, { x: -80, y: CARD_Y_OFFSET, z: -80, scale: 0.85, opacity: 0.8, rotateY: 20, zIndex: 9 }, immediate);
+        } else if (index === (activeIndex + 1) % totalCards) {
+          setOrAnimate(card, { x: 80, y: CARD_Y_OFFSET, z: -80, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
+        } else {
+          setOrAnimate(card, { x: index < activeIndex ? -160 : 160, y: CARD_Y_OFFSET, z: -120, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
+        }
+      }
+    });
+  };
+
+  const stopAutoRotate = () => {
+    if (rotateIntervalRef.current) {
+      clearInterval(rotateIntervalRef.current);
+      rotateIntervalRef.current = null;
+    }
+  };
+
+  const startAutoRotate = () => {
+    if (rotateIntervalRef.current) return;
+    rotateIntervalRef.current = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % featuresData.length);
+    }, 3000);
+  };
+
+  useLayoutEffect(() => {
+    if (!cardsRef.current) return;
 
     // Instantly place cards on first paint to avoid initial bounce
     updateCardPositions(0, true);
 
     // Handle window resize for responsive updates
     const handleResize = () => {
-      updateCardPositions(currentIndex, true);
+      updateCardPositions(currentIndexRef.current, true);
     };
 
     window.addEventListener('resize', handleResize);
-
-    let i = 0;
-    const interval = setInterval(() => {
-      i = (i + 1) % totalCards;
-      setCurrentIndex(i);
-      updateCardPositions(i, false);
-    }, 3000);
+    startAutoRotate();
 
     return () => {
-      clearInterval(interval);
+      stopAutoRotate();
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  // Keep positions in sync when index changes (hover/auto-rotate)
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+    updateCardPositions(currentIndex, false);
+  }, [currentIndex]);
 
   // Scroll-in appearance for the whole section
   useEffect(() => {
@@ -214,7 +235,11 @@ const Cards = () => {
               <span className="block">One Place</span>
             </h1>
 
-            <ul className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6 text-sm sm:text-base md:text-lg">
+            <ul
+              className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6 text-sm sm:text-base md:text-lg"
+              onMouseEnter={stopAutoRotate}
+              onMouseLeave={startAutoRotate}
+            >
               {featuresData.map((feature, index) => {
                 const isActive = index === currentIndex;
                 const IconComponent = feature.icon;
@@ -227,6 +252,7 @@ const Cards = () => {
                         ? "bg-blue-50 border-l-4 border-[#1966BB] shadow-sm"
                         : "bg-transparent border-l-4 border-transparent"
                     }`}
+                    onMouseEnter={() => setCurrentIndex(index)}
                   >
                     <IconComponent
                       className={`text-xl sm:text-2xl flex-shrink-0 ${

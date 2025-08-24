@@ -108,11 +108,17 @@
 .banner-transition-up {
   background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.7) 45%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.1) 90%, transparent 100%);
   animation: bannerRevealUp 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .banner-transition-down {
   background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.7) 45%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.1) 90%, transparent 100%);
   animation: bannerRevealDown 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 @keyframes bannerRevealUp {
@@ -275,10 +281,16 @@
 /* Seamless slide-up between slide 4 -> 5 */
 .seamless-up-prev {
   animation: seamlessPrevUp 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .seamless-up-next {
   animation: seamlessNextUp 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 @keyframes seamlessPrevUp {
@@ -294,10 +306,16 @@
 /* Seamless slide-down between slide 5 -> 4 */
 .seamless-down-prev {
   animation: seamlessPrevDown 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .seamless-down-next {
   animation: seamlessNextDown 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Handoff animation: preview expands into full video */
