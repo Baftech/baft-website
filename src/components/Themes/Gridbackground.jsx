@@ -10,7 +10,7 @@ export const GridBackground = () => {
 
     // Increased grid size to match Figma design
     const gridSize = 100; // Was 100, now larger for more spacing
-    const speed = 10; // Slightly slower animation
+    const speed = 7; // Slightly slower animation
 
   let progress = 0 // one shared progress-right light
 
@@ -153,7 +153,7 @@ for (let x = 0; x < W; x += gridSize) {
   const horizontalY = Math.round((gridSize * 1.5) / gridSize) * gridSize
   const x2 = W - (progress % (W + 150))
   const horizontalProgress = x2 / W
-  if (horizontalProgress < 0.25) {
+  if (horizontalProgress < 0.20) {
     drawFadingLine(x2, horizontalY, 1, 0, 8, 200)
   }
 
@@ -169,7 +169,7 @@ for (let x = 0; x < W; x += gridSize) {
   const horizontaLlY = Math.round((gridSize * 1.5) / gridSize) * gridSize
   const x3 = (progress % (W + 150)) + 150
   const horizontalLProgress = x3 / W
-  if (horizontalLProgress > 0.75) {
+  if (horizontalLProgress > 0.80) {
     drawFadingLine(x3, horizontaLlY, -1, 0, 8, 200)
   }
 
