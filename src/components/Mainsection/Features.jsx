@@ -239,6 +239,7 @@ const Cards = () => {
               className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6 text-sm sm:text-base md:text-lg"
               onMouseEnter={stopAutoRotate}
               onMouseLeave={startAutoRotate}
+              style={{ cursor: "default" }}
             >
               {featuresData.map((feature, index) => {
                 const isActive = index === currentIndex;

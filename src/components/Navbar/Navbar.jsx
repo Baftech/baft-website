@@ -57,7 +57,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
                   ?.scrollIntoView({ behavior: "smooth" });
               }
             }}
-            className={`w-20 h-8 lg:w-24 lg:h-10 xl:w-28 xl:h-12 rounded-[200px] nav-btn ${
+            className={`rounded-[200px] nav-btn nav-btn-size ${
               theme === "dark" ? "text-white" : "text-black"
             }`}
           >
@@ -66,7 +66,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
 
           <button
             onClick={() => setIsContactModalOpen(true)}
-            className="w-16 h-8 lg:w-20 lg:h-10 xl:w-24 xl:h-12 rounded-[200px] nav-btn"
+            className="rounded-[200px] nav-btn nav-btn-size"
           >
             Let's Chat
           </button>
@@ -98,7 +98,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
         <div className="fancy hidden lg:block">
           <button
             onClick={() => setIsSignUpModalOpen(true)}
-            className="w-16 h-8 lg:w-20 lg:h-10 xl:w-24 xl:h-12 rounded-[200px]"
+            className="rounded-[200px] nav-btn-size"
           >
             Sign Up
           </button>
