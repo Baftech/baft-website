@@ -9,8 +9,20 @@
     @apply flex items-center justify-center;
 }
 .video-blend {
-  mix-blend-mode: lighten; /* or try 'screen' / 'overlay' */
+  mix-blend-mode: screen; /* Changed from lighten to screen for more subtle effect */
   background-color: black;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Additional video styling to remove any faint borders */
+video.video-blend {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  filter: none;
+  -webkit-filter: none;
 }
 
 .eb-garamond-intro {

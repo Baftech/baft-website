@@ -6,6 +6,7 @@ const Hero = () => {
   const videoRef = useRef(null);
   const wrapperRef = useRef(null);
   const placeholderRef = useRef(null);
+  const animationCompletedRef = useRef(false);
 
   useEffect(() => {
     let rafId;
@@ -30,24 +31,35 @@ const Hero = () => {
       gsap.set("#grid_container", { opacity: 0 });
       gsap.set("#text", { opacity: 0, y: 50, scale: 0.9 });
 
-      const safeWidth = () => (placeholderRef.current ? placeholderRef.current.offsetWidth : 0);
-      const safeHeight = () => (placeholderRef.current ? placeholderRef.current.offsetHeight : 0);
-      const safeTop = () => (placeholderRef.current ? placeholderRef.current.getBoundingClientRect().top : 0);
-      const safeLeft = () => (placeholderRef.current ? placeholderRef.current.getBoundingClientRect().left : 0);
+      // Responsive target based on placeholder metrics
+      const targetWidth = () => (placeholderRef.current ? placeholderRef.current.offsetWidth : 0);
+      const targetHeight = () => (placeholderRef.current ? placeholderRef.current.offsetHeight : 0);
+      const targetTop = () => (placeholderRef.current ? placeholderRef.current.getBoundingClientRect().top : 0);
+      const targetLeft = () => (placeholderRef.current ? placeholderRef.current.getBoundingClientRect().left : 0);
+      const targetBorderRadius = () => {
+        if (!placeholderRef.current) return 0;
+        const cs = window.getComputedStyle(placeholderRef.current);
+        return cs.borderRadius || 0;
+      };
 
       tl.to(wrapperRef.current, { opacity: 1, duration: 1.4, delay: 0.6 })
         .to(
           wrapperRef.current,
           {
-            width: safeWidth,
-            height: safeHeight,
-            borderRadius: "220px",
-            top: safeTop,
-            left: safeLeft,
+            width: targetWidth,
+            height: targetHeight,
+            borderRadius: targetBorderRadius,
+            top: targetTop,
+            left: targetLeft,
             x: 0,
             y: 0,
+            rotate: 0,
+            opacity: 1,
             duration: 1.8,
             ease: "power2.out",
+            onComplete: () => {
+              animationCompletedRef.current = true;
+            },
           },
           "+=9.2"
         )
@@ -70,6 +82,26 @@ const Hero = () => {
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
     };
+  }, []);
+
+  // Keep wrapper aligned to placeholder on viewport resize after animation completes
+  useEffect(() => {
+    const handleResize = () => {
+      if (!animationCompletedRef.current) return;
+      if (!wrapperRef.current || !placeholderRef.current) return;
+      const rect = placeholderRef.current.getBoundingClientRect();
+      const cs = window.getComputedStyle(placeholderRef.current);
+      gsap.set(wrapperRef.current, {
+        width: placeholderRef.current.offsetWidth,
+        height: placeholderRef.current.offsetHeight,
+        top: rect.top,
+        left: rect.left,
+        borderRadius: cs.borderRadius || 0,
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
@@ -116,17 +148,19 @@ const Hero = () => {
       </div>
 
       {/* Placeholder container (final position) */}
-<div className="relative z-10 flex justify-center items-center mt-5 w-full">
+<div className="relative z-10 w-full px-4 mt-6">
   <div
     ref={placeholderRef}
-    className="
-      w-[clamp(280px,80vw,600px)]   /* responsive width: min 280px, max 600px */
-      h-[clamp(150px,42vw,320px)]  /* responsive height: min 150px, max 320px */
-      rounded-[220px]
-      shadow-lg
-      bg-black
-    "
-    style={{ overflow: "hidden" }}
+    className="shadow-lg mx-auto"
+    style={{
+      // Responsive size in normal flow
+      width: "clamp(320px, 80vw, 1088px)",
+      aspectRatio: "1088 / 612",
+      borderRadius: "20.22%", // ≈ 220 / 1088
+      overflow: "hidden",
+      background:
+        "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)",
+    }}
   />
 </div>
 
@@ -142,7 +176,8 @@ const Hero = () => {
     height: "100vh",
     overflow: "hidden",
     borderRadius: 0,
-    background: "black",
+    background:
+      "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)",
     zIndex: 50,
   }}
 >
