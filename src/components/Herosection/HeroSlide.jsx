@@ -20,7 +20,7 @@ const Hero = () => {
       gsap.set(wrapperRef.current, {
         opacity: 0,
         position: "absolute",
-        top: 0,
+        top: "3.4cm",
         left: 0,
         width: "100%",
         height: "100vh",
@@ -43,6 +43,7 @@ const Hero = () => {
       };
 
       tl.to(wrapperRef.current, { opacity: 1, duration: 1.4, delay: 0.6 })
+        .addLabel("shrink", "+=8")
         .to(
           wrapperRef.current,
           {
@@ -61,9 +62,9 @@ const Hero = () => {
               animationCompletedRef.current = true;
             },
           },
-          "+=9.2"
+          "shrink"
         )
-        .to("#grid_container", { opacity: 1, duration: 1.8 }, "<")
+        .to("#grid_container", { opacity: 1, duration: 1.8 }, "shrink")
         .to(
           "#text",
           {
@@ -73,7 +74,7 @@ const Hero = () => {
             duration: 2.2,
             ease: "power2.out",
           },
-          "<"
+          "shrink"
         );
     };
 
@@ -163,7 +164,7 @@ const Hero = () => {
       borderRadius: "20.22%", // ≈ 220 / 1088
       overflow: "hidden",
       background:
-        "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)",
+        "transparent",
     }}
   />
 </div>
