@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { supabase } from "../../supabasedb/supabaseClient";
 import "./ContactModal.css";
 
 const ContactModal = ({ isOpen, onClose }) => {
@@ -44,16 +45,40 @@ const ContactModal = ({ isOpen, onClose }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsTransitioning(true);
-    setHasSubmitted(true); // Mark that form has been submitted
-    
-    // Fade out form content
-    setTimeout(() => {
+    console.log("Form submitted:", formData);
+    try{
+      // Insert into Supabase
+      const { data, error } = await supabase
+        .from("messages")
+        .insert([
+          { name: formData.name, email: formData.email, message: formData.message },
+        ])
+        
+
+      if (error) {
+        console.error("Error inserting data:", error);
+        alert("Something went wrong. Please try again.");
+        return;
+      }
+
+      console.log("Inserted contact row:", data);
+
+      setHasSubmitted(true);
+      setShowThanks(true);
+
+
+      setTimeout(() => {
       setShowThanks(true);
       setIsTransitioning(false);
-    }, 200); // Half of transition duration
+    }, 200);
+    }
+    catch(error){
+      console.error("Error inserting data:", error);
+        alert("An unexpected error occurred. Please try again.");
+        return;
+    }
   };
 
   return (

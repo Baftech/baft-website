@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./SignUpModal.css";
+import { supabase } from "../../supabasedb/supabaseClient";
 
 const SignUpModal = ({ isOpen, onClose }) => {
   const [showThanks, setShowThanks] = useState(false);
@@ -39,18 +40,40 @@ const SignUpModal = ({ isOpen, onClose }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    setIsTransitioning(true);
-    setHasSubmitted(true); // Mark that form has been submitted
+const handleSubmit = async (e) => {
+  e.preventDefault(); // stop page reload
+  console.log("Form submitted:", formData);
 
-    // Fade out form content
-    setTimeout(() => {
-      setShowThanks(true);
-      setIsTransitioning(false);
-    }, 200); // Half of transition duration (slower animation)
-  };
+  try {
+    // Insert into Supabase
+    const { data, error } = await supabase
+      .from("signups")
+      .insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          contact_number: formData.contactNumber,
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error("Error inserting data:", error);
+      alert("Something went wrong. Please try again.");
+      return;
+    }
+
+    console.log("Inserted row:", data);
+
+    // Show thank-you screen safely
+    setHasSubmitted(true);
+    setShowThanks(true);
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    alert("An unexpected error occurred. Please try again.");
+  }
+};
+
 
   const handleClose = () => {
     setIsClosing(true);
@@ -160,7 +183,8 @@ const SignUpModal = ({ isOpen, onClose }) => {
                         value = "+91";
                       } else if (!value.startsWith("+91")) {
                         // Remove any existing +91 and add it at the beginning
-                        value = "+91" + value.replace(/^\+91/, "").replace(/\+/g, "");
+                        value =
+                          "+91" + value.replace(/^\+91/, "").replace(/\+/g, "");
                       }
 
                       // Limit to 13 characters (+91 + 10 digits)
@@ -169,7 +193,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
                       }
 
                       e.target.value = value;
-                      
+
                       // Update form data
                       setFormData((prev) => ({
                         ...prev,
