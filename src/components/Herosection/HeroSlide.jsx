@@ -28,8 +28,8 @@ const Hero = () => {
         zIndex: 50,
       });
 
-      gsap.set("#grid_container", { opacity: 0 });
-      gsap.set("#text", { opacity: 0, y: 50, scale: 0.9 });
+      gsap.set("#grid_container", { opacity: 1 });
+      gsap.set("#text", { opacity: 0, y: "50vh", scale: 0.9 });
 
       // Responsive target based on placeholder metrics
       const targetWidth = () => (placeholderRef.current ? placeholderRef.current.offsetWidth : 0);
@@ -43,7 +43,7 @@ const Hero = () => {
       };
 
       tl.to(wrapperRef.current, { opacity: 1, duration: 1.4, delay: 0.6 })
-        .addLabel("shrink", "+=8")
+        .addLabel("shrink", "+=7.5")
         .to(
           wrapperRef.current,
           {
@@ -64,15 +64,14 @@ const Hero = () => {
           },
           "shrink"
         )
-        .to("#grid_container", { opacity: 1, duration: 1.8 }, "shrink")
         .to(
           "#text",
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 2.2,
-            ease: "power2.out",
+            duration: 3.2,
+            ease: "sine.out",
           },
           "shrink"
         );
@@ -106,14 +105,32 @@ const Hero = () => {
   }, []);
 
   return (
-    <div id="hero" className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center">
+    <>
+      <style>
+        {`
+          #hero::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+          }
+          #hero::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          #hero::-webkit-scrollbar-thumb {
+            background: transparent;
+          }
+        `}
+      </style>
+      <div id="hero" className="relative w-full min-h-screen bg-black flex flex-col items-center overflow-y-auto" style={{
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
+      }}>
       {/* Grid overlay */}
-      <div id="grid_container" className="absolute inset-0 opacity-0 z-0">
+      <div id="grid_container" className="absolute inset-0 z-0">
         <GridBackground />
       </div>
 
       {/* Text appears later */}
-      <div id="text" className="relative z-20 text-center px-4 mt-40 opacity-0">
+      <div id="text" className="relative z-[70] text-center px-4 mt-40 opacity-0">
         <p
   style={{
     fontFamily: "General Sans, sans-serif",
@@ -153,7 +170,7 @@ const Hero = () => {
       </div>
 
       {/* Placeholder container (final position) */}
-<div className="relative z-10 w-full px-4 mt-6">
+<div className="relative z-10 w-full px-4" style={{ marginTop: "0.7cm" }}>
   <div
     ref={placeholderRef}
     className="shadow-lg mx-auto"
@@ -210,6 +227,7 @@ const Hero = () => {
 </div>
 
     </div>
+    </>
   );
 };
 
