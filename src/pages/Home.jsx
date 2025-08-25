@@ -39,7 +39,31 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar currentSlide={currentSlide} />
+      <Navbar 
+        currentSlide={currentSlide}
+        onNavigate={(target, opts = {}) => {
+          // Map named targets to slide indices
+          // 0: Hero, 1: BaFTCoin, 2: BInstant, 3: B_Fast, 4: Features, 5: Video, 6: SafeSecure, 7: About, 8: Footer
+          const slow = Boolean(opts.slow);
+          const dispatchSlowNav = (index) => {
+            try {
+              const evt = new CustomEvent('navigateToSlide', { detail: { index, slow } });
+              window.dispatchEvent(evt);
+            } catch {
+              setCurrentSlide(index);
+            }
+          };
+
+          if (target === 'hero') {
+            dispatchSlowNav(0);
+            return;
+          }
+          if (target === 'about') {
+            dispatchSlowNav(7);
+            return;
+          }
+        }}
+      />
 
       {/* PowerPoint-style slide system - now with 9 slides */}
       <SlideContainer currentSlide={currentSlide} onSlideChange={handleSlideChange}>

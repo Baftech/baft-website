@@ -49,9 +49,13 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
         <div className="hidden lg:flex gap-6 xl:gap-8">
           <button
             onClick={() => {
-              document
-                .getElementById("about")
-                ?.scrollIntoView({ behavior: "smooth" });
+              if (typeof onNavigate === 'function') {
+                onNavigate('about', { slow: true });
+              } else {
+                document
+                  .getElementById("about")
+                  ?.scrollIntoView({ behavior: "smooth" });
+              }
             }}
             className={`w-20 h-8 lg:w-24 lg:h-10 xl:w-28 xl:h-12 rounded-[200px] nav-btn ${
               theme === "dark" ? "text-white" : "text-black"
@@ -76,7 +80,16 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
           <img
             src={theme === "dark" ? "logo.png" : "logo1.png"}
             alt="Logo"
-            className="w-12 h-auto sm:w-14 md:w-16 lg:w-18 xl:w-20"
+            className="w-12 h-auto sm:w-14 md:w-16 lg:w-18 xl:w-20 cursor-pointer"
+            onClick={() => {
+              if (typeof onNavigate === 'function') {
+                onNavigate('hero');
+              } else {
+                document
+                  .getElementById("hero")
+                  ?.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
             loading="eager"
           />
         </div>

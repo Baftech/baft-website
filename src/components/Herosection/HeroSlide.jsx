@@ -73,7 +73,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center">
+    <div id="hero" className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center">
       {/* Grid overlay */}
       <div id="grid_container" className="absolute inset-0 opacity-0 z-0">
         <GridBackground />

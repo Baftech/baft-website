@@ -254,6 +254,54 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     return () => window.removeEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
   }, [slideIndex, totalSlides, isTransitioning, handleSlideChange]);
 
+  // Listen for programmatic navigation requests (e.g., slow smooth transition to a target slide)
+  useEffect(() => {
+    const handleNavigateToSlide = (e) => {
+      if (!e || !e.detail) return;
+      const { index: targetIndex, slow } = e.detail;
+      if (typeof targetIndex !== 'number') return;
+      if (targetIndex < 0 || targetIndex >= totalSlides) return;
+      if (isTransitioning) return;
+
+      // Use an overlay crossfade for a slow, smooth transition
+      const fadeInMs = slow ? 700 : 220;
+      const holdMs = slow ? 200 : 150;
+      const fadeOutMs = slow ? 1000 : 700;
+
+      setShowAboutCrossfade(true);
+      setAboutCrossfadeOpaque(false);
+      setAboutCrossfadeFadeOut(false);
+
+      // Fade to black
+      setTimeout(() => {
+        setAboutCrossfadeOpaque(true);
+      }, 10);
+
+      // Once black, change slide under cover
+      setTimeout(() => {
+        const element = currentSlideRef.current;
+        if (element) {
+          try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
+        }
+        handleSlideChange(targetIndex);
+
+        // After a short hold, fade the cover out smoothly
+        setTimeout(() => {
+          setAboutCrossfadeFadeOut(true);
+          // Remove overlay after fade completes
+          setTimeout(() => {
+            setShowAboutCrossfade(false);
+            setAboutCrossfadeFadeOut(false);
+            setAboutCrossfadeOpaque(false);
+          }, fadeOutMs);
+        }, holdMs);
+      }, fadeInMs);
+    };
+
+    window.addEventListener('navigateToSlide', handleNavigateToSlide);
+    return () => window.removeEventListener('navigateToSlide', handleNavigateToSlide);
+  }, [isTransitioning, totalSlides, handleSlideChange]);
+
   const handleKeyDown = useCallback((e) => {
     if (isTransitioning) return;
     if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
