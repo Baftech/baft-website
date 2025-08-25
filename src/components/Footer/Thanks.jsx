@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import "./Thanks.css" // Use the same CSS file
 
 const Thanks = ({ isOpen, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [overlayClickable, setOverlayClickable] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setIsClosing(false);
       setTimeout(() => setIsVisible(true), 10);
+      // Delay enabling overlay click to prevent immediate close from opening click
+      const t = setTimeout(() => setOverlayClickable(true), 50);
+      return () => clearTimeout(t);
     } else {
       setIsVisible(false);
       setIsClosing(false);
+      setOverlayClickable(false);
     }
   }, [isOpen]);
 
@@ -23,10 +29,14 @@ const Thanks = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <div 
       className="fixed inset-0 flex items-center justify-center z-50"
-      onClick={onClose}
+      style={{ zIndex: 9999 }}
+      onClick={() => {
+        if (!overlayClickable) return;
+        onClose();
+      }}
     >
       <div 
         className={`thanks-page-container transition-all duration-800 ease-out ${
@@ -72,7 +82,8 @@ const Thanks = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
