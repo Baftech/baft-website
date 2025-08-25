@@ -46,7 +46,7 @@ const CoinStack = ({ startAnimation }) => {
         texture={coinTexture}
         position={[0.4, -0.4, -0.4]}
         animate={startAnimation}
-        target={[0.65, -0.65, -0.65]}
+        target={[0.63, -0.63, -0.63]}
       />
 
 
@@ -65,9 +65,9 @@ const CoinStack = ({ startAnimation }) => {
       <Coin
         opacity={1}
         texture={coinTexture}
-        position={[-0.4, 0.4, 0.4]}
+        position={[-0.3, 0.4, 0.4]}
         animate={startAnimation}
-        target={[-0.65, 0.65, 0.65]}
+        target={[-0.6, 0.6, 0.6]}
       />
     </>
   );
@@ -102,6 +102,15 @@ const BInstantSection = () => {
       <Canvas
         camera={{ position: [0, 0, 6], fov: 50 }}
         className="w-full h-full relative z-20"
+        gl={{
+          powerPreference: 'low-power',
+          antialias: false,
+          stencil: false,
+          depth: true,
+          alpha: true,
+          preserveDrawingBuffer: false,
+        }}
+        dpr={[1, 1.5]}
       >
         <Suspense fallback={null}>
           <ambientLight />
