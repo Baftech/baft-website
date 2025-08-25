@@ -8,6 +8,8 @@ const SignUpModal = ({ isOpen, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form was ever submitted
+  const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  const [errMsg, setErrMsg] = useState(""); // for displaying email errors
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -38,12 +40,25 @@ const SignUpModal = ({ isOpen, onClose }) => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    if (name === "email") {
+    const cleanedEmail = value.trim().toLowerCase();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedEmail)) {
+      setErrMsg(""); // clear error if valid
+    }
+  }
   };
 
 const handleSubmit = async (e) => {
   e.preventDefault(); // stop page reload
-  console.log("Form submitted:", formData);
+  const cleanedEmail = formData.email.trim().toLowerCase();
+  setErrMsg("");
+  if (!isValidEmail(cleanedEmail)) {
+    setErrMsg("Please enter a valid email address.");
+    return;
+  }
 
+  console.log("Form submitted:", formData);
+  
   try {
     // Insert into Supabase
     const { data, error } = await supabase
@@ -142,6 +157,7 @@ const handleSubmit = async (e) => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
                 </div>
 
                 <div className="signup-input-group">
