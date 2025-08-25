@@ -125,7 +125,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   // Touch gesture handlers (element-level)
   const handleTouchStart = useCallback((e) => {
     if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
-      e.preventDefault();
+      if (e && e.cancelable) e.preventDefault();
       return;
     }
     if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
@@ -134,7 +134,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
 
   const handleTouchMove = useCallback((e) => {
     if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
-      e.preventDefault();
+      if (e && e.cancelable) e.preventDefault();
       return;
     }
     // Allow native scrolling otherwise; do not prevent default
@@ -142,7 +142,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
 
   const handleTouchEnd = useCallback((e) => {
     if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
-      e.preventDefault();
+      if (e && e.cancelable) e.preventDefault();
       return;
     }
     if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
@@ -169,10 +169,30 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     }
   }, [isTransitioning, slideIndex, totalSlides, handleSlideChange]);
 
+  // Attach non-passive touch listeners so preventDefault works when needed (iOS/Android)
+  useEffect(() => {
+    const element = currentSlideRef.current;
+    if (!element) return;
+
+    const ts = (e) => handleTouchStart(e);
+    const tm = (e) => handleTouchMove(e);
+    const te = (e) => handleTouchEnd(e);
+
+    element.addEventListener('touchstart', ts, { passive: false });
+    element.addEventListener('touchmove', tm, { passive: false });
+    element.addEventListener('touchend', te, { passive: false });
+
+    return () => {
+      element.removeEventListener('touchstart', ts);
+      element.removeEventListener('touchmove', tm);
+      element.removeEventListener('touchend', te);
+    };
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+
   const handleWheel = useCallback((e) => {
     if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
       // Prevent momentum scroll from affecting the next slide during transitions
-      e.preventDefault();
+      if (e && e.cancelable) e.preventDefault();
       return;
     }
     if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
@@ -185,13 +205,13 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     const atBottom = element.scrollTop >= (element.scrollHeight - element.clientHeight - scrollThreshold);
 
     if (e.deltaY > 0 && atBottom && slideIndex < totalSlides - 1) {
-      e.preventDefault();
+      if (e && e.cancelable) e.preventDefault();
       if (now - lastNavTime.current >= navCooldownMs) {
         lastNavTime.current = now;
         handleSlideChange(slideIndex + 1);
       }
     } else if (e.deltaY < 0 && atTop && slideIndex > 0) {
-      e.preventDefault();
+      if (e && e.cancelable) e.preventDefault();
       if (now - lastNavTime.current >= navCooldownMs) {
         lastNavTime.current = now;
         handleSlideChange(slideIndex - 1);
@@ -371,6 +391,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   }
 
   // Seamless transition conditions
+  const seamlessEnabled = false; // Disable seamless to avoid double-rendering heavy slides (e.g., WebGL)
   const isSeamlessUp = isTransitioning && transitionDirection === 'up' && 
     ((previousSlideIndex === 3 && slideIndex === 4) || 
      (previousSlideIndex === 4 && slideIndex === 5) ||
@@ -381,7 +402,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
      (previousSlideIndex === 5 && slideIndex === 4) ||
      (previousSlideIndex === 6 && slideIndex === 5) ||
      (previousSlideIndex === 7 && slideIndex === 6));
-  const isSeamless = isSeamlessUp || isSeamlessDown;
+  const isSeamless = seamlessEnabled && (isSeamlessUp || isSeamlessDown);
 
   return (
     <div className="slide-container relative w-full h-screen overflow-hidden" tabIndex={0} onKeyDown={handleKeyDown}>
@@ -413,9 +434,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
               setCanScrollToNext(canScrollDown);
             }
           }}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
           {currentChild || (
             <div className="w-full h-full bg-yellow-500 flex items-center justify-center text-black text-2xl">

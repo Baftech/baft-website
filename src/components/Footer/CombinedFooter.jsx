@@ -8,17 +8,13 @@ import {
 import Thanks from "./Thanks";
 import "./CombinedFooter.css";
 
-const SignupForm = () => {
+const SignupForm = ({ onOpenThanks }) => {
   const [email, setEmail] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (email) {
-      // Here you can add your email subscription logic
-      setEmail("");
-      setIsSubmitted(true);
-    }
+    // Signal parent to open the thank-you modal
+    onOpenThanks();
   };
 
   return (
@@ -30,9 +26,7 @@ const SignupForm = () => {
         width:"95%"
       }}
     >
-      {isSubmitted && (
-        <Thanks isOpen={true} onClose={() => setIsSubmitted(false)} />
-      )}
+      {/* Modal is rendered by parent to avoid stacking context issues */}
       {/* Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 md:gap-x-8 py-8 md:py-10 lg:py-14 relative z-10">
         {/* Left Content */}
@@ -76,12 +70,8 @@ const SignupForm = () => {
             />
             <button
               type="submit"
-              disabled={!email.trim()}
-              className={`cursor-pointer w-full sm:w-auto px-5 py-2.5 rounded-full font-medium transition ${
-                email.trim()
-                  ? "bg-white text-black hover:bg-gray-100"
-                  : "bg-gray-400 text-gray-600 cursor-not-allowed"
-              }`}
+              onClick={onOpenThanks}
+              className="cursor-pointer w-full sm:w-auto px-5 py-2.5 rounded-full font-medium transition bg-white text-black hover:bg-gray-100"
               style={{ minWidth: "110px" }}
             >
               <span
@@ -133,6 +123,7 @@ const CombinedFooter = () => {
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
   const isVisibleRef = useRef(false);
+  const [isThanksOpen, setIsThanksOpen] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -248,7 +239,7 @@ const CombinedFooter = () => {
       <div className="main-footer bg-gray-100 py-6 md:py-12 px-4 shadow-lg border-t border-gray-200">
         <div className="max-w-full mx-auto">
           <div className="mb-6 md:mb-8">
-            <SignupForm />
+            <SignupForm onOpenThanks={() => setIsThanksOpen(true)} />
           </div>
           <div
             className="flex flex-col md:flex-row justify-between items-center px-4 md:px-8 lg:px-12 bg-transparent rounded-lg gap-6 md:gap-4"
@@ -340,6 +331,9 @@ const CombinedFooter = () => {
           </div>
         </div>
       </div>
+      {isThanksOpen && (
+        <Thanks isOpen={true} onClose={() => setIsThanksOpen(false)} />
+      )}
     </footer>
   );
 };
