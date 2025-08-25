@@ -130,9 +130,13 @@ const Hero = () => {
   style={{
     fontFamily: "EB Garamond",
     fontWeight: 700,
-    fontSize: "clamp(72px, 8vw, 120px)",
-    lineHeight: "1.3em",
+    fontStyle: "normal",
+    fontSize: "clamp(72px, 9.08vw, 130.81px)", // 130.81/1440 = 9.08%
+    lineHeight: "1.4", // Increased from 1.2 to 1.4 for more vertical space
+    letterSpacing: "0%",
     textAlign: "center",
+    width: "100%",
+    // Removed height constraint to prevent text cropping
     backgroundImage: "linear-gradient(180deg, #ffffff 0%, #cccccc 15%, #161616 100%)",
     backgroundClip: "text",
     WebkitBackgroundClip: "text",
@@ -192,6 +196,15 @@ const Hero = () => {
     controlsList="nodownload nofullscreen noremoteplayback"
     className="w-full h-full object-cover pointer-events-none video-blend"
     onEnded={() => videoRef.current.pause()}
+  />
+  
+  {/* Radial gradient overlay for edge blending */}
+  <div
+    className="absolute inset-0 pointer-events-none"
+    style={{
+      background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.8) 100%)",
+      borderRadius: "inherit",
+    }}
   />
 </div>
 
