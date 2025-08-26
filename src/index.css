@@ -117,19 +117,7 @@ video.video-blend {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), /* horizontal lines */
-    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); /* vertical lines */
-  background-size: 100px 100px; /* grid size */
   opacity: 0;
-
-  /* Gradient fade toward bottom */
-  -webkit-mask-image: linear-gradient(to top, transparent 0%, rgba(0,0,0,1) 75%);
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: cover;
-  mask-image: linear-gradient(to top, transparent 0%, rgba(0,0,0,1) 75%);
-  mask-repeat: no-repeat;
-  mask-size: cover;
 }
 
 @keyframes coinFloat {

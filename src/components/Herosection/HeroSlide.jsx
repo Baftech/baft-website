@@ -488,7 +488,7 @@ const Hero = () => {
     textAlign: "center",
     width: "100%",
     // Removed height constraint to prevent text cropping
-    backgroundImage: "linear-gradient(180deg, #ffffff 0%, #cccccc 15%, #161616 100%)",
+            backgroundImage: "linear-gradient(175deg, #999999 32.7%, #161616 70.89%)",
     backgroundClip: "text",
     WebkitBackgroundClip: "text",
     color: "transparent",

@@ -10,7 +10,7 @@ export const GridBackground = () => {
     let startMs = 0; // track first frame time for elapsed calculations
 
     // Increased grid size to match Figma design
-    const gridSize = 100; // Was 100, now larger for more spacing
+    const gridSize = 110; // Set to 110 for medium grid spacing
     const speed = 7; // Slightly slower animation
 
   let progress = 0 // one shared progress-right light
