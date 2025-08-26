@@ -8,6 +8,7 @@ const Hero = () => {
   const placeholderRef = useRef(null);
   const animationCompletedRef = useRef(false);
   const lastUpdateAtRef = useRef(0);
+  const lastTransform = useRef({});
 
   useEffect(() => {
     let rafId;
@@ -99,6 +100,19 @@ const Hero = () => {
               if (wrapperRef.current) {
                 wrapperRef.current.classList.remove('perf-hint');
                 wrapperRef.current.classList.add('video-container-locked');
+                
+                // Store the final transform state to prevent jumping on tab switch
+                lastTransform.current = {
+                  x: gsap.getProperty(wrapperRef.current, "x"),
+                  y: gsap.getProperty(wrapperRef.current, "y"),
+                  scaleX: gsap.getProperty(wrapperRef.current, "scaleX"),
+                  scaleY: gsap.getProperty(wrapperRef.current, "scaleY"),
+                  top: gsap.getProperty(wrapperRef.current, "top"),
+                  left: gsap.getProperty(wrapperRef.current, "left"),
+                  width: gsap.getProperty(wrapperRef.current, "width"),
+                  height: gsap.getProperty(wrapperRef.current, "height"),
+                  borderRadius: gsap.getProperty(wrapperRef.current, "borderRadius"),
+                };
               }
               // No extra video effects after scaling completes
             },
@@ -256,12 +270,43 @@ const Hero = () => {
     window.addEventListener("resize", handleResize);
     window.addEventListener("scroll", lockVideoPosition);
     window.addEventListener("scroll", constrainScroll, { passive: false });
+    
+    // Add continuous transform state tracking to prevent jumping on tab switch
+    const updateTransformState = () => {
+      if (animationCompletedRef.current && wrapperRef.current) {
+        lastTransform.current = {
+          x: gsap.getProperty(wrapperRef.current, "x"),
+          y: gsap.getProperty(wrapperRef.current, "y"),
+          scaleX: gsap.getProperty(wrapperRef.current, "scaleX"),
+          scaleY: gsap.getProperty(wrapperRef.current, "scaleY"),
+          top: gsap.getProperty(wrapperRef.current, "top"),
+          left: gsap.getProperty(wrapperRef.current, "left"),
+          width: gsap.getProperty(wrapperRef.current, "width"),
+          height: gsap.getProperty(wrapperRef.current, "height"),
+          borderRadius: gsap.getProperty(wrapperRef.current, "borderRadius"),
+        };
+      }
+    };
+    
+    // Update transform state on every frame when animation is completed
+    gsap.ticker.add(updateTransformState);
+    
     document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === 'visible') {
+      // When user comes back to tab, restore the last known transform state
+      if (animationCompletedRef.current && wrapperRef.current && lastTransform.current) {
+        gsap.set(wrapperRef.current, lastTransform.current);
+      } else {
         resyncLockedVideo();
       }
     });
-    window.addEventListener("pageshow", resyncLockedVideo);
+    window.addEventListener("pageshow", () => {
+      // When page is shown, also restore transform state
+      if (animationCompletedRef.current && wrapperRef.current && lastTransform.current) {
+        gsap.set(wrapperRef.current, lastTransform.current);
+      } else {
+        resyncLockedVideo();
+      }
+    });
     
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -269,6 +314,7 @@ const Hero = () => {
       window.removeEventListener("scroll", constrainScroll);
       document.removeEventListener("visibilitychange", resyncLockedVideo);
       window.removeEventListener("pageshow", resyncLockedVideo);
+      gsap.ticker.remove(updateTransformState);
     };
   }, []);
 

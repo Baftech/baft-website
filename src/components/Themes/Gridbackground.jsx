@@ -39,6 +39,12 @@ export const GridBackground = () => {
   // --- Tile background with lighter smudged gradient ---
   // For the first 10 seconds, make tiles simple black background; then show grid pattern after 10 seconds
   const tilesAlpha = elapsedMs < 10000 ? 0 : Math.min(1, (elapsedMs - 10000) / 800);
+
+  // Compute a responsive centered band of columns to skip (e.g., ~20% of width)
+  const totalCols = Math.max(1, Math.ceil(W / gridSize));
+  const bandWidthCols = Math.max(2, Math.round(totalCols * 0.2));
+  const bandStartCol = Math.floor((totalCols - bandWidthCols) / 2);
+  const bandEndCol = bandStartCol + bandWidthCols - 1;
   
   if (elapsedMs < 10000) {
     // Make tiles simple black background for first 10 seconds
@@ -48,8 +54,8 @@ export const GridBackground = () => {
       for (let y = 0; y < H; y += gridSize) {
         const col = x / gridSize;
 
-        // 🚫 Skip checkboxes in the red-marked vertical strip (columns 4 → 9)
-        if (col >= 4 && col <= 9) {
+        // 🚫 Skip checkboxes in the responsive centered strip
+        if (col >= bandStartCol && col <= bandEndCol) {
           continue;
         }
 
@@ -68,8 +74,8 @@ export const GridBackground = () => {
       for (let y = 0; y < H; y += gridSize) {
         const col = x / gridSize;
 
-        // 🚫 Skip checkboxes in the red-marked vertical strip (columns 4 → 9)
-        if (col >= 4 && col <= 9) {
+        // 🚫 Skip checkboxes in the responsive centered strip
+        if (col >= bandStartCol && col <= bandEndCol) {
           continue;
         }
 
