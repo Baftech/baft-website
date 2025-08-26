@@ -201,20 +201,7 @@ for (let x = 0; x < W; x += gridSize) {
         className="absolute inset-0 w-full h-full"
         style={{ zIndex: 2 }}
       />
-      {/* ✨ Half Ellipse Dome Overlay */}
-    <div
-  className="absolute"
-  style={{
-    width: "900px",   // smaller width
-    height: "300px",  // smaller height
-    left: "calc(50% - 900px/2)", // keep centered
-    top: "-180px",    // less offset
-    background: "rgba(255,255,255,0.08)", // lighter gray with transparency
-    filter: "blur(120px)", // softer blur
-    borderRadius: "50% / 100% 100% 0 0", // top half ellipse
-    zIndex: 3,
-  }}
-/>
+      {/* Half Ellipse Dome Overlay moved to HeroSlide.jsx */}
     </div>
   );
 };

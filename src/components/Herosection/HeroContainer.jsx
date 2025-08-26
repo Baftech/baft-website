@@ -56,9 +56,9 @@ const VideoElement = () => {
         playsInline
         preload="auto"
         poster="/baft_video.gif"
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover object-center"
         style={{
-          transformOrigin: "top center",
+          transformOrigin: "center center",
           opacity: 1,
           borderRadius: "0px",
           boxShadow: "none",
@@ -384,7 +384,7 @@ const HeroContainer = () => {
     });
 
     // Start all animations simultaneously for smooth motion
-    tl.to("#videoElement", {
+    tl    .to("#videoElement", {
       scale: targetScale,
       x: 0,
       y: targetY,
@@ -393,6 +393,7 @@ const HeroContainer = () => {
       filter: "brightness(1.0) contrast(1.25) saturate(1.15)",
       duration: 0.8,
       ease: "power3.out",
+      transformOrigin: "center center",
       // Ensure video continues playing during animation
       onUpdate: () => {
         const video = document.getElementById("videoElement");
@@ -457,6 +458,7 @@ const HeroContainer = () => {
       opacity: 1,
       borderRadius: "0px",
       filter: "brightness(1.1) contrast(1.2) saturate(1.1)",
+      transformOrigin: "center center",
     });
 
     const video = document.getElementById("videoElement");
@@ -523,6 +525,7 @@ const HeroContainer = () => {
       filter: "brightness(1.1) contrast(1.2) saturate(1.1)",
       duration: 0.8,
       ease: "power3.out",
+      transformOrigin: "center center",
     }, 0.1);
   };
 
@@ -563,6 +566,9 @@ const HeroContainer = () => {
   };
 
   const setupScrollTimeline = () => {
+    // Ensure video has correct transform origin before scroll animations
+    gsap.set("#videoElement", { transformOrigin: "center center" });
+    
     const scrollTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: "#hero_container",
@@ -577,7 +583,11 @@ const HeroContainer = () => {
       .to("#grid_container", { opacity: 0, duration: 1 }, "+=3")
       .to("#text", { opacity: 0, duration: 1 }, "<")
       .to("#scroll_button", { opacity: 0, y: 20, visibility: "hidden", duration: 0.5 }, "<")
-      .to("#videoElement", { opacity: 0, duration: 1 }, "<")
+      .to("#videoElement", { 
+        opacity: 0, 
+        duration: 1,
+        transformOrigin: "center center"
+      }, "<")
       .to("#baft_coin_section", { opacity: 1, y: 0, duration: 1 }, "<")
       .from(["#introduction", "#baft_coin_text", "#B_coin"], {
         opacity: 0,
@@ -606,15 +616,25 @@ const HeroContainer = () => {
       }
     };
 
+    // Ensure video maintains center transform origin during scroll
+    const ensureVideoCenterOrigin = () => {
+      const videoElement = document.getElementById("videoElement");
+      if (videoElement) {
+        videoElement.style.transformOrigin = "center center";
+      }
+    };
+
     initializeAnimation();
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', ensureVideoCenterOrigin);
     setupScrollTrigger();
     setupScrollTimeline();
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', ensureVideoCenterOrigin);
     };
   });
 
