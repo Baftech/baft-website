@@ -7,6 +7,7 @@ const Hero = () => {
   const wrapperRef = useRef(null);
   const placeholderRef = useRef(null);
   const animationCompletedRef = useRef(false);
+  const lastUpdateAtRef = useRef(0);
 
   useEffect(() => {
     let rafId;
@@ -29,6 +30,7 @@ const Hero = () => {
       });
 
       gsap.set("#grid_container", { opacity: 1 });
+      gsap.set("#dynamic-overlay", { opacity: 0 });
       gsap.set("#text", { opacity: 0, y: "50vh", scale: 0.9 });
 
       // Responsive target based on placeholder metrics
@@ -48,16 +50,15 @@ const Hero = () => {
 
       tl.to(wrapperRef.current, { 
         opacity: 1, 
-        duration: 1.4, 
-        delay: 0.6,
-        onComplete: () => {
-          // Start video playback when it becomes visible
-          if (videoRef.current) {
-            videoRef.current.play().catch(() => {});
-          }
-        }
+        duration: 1.0, 
+        delay: 0.4,
       })
-        .addLabel("shrink", "+=6.5")
+        .to("#dynamic-overlay", { opacity: 1, duration: 0.6, ease: "sine.out" }, "<")
+        .addLabel("shrink", "+=7.5")
+        // Ensure the overlay/container effect is invisible during scaling (fade out smoothly)
+        .to("#dynamic-overlay", { opacity: 0, duration: 0.25, ease: "power1.out" }, "shrink")
+        // Dim video gradually so the change isn't noticeable
+        .to(videoRef.current, { opacity: 0.5, duration: 0.6, ease: "power1.inOut" }, "shrink")
         .to(
           wrapperRef.current,
           {
@@ -70,66 +71,61 @@ const Hero = () => {
             y: 0,
             rotate: 0,
             opacity: 1,
-            duration: 2.5,
-            ease: "power2.inOut",
+            duration: 2.6,
+            ease: "power1.inOut",
             transformOrigin: "center center",
+            onStart: () => {
+              if (wrapperRef.current) {
+                wrapperRef.current.classList.add('perf-hint');
+              }
+            },
             onUpdate: () => {
               // Make border areas transparent during scaling
               if (wrapperRef.current) {
+                // Throttle updates to ~30fps to reduce jank
+                const now = performance.now();
+                if (now - lastUpdateAtRef.current < 33) return;
+                lastUpdateAtRef.current = now;
+
                 const currentScale = gsap.getProperty(wrapperRef.current, "scale") || 1;
                 const targetScale = targetWidth() / window.innerWidth;
                 const progress = Math.min(1, (1 - currentScale) / (1 - targetScale));
-                
-                // Update overlay gradient based on scaling progress
-                const overlay = document.getElementById('dynamic-overlay');
-                if (overlay) {
-                  // Calculate dynamic gradient values for smudged effect with transparent left/right corners
-                  const centerTransparency = Math.max(0, 40 - (progress * 20));
-                  const edgeStart = Math.max(centerTransparency + 10, 50);
-                  const edgeMid = Math.max(edgeStart + 15, 65);
-                  const edgeEnd = Math.max(edgeMid + 20, 85);
-                  
-                  // Create gradient that makes left and right corners transparent during scaling
-                  const leftRightTransparency = Math.max(0, 0.8 - (progress * 0.8)); // Left/right corners become transparent
-                  const dynamicGradient = `radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) ${centerTransparency}%, rgba(0, 0, 0, ${0.05 + progress * 0.15}) ${edgeStart}%, rgba(0, 0, 0, ${0.2 + progress * 0.3}) ${edgeMid}%, rgba(0, 0, 0, ${leftRightTransparency}) ${edgeEnd}%, rgba(0, 0, 0, ${leftRightTransparency * 0.5}) 95%, transparent 100%)`;
-                  
-                  overlay.style.background = dynamicGradient;
-                  
-                  // Also update corner overlay to make left/right corners transparent during scaling
-                  const cornerOverlay = document.getElementById('corner-overlay');
-                  if (cornerOverlay) {
-                    const cornerOpacity = Math.max(0, 0.8 - (progress * 0.8));
-                    cornerOverlay.style.opacity = cornerOpacity;
-                    
-                    // Create dynamic corner transparency that works better with rounded borders
-                    const leftCornerOpacity = Math.max(0, 0.4 - (progress * 0.4));
-                    const rightCornerOpacity = Math.max(0, 0.4 - (progress * 0.4));
-                    
-                    // Update the gradient to make corners more transparent during scaling
-                    const dynamicCornerGradient = `radial-gradient(ellipse at 20% 50%, rgba(0, 0, 0, ${leftCornerOpacity}) 0%, rgba(0, 0, 0, ${leftCornerOpacity * 0.5}) 30%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0, 0, 0, ${rightCornerOpacity}) 0%, rgba(0, 0, 0, ${rightCornerOpacity * 0.5}) 30%, transparent 60%)`;
-                    
-                    cornerOverlay.style.background = dynamicCornerGradient;
-                  }
-                }
+                // No per-frame overlay updates to reduce runtime work
               }
             },
             onComplete: () => {
               animationCompletedRef.current = true;
               // Lock the wrapper position after animation
               if (wrapperRef.current) {
+                wrapperRef.current.classList.remove('perf-hint');
                 wrapperRef.current.classList.add('video-container-locked');
               }
+              // No extra video effects after scaling completes
             },
           },
           "shrink"
         )
+        .to(videoRef.current, { opacity: 1, duration: 0.8, ease: "power1.out", onComplete: () => {
+          if (videoRef.current) {
+            // ensure the video is paused at final state and doesn't replay
+            try { videoRef.current.pause(); } catch (_) {}
+          }
+        } }, ">")
+        // After scaling completes, show a simple elliptical radial spotlight on top
+        .to({}, { duration: 0, onStart: () => {
+          const el = document.getElementById('dynamic-overlay');
+          if (el) {
+            el.style.background = 'radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)';
+          }
+        }}, ">")
+        .to("#dynamic-overlay", { opacity: 1, duration: 0.4, ease: "sine.out" }, "<")
         .to(
           "#text",
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 3.2,
+            duration: 2.8,
             ease: "sine.out",
           },
           "shrink"
@@ -145,6 +141,29 @@ const Hero = () => {
 
   // Keep wrapper aligned to placeholder on viewport resize after animation completes
   useEffect(() => {
+    const resyncLockedVideo = () => {
+      if (!animationCompletedRef.current) return;
+      if (!wrapperRef.current || !placeholderRef.current) return;
+      const rect = placeholderRef.current.getBoundingClientRect();
+      const cs = window.getComputedStyle(placeholderRef.current);
+      gsap.set(wrapperRef.current, {
+        width: placeholderRef.current.offsetWidth,
+        height: placeholderRef.current.offsetHeight,
+        top: rect.top,
+        left: rect.left,
+        borderRadius: cs.borderRadius || 0,
+        transformOrigin: "center center",
+        x: 0,
+        y: 0,
+        opacity: 1,
+        position: "fixed",
+      });
+      if (videoRef.current) {
+        videoRef.current.style.opacity = '1';
+        // do not resume playback on tab return
+      }
+    };
+
     const handleResize = () => {
       if (!animationCompletedRef.current) return;
       if (!wrapperRef.current || !placeholderRef.current) return;
@@ -237,11 +256,19 @@ const Hero = () => {
     window.addEventListener("resize", handleResize);
     window.addEventListener("scroll", lockVideoPosition);
     window.addEventListener("scroll", constrainScroll, { passive: false });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === 'visible') {
+        resyncLockedVideo();
+      }
+    });
+    window.addEventListener("pageshow", resyncLockedVideo);
     
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", lockVideoPosition);
       window.removeEventListener("scroll", constrainScroll);
+      document.removeEventListener("visibilitychange", resyncLockedVideo);
+      window.removeEventListener("pageshow", resyncLockedVideo);
     };
   }, []);
 
@@ -377,66 +404,7 @@ const Hero = () => {
             backface-visibility: hidden;
           }
           
-          /* Enhanced smudged overlay effects */
-          .video-blend > div[style*="radial-gradient"] {
-            backdrop-filter: blur(1px);
-            transform: translateZ(0);
-          }
-          
-          /* Create additional smudging effect */
-          .video-blend::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(ellipse at center, transparent 25%, rgba(0, 0, 0, 0.02) 40%, rgba(0, 0, 0, 0.08) 55%, transparent 75%);
-            border-radius: inherit;
-            filter: blur(4px);
-            mix-blend-mode: soft-light;
-            z-index: 4;
-            pointer-events: none;
-          }
-          
-          /* Corner transparency overlay */
-          #corner-overlay {
-            transition: opacity 0.2s ease-out, background 0.2s ease-out;
-            will-change: opacity, background;
-            border-radius: inherit;
-            overflow: hidden;
-          }
-          
-          /* Enhanced corner transparency for rounded borders */
-          #corner-overlay::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(ellipse at 15% 50%, rgba(0, 0, 0, 0.2) 0%, transparent 40%), radial-gradient(ellipse at 85% 50%, rgba(0, 0, 0, 0.2) 0%, transparent 40%);
-            border-radius: inherit;
-            pointer-events: none;
-            z-index: 1;
-            filter: blur(2px);
-          }
-          
-          /* Additional corner fade for rounded borders */
-          .video-blend::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(ellipse at 10% 50%, rgba(0, 0, 0, 0.15) 0%, transparent 35%), radial-gradient(ellipse at 90% 50%, rgba(0, 0, 0, 0.15) 0%, transparent 35%);
-            border-radius: inherit;
-            pointer-events: none;
-            z-index: 2;
-            filter: blur(1px);
-            mix-blend-mode: soft-light;
-          }
+          /* Removed extra spotlight/glow to reduce cost - keep only main ellipse */
         `}
       </style>
       <div id="hero" className="relative w-full min-h-screen bg-black flex flex-col items-center overflow-y-auto scroll-constrained video-scroll-boundary" style={{
@@ -449,7 +417,7 @@ const Hero = () => {
       </div>
 
       {/* Text appears later */}
-      <div id="text" className="relative z-[70] text-center px-4 mt-40 opacity-0">
+      <div id="text" className="relative z-[70] text-center px-4 mt-40 opacity-0" style={{ marginTop: "calc(10rem + 0.5cm)" }}>
         <p
   style={{
     fontFamily: "General Sans, sans-serif",
@@ -489,7 +457,7 @@ const Hero = () => {
       </div>
 
       {/* Placeholder container (final position) */}
-<div className="relative z-10 w-full px-4" style={{ marginTop: "0.7cm" }}>
+<div className="relative z-10 w-full px-4" style={{ marginTop: "-0.2cm" }}>
   <div
     ref={placeholderRef}
     className="shadow-lg mx-auto video-placeholder-locked"
@@ -517,8 +485,7 @@ const Hero = () => {
     height: "100vh",
     overflow: "hidden",
     borderRadius: 0,
-    background:
-      "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.6) 75%, #000000 100%)",
+    background: "transparent",
     zIndex: 50,
   }}
 >
@@ -526,6 +493,7 @@ const Hero = () => {
   <video
     ref={videoRef}
     src="/BAFT Vid 2_1.mp4"
+    preload="auto"
     autoPlay
     muted
     playsInline
@@ -544,41 +512,17 @@ const Hero = () => {
     id="dynamic-overlay"
     className="absolute inset-0 pointer-events-none"
     style={{
-      background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0.6) 75%, rgba(0, 0, 0, 0.8) 85%, #000000 100%)",
+      background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 12%, rgba(0,0,0,0.08) 24%, rgba(0,0,0,0) 38%), radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.10) 58%, rgba(0,0,0,0.28) 70%, rgba(0,0,0,0.45) 82%, rgba(0,0,0,0.60) 100%)",
       borderRadius: "inherit",
       mixBlendMode: "multiply",
       zIndex: 1,
       transition: "background 0.1s ease-out",
       filter: "blur(2px)",
+      opacity: 0,
     }}
   />
   
-  {/* Secondary smudged overlay for enhanced blending */}
-  <div
-    className="absolute inset-0 pointer-events-none"
-    style={{
-      background: "radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.05) 45%, rgba(0, 0, 0, 0.15) 60%, rgba(0, 0, 0, 0.4) 80%, transparent 100%)",
-      borderRadius: "inherit",
-      mixBlendMode: "overlay",
-      zIndex: 2,
-      filter: "blur(3px)",
-      opacity: 0.7,
-    }}
-  />
-  
-  {/* Enhanced left and right corner transparency overlay for rounded corners */}
-  <div
-    id="corner-overlay"
-    className="absolute inset-0 pointer-events-none"
-    style={{
-      background: "radial-gradient(ellipse at 20% 50%, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 30%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 30%, transparent 60%)",
-      borderRadius: "inherit",
-      mixBlendMode: "multiply",
-      zIndex: 3,
-      filter: "blur(3px)",
-      opacity: 0.8,
-    }}
-  />
+  {/* Remove other spotlight overlays to keep only the main ellipse */}
 </div>
 
     </div>
