@@ -55,7 +55,11 @@ const Hero = () => {
         delay: 0.4,
       })
         .to("#dynamic-overlay", { opacity: 1, duration: 0.6, ease: "sine.out" }, "<")
+        // Show fullscreen spotlight when video starts playing
+        .to("#fullscreen-spotlight", { opacity: 1, duration: 0.6, ease: "sine.out" }, "<")
         .addLabel("shrink", "+=7.5")
+        // Hide fullscreen spotlight when scaling begins
+        .to("#fullscreen-spotlight", { opacity: 0, duration: 0.25, ease: "power1.out" }, "shrink")
         // Ensure the overlay/container effect is invisible during scaling (fade out smoothly)
         .to("#dynamic-overlay", { opacity: 0, duration: 0.25, ease: "power1.out" }, "shrink")
         // Dim video gradually so the change isn't noticeable
@@ -551,6 +555,19 @@ const Hero = () => {
       filter: 'brightness(1.1) contrast(1.05) saturate(1.1)',
     }}
     onEnded={() => videoRef.current.pause()}
+  />
+  
+  {/* Fullscreen spotlight - only visible when video is fullscreen */}
+  <div
+    id="fullscreen-spotlight"
+    className="absolute inset-0 pointer-events-none"
+    style={{
+      background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)",
+      borderRadius: "inherit",
+      zIndex: 2,
+      opacity: 0,
+      transition: "opacity 0.3s ease-out",
+    }}
   />
   
   {/* Primary smudged radial ellipse overlay */}
