@@ -16,8 +16,8 @@ export const GridBackground = ({ forceMobile = false }) => {
     const mobileDelay = isMobile ? 0 : 11000;
     const mobileDuration = isMobile ? 1000 : 3000;
     
-    // Increased grid size to match Figma design
-    const gridSize = isMobile ? 80 : 110; // Smaller grid for mobile
+    // Grid size - increased for better visibility
+    const gridSize = isMobile ? 48 : 110; // Larger grid size for mobile
     const speed = isMobile ? 5 : 7; // Slower animation for mobile
 
   let progress = 0 // one shared progress-right light
@@ -43,9 +43,9 @@ export const GridBackground = ({ forceMobile = false }) => {
   const domeX = W / 2 - domeWidth / 2;
   const domeY = -50; // Closer to screen for subtle effect
 
-  // --- Tile background with lighter smudged gradient ---
-  // Mobile: Show grid pattern immediately, Desktop: Wait 11 seconds
-  const tilesAlpha = elapsedMs < mobileDelay ? 0 : Math.min(1, (elapsedMs - mobileDelay) / mobileDuration);
+  // --- Tile background - static for mobile, animated for desktop ---
+  // Mobile: Always show tiles, Desktop: Wait and animate
+  const tilesAlpha = isMobile ? 1 : (elapsedMs < mobileDelay ? 0 : Math.min(1, (elapsedMs - mobileDelay) / mobileDuration));
 
   // Compute a responsive centered band of columns to skip (e.g., ~20% of width)
   const totalCols = Math.max(1, Math.ceil(W / gridSize));
@@ -58,7 +58,7 @@ export const GridBackground = ({ forceMobile = false }) => {
     ctx.save();
     ctx.fillStyle = "rgba(0,0,0,1)";
     for (let x = 0; x < W; x += gridSize) {
-      for (let y = 0; y < H; y += gridSize) {
+      for (let y = 0; y < (isMobile ? H * 0.50 : H); y += gridSize) {
         const col = x / gridSize;
 
         // 🚫 Skip checkboxes in the responsive centered strip
@@ -106,14 +106,14 @@ export const GridBackground = ({ forceMobile = false }) => {
     ctx.restore();
   }
 
-  // --- Grid lines ---
-  const gridAlpha = elapsedMs < mobileDelay ? 0 : 1;
+  // --- Grid lines - static for mobile, animated for desktop ---
+  const gridAlpha = isMobile ? 1 : (elapsedMs < mobileDelay ? 0 : 1);
   
   // Only draw grid lines if they should be visible
   if (gridAlpha > 0) {
-    // Mobile: Thinner, more subtle grid lines
-    const gridOpacity = isMobile ? 0.15 : 0.25;
-    const gridWidth = isMobile ? 0.3 : 0.5;
+    // Grid lines with better visibility
+    const gridOpacity = isMobile ? 0.4 : 0.25; // Increased mobile opacity
+    const gridWidth = isMobile ? 0.8 : 0.5; // Thicker mobile lines
     ctx.strokeStyle = `rgba(255,255,255,${gridOpacity * gridAlpha})`;
     ctx.lineWidth = gridWidth;
 
@@ -151,8 +151,8 @@ export const GridBackground = ({ forceMobile = false }) => {
   ctx.save();
   ctx.globalCompositeOperation = "source-over"; // Ensure dome is drawn on top
   
-  // Make dome appear at the same time as grids
-  const domeAlpha = elapsedMs < mobileDelay ? 0 : Math.min(1, (elapsedMs - mobileDelay) / mobileDuration);
+  // Make dome appear - static for mobile, animated for desktop
+  const domeAlpha = isMobile ? 1 : (elapsedMs < mobileDelay ? 0 : Math.min(1, (elapsedMs - mobileDelay) / mobileDuration));
   ctx.globalAlpha = domeAlpha;
   
   ctx.beginPath();
@@ -227,8 +227,8 @@ export const GridBackground = ({ forceMobile = false }) => {
   const elapsed = performance.now() - startMs;
   drawGrid(elapsed)
 
-  // Only show beams after delay (immediately for mobile, 11s for desktop)
-  if (elapsed >= mobileDelay) {
+  // Only show beams for desktop (mobile: no beams)
+  if (!isMobile && elapsed >= mobileDelay) {
     // Beam 1 - vertical up
     const verticalX = Math.round((gridSize * 1.5) / gridSize) * gridSize
     const y1 = H - (progress % (H + 150))

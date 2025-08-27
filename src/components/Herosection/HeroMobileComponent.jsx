@@ -87,7 +87,12 @@ const HeroMobileComponent = () => {
         borderRadius: 0,
         zIndex: 50,
       });
-      gsap.set("#grid_container", { opacity: 1 });
+      // Ensure grid is always visible from start
+      gsap.set("#grid_container", { 
+        opacity: 1, 
+        visibility: "visible",
+        zIndex: 10 
+      });
       // Text starts centered vertically, hidden
       gsap.set("#text-mobile", { opacity: 0, top: "50%", yPercent: -50 });
 
@@ -142,7 +147,7 @@ const HeroMobileComponent = () => {
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [isLandscape]);
+  }, []); // Remove isLandscape dependency to prevent re-initialization
 
   // Text will animate in at 8s from screen center → target position
   // No initial fade-in on mount
@@ -168,6 +173,13 @@ const HeroMobileComponent = () => {
     <>
       <style>
         {`
+          /* Grid container - always visible */
+          #grid_container {
+            opacity: 1 !important;
+            visibility: visible !important;
+            z-index: 10 !important;
+          }
+          
           /* Mobile-specific scrollbar hiding */
           #hero-mobile::-webkit-scrollbar {
             width: 0px !important;
@@ -270,9 +282,9 @@ const HeroMobileComponent = () => {
           overflow: '-moz-scrollbars-none'
         }}
       >
-        {/* Grid overlay */}
-        <div id="grid_container" className="absolute inset-0 z-0">
-          <GridBackground forceMobile={true} />
+        {/* Grid overlay - always visible from start */}
+        <div id="grid_container" className="absolute inset-0 z-10">
+          <GridBackground forceMobile={true} key="mobile-grid" />
         </div>
 
         {/* Top-centered logo */}
