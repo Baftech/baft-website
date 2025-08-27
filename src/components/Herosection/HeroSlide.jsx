@@ -147,7 +147,14 @@ const Hero = () => {
             ease: "sine.out",
           },
           "shrink"
-        );
+        )
+        // Show scroll down button after video scaling completes
+        .to("#scroll-down-btn", { 
+          opacity: 1, 
+          y: 0, 
+          duration: 0.8, 
+          ease: "sine.out" 
+        }, ">");
     };
 
     rafId = requestAnimationFrame(start);
@@ -585,9 +592,56 @@ const Hero = () => {
     }}
   />
   
-  {/* Remove other spotlight overlays to keep only the main ellipse */}
+        {/* Remove other spotlight overlays to keep only the main ellipse */}
 </div>
 
+      {/* Scroll Down Button - appears after video scales */}
+      <div
+        id="scroll-down-btn"
+        className="absolute pointer-events-auto"
+        style={{
+          width: '178px',
+          height: '70px',
+          left: 'calc(50% - 178px/2)',
+          bottom: '52px',
+          zIndex: 100,
+          opacity: 0,
+          transform: 'translateY(20px)',
+        }}
+      >
+        <button
+          className="w-full h-full flex items-center justify-center gap-[10px] px-8 py-6 rounded-[220px] hover:bg-white/0.08 transition-all duration-300 group"
+          style={{
+            background: 'rgba(255, 255, 255, 0.04)',
+            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+            fontFamily: 'GeneralSans, sans-serif',
+          }}
+          onClick={() => {
+            // Scroll to next section
+            const nextSection = document.querySelector('[data-section="next"]') || 
+                               document.getElementById('about') ||
+                               document.querySelector('main > div:nth-child(2)');
+            if (nextSection) {
+              nextSection.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >
+          <span 
+            className="text-white font-medium text-lg tracking-wide"
+            style={{ fontFamily: 'GeneralSans, sans-serif' }}
+          >
+            Scroll Down
+          </span>
+          <svg 
+            className="w-5 h-5 text-white transform group-hover:translate-y-1 transition-transform duration-300" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
+      </div>
     </div>
     </>
   );

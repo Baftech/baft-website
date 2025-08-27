@@ -133,6 +133,11 @@ export const GridBackground = () => {
   // --- Gentle Arc Dome Overlay (drawn last to maintain visibility) ---
   ctx.save();
   ctx.globalCompositeOperation = "source-over"; // Ensure dome is drawn on top
+  
+  // Make dome appear at the same time as grids (after 11 seconds)
+  const domeAlpha = elapsedMs < 11000 ? 0 : Math.min(1, (elapsedMs - 11000) / 3000);
+  ctx.globalAlpha = domeAlpha;
+  
   ctx.beginPath();
   
   // Create a smooth, gentle arc that curves down in the center
@@ -165,12 +170,8 @@ export const GridBackground = () => {
   ctx.lineTo(0, 0);
   ctx.closePath();
   
-  // Make dome appear at the same time as grids (after 11 seconds)
-  const domeAlpha = elapsedMs < 11000 ? 0 : Math.min(1, (elapsedMs - 11000) / 3000);
-  ctx.globalAlpha = domeAlpha;
-  
-  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-  ctx.filter = "blur(80px)"; // Reduced blur for sharper curve
+  ctx.fillStyle = "rgba(255, 255, 255, 0.35)"; // Increased from 0.15 to 0.35 for brighter dome
+  ctx.filter = "blur(120px)"; // Increased blur for softer, more diffused glow
   ctx.fill();
   ctx.restore();
 }
