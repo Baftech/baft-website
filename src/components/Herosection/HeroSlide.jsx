@@ -333,15 +333,62 @@ const Hero = () => {
     <>
       <style>
         {`
+          /* Hide scrollbar completely across all browsers - Global approach */
+          *::-webkit-scrollbar {
+            width: 0px !important;
+            height: 0px !important;
+            background: transparent !important;
+            display: none !important;
+          }
+          
+          *::-webkit-scrollbar-track {
+            background: transparent !important;
+            display: none !important;
+          }
+          
+          *::-webkit-scrollbar-thumb {
+            background: transparent !important;
+            display: none !important;
+          }
+          
+          *::-webkit-scrollbar-corner {
+            background: transparent !important;
+            display: none !important;
+          }
+          
+          /* Firefox scrollbar hiding - Global */
+          * {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+          }
+          
+          /* Specific hero element scrollbar hiding */
           #hero::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
+            width: 0px !important;
+            height: 0px !important;
+            background: transparent !important;
+            display: none !important;
           }
+          
           #hero::-webkit-scrollbar-track {
-            background: transparent;
+            background: transparent !important;
+            display: none !important;
           }
+          
           #hero::-webkit-scrollbar-thumb {
-            background: transparent;
+            background: transparent !important;
+            display: none !important;
+          }
+          
+          #hero::-webkit-scrollbar-corner {
+            background: transparent !important;
+            display: none !important;
+          }
+          
+          /* Firefox scrollbar hiding */
+          #hero {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
           }
           
           /* Lock video position and ensure center scaling */
@@ -404,23 +451,22 @@ const Hero = () => {
             75% { transform: translateX(5px); }
           }
           
-          /* Enhanced scroll behavior for video section */
+          /* Hide scrollbar for video scroll boundary as well */
           .video-scroll-boundary::-webkit-scrollbar {
-            width: 8px;
+            width: 0px !important;
+            height: 0px !important;
+            background: transparent !important;
+            display: none !important;
           }
           
           .video-scroll-boundary::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
+            background: transparent !important;
+            display: none !important;
           }
           
           .video-scroll-boundary::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 4px;
-          }
-          
-          .video-scroll-boundary::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
+            background: transparent !important;
+            display: none !important;
           }
           
           /* Smooth scaling animation for video */
@@ -462,11 +508,50 @@ const Hero = () => {
           }
           
           /* Removed extra spotlight/glow to reduce cost - keep only main ellipse */
+          
+          /* Additional scrollbar hiding for all possible scrollable elements */
+          html::-webkit-scrollbar,
+          body::-webkit-scrollbar,
+          .overflow-y-auto::-webkit-scrollbar,
+          .scroll-constrained::-webkit-scrollbar,
+          .video-scroll-boundary::-webkit-scrollbar {
+            width: 0px !important;
+            height: 0px !important;
+            background: transparent !important;
+            display: none !important;
+          }
+          
+          html::-webkit-scrollbar-track,
+          body::-webkit-scrollbar-track,
+          .overflow-y-auto::-webkit-scrollbar-track,
+          .scroll-constrained::-webkit-scrollbar-track,
+          .video-scroll-boundary::-webkit-scrollbar-track {
+            background: transparent !important;
+            display: none !important;
+          }
+          
+          html::-webkit-scrollbar-thumb,
+          body::-webkit-scrollbar-thumb,
+          .overflow-y-auto::-webkit-scrollbar-thumb,
+          .scroll-constrained::-webkit-scrollbar-thumb,
+          .video-scroll-boundary::-webkit-scrollbar-thumb {
+            background: transparent !important;
+            display: none !important;
+          }
+          
+          /* Force hide scrollbars with CSS */
+          html, body, #hero, .overflow-y-auto, .scroll-constrained, .video-scroll-boundary {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            overflow: -moz-scrollbars-none !important;
+          }
         `}
       </style>
       <div id="hero" className="relative w-full min-h-screen bg-black flex flex-col items-center overflow-y-auto scroll-constrained video-scroll-boundary" style={{
         scrollbarWidth: 'none',
-        msOverflowStyle: 'none'
+        msOverflowStyle: 'none',
+        WebkitScrollbarWidth: 'none',
+        overflow: '-moz-scrollbars-none'
       }}>
       {/* Grid overlay */}
       <div id="grid_container" className="absolute inset-0 z-0">
