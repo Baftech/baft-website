@@ -63,8 +63,8 @@ const BaFTCoin = () => {
         {
           opacity: 1,
           y: 0,
-          duration: 2.5,
-          ease: "power3.out",
+          duration: 3.2,
+          ease: "power2.out",
         }
       )
       .fromTo(
@@ -90,10 +90,10 @@ const BaFTCoin = () => {
           rotation: -5,
         },
         {
-          opacity: 0.2,
+          opacity: 0.3,
           scale: 1,
           rotation: 0,
-          duration: 3.8,
+          duration: 3.2,
           ease: "power2.out",
           onComplete: () => {
             // Start smooth floating animation after fade-in completes
@@ -106,11 +106,17 @@ const BaFTCoin = () => {
             });
           }
         }, "-=1.2") // Start slightly before previous animation ends
+      .to(".coin-text", {
+        // Apply glow to text only once the coin is on screen
+        textShadow: "0px -4px 24px rgba(255,255,255,0.25)",
+        duration: 3.2,
+        ease: "power2.out",
+      }, "<")
       .to(".intro-text, .coin-text", {
-        filter: "drop-shadow(0 0 8px rgba(255,215,0,0.4))",
-        duration: 4,
-        ease: "power1.out",
-      }, "-=2.5"); // Start glow effect during coin animation
+        filter: "none",
+        duration: 0.01,
+        ease: "none",
+      }, "-=2.5"); // No glow
     }, introRef);
 
     return () => {
@@ -146,23 +152,19 @@ const BaFTCoin = () => {
           ref={coinRef}
           src="/b-coin image.png"
           alt="BaFT Coin"
-          className="w-56 h-auto sm:w-64 md:w-72 lg:w-104 xl:w-104 opacity-0"
-          style={{
-            position: 'relative',
-            top: '5%', // Move down slightly from center
-          }}
+          className="absolute md:relative h-auto w-[60vw] sm:w-[54vw] md:w-[40vw] lg:w-[34vw] xl:w-[662px] 2xl:w-[700px] max-w-[662px] 2xl:max-w-[700px] left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
         />
       </div>
 
       {/* Overlay Text */}
       <div className="z-10">
         <h2
-          className="intro-text text-white eb-garamond-intro text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[64px] font-normal mb-4 opacity-0"
+          className="intro-text text-white eb-garamond-intro text-2xl sm:text-3xl md:text-[34px] lg:text-[48px] xl:text-[64px] 2xl:text-[72px] leading-[1.16] font-normal mb-4 opacity-0"
         >
           Introducing
         </h2>
         <h1
-          className="coin-text text-4xl sm:text-5xl md:text-6xl lg:text-9xl xl:text-9xl 2xl:text-[160px] opacity-0"
+          className="coin-text eb-garamond-intro font-medium leading-[1.16] text-4xl sm:text-5xl md:text-[72px] lg:text-[104px] xl:text-[156px] 2xl:text-[160px] text-transparent bg-clip-text bg-[linear-gradient(180deg,#FFFFFF_38.23%,#000000_147.25%)] [--tw-text-stroke:1px_rgba(255,255,255,0.5)] [webkit-text-stroke:var(--tw-text-stroke)] [text-stroke:var(--tw-text-stroke)] opacity-0"
         >
           BaFT Coin
         </h1>
