@@ -1,8 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { GridBackground } from "../Themes/Gridbackground";
+import HeroMobileComponent from "./HeroMobileComponent";
 
 const Hero = () => {
+  const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef(null);
   const wrapperRef = useRef(null);
   const placeholderRef = useRef(null);
@@ -10,7 +12,28 @@ const Hero = () => {
   const lastUpdateAtRef = useRef(0);
   const lastTransform = useRef({});
 
+  // Detect mobile devices by viewport width
   useEffect(() => {
+    const checkMobile = () => {
+      try {
+        setIsMobile(window.innerWidth <= 768);
+      } catch (_) {}
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    window.addEventListener("orientationchange", checkMobile);
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      window.removeEventListener("orientationchange", checkMobile);
+    };
+  }, []);
+
+  // Note: We do NOT early-return for mobile because that would change the
+  // number/order of hooks between renders. We will conditionally render
+  // mobile UI in the JSX and short-circuit effect bodies when isMobile is true.
+
+  useEffect(() => {
+    if (isMobile) return; // skip desktop animation on mobile
     let rafId;
     const start = () => {
       if (!wrapperRef.current || !placeholderRef.current) {
@@ -162,10 +185,11 @@ const Hero = () => {
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [isMobile]);
 
   // Keep wrapper aligned to placeholder on viewport resize after animation completes
   useEffect(() => {
+    if (isMobile) return; // skip desktop resync logic on mobile
     const resyncLockedVideo = () => {
       if (!animationCompletedRef.current) return;
       if (!wrapperRef.current || !placeholderRef.current) return;
@@ -327,10 +351,14 @@ const Hero = () => {
       window.removeEventListener("pageshow", resyncLockedVideo);
       gsap.ticker.remove(updateTransformState);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <>
+      {isMobile ? (
+        <HeroMobileComponent />
+      ) : (
+        <>
       <style>
         {`
           /* Hide scrollbar completely across all browsers - Global approach */
@@ -728,6 +756,8 @@ const Hero = () => {
         </button>
       </div>
     </div>
+        </>
+      )}
     </>
   );
 };

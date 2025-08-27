@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 
-export const GridBackground = () => {
+export const GridBackground = ({ forceMobile = false }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -9,9 +9,16 @@ export const GridBackground = () => {
     let W, H, dpr, animationId;
     let startMs = 0; // track first frame time for elapsed calculations
 
+    // Mobile-specific grid behavior
+    const isMobile = forceMobile || window.innerWidth <= 768;
+    
+    // Mobile timing variables (accessible to all functions)
+    const mobileDelay = isMobile ? 0 : 11000;
+    const mobileDuration = isMobile ? 1000 : 3000;
+    
     // Increased grid size to match Figma design
-    const gridSize = 110; // Set to 110 for medium grid spacing
-    const speed = 7; // Slightly slower animation
+    const gridSize = isMobile ? 80 : 110; // Smaller grid for mobile
+    const speed = isMobile ? 5 : 7; // Slower animation for mobile
 
   let progress = 0 // one shared progress-right light
 
@@ -37,8 +44,8 @@ export const GridBackground = () => {
   const domeY = -50; // Closer to screen for subtle effect
 
   // --- Tile background with lighter smudged gradient ---
-  // For the first 11 seconds, make tiles simple black background; then show grid pattern after 11 seconds
-  const tilesAlpha = elapsedMs < 11000 ? 0 : Math.min(1, (elapsedMs - 11000) / 3000);
+  // Mobile: Show grid pattern immediately, Desktop: Wait 11 seconds
+  const tilesAlpha = elapsedMs < mobileDelay ? 0 : Math.min(1, (elapsedMs - mobileDelay) / mobileDuration);
 
   // Compute a responsive centered band of columns to skip (e.g., ~20% of width)
   const totalCols = Math.max(1, Math.ceil(W / gridSize));
@@ -81,11 +88,18 @@ export const GridBackground = () => {
 
         // Actual grid pattern rendering
         if (((x / gridSize) + (y / gridSize)) % 2 === 0) {
-          const gradient = ctx.createLinearGradient(x, y, x + gridSize, y + gridSize);
-          gradient.addColorStop(0, "rgba(240,240,240,0.05)");
-          gradient.addColorStop(1, "rgba(200,200,200,0.05)");
-          ctx.fillStyle = gradient;
-          ctx.fillRect(x, y, gridSize, gridSize);
+          if (isMobile) {
+            // Mobile: Simpler, more subtle tiles
+            ctx.fillStyle = "rgba(255,255,255,0.03)";
+            ctx.fillRect(x, y, gridSize, gridSize);
+          } else {
+            // Desktop: Gradient tiles
+            const gradient = ctx.createLinearGradient(x, y, x + gridSize, y + gridSize);
+            gradient.addColorStop(0, "rgba(240,240,240,0.05)");
+            gradient.addColorStop(1, "rgba(200,200,200,0.05)");
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x, y, gridSize, gridSize);
+          }
         }
       }
     }
@@ -93,12 +107,15 @@ export const GridBackground = () => {
   }
 
   // --- Grid lines ---
-  const gridAlpha = elapsedMs < 11000 ? 0 : 1;
+  const gridAlpha = elapsedMs < mobileDelay ? 0 : 1;
   
   // Only draw grid lines if they should be visible
   if (gridAlpha > 0) {
-    ctx.strokeStyle = `rgba(255,255,255,${0.25 * gridAlpha})`;
-    ctx.lineWidth = 0.5;
+    // Mobile: Thinner, more subtle grid lines
+    const gridOpacity = isMobile ? 0.15 : 0.25;
+    const gridWidth = isMobile ? 0.3 : 0.5;
+    ctx.strokeStyle = `rgba(255,255,255,${gridOpacity * gridAlpha})`;
+    ctx.lineWidth = gridWidth;
 
     for (let x = 0; x <= W; x += gridSize) {
       ctx.beginPath();
@@ -134,8 +151,8 @@ export const GridBackground = () => {
   ctx.save();
   ctx.globalCompositeOperation = "source-over"; // Ensure dome is drawn on top
   
-  // Make dome appear at the same time as grids (after 11 seconds)
-  const domeAlpha = elapsedMs < 11000 ? 0 : Math.min(1, (elapsedMs - 11000) / 3000);
+  // Make dome appear at the same time as grids
+  const domeAlpha = elapsedMs < mobileDelay ? 0 : Math.min(1, (elapsedMs - mobileDelay) / mobileDuration);
   ctx.globalAlpha = domeAlpha;
   
   ctx.beginPath();
@@ -210,8 +227,8 @@ export const GridBackground = () => {
   const elapsed = performance.now() - startMs;
   drawGrid(elapsed)
 
-  // Only show beams after 11 seconds
-  if (elapsed >= 11000) {
+  // Only show beams after delay (immediately for mobile, 11s for desktop)
+  if (elapsed >= mobileDelay) {
     // Beam 1 - vertical up
     const verticalX = Math.round((gridSize * 1.5) / gridSize) * gridSize
     const y1 = H - (progress % (H + 150))
