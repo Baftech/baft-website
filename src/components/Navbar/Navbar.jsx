@@ -80,7 +80,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
           <img
             src={theme === "dark" ? "logo.png" : "logo1.png"}
             alt="Logo"
-            className="w-12 h-auto sm:w-14 md:w-16 lg:w-18 xl:w-20 cursor-pointer"
+            className="w-16 h-auto sm:w-18 md:w-20 lg:w-22 xl:w-24 cursor-pointer"
             onClick={() => {
               if (typeof onNavigate === 'function') {
                 onNavigate('hero');

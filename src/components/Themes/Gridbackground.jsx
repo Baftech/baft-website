@@ -31,14 +31,14 @@ export const GridBackground = () => {
   ctx.clearRect(0, 0, W, H);
 
   // --- Define the dome area (just for overlay, not skipping tiles) ---
-  const domeWidth = 1359;
-  const domeHeight = 457;
-  const domeX = W / 2 - domeWidth / 2 + 4.5;
-  const domeY = -277;
+  const domeWidth = W * 1.2; // Wider than screen width for gentle curve
+  const domeHeight = 150; // Much shallower for gentle arc
+  const domeX = W / 2 - domeWidth / 2;
+  const domeY = -50; // Closer to screen for subtle effect
 
   // --- Tile background with lighter smudged gradient ---
-  // For the first 10 seconds, make tiles simple black background; then show grid pattern after 10 seconds
-  const tilesAlpha = elapsedMs < 10000 ? 0 : Math.min(1, (elapsedMs - 10000) / 800);
+  // For the first 11 seconds, make tiles simple black background; then show grid pattern after 11 seconds
+  const tilesAlpha = elapsedMs < 11000 ? 0 : Math.min(1, (elapsedMs - 11000) / 3000);
 
   // Compute a responsive centered band of columns to skip (e.g., ~20% of width)
   const totalCols = Math.max(1, Math.ceil(W / gridSize));
@@ -93,7 +93,7 @@ export const GridBackground = () => {
   }
 
   // --- Grid lines ---
-  const gridAlpha = elapsedMs < 10000 ? 0 : 1;
+  const gridAlpha = elapsedMs < 11000 ? 0 : 1;
   
   // Only draw grid lines if they should be visible
   if (gridAlpha > 0) {
@@ -130,20 +130,47 @@ export const GridBackground = () => {
 
   ctx.restore();
 
-  // --- Dome Overlay (just shading, no tile skipping) ---
+  // --- Gentle Arc Dome Overlay (drawn last to maintain visibility) ---
   ctx.save();
+  ctx.globalCompositeOperation = "source-over"; // Ensure dome is drawn on top
   ctx.beginPath();
-  ctx.ellipse(
-    W / 2,
-    domeY + domeHeight,
-    domeWidth / 2,
-    domeHeight,
-    0,
-    Math.PI,
-    2 * Math.PI
+  
+  // Create a smooth, gentle arc that curves down in the center
+  const arcWidth = W * 1.2; // Wider than screen for gentle curve
+  const arcHeight = 80; // Very shallow height for subtle arc
+  const arcX = W / 2;
+  const arcY = 50; // Position for gentle curve
+  
+  // Draw the arc using quadratic curves for smoothness
+  ctx.moveTo(0, arcY); // Start at left edge
+  
+  // Left curve down
+  ctx.quadraticCurveTo(
+    arcX * 0.25, // Control point 1/4 from left
+    arcY + arcHeight * 0.8, // Dip down
+    arcX, // Center point (lowest)
+    arcY + arcHeight
   );
-  ctx.fillStyle = "#272727";
-  ctx.filter = "blur(162px)";
+  
+  // Right curve up
+  ctx.quadraticCurveTo(
+    arcX * 1.75, // Control point 3/4 from left
+    arcY + arcHeight * 0.8, // Dip down
+    W, // End at right edge
+    arcY
+  );
+  
+  // Close the path to create the dome
+  ctx.lineTo(W, 0);
+  ctx.lineTo(0, 0);
+  ctx.closePath();
+  
+  // Make dome appear at the same time as grids (after 11 seconds)
+  const domeAlpha = elapsedMs < 11000 ? 0 : Math.min(1, (elapsedMs - 11000) / 3000);
+  ctx.globalAlpha = domeAlpha;
+  
+  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.filter = "blur(80px)"; // Reduced blur for sharper curve
   ctx.fill();
   ctx.restore();
 }
@@ -182,8 +209,8 @@ export const GridBackground = () => {
   const elapsed = performance.now() - startMs;
   drawGrid(elapsed)
 
-  // Only show beams after 10 seconds
-  if (elapsed >= 10000) {
+  // Only show beams after 11 seconds
+  if (elapsed >= 11000) {
     // Beam 1 - vertical up
     const verticalX = Math.round((gridSize * 1.5) / gridSize) * gridSize
     const y1 = H - (progress % (H + 150))
@@ -241,34 +268,11 @@ export const GridBackground = () => {
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full"
-          style={{ zIndex: 2 }}
+          style={{ zIndex: 9998 }}
         />
       </div>
 
-      {/* Responsive Half-Ellipse overlay at full opacity (on top) */}
-      <div
-        className="absolute"
-        style={{
-          position: 'absolute',
-          // Responsive width up to the original 1359px
-          width: 'min(92vw, 1359px)',
-          // Maintain original 1359:457 ratio
-          aspectRatio: '1359 / 457',
-          // Center horizontally and shift upward ~63% of its own height (≈ -287/457)
-          left: '50%',
-          top: 0,
-          transform: 'translate(-50%, -63%)',
-          // Visuals
-          background: '#272727',
-          filter: 'blur(162px)',
-          opacity: 1,
-          zIndex: 3,
-          borderRadius: '50% / 100%',
-          clipPath: 'inset(0 0 50% 0)',
-          WebkitClipPath: 'inset(0 0 50% 0)',
-          pointerEvents: 'none',
-        }}
-      />
+
     </div>
   );
 };
