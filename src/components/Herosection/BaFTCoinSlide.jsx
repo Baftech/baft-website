@@ -1,17 +1,34 @@
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GridBackground } from "../Themes/Grid_coins";
+import BaftCoinMobile from "./BaftCoinMobile";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const BaFTCoin = () => {
+  const [isMobile, setIsMobile] = useState(false);
   const introRef = useRef(null);
   const coinRef = useRef(null);
   const animationRef = useRef(null);
   const hasAnimatedRef = useRef(false);
 
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   useLayoutEffect(() => {
+    // Only proceed if refs are available
+    if (!introRef.current || !coinRef.current) return;
+
     // Kill any existing animations first
     if (animationRef.current) {
       gsap.killTweensOf(coinRef.current);
@@ -19,14 +36,12 @@ const BaFTCoin = () => {
     }
 
     // Reset coin animation properties without affecting position
-    if (coinRef.current) {
-      gsap.set(coinRef.current, {
-        opacity: 0,
-        scale: 1,
-        rotation: 0,
-        // Don't reset y and x to preserve CSS positioning
-      });
-    }
+    gsap.set(coinRef.current, {
+      opacity: 0,
+      scale: 1,
+      rotation: 0,
+      // Don't reset y and x to preserve CSS positioning
+    });
 
     const ctx = gsap.context(() => {
       // Create a timeline for smooth sequencing
@@ -97,13 +112,15 @@ const BaFTCoin = () => {
           ease: "power2.out",
           onComplete: () => {
             // Start smooth floating animation after fade-in completes
-            animationRef.current = gsap.to(coinRef.current, {
-              y: -15,
-              repeat: -1,
-              yoyo: true,
-              ease: "power1.inOut",
-              duration: 6,
-            });
+            if (coinRef.current) {
+              animationRef.current = gsap.to(coinRef.current, {
+                y: -15,
+                repeat: -1,
+                yoyo: true,
+                ease: "power1.inOut",
+                duration: 6,
+              });
+            }
           }
         }, "-=1.2") // Start slightly before previous animation ends
       .to(".coin-text", {
@@ -120,23 +137,27 @@ const BaFTCoin = () => {
     }, introRef);
 
     return () => {
-      // Clean up all GSAP animations without affecting position
+      // Clean up all GSAP animations safely
       if (coinRef.current) {
         gsap.killTweensOf(coinRef.current);
-        // Reset only animation properties, preserve CSS positioning
-        gsap.set(coinRef.current, {
-          opacity: 0,
-          scale: 1,
-          rotation: 0,
-          // Don't reset y and x to preserve CSS positioning
-        });
+      }
+      if (animationRef.current) {
+        gsap.killTweensOf(animationRef.current);
+        animationRef.current = null;
       }
       hasAnimatedRef.current = false;
-      // Refresh ScrollTrigger to ensure proper cleanup
-      ScrollTrigger.refresh();
-      ctx.revert();
+      
+      // Safely revert context
+      if (ctx) {
+        ctx.revert();
+      }
     };
   }, []);
+
+  // Return mobile component if on mobile
+  if (isMobile) {
+    return <BaftCoinMobile />;
+  }
 
   return (
     <section
