@@ -17,7 +17,7 @@ const BaftCoinMobile = () => {
 
     // Kill any existing animations first
     if (animationRef.current) {
-      gsap.killTweensOf(coinRef.current);
+      gsap.killTweensOf(animationRef.current);
       animationRef.current = null;
     }
 
@@ -53,17 +53,25 @@ const BaftCoinMobile = () => {
         }
       });
 
-      // Mobile-optimized animation sequence
+      // Mobile-optimized animation sequence with synchronized coin and text movement
       tl.fromTo(
         ".intro-text",
         {
           opacity: 0,
-          y: 20,
+          y: 0,
+          x: "50%",
+          left: "50%",
+          top: "50vh",
+          transform: "translate(-50%, -50%)",
         },
         {
           opacity: 1,
           y: 0,
-          duration: 2.5,
+          x: "50%",
+          left: "50%",
+          top: "50vh",
+          transform: "translate(-50%, -50%)",
+          duration: 1.5,
           ease: "power2.out",
         }
       )
@@ -72,16 +80,24 @@ const BaftCoinMobile = () => {
         {
           opacity: 0,
           scale: 0.9,
-          y: 20,
+          y: 0,
+          x: "50%",
+          left: "50%",
+          top: "50vh",
+          transform: "translate(-50%, -50%)",
         },
         {
           opacity: 1,
           scale: 1,
           y: 0,
-          duration: 2.5,
+          x: "50%",
+          left: "50%",
+          top: "50vh",
+          transform: "translate(-50%, -50%)",
+          duration: 1.5,
           ease: "power2.out",
         },
-        "-=0.6"
+        "-=0.8"
       )
       .fromTo(coinRef.current, 
         {
@@ -96,7 +112,9 @@ const BaftCoinMobile = () => {
           scale: 1,
           rotation: 0,
           y: 0,
-          top: "60vh",
+          top: "50vh",
+          left: "50%",
+          xPercent: -50,
           duration: 2.5,
           ease: "power2.out",
           onComplete: () => {
@@ -110,6 +128,16 @@ const BaftCoinMobile = () => {
             }
           }
         }, "-=1.0")
+      .to(".intro-text", {
+        y: "-15vh",
+        duration: 2.5,
+        ease: "none",
+      }, "<")
+      .to(".coin-text", {
+        y: "-15vh",
+        duration: 2.5,
+        ease: "none",
+      }, "<")
       .to(".coin-text", {
         textShadow: "0px -2px 16px rgba(255,255,255,0.2)",
         duration: 2.5,
@@ -133,9 +161,13 @@ const BaftCoinMobile = () => {
       }
       hasAnimatedRef.current = false;
       
-      // Safely revert context
-      if (ctx) {
-        ctx.revert();
+      // Safely revert context with proper error handling
+      try {
+        if (ctx && typeof ctx.revert === 'function') {
+          ctx.revert();
+        }
+      } catch (error) {
+        console.warn('GSAP context cleanup warning:', error);
       }
     };
   }, []);
@@ -160,14 +192,14 @@ const BaftCoinMobile = () => {
       </div>
 
       {/* Mobile-optimized Text Layout */}
-      <div className="z-10 relative z-20">
+      <div className="z-10 relative z-20 mb-6">
         <h2
-          className="intro-text text-white eb-garamond-intro text-2xl sm:text-3xl leading-tight font-normal mb-3 opacity-0"
+          className="intro-text text-white eb-garamond-intro text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl leading-tight font-normal mb-8 opacity-0"
         >
           Introducing
         </h2>
         <h1
-          className="coin-text eb-garamond-intro font-medium leading-tight text-4xl sm:text-5xl text-transparent bg-clip-text bg-[linear-gradient(180deg,#FFFFFF_38.23%,#000000_147.25%)] [--tw-text-stroke:1px_rgba(255,255,255,0.5)] [webkit-text-stroke:var(--tw-text-stroke)] [text-stroke:var(--tw-text-stroke)] opacity-0"
+          className="coin-text eb-garamond-intro font-medium leading-tight text-7xl sm:text-8xl md:text-9xl lg:text-[120px] xl:text-[140px] text-transparent bg-clip-text bg-[linear-gradient(197.98deg,#999999_12.89%,#3D3D3D_73.42%)] [--tw-text-stroke:1px_rgba(255,255,255,0.5)] [webkit-text-stroke:var(--tw-text-stroke)] [text-stroke:var(--tw-text-stroke)] opacity-0"
         >
           BaFT Coin
         </h1>
