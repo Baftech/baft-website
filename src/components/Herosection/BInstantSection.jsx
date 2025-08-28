@@ -1,100 +1,92 @@
 import React, { Suspense, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { motion } from "framer-motion";
 
-function Coin({ texture, position, animate, target }) {
+function Coin({ texture, position, animate, target, opacity = 0.97 }) {
   const ref = useRef();
-  
+
   useFrame(() => {
     if (animate && ref.current) {
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.005); // Further reduced for slower, subtler movement
+      ref.current.position.lerp(new THREE.Vector3(...target), 0.005);
     }
-    
   });
 
-  // Compensation: farther coins scaled up, closer coins scaled down
   const scaleFactor = 1.9 - position[2] * 0.3;
 
   return (
-    <mesh
-      ref={ref}
-      position={position}
-      scale={[scaleFactor, scaleFactor, 1]}
-      rotation={[-0.02, 0, 0.0999]} // ~-40° pitch for stronger toward-viewer tilt
-    >
-      <planeGeometry args={[2, 2]} />
-
+    <group>
+      {/* Main coin face */}
+      <mesh
+        ref={ref}
+        position={position}
+        scale={[scaleFactor, scaleFactor, 1]}
+        rotation={[-0.02, 0, 0.0999]}
+      >
+        <planeGeometry args={[2, 2]} />
         <meshBasicMaterial
-        map={texture}
-        transparent
-        opacity={0.98}
-      />
-    </mesh>
+          map={texture}
+          transparent
+          opacity={opacity}
+        />
+      </mesh>
+
+
+    </group>
   );
 }
+
 
 const CoinStack = ({ startAnimation }) => {
   const coinTexture = useTexture("/b-coin.svg");
 
   return (
     <>
-      {/* Bottom coin */}
       <Coin
-        opacity={1}
         texture={coinTexture}
         position={[0.4, -0.4, -0.4]}
         animate={startAnimation}
         target={[0.63, -0.63, -0.63]}
+        opacity={1.0}
       />
-
-
-
-      {/* Middle coin */}
       <Coin
-        opacity={1}
         texture={coinTexture}
         position={[0, 0, 0]}
         animate={startAnimation}
         target={[0, 0, 0]}
-        
+        opacity={1.0}
       />
-
-      {/* Top coin */}
       <Coin
-        opacity={1}
         texture={coinTexture}
         position={[-0.3, 0.4, 0.4]}
         animate={startAnimation}
         target={[-0.6, 0.6, 0.6]}
+        opacity={0.97}
       />
     </>
   );
 };
 
 const BInstantSection = () => {
-  const [startCoinAnimation, setStartCoinAnimation] = useState(false); // Changed to false initially
-  const [showCoins, setShowCoins] = useState(false); // New state to control coin visibility
+  const [startCoinAnimation, setStartCoinAnimation] = useState(false);
 
-  // Start coin animation after 800ms delay
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setStartCoinAnimation(true);
-      setShowCoins(true); // Show coins after 800ms
-    }, 800);
-    
+    const timer = setTimeout(() => setStartCoinAnimation(true), 800);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className="relative w-full h-screen bg-black">
-      {/* Background glow */}
+      {/* Removed background glow to avoid dark oval */}
+
+      {/* Radial gradient background */}
       <div
-        className="absolute inset-0 pointer-events-none z-0"
+        className="absolute inset-0"
         style={{
-          background:
-            "radial-gradient(41.99% 33.2% at 50% 50%, #092646 0%, rgba(9, 38, 70, 0) 100%)",
+          background: "radial-gradient(41.99% 33.2% at 50% 50%, #092646 0%, rgba(9, 38, 70, 0) 100%)",
+          zIndex: 10,
+          pointerEvents: "none"
         }}
       />
 
@@ -103,38 +95,50 @@ const BInstantSection = () => {
         camera={{ position: [0, 0, 7.5], fov: 45 }}
         className="w-full h-full relative z-20"
         gl={{
-          powerPreference: 'low-power',
-          antialias: false,
-          stencil: false,
-          depth: true,
-          alpha: true,
-          preserveDrawingBuffer: false,
+          physicallyCorrectLights: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          outputEncoding: THREE.sRGBEncoding,
         }}
-        dpr={[1, 1.5]}
       >
         <Suspense fallback={null}>
-          <ambientLight />
+          {/* No ambient light */}
+          <ambientLight intensity={0} color="#fff8dc" /> 
+
+          {/* Key light with warm golden tint */}
+          <directionalLight
+            position={[-6, 7, 4]}
+            intensity={0.45}      // reduced
+            color="#ffd27f"       // warm yellow-gold
+            castShadow
+          />
+
+          {/* Soft helper light for highlights */}
+          <spotLight
+            position={[-2, 8, 3]}
+            angle={0.5}
+            penumbra={0.5}
+            intensity={0.12}      // reduced
+            distance={40}
+            color="#ffebc2"       // warm cream-white
+          />
+          {/* Environment reflections */}
+          <Environment preset="studio" />
           <CoinStack startAnimation={startCoinAnimation} />
         </Suspense>
       </Canvas>
 
-      {/* 🔹 Black film that covers coins initially and moves up to reveal them */}
-      <motion.div
-        className="absolute inset-0 z-15 pointer-events-none bg-black"
-        initial={{ y: 0 }}
-        animate={{ y: showCoins ? -100 : 0 }}
-        transition={{ 
-          duration: 9.5, 
-          ease: [0.25, 0.1, 0.25, 1],
-          delay: 0.8 // Start moving after 800ms
+      {/* Transparent black film over coins */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundColor: "rgba(0, 0, 0, 0.3)",
+          zIndex: 25,
+          pointerEvents: "none"
         }}
       />
 
-      {/* 🔹 Dark transparent film (above coins, below text) */}
-      <div
-        className="absolute inset-0 z-25 pointer-events-none"
-        style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
-      />
+      {/* Dark transparent film (optional, can remove if too dark) */}
+      {/* Removed dark film overlay to keep coins bright */}
 
       {/* Overlay Text */}
       <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
@@ -142,11 +146,8 @@ const BInstantSection = () => {
           className="flex flex-col items-start leading-tight text-center"
           initial={{ y: 120, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ 
-            duration: 3.5, 
-            ease: [0.25, 0.1, 0.25, 1] 
-          }}
-          style={{ marginTop: 'clamp(2rem, 8vh, 6rem)' }}
+          transition={{ duration: 3.5, ease: [0.25, 0.1, 0.25, 1] }}
+          style={{ marginTop: "clamp(2rem, 8vh, 6rem)" }}
         >
           <motion.span
             className="text-amber-50 italic bc-bcoin"
@@ -209,29 +210,8 @@ const BInstantSection = () => {
           </motion.span>
         </motion.div>
       </div>
-      {/* Responsive MacBook-specific text sizing */}
-      <style>{`
-        @media (min-width: 1280px) and (max-width: 1680px) {
-          .bc-bcoin { font-size: 90px !important; }
-          .bc-instant { font-size: 90px !important; }
-          .bc-dash { font-size: 90px !important; }
-          .bc-shared { font-size: 88px !important; }
-          .bc-instantly { font-size: 90px !important; }
-          .bc-block { transform: scaleX(1.08); transform-origin: left center; }
-        }
-        @media (min-width: 1024px) and (max-width: 1279px) {
-          .bc-bcoin { font-size: 60px !important; }
-          .bc-instant { font-size: 60px !important; }
-          .bc-dash { font-size: 60px !important; }
-          .bc-shared { font-size: 66px !important; }
-          .bc-instantly { font-size: 60px !important; }
-          .bc-block { transform: none !important; }
-        }
-      `}</style>
     </div>
   );
 };
 
 export default BInstantSection;
-
-
