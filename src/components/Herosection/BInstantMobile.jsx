@@ -20,10 +20,10 @@ function Coin({ texture, position, animate, target }) {
       <mesh
         ref={ref}
         position={position}
-        scale={[0.02, 0.02, 1]}
+        scale={[0.001, 0.001, 1]}
         rotation={[-0.02, 0, 0.1]}
       >
-        <planeGeometry args={[0.02, 0.02]} />
+        <planeGeometry args={[0.001, 0.001]} />
         <meshStandardMaterial
           map={texture}
           color="#FFD700"          // classic yellow gold
@@ -49,9 +49,9 @@ const CoinStack = ({ startAnimation }) => {
     <>
       <Coin
         texture={coinTexture}
-        position={[0.03, -0.03, -0.05]}
+        position={[0.005, -0.005, -0.01]}
         animate={startAnimation}
-        target={[0.05, -0.05, -0.05]}
+        target={[0.008, -0.008, -0.008]}
       />
       <Coin
         texture={coinTexture}
@@ -61,9 +61,9 @@ const CoinStack = ({ startAnimation }) => {
       />
       <Coin
         texture={coinTexture}
-        position={[-0.03, 0.03, 0.03]}
+        position={[-0.005, 0.005, 0.005]}
         animate={startAnimation}
-        target={[-0.05, 0.05, 0.05]}
+        target={[-0.008, 0.008, 0.008]}
       />
     </>
   );
@@ -102,19 +102,19 @@ const BInstantMobile = () => {
         }}
       />
 
-      {/* Coins canvas container — much smaller for mobile */}
+      {/* Coins canvas container — extremely small for mobile */}
       <div
         className="absolute"
         style={{
           top: "307.63px",
           left: "318.71px",
-          width: "150px",
-          height: "100px",
+          width: "40px",
+          height: "30px",
           zIndex: 20,
         }}
       >
         <Canvas
-          camera={{ position: [0, 0, 25], fov: 25 }}
+          camera={{ position: [0, 0, 50], fov: 15 }}
           className="w-full h-full"
           gl={{ 
             powerPreference: "low-power", 
@@ -163,12 +163,12 @@ const BInstantMobile = () => {
         transition={{ duration: 9.5, ease: [0.25, 0.1, 0.25, 1], delay: 0.8 }}
       />
 
-      {/* CSS overlay over coins — much smaller for mobile */}
+      {/* CSS overlay over coins — extremely small for mobile */}
       <div
         className="absolute"
         style={{
-          width: "150px",
-          height: "100px",
+          width: "40px",
+          height: "30px",
           left: "318.71px",
           top: "307.63px",
           opacity: 0,
