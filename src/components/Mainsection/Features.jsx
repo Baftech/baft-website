@@ -13,30 +13,34 @@ const Cards = () => {
   const rotateIntervalRef = useRef(null);
 
   const featuresData = [
-    {
-      icon: FaCreditCard,
-      image: "/baft_card1.svg",
-      title: "Pay Bills",
-      description: "Sort your bills with automated payments and reminders.",
-    },
-    {
-      icon: FaUser,
-      image: "/baft_card2.svg",
-      title: "Manage Accounts",
-      description: "Control your finances with management tools and insights.",
-    },
-    {
-      icon: FaGift,
-      image: "/baft_card3.svg",
-      title: "Rewards",
-      description: "Earn points and redeem them for rewards and benefits.",
-    },
-    {
-      icon: FaShieldAlt,
-      image: "/baft_card4.svg",
-      title: "Seamless Payments",
-      description: "Send and receive coins instantly with just a few taps.",
-    },
+          {
+        icon: null,
+        customIcon: "/pay-bills.svg",
+        image: "/baft_card1.svg",
+        title: "Pay Bills",
+        description: "Sort your bills with automated payments and reminders.",
+      },
+          {
+        icon: null,
+        customIcon: "/manage-account.svg",
+        image: "/baft_card2.svg",
+        title: "Manage Accounts",
+        description: "Control your finances with management tools and insights.",
+      },
+          {
+        icon: null,
+        customIcon: "/rewards.svg",
+        image: "/baft_card3.svg",
+        title: "Rewards",
+        description: "Earn points and redeem them for rewards and benefits.",
+      },
+          {
+        icon: null,
+        customIcon: "/seamless-payments.svg",
+        image: "/baft_card4.svg",
+        title: "Seamless Payments",
+        description: "Send and receive coins instantly with just a few taps.",
+      },
   ];
 
   // Global vertical offset to move all cards slightly down
@@ -233,13 +237,36 @@ const Cards = () => {
       <section
         id="features"
         className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 sm:py-16 lg:py-20 xl:py-24 2xl:py-28 pre-enter"
+        style={{
+          marginTop: "clamp(4vh, 8vh, 12vh)",
+          marginLeft: "1cm",
+          marginRight: "1cm"
+        }}
         ref={sectionRef}
       >
         {overlayActive && <div className="screen-reveal-overlay" />}
         <div className="w-full max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 xl:gap-20 2xl:gap-24 items-start lg:items-center">
 
           {/* Left Column - Features Text */}
-          <div className="flex flex-col justify-start w-full lg:w-auto order-2 lg:order-1 z-10">
+          <div 
+            className="flex flex-col justify-start w-full lg:w-auto order-2 lg:order-1 z-10"
+            style={{
+              /* Container */
+              /* Auto layout */
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              padding: "0px",
+              width: "clamp(400px, 60vw, 757.63px)",
+              height: "clamp(600px, 80vh, 1023.77px)",
+              transform: "rotate(0.08deg)",
+              /* Inside auto layout */
+              flex: "none",
+              order: 0,
+              flexGrow: 1
+            }}
+          >
             <p
               className="font-normal mb-3 sm:mb-4 lg:mb-5 xl:mb-6 flex items-center gap-2"
               style={{
@@ -253,19 +280,25 @@ const Cards = () => {
             </p>
 
             <h1
-              className="leading-tight mb-6 sm:mb-8 lg:mb-10 xl:mb-12 font-bold text-[28px] sm:text-[34px] md:text-[44px] lg:text-[54px] xl:text-[64px] 2xl:text-[72px] text-[#1966BB]"
-              style={{ fontFamily: "EB Garamond, serif" }}
+              className="leading-tight mb-6 sm:mb-8 lg:mb-10 xl:mb-12 font-bold text-[#1966BB]"
+              style={{ 
+                fontFamily: "EB Garamond, serif",
+                fontSize: "clamp(32px, 7vw, 96px)",
+                lineHeight: "clamp(36px, 7.5vw, 100px)",
+                margin: 0,
+                padding: 0
+              }}
             >
               <span className="block">All in</span>
               <span className="block">One Place</span>
             </h1>
 
-            <ul
-              className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6 xl:space-y-7 2xl:space-y-8 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl"
-              onMouseEnter={stopAutoRotate}
-              onMouseLeave={startAutoRotate}
-              style={{ cursor: "default" }}
-            >
+                          <ul
+                className="space-y-1 sm:space-y-1 md:space-y-1 lg:space-y-2 xl:space-y-2 2xl:space-y-2 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl"
+                onMouseEnter={stopAutoRotate}
+                onMouseLeave={startAutoRotate}
+                style={{ cursor: "default", marginBottom: "0.5cm" }}
+              >
               {featuresData.map((feature, index) => {
                 const isActive = index === currentIndex;
                 const IconComponent = feature.icon;
@@ -273,30 +306,78 @@ const Cards = () => {
                 return (
                   <li
                     key={index}
-                    className={`feature-item flex items-center gap-3 sm:gap-4 lg:gap-5 xl:gap-6 p-4 lg:p-5 xl:p-6 rounded-lg transition-all duration-500 ${
-                      isActive
-                        ? "bg-blue-50 border-l-4 border-[#1966BB] shadow-sm"
-                        : "bg-transparent border-l-4 border-transparent"
-                    }`}
                     onMouseEnter={() => setCurrentIndex(index)}
+                    style={{
+                      /* Frame 1171276245 (Active) / Frame 1171276246 (Inactive) */
+                      boxSizing: "border-box",
+                      /* Auto layout */
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                      padding: isActive 
+                        ? "clamp(16px, 2vw, 24px) clamp(12px, 1.5vw, 16px)"
+                        : "clamp(16px, 2vw, 24px) clamp(12px, 1.5vw, 16px)",
+                      gap: "clamp(12px, 1.5vw, 16px)",
+                      width: "100%",
+                      minHeight: "clamp(70px, 6vh, 91px)",
+                      background: isActive ? "#FFFFFF" : "transparent",
+                      border: isActive 
+                        ? "1px solid rgba(22, 93, 172, 0.19)"
+                        : "none",
+                      borderRadius: "clamp(12px, 1.5vw, 16px)",
+                      boxShadow: isActive ? "0px 2px 8px rgba(25, 102, 187, 0.1)" : "none",
+                      /* Inside auto layout */
+                      flex: "none",
+                      order: isActive ? 0 : 1,
+                      flexGrow: 0,
+                      transition: "all 0.3s ease"
+                    }}
                   >
-                    <IconComponent
-                      className={`text-xl sm:text-2xl lg:text-3xl xl:text-4xl flex-shrink-0 ${
-                        isActive ? "text-[#1966BB]" : "text-[#1966BB]" 
-                      }`}
-                    />
+                    {feature.customIcon ? (
+                      <img 
+                        src={feature.customIcon} 
+                        alt={feature.title}
+                        className="flex-shrink-0"
+                        style={{
+                          width: "clamp(20px, 2.5vw, 30px)",
+                          height: "clamp(20px, 2.5vw, 30px)"
+                        }}
+                      />
+                    ) : (
+                      <IconComponent
+                        className={`text-xl sm:text-2xl lg:text-3xl xl:text-4xl flex-shrink-0 ${
+                          isActive ? "text-[#1966BB]" : "text-[#1966BB]" 
+                        }`}
+                      />
+                    )}
                     <div className="min-w-0 flex-1">
                       <h6
-                        className={`font-semibold text-sm sm:text-base lg:text-lg xl:text-xl 2xl:text-2xl ${
-                          isActive ? "text-[#1966BB]" : "text-[#092646]"
-                        }`}
+                        style={{
+                          fontFamily: "Inter",
+                          fontWeight: 500,
+                          fontStyle: "normal",
+                          fontSize: "clamp(14px, 1.5vw, 17.8px)",
+                          lineHeight: "100%",
+                          letterSpacing: "0%",
+                          color: "#1966BB",
+                          margin: 0
+                        }}
                       >
                         {feature.title}
                       </h6>
                       <p
-                        className={`text-xs sm:text-sm lg:text-base xl:text-lg 2xl:text-xl ${
-                          isActive ? "text-[#1966BB]/90" : "text-gray-600"
-                        }`}
+                        style={{
+                          fontFamily: "Inter",
+                          fontWeight: 400,
+                          fontStyle: "normal",
+                          fontSize: "clamp(12px, 1.2vw, 14px)",
+                          lineHeight: "100%",
+                          letterSpacing: "0%",
+                          color: "#989898",
+                          margin: 0,
+                          marginTop: "clamp(6px, 1vw, 12px)"
+                        }}
                       >
                         {feature.description}
                       </p>
