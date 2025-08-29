@@ -12,6 +12,9 @@ const B_Fast_Desktop = () => {
   const videoRef = useRef(null);
   const sectionRef = useRef(null);
   const overlayRef = useRef(null);
+  const starsGroup2Ref = useRef(null);
+  const starsGroup1Ref = useRef(null);
+  const orbitingStarsRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
   const [videoSize, setVideoSize] = useState({ width: '100%', height: '100%' });
   const [optimalSpacing, setOptimalSpacing] = useState('2cm');
@@ -100,6 +103,9 @@ const B_Fast_Desktop = () => {
     
     // Always start with overlay hidden, we'll show it conditionally
     gsap.set(overlayRef.current, { opacity: 0 });
+    if (starsGroup2Ref.current) gsap.set(starsGroup2Ref.current, { opacity: 0 });
+    if (starsGroup1Ref.current) gsap.set(starsGroup1Ref.current, { opacity: 0 });
+    if (orbitingStarsRef.current) gsap.set(orbitingStarsRef.current, { opacity: 0 });
     
     // Track scroll direction to determine if coming from bottom
     let lastScrollY = window.scrollY;
@@ -132,7 +138,12 @@ const B_Fast_Desktop = () => {
                 y: 0,
                 duration: 4.0,
                 ease: "power1.inOut"
-              }, "+=2.0");
+              }, "+=2.0")
+              .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
+                opacity: 1,
+                duration: 2.0,
+                ease: "power1.out"
+              }, "<");
             } else {
               // Normal scroll from top → just animate heading
               tl.to(contentRef.current, {
@@ -141,7 +152,12 @@ const B_Fast_Desktop = () => {
                 duration: 4.0,
                 ease: "power1.inOut",
                 delay: 1.5
-              });
+              })
+              .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
+                opacity: 1,
+                duration: 2.0,
+                ease: "power1.out"
+              }, "<");
             }
             
             lastScrollY = currentScrollY; // ✅ update scroll position
@@ -165,7 +181,7 @@ const B_Fast_Desktop = () => {
     // Cleanup function
     return () => {
       observer.disconnect();
-      gsap.killTweensOf([contentRef.current, overlayRef.current]);
+      gsap.killTweensOf([contentRef.current, overlayRef.current, starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current]);
     };
   }, []);
 
@@ -213,7 +229,6 @@ const B_Fast_Desktop = () => {
                           textAlign: 'center',
             width: 'clamp(280px, 90vw, 1600px)', // Responsive width for all small screens
             height: 'clamp(80px, 15vh, 200px)', // Responsive height for all small screens
-            transform: 'rotate(0deg)',
             opacity: 1,
             backgroundImage: 'linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%)',
             backgroundRepeat: 'no-repeat',
@@ -241,7 +256,6 @@ const B_Fast_Desktop = () => {
             style={{ 
               width: 'clamp(280px, 90vw, 1600px)', // Responsive width for all small screens
               height: 'clamp(25px, 3vh, 50px)', // Responsive height for all small screens
-              transform: 'rotate(0deg)',
               opacity: 1,
               fontFamily: 'Inter, sans-serif',
               fontWeight: 500,
@@ -258,7 +272,7 @@ const B_Fast_Desktop = () => {
             justifyContent: 'center',
             position: 'relative',
             left: '50%',
-            transform: 'translateX(-50%)'
+            transform: 'translateX(-50%)',
             }}
           >
             One Tap. Zero Wait.
@@ -389,7 +403,7 @@ const B_Fast_Desktop = () => {
         }} />
 
         {/* Group 2 - Stars Overlay - Spread across entire screen */}
-        <div style={{
+        <div ref={starsGroup2Ref} style={{
           position: 'absolute',
           width: '100vw', // Full viewport width
           height: '100vh', // Full viewport height
@@ -475,7 +489,7 @@ const B_Fast_Desktop = () => {
         </div>
 
         {/* Extra Global Stars Overlay (Group 1 - smaller) */}
-        <div style={{
+        <div ref={starsGroup1Ref} style={{
           position: 'absolute',
           width: '100vw',
           height: '100vh',
@@ -533,7 +547,7 @@ const B_Fast_Desktop = () => {
         </div>
 
         {/* Orbiting stars overlay - revolve around center */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 22, pointerEvents: 'none' }}>
+        <div ref={orbitingStarsRef} style={{ position: 'absolute', inset: 0, zIndex: 22, pointerEvents: 'none' }}>
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0 }}>
             {/* Ring 1 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitSlow 24s linear infinite' }}>

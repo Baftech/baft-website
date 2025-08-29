@@ -11,6 +11,7 @@ const B_Fast_Mobile = () => {
   const videoRef = useRef(null);
   const sectionRef = useRef(null);
   const overlayRef = useRef(null);
+  const orbitingStarsRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
   const videoStartedRef = useRef(false);
 
@@ -46,6 +47,7 @@ const B_Fast_Mobile = () => {
     // Ensure hidden before any paint to avoid flicker
     gsap.set(contentRef.current, { opacity: 0, y: -80 });
     gsap.set(overlayRef.current, { opacity: 0 });
+    if (orbitingStarsRef.current) gsap.set(orbitingStarsRef.current, { opacity: 0 });
 
     let lastScrollY = window.scrollY;
     let isFromBottom = false;
@@ -72,9 +74,11 @@ const B_Fast_Mobile = () => {
               if (isFromBottom) {
                 gsap.set(overlayRef.current, { opacity: 1 });
                 tl.to(overlayRef.current, { opacity: 0, duration: 1.6, ease: "power2.out" })
-                  .to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut" }, "+=0.8");
+                  .to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut" }, "+=0.8")
+                  .to(orbitingStarsRef.current, { opacity: 1, duration: 1.2, ease: "power1.out" }, "<");
               } else {
-                tl.to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut", delay: 0.4 });
+                tl.to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut", delay: 0.4 })
+                  .to(orbitingStarsRef.current, { opacity: 1, duration: 1.2, ease: "power1.out" }, "<");
               }
             };
 
@@ -303,7 +307,7 @@ const B_Fast_Mobile = () => {
         }} />
 
         {/* Orbiting stars overlay - revolve around center */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 21, pointerEvents: 'none' }}>
+        <div ref={orbitingStarsRef} style={{ position: 'absolute', inset: 0, zIndex: 21, pointerEvents: 'none' }}>
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0 }}>
             {/* Ring 1 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitSlow 24s linear infinite' }}>
