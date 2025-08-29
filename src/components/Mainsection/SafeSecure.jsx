@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./SafeSecure.css";
+import SafeSecureMobile from "./SafeSecureMobile.jsx";
 
-const SafeSecure = () => {
+// Desktop layout
+const SafeSecureDesktop = () => {
   return (
     <div className="h-screen bg-white" data-theme="light">
       <section className="h-screen flex items-center justify-center px-3 lg:px-16">
@@ -35,6 +37,22 @@ const SafeSecure = () => {
       </section>
     </div>
   );
+};
+
+// Wrapper to switch based on viewport
+const SafeSecure = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  if (isMobile) return <SafeSecureMobile />;
+  return <SafeSecureDesktop />;
 };
 
 export default SafeSecure;

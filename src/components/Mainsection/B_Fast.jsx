@@ -2,10 +2,12 @@ import React, { useRef, useState, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import B_Fast_Mobile from "./B_Fast_Mobile.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const B_Fast = () => {
+// Desktop implementation extracted to keep hooks order safe when switching to mobile
+const B_Fast_Desktop = () => {
   const contentRef = useRef(null);
   const videoRef = useRef(null);
   const sectionRef = useRef(null);
@@ -213,7 +215,10 @@ const B_Fast = () => {
             height: 'clamp(80px, 15vh, 200px)', // Responsive height for all small screens
             transform: 'rotate(0deg)',
             opacity: 1,
-            background: 'linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%)',
+            backgroundImage: 'linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%)',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '100% 100%',
+            backgroundPosition: 'center',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -274,6 +279,26 @@ const B_Fast = () => {
           maxHeight: 'clamp(700px, 90vh, 1200px)', // Much bigger video: 700px minimum, scales to 1200px
           marginTop: 'clamp(60px, 6vh, 100px)' // Move video a bit higher - reduced from 80px to 60px
         }}>
+          {/* Centered Video Glow (deeper ellipse) */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none',
+            zIndex: 11
+          }}>
+            <div style={{
+              width: 'min(62vw, 820px)',
+              height: 'min(58vh, 600px)',
+              background: 'radial-gradient(ellipse at center, rgba(55,102,183,0.28) 0%, rgba(55,102,183,0.14) 40%, rgba(55,102,183,0.06) 70%, rgba(55,102,183,0) 100%)',
+              filter: 'blur(70px)',
+              mixBlendMode: 'overlay',
+              borderRadius: '50%',
+              transform: 'translateZ(0)'
+            }} />
+          </div>
           {/* Responsive positioning container */}
           <div className="relative w-full h-full flex items-center justify-center" style={{ 
             backgroundColor: 'transparent',
@@ -309,14 +334,21 @@ const B_Fast = () => {
                   // Remove conflicting transforms and positioning
                   transform: 'none',
                   // Visible opacity
-                  opacity: 1,
+                  opacity: 0.98,
                   // Responsive positioning
                   position: 'relative',
                   // Remove margin and left positioning
                   margin: '0',
                   left: 'auto',
-                  // Darken blend mode for visual effect
-                  mixBlendMode: 'darken',
+                  // Blend into background for animation-like feel
+                  mixBlendMode: 'normal',
+                  // Subtle visual tuning
+                  filter: 'saturate(1.08) contrast(1.04) brightness(1.02)',
+                  // Feather edges to merge with background
+                  WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
+                  maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
+                  // Non-interactive feel
+                  pointerEvents: 'none',
                   border: 'none',
                   outline: 'none',
                   background: 'transparent',
@@ -327,6 +359,7 @@ const B_Fast = () => {
                 }}
                 autoPlay
                 muted
+                loop
                 playsInline
                 controls={false}
                 disablePictureInPicture
@@ -339,9 +372,228 @@ const B_Fast = () => {
             )}
           </div>
         </div>
+
+        {/* Global Glow Overlay (covers video + screen) */}
+        <div style={{
+          position: 'fixed',
+          width: 'clamp(480px, 90vw, 900px)',
+          height: 'clamp(520px, 90vh, 1100px)',
+          left: 'calc(50% - (clamp(480px, 90vw, 900px))/2)',
+          top: 'calc(50% - (clamp(520px, 90vh, 1100px))/2)',
+          background: 'radial-gradient(ellipse at center, rgba(55, 102, 183, 0.12) 0%, rgba(55, 102, 183, 0.08) 40%, rgba(55, 102, 183, 0.03) 75%, rgba(55, 102, 183, 0) 100%)',
+          filter: 'blur(40px)',
+          mixBlendMode: 'soft-light',
+          zIndex: 12,
+          pointerEvents: 'none'
+        }} />
+
+        {/* Group 2 - Stars Overlay - Spread across entire screen */}
+        <div style={{
+          position: 'absolute',
+          width: '100vw', // Full viewport width
+          height: '100vh', // Full viewport height
+          left: '0px',
+          top: '0px',
+          transform: 'rotate(45deg)',
+          opacity: 1, // 100% opacity
+          zIndex: 21, // Above glow and video
+          pointerEvents: 'none'
+        }}>
+          {/* Star 1 - Four-pointed star */}
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            left: '15%',
+            top: '20%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.8,
+            animation: 'spinDriftA 18s linear infinite, twinkle 3.8s ease-in-out infinite'
+          }} />
+          {/* Star 2 - Four-pointed star */}
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            left: '65%',
+            top: '15%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.8,
+            animation: 'spinDriftB 22s linear infinite, twinkle 4.6s ease-in-out infinite'
+          }} />
+          {/* Star 3 - Four-pointed star */}
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            left: '35%',
+            top: '60%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.8,
+            animation: 'spinDriftC 20s linear infinite, twinkle 4.2s ease-in-out infinite'
+          }} />
+          {/* Star 4 - Four-pointed star */}
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            left: '85%',
+            top: '70%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.8,
+            animation: 'spinDriftB 24s linear infinite, twinkle 5s ease-in-out infinite'
+          }} />
+          {/* Star 5 - Additional star for better spread */}
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            left: '80%',
+            top: '85%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.8,
+            animation: 'spinStar 10s linear infinite'
+          }} />
+          {/* Star 6 - Additional star for better spread */}
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
+            left: '5%',
+            top: '45%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.8,
+            animation: 'spinStar 10s linear infinite'
+          }} />
+        </div>
+
+        {/* Extra Global Stars Overlay (Group 1 - smaller) */}
+        <div style={{
+          position: 'absolute',
+          width: '100vw',
+          height: '100vh',
+          left: '0px',
+          top: '0px',
+          opacity: 1,
+          zIndex: 20,
+          pointerEvents: 'none'
+        }}>
+          {/* 4 smaller stars, ~32% of local star container size */}
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(6px, 0.35vw, 12px)',
+            height: 'clamp(6px, 0.35vw, 12px)',
+            left: '12%',
+            top: '18%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.85,
+            animation: 'spinDriftA 26s linear infinite, twinkle 3.6s ease-in-out infinite'
+          }} />
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(6px, 0.35vw, 12px)',
+            height: 'clamp(6px, 0.35vw, 12px)',
+            left: '42%',
+            top: '35%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.85,
+            animation: 'spinDriftB 21s linear infinite, twinkle 4.3s ease-in-out infinite'
+          }} />
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(6px, 0.35vw, 12px)',
+            height: 'clamp(6px, 0.35vw, 12px)',
+            left: '72%',
+            top: '28%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.85,
+            animation: 'spinDriftC 28s linear infinite, twinkle 5.1s ease-in-out infinite'
+          }} />
+          <div style={{
+            position: 'absolute',
+            width: 'clamp(6px, 0.35vw, 12px)',
+            height: 'clamp(6px, 0.35vw, 12px)',
+            left: '88%',
+            top: '68%',
+            background: '#000000',
+            clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
+            opacity: 0.85,
+            animation: 'spinDriftA 24s linear infinite, twinkle 4.8s ease-in-out infinite'
+          }} />
+        </div>
+
+        {/* Orbiting stars overlay - revolve around center */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 22, pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0 }}>
+            {/* Ring 1 */}
+            <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitSlow 24s linear infinite' }}>
+              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'translateX(clamp(280px, 22vw, 420px))' }} />
+              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(120deg) translateX(clamp(280px, 22vw, 420px))' }} />
+              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(240deg) translateX(clamp(280px, 22vw, 420px))' }} />
+            </div>
+            {/* Ring 2 */}
+            <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitMed 18s linear infinite reverse' }}>
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(90deg) translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(180deg) translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(270deg) translateX(clamp(380px, 30vw, 580px))' }} />
+            </div>
+          </div>
+        </div>
       </div>
+      {/* Star animations */}
+      <style>{`
+        @keyframes spinStar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes twinkle { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
+        @keyframes spinDriftA {
+          0% { transform: rotate(0deg) translate(0px, 0px); }
+          50% { transform: rotate(180deg) translate(6px, -4px); }
+          100% { transform: rotate(360deg) translate(0px, 0px); }
+        }
+        @keyframes spinDriftB {
+          0% { transform: rotate(0deg) translate(0px, 0px); }
+          50% { transform: rotate(180deg) translate(-5px, 6px); }
+          100% { transform: rotate(360deg) translate(0px, 0px); }
+        }
+        @keyframes spinDriftC {
+          0% { transform: rotate(0deg) translate(0px, 0px); }
+          50% { transform: rotate(180deg) translate(4px, 5px); }
+          100% { transform: rotate(360deg) translate(0px, 0px); }
+        }
+        @keyframes orbitSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes orbitMed { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+      `}</style>
     </section>
   );
+};
+
+// Wrapper decides whether to render mobile or desktop
+const B_Fast = () => {
+  const getIsMobile = () => (typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : false);
+  const [isMobile, setIsMobile] = useState(getIsMobile);
+
+  // Run before paint to avoid a single-frame desktop flash on mobile
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)');
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  if (isMobile) {
+    return <B_Fast_Mobile />;
+  }
+  return <B_Fast_Desktop />;
 };
 
 export default B_Fast;
