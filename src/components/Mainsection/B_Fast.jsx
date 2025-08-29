@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -11,13 +11,90 @@ const B_Fast = () => {
   const sectionRef = useRef(null);
   const overlayRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
+  const [videoSize, setVideoSize] = useState({ width: '100%', height: '100%' });
+  const [optimalSpacing, setOptimalSpacing] = useState('2cm');
+  const [navbarSafeSpacing, setNavbarSafeSpacing] = useState('80px');
+
+  // Dynamic video sizing and spacing calculation
+  useEffect(() => {
+    const calculateVideoSizeAndSpacing = () => {
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      
+      // X-5 margin (5px on each side)
+      const availableWidth = screenWidth - 10;
+      // Y-2 margin (2px on each side)  
+      const availableHeight = screenHeight - 4;
+      
+      // Calculate optimal dimensions maintaining 16:9 aspect ratio
+      const aspectRatio = 16 / 9;
+      
+      let videoWidth, videoHeight;
+      
+      if (availableWidth / availableHeight > aspectRatio) {
+        // Height is the limiting factor
+        videoHeight = availableHeight;
+        videoWidth = availableHeight * aspectRatio;
+      } else {
+        // Width is the limiting factor
+        videoWidth = availableWidth;
+        videoHeight = availableWidth / aspectRatio;
+      }
+      
+      setVideoSize({
+        width: `${videoWidth}px`,
+        height: `${videoHeight}px`
+      });
+      
+      // Calculate optimal spacing to keep content in viewport
+      const navbarHeight = 80; // Estimated navbar height
+      const textHeight = 200; // Estimated text content height
+      const videoHeightPx = videoHeight;
+      
+      // Calculate available space for spacing
+      const totalContentHeight = navbarHeight + textHeight + videoHeightPx;
+      const availableSpaceForSpacing = screenHeight - totalContentHeight;
+      
+      // Convert to cm (1cm ≈ 37.8px)
+      const availableSpaceCm = availableSpaceForSpacing / 37.8;
+      
+      // Find optimal spacing that's a multiple of 0.2 (decimal multiples of 2)
+      let optimalSpacingCm = 2.0; // Start with 2cm
+      
+      if (availableSpaceCm < 2.0) {
+        // Calculate decimal multiples of 2 that fit
+        for (let i = 1.8; i >= 0.2; i -= 0.2) {
+          if (i <= availableSpaceCm) {
+            optimalSpacingCm = i;
+            break;
+          }
+        }
+      }
+      
+      setOptimalSpacing(`${optimalSpacingCm}cm`);
+      
+      // Calculate safe spacing from navbar to prevent cutoff
+      const estimatedNavbarHeight = 80; // Base navbar height
+      const currentScreenHeight = window.innerHeight;
+      const safeSpacing = Math.max(estimatedNavbarHeight + 20, currentScreenHeight * 0.08); // At least 8% of screen height
+      setNavbarSafeSpacing(`${safeSpacing}px`);
+    };
+    
+    // Calculate initial size and spacing
+    calculateVideoSizeAndSpacing();
+    
+    // Recalculate on window resize
+    window.addEventListener('resize', calculateVideoSizeAndSpacing);
+    
+    return () => window.removeEventListener('resize', calculateVideoSizeAndSpacing);
+  }, []);
 
   useGSAP(() => {
     // Check if refs exist before animating
     if (!contentRef.current || !videoRef.current || !sectionRef.current || !overlayRef.current) return;
     
-    // Always set initial heading state for animation
-    gsap.set(contentRef.current, { opacity: 0, y: -80 }); // Heading starts higher and hidden
+    // Set initial heading state for animation but ensure visibility
+    gsap.set(contentRef.current, { opacity: 1, y: 0 }); // Heading starts visible and in position
     
     // Always start with overlay hidden, we'll show it conditionally
     gsap.set(overlayRef.current, { opacity: 0 });
@@ -34,7 +111,7 @@ const B_Fast = () => {
             const currentScrollY = window.scrollY;
             isFromBottom = currentScrollY < lastScrollY; // scrolling up
             
-            // Always reset heading before animation
+            // Reset heading for animation but ensure it becomes visible
             gsap.set(contentRef.current, { opacity: 0, y: -80 });
             
             const tl = gsap.timeline();
@@ -67,8 +144,8 @@ const B_Fast = () => {
             
             lastScrollY = currentScrollY; // ✅ update scroll position
           } else {
-            // Reset when leaving
-            gsap.set(contentRef.current, { opacity: 0, y: -80 });
+            // Keep content visible when leaving
+            gsap.set(contentRef.current, { opacity: 1, y: 0 });
             lastScrollY = window.scrollY;
           }
         });
@@ -100,37 +177,105 @@ const B_Fast = () => {
       />
       
       {/* Content Container */}
-      <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 sm:px-6 md:px-8" style={{ backgroundColor: '#ffffff' }}>
+      <div className="relative z-10 w-full h-full flex flex-col items-center justify-start" style={{ backgroundColor: '#ffffff', textAlign: 'center' }}>
         {/* Text Content */}
         <div
           ref={contentRef}
-          className="text-center px-4 sm:px-6 md:px-8 max-w-6xl mx-auto"
+          className="text-center max-w-6xl mx-auto"
           style={{ 
-            marginTop: '40px',
-            marginBottom: 'clamp(1rem, 3vw, 2rem)' // Responsive gap reduction
+            marginTop: navbarSafeSpacing, // Dynamic spacing to prevent navbar cutoff
+            marginBottom: '0cm', // No margin below text
+            paddingTop: 'clamp(20px, 2vh, 40px)', // Additional responsive padding
+            width: 'clamp(280px, 90vw, 1600px)', // Responsive width for all small screens
+            height: 'clamp(100px, 15vh, 200px)', // Responsive height for all small screens
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '0.5cm', // Consistent gap between h1 and p
+            opacity: 1, // Ensure content is visible by default
+            transform: 'translateY(0px)', // Ensure content is in position by default
+            marginLeft: 'auto',
+            marginRight: 'auto'
           }}
         >
-          <h1 className="eb-garamond-Bfast bg-gradient-to-r from-[#9AB5D2] to-[#092646] bg-clip-text text-transparent mb-4 leading-tight" style={{ fontSize: '128px' }}>
+          <h1 
+            className="mb-4 leading-tight"
+            style={{ 
+              fontFamily: 'EB Garamond, serif',
+              fontWeight: 700,
+              fontStyle: 'bold',
+              fontSize: 'clamp(80px, 8vw, 130.81px)', // Bold and 130.81px responsively
+              lineHeight: '100%',
+              letterSpacing: '0%',
+                          textAlign: 'center',
+            width: 'clamp(280px, 90vw, 1600px)', // Responsive width for all small screens
+            height: 'clamp(80px, 15vh, 200px)', // Responsive height for all small screens
+            transform: 'rotate(0deg)',
+            opacity: 1,
+            background: 'linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            color: 'transparent',
+            textShadow: 'none',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            left: '50%',
+            transform: 'translateX(-50%) rotate(0deg)'
+            }}
+          >
             B-Fast
           </h1>
 
-          <p className="inter-Bfast_sub bg-gradient-to-r from-[#777575] to-[#092646] bg-clip-text text-transparent leading-relaxed" style={{ fontSize: '24px' }}>
+          <p 
+            className="leading-relaxed"
+            style={{ 
+              width: 'clamp(280px, 90vw, 1600px)', // Responsive width for all small screens
+              height: 'clamp(25px, 3vh, 50px)', // Responsive height for all small screens
+              transform: 'rotate(0deg)',
+              opacity: 1,
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 500,
+              fontStyle: 'normal',
+              fontSize: 'clamp(16px, 2vw, 28px)', // Responsive scaling for small screens
+              lineHeight: '100%',
+              letterSpacing: '0%',
+                          textAlign: 'center',
+            color: '#777575',
+            marginTop: 'clamp(16px, 2vh, 32px)',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            left: '50%',
+            transform: 'translateX(-50%)'
+            }}
+          >
             One Tap. Zero Wait.
           </p>
         </div>
 
 
 
-        {/* Video Section */}
+                {/* Video Section */}
         <div className="relative w-full mx-auto" style={{ 
-          marginTop: 'clamp(-120px, -12vw, -80px)', // More aggressive gap reduction
-          height: 'clamp(300px, 55vw, 750px)',
-          minHeight: '250px',
-          maxHeight: '80vh',
-          backgroundColor: 'transparent'
+          backgroundColor: 'transparent',
+          position: 'relative',
+          flex: '1 1 auto', // Allow growing and shrinking, but maintain aspect ratio
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 'clamp(500px, 70vh, 1000px)', // Much bigger video: 500px minimum, scales to 1000px
+          maxHeight: 'clamp(700px, 90vh, 1200px)', // Much bigger video: 700px minimum, scales to 1200px
+          marginTop: 'clamp(60px, 6vh, 100px)' // Move video a bit higher - reduced from 80px to 60px
         }}>
           {/* Responsive positioning container */}
-          <div className="relative w-full h-full" style={{ 
+          <div className="relative w-full h-full flex items-center justify-center" style={{ 
             backgroundColor: 'transparent',
             border: 'none',
             outline: 'none'
@@ -156,27 +301,29 @@ const B_Fast = () => {
                 src="/bfast_video.mp4"
                 className="object-contain relative z-10"
                 style={{ 
-                  // Page-filling horizontal stretch (reduced by 2rem)
-                  width: 'clamp(288px, calc(85vw - 2rem), 1168px)',
-                  // Proportional height scaling
-                  height: 'clamp(180px, 48vw, 675px)',
-                  // No rotation + perfect centering
-                  transform: 'translateX(-50%) rotate(0deg)',
+                  // Dynamic scaling using calculated dimensions with fallback
+                  width: videoSize.width || 'clamp(600px, 90vw, 1400px)',
+                  height: videoSize.height || 'clamp(338px, 54vw, 788px)',
+                  objectFit: 'contain',
+                  objectPosition: 'center center',
+                  // Remove conflicting transforms and positioning
+                  transform: 'none',
                   // Visible opacity
                   opacity: 1,
                   // Responsive positioning
-                  position: 'absolute',
-                  // Top: better for laptop screens
-                  top: 'clamp(20px, 8vw, 120px)',
-                  // Perfect centering for all screen sizes
-                  left: '50%',
+                  position: 'relative',
+                  // Remove margin and left positioning
+                  margin: '0',
+                  left: 'auto',
                   // Darken blend mode for visual effect
                   mixBlendMode: 'darken',
-                  objectPosition: 'center center',
                   border: 'none',
                   outline: 'none',
                   background: 'transparent',
-                  backgroundColor: 'transparent'
+                  backgroundColor: 'transparent',
+                  // Ensure video fits in container
+                  maxWidth: '100%',
+                  maxHeight: '100%'
                 }}
                 autoPlay
                 muted
