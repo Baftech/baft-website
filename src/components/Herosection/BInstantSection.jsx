@@ -9,7 +9,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
 
   useFrame(() => {
     if (animate && ref.current) {
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.005);
+      ref.current.position.lerp(new THREE.Vector3(...target), 0.004);
     }
   });
 
@@ -28,7 +28,9 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
         <meshBasicMaterial
           map={texture}
           transparent
-          opacity={opacity}
+          opacity={opacity * 1}
+          brightness={0.5}
+          color="#808080"
         />
       </mesh>
 
@@ -47,7 +49,7 @@ const CoinStack = ({ startAnimation }) => {
         texture={coinTexture}
         position={[0.4, -0.4, -0.4]}
         animate={startAnimation}
-        target={[0.63, -0.63, -0.63]}
+        target={[0.68, -0.68, -0.68]}
         opacity={1.0}
       />
       <Coin
@@ -61,7 +63,7 @@ const CoinStack = ({ startAnimation }) => {
         texture={coinTexture}
         position={[-0.3, 0.4, 0.4]}
         animate={startAnimation}
-        target={[-0.6, 0.6, 0.6]}
+        target={[-0.7, 0.7, 0.7]}
         opacity={0.97}
       />
     </>
@@ -131,7 +133,7 @@ const BInstantSection = () => {
       <div
         className="absolute inset-0"
         style={{
-          backgroundColor: "rgba(0, 0, 0, 0.3)",
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
           zIndex: 25,
           pointerEvents: "none"
         }}
@@ -153,8 +155,8 @@ const BInstantSection = () => {
             className="text-amber-50 italic bc-bcoin"
             style={{
               fontWeight: 200,
-              fontSize: "clamp(26px, 5.2vw, 96px)",
-              textShadow: "0 0 20px rgba(255,215,0,0.5)",
+              fontSize: "clamp(28px, 5.5vw, 110px)",
+              textShadow: "0 0 25px rgba(255,215,0,0.6)",
             }}
             initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
             animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
@@ -167,8 +169,8 @@ const BInstantSection = () => {
               className="mr-2 text-amber-50 italic bc-instant"
               style={{
                 fontWeight: 200,
-                fontSize: "clamp(26px, 5.2vw, 96px)",
-                textShadow: "0 0 20px rgba(255,215,0,0.5)",
+                fontSize: "clamp(28px, 5.5vw, 110px)",
+                textShadow: "0 0 25px rgba(255,215,0,0.6)",
               }}
               initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
@@ -178,7 +180,7 @@ const BInstantSection = () => {
             </motion.span>
             <motion.span
               className="text-white bc-dash"
-              style={{ fontSize: "clamp(24px, 4.8vw, 90px)", fontWeight: 400 }}
+              style={{ fontSize: "clamp(26px, 5vw, 90px)", fontWeight: 400 }}
               initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
               transition={{ duration: 1.2, ease: [0.2, 0.8, 0.2, 1] }}
@@ -187,7 +189,7 @@ const BInstantSection = () => {
             </motion.span>
             <motion.span
               className="ml-2 shared-word text-white uppercase bc-shared"
-              style={{ fontSize: "clamp(28px, 5.8vw, 88px)", fontWeight: 500 }}
+              style={{ fontSize: "clamp(28px, 5.5vw, 100px)", fontWeight: 500 }}
               initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
               transition={{ duration: 1.2, ease: [0.2, 0.8, 0.2, 1] }}
@@ -199,8 +201,8 @@ const BInstantSection = () => {
             className="self-end text-amber-50 italic bc-instantly"
             style={{
               fontWeight: 200,
-              fontSize: "clamp(26px, 5.2vw, 96px)",
-              textShadow: "0 0 20px rgba(255,215,0,0.5)",
+              fontSize: "clamp(28px, 5.5vw, 110px)",
+              textShadow: "0 0 25px rgba(255,215,0,0.6)",
             }}
             initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
             animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
