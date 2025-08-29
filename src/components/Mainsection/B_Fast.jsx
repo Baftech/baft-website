@@ -268,7 +268,7 @@ const B_Fast_Desktop = () => {
 
 
                 {/* Video Section */}
-        <div className="relative w-full mx-auto" style={{ 
+        <div className="relative w-full mx-auto mac-margin" style={{ 
           backgroundColor: 'transparent',
           position: 'relative',
           flex: '1 1 auto', // Allow growing and shrinking, but maintain aspect ratio
@@ -277,7 +277,9 @@ const B_Fast_Desktop = () => {
           justifyContent: 'center',
           minHeight: 'clamp(500px, 70vh, 1000px)', // Much bigger video: 500px minimum, scales to 1000px
           maxHeight: 'clamp(700px, 90vh, 1200px)', // Much bigger video: 700px minimum, scales to 1200px
-          marginTop: 'clamp(60px, 6vh, 100px)' // Move video a bit higher - reduced from 80px to 60px
+          marginTop: 'clamp(60px, 6vh, 100px)', // Move video a bit higher - reduced from 80px to 60px
+          marginLeft: 'clamp(5px, 0.5vw, 5px)', // X-5 margin for bigger screens
+          marginRight: 'clamp(5px, 0.5vw, 5px)' // X-5 margin for bigger screens
         }}>
           {/* Centered Video Glow (deeper ellipse) */}
           <div style={{
@@ -359,7 +361,6 @@ const B_Fast_Desktop = () => {
                 }}
                 autoPlay
                 muted
-                loop
                 playsInline
                 controls={false}
                 disablePictureInPicture
@@ -571,6 +572,14 @@ const B_Fast_Desktop = () => {
         }
         @keyframes orbitSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes orbitMed { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        
+        /* Mac-specific margin */
+        @media screen and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 192dpi) {
+          .mac-margin {
+            margin-left: 5px !important;
+            margin-right: 5px !important;
+          }
+        }
       `}</style>
     </section>
   );

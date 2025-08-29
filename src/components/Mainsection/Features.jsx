@@ -60,6 +60,9 @@ const Cards = () => {
     const screenWidth = window.innerWidth;
     const isMobile = screenWidth < 768;
     const isTablet = screenWidth >= 768 && screenWidth < 1024;
+    const isSmallDesktop = screenWidth >= 1024 && screenWidth < 1280;
+    const isMediumDesktop = screenWidth >= 1280 && screenWidth < 1536;
+    const isLargeDesktop = screenWidth >= 1536;
 
     cardElements.forEach((card, index) => {
       if (isMobile) {
@@ -80,8 +83,19 @@ const Cards = () => {
         } else {
           setOrAnimate(card, { x: index < activeIndex ? -80 : 80, y: CARD_Y_OFFSET, z: -60, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 20 : -20, zIndex: 7 }, immediate);
         }
-      } else {
-        // Desktop: Full 3D carousel effect
+      } else if (isSmallDesktop) {
+        // Small Desktop (1024px - 1279px): Moderate 3D carousel
+        if (index === activeIndex) {
+          setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
+        } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
+          setOrAnimate(card, { x: -60, y: CARD_Y_OFFSET, z: -60, scale: 0.9, opacity: 0.8, rotateY: 15, zIndex: 9 }, immediate);
+        } else if (index === (activeIndex + 1) % totalCards) {
+          setOrAnimate(card, { x: 60, y: CARD_Y_OFFSET, z: -60, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
+        } else {
+          setOrAnimate(card, { x: index < activeIndex ? -120 : 120, y: CARD_Y_OFFSET, z: -90, scale: 0.8, opacity: 0.6, rotateY: index < activeIndex ? 25 : -25, zIndex: 7 }, immediate);
+        }
+      } else if (isMediumDesktop) {
+        // Medium Desktop (1280px - 1535px): Enhanced 3D carousel
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
@@ -90,6 +104,17 @@ const Cards = () => {
           setOrAnimate(card, { x: 80, y: CARD_Y_OFFSET, z: -80, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
         } else {
           setOrAnimate(card, { x: index < activeIndex ? -160 : 160, y: CARD_Y_OFFSET, z: -120, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
+        }
+      } else {
+        // Large Desktop (1536px+): Full 3D carousel effect
+        if (index === activeIndex) {
+          setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
+        } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
+          setOrAnimate(card, { x: -100, y: CARD_Y_OFFSET, z: -100, scale: 0.8, opacity: 0.8, rotateY: 25, zIndex: 9 }, immediate);
+        } else if (index === (activeIndex + 1) % totalCards) {
+          setOrAnimate(card, { x: 100, y: CARD_Y_OFFSET, z: -100, scale: 0.85, opacity: 0.8, rotateY: -20, zIndex: 9 }, immediate);
+        } else {
+          setOrAnimate(card, { x: index < activeIndex ? -200 : 200, y: CARD_Y_OFFSET, z: -150, scale: 0.7, opacity: 0.5, rotateY: index < activeIndex ? 35 : -35, zIndex: 7 }, immediate);
         }
       }
     });
@@ -207,28 +232,28 @@ const Cards = () => {
     <div className="bg-white" data-theme="light">
       <section
         id="features"
-        className="relative overflow-hidden px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-16 lg:py-20 pre-enter"
+        className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 sm:py-16 lg:py-20 xl:py-24 2xl:py-28 pre-enter"
         ref={sectionRef}
       >
         {overlayActive && <div className="screen-reveal-overlay" />}
-        <div className="w-full max-w-7xl flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-start lg:items-center">
+        <div className="w-full max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 xl:gap-20 2xl:gap-24 items-start lg:items-center">
 
           {/* Left Column - Features Text */}
           <div className="flex flex-col justify-start w-full lg:w-auto order-2 lg:order-1 z-10">
             <p
-              className="font-normal mb-3 sm:mb-4 flex items-center gap-2"
+              className="font-normal mb-3 sm:mb-4 lg:mb-5 xl:mb-6 flex items-center gap-2"
               style={{
                 fontFamily: "Inter, sans-serif",
                 fontSize: "clamp(16px, 4vw, 20px)",
                 color: "#092646",
               }}
             >
-              <img src="/SVG.svg" alt="Icon" className="w-4 h-4 sm:w-5 sm:h-5" />
+              <img src="/SVG.svg" alt="Icon" className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
               Features
             </p>
 
             <h1
-              className="leading-tight mb-6 sm:mb-8 font-bold text-[28px] sm:text-[34px] md:text-[44px] lg:text-[54px] xl:text-[64px] text-[#1966BB]"
+              className="leading-tight mb-6 sm:mb-8 lg:mb-10 xl:mb-12 font-bold text-[28px] sm:text-[34px] md:text-[44px] lg:text-[54px] xl:text-[64px] 2xl:text-[72px] text-[#1966BB]"
               style={{ fontFamily: "EB Garamond, serif" }}
             >
               <span className="block">All in</span>
@@ -236,7 +261,7 @@ const Cards = () => {
             </h1>
 
             <ul
-              className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6 text-sm sm:text-base md:text-lg"
+              className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6 xl:space-y-7 2xl:space-y-8 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl"
               onMouseEnter={stopAutoRotate}
               onMouseLeave={startAutoRotate}
               style={{ cursor: "default" }}
@@ -248,7 +273,7 @@ const Cards = () => {
                 return (
                   <li
                     key={index}
-                    className={`feature-item flex items-center gap-3 sm:gap-4 p-4 rounded-lg transition-all duration-500 ${
+                    className={`feature-item flex items-center gap-3 sm:gap-4 lg:gap-5 xl:gap-6 p-4 lg:p-5 xl:p-6 rounded-lg transition-all duration-500 ${
                       isActive
                         ? "bg-blue-50 border-l-4 border-[#1966BB] shadow-sm"
                         : "bg-transparent border-l-4 border-transparent"
@@ -256,20 +281,20 @@ const Cards = () => {
                     onMouseEnter={() => setCurrentIndex(index)}
                   >
                     <IconComponent
-                      className={`text-xl sm:text-2xl flex-shrink-0 ${
+                      className={`text-xl sm:text-2xl lg:text-3xl xl:text-4xl flex-shrink-0 ${
                         isActive ? "text-[#1966BB]" : "text-[#1966BB]" 
                       }`}
                     />
                     <div className="min-w-0 flex-1">
                       <h6
-                        className={`font-semibold text-sm sm:text-base ${
+                        className={`font-semibold text-sm sm:text-base lg:text-lg xl:text-xl 2xl:text-2xl ${
                           isActive ? "text-[#1966BB]" : "text-[#092646]"
                         }`}
                       >
                         {feature.title}
                       </h6>
                       <p
-                        className={`text-xs sm:text-sm ${
+                        className={`text-xs sm:text-sm lg:text-base xl:text-lg 2xl:text-xl ${
                           isActive ? "text-[#1966BB]/90" : "text-gray-600"
                         }`}
                       >
@@ -295,7 +320,7 @@ const Cards = () => {
             {featuresData.map((feature, index) => (
               <div
                 key={index}
-                className="absolute w-[16rem] sm:w-[20rem] md:w-[24rem] lg:w-[28rem] xl:w-[32rem] flex flex-col items-center justify-center scale-100 sm:scale-110 md:scale-125 lg:scale-150"
+                className="absolute w-[16rem] sm:w-[20rem] md:w-[24rem] lg:w-[28rem] xl:w-[32rem] 2xl:w-[36rem] flex flex-col items-center justify-center scale-100 sm:scale-110 md:scale-125 lg:scale-150 xl:scale-175 2xl:scale-200"
               >
                 <img
                   src={feature.image}
