@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { gsap } from "gsap";
 import { FaCreditCard, FaUser, FaGift, FaShieldAlt } from "react-icons/fa";
+import FeaturesMobile from "./Features_Mobile";
 
 const Cards = () => {
   const cardsRef = useRef(null);
@@ -11,6 +12,7 @@ const Cards = () => {
   const overlayTimerRef = useRef(null);
   const currentIndexRef = useRef(0);
   const rotateIntervalRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const featuresData = [
           {
@@ -138,6 +140,23 @@ const Cards = () => {
     }, 3000);
   };
 
+  // Detect mobile vs desktop
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Check on mount
+    checkScreenSize();
+
+    // Add resize listener
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
+
   useLayoutEffect(() => {
     if (!cardsRef.current) return;
 
@@ -232,13 +251,18 @@ const Cards = () => {
     };
   }, [hasAnimatedIn]);
 
+  // Return mobile version if on mobile device
+  if (isMobile) {
+    return <FeaturesMobile />;
+  }
+
   return (
     <div className="bg-white" data-theme="light">
       <section
         id="features"
         className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 sm:py-16 lg:py-20 xl:py-24 2xl:py-28 pre-enter"
         style={{
-          marginTop: "clamp(4vh, 8vh, 12vh)",
+          marginTop: "clamp(2vh, 4vh, 8vh)",
           marginLeft: "1cm",
           marginRight: "1cm"
         }}
@@ -280,25 +304,30 @@ const Cards = () => {
             </p>
 
             <h1
-              className="leading-tight mb-6 sm:mb-8 lg:mb-10 xl:mb-12 font-bold text-[#1966BB]"
+              className="leading-tight font-bold text-[#1966BB]"
               style={{ 
                 fontFamily: "EB Garamond, serif",
-                fontSize: "clamp(32px, 7vw, 96px)",
-                lineHeight: "clamp(36px, 7.5vw, 100px)",
+                fontSize: "clamp(24px, 5.5vw, 87px)",
+                lineHeight: "clamp(28px, 6vw, 90px)",
                 margin: 0,
-                padding: 0
+                padding: 0,
+                marginBottom: "1cm"
               }}
             >
               <span className="block">All in</span>
               <span className="block">One Place</span>
             </h1>
 
-                          <ul
-                className="space-y-1 sm:space-y-1 md:space-y-1 lg:space-y-2 xl:space-y-2 2xl:space-y-2 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl"
-                onMouseEnter={stopAutoRotate}
-                onMouseLeave={startAutoRotate}
-                style={{ cursor: "default", marginBottom: "0.5cm" }}
-              >
+            <ul
+              className="space-y-1 sm:space-y-1.5 md:space-y-2 lg:space-y-2.5 xl:space-y-3 2xl:space-y-3.5"
+              onMouseEnter={stopAutoRotate}
+              onMouseLeave={startAutoRotate}
+              style={{ 
+                cursor: "default", 
+                marginBottom: "clamp(0.3cm, 1vh, 0.8cm)",
+                width: "clamp(300px, 90%, 500px)"
+              }}
+            >
               {featuresData.map((feature, index) => {
                 const isActive = index === currentIndex;
                 const IconComponent = feature.icon;
@@ -316,16 +345,16 @@ const Cards = () => {
                       justifyContent: "flex-start",
                       alignItems: "center",
                       padding: isActive 
-                        ? "clamp(16px, 2vw, 24px) clamp(12px, 1.5vw, 16px)"
-                        : "clamp(16px, 2vw, 24px) clamp(12px, 1.5vw, 16px)",
-                      gap: "clamp(12px, 1.5vw, 16px)",
-                      width: "100%",
-                      minHeight: "clamp(70px, 6vh, 91px)",
+                        ? "clamp(12px, 1.5vw, 20px) clamp(10px, 1.2vw, 14px)"
+                        : "clamp(12px, 1.5vw, 20px) clamp(10px, 1.2vw, 14px)",
+                      gap: "clamp(8px, 1vw, 14px)",
+                      width: isActive ? "fit-content" : "100%",
+                      minHeight: "clamp(50px, 5vh, 75px)",
                       background: isActive ? "#FFFFFF" : "transparent",
                       border: isActive 
                         ? "1px solid rgba(22, 93, 172, 0.19)"
                         : "none",
-                      borderRadius: "clamp(12px, 1.5vw, 16px)",
+                      borderRadius: "clamp(8px, 1.2vw, 14px)",
                       boxShadow: isActive ? "0px 2px 8px rgba(25, 102, 187, 0.1)" : "none",
                       /* Inside auto layout */
                       flex: "none",
@@ -340,8 +369,8 @@ const Cards = () => {
                         alt={feature.title}
                         className="flex-shrink-0"
                         style={{
-                          width: "clamp(20px, 2.5vw, 30px)",
-                          height: "clamp(20px, 2.5vw, 30px)"
+                          width: "clamp(16px, 2vw, 24px)",
+                          height: "clamp(16px, 2vw, 24px)"
                         }}
                       />
                     ) : (
@@ -357,7 +386,7 @@ const Cards = () => {
                           fontFamily: "Inter",
                           fontWeight: 500,
                           fontStyle: "normal",
-                          fontSize: "clamp(14px, 1.5vw, 17.8px)",
+                          fontSize: "clamp(12px, 1.3vw, 15px)",
                           lineHeight: "100%",
                           letterSpacing: "0%",
                           color: "#1966BB",
@@ -371,12 +400,12 @@ const Cards = () => {
                           fontFamily: "Inter",
                           fontWeight: 400,
                           fontStyle: "normal",
-                          fontSize: "clamp(12px, 1.2vw, 14px)",
+                          fontSize: "clamp(10px, 1vw, 12px)",
                           lineHeight: "100%",
                           letterSpacing: "0%",
                           color: "#989898",
                           margin: 0,
-                          marginTop: "clamp(6px, 1vw, 12px)"
+                          marginTop: "clamp(4px, 0.8vw, 8px)"
                         }}
                       >
                         {feature.description}

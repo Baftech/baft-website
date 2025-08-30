@@ -3,6 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { motion } from "framer-motion";
+import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
 
 function Coin({ texture, position, animate, target, opacity = 0.97 }) {
   const ref = useRef();
@@ -33,12 +34,9 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
           color="#808080"
         />
       </mesh>
-
-
     </group>
   );
 }
-
 
 const CoinStack = ({ startAnimation }) => {
   const coinTexture = useTexture("/b-coin.svg");
@@ -80,8 +78,6 @@ const BInstantSection = () => {
 
   return (
     <div className="relative w-full h-screen bg-black">
-      {/* Removed background glow to avoid dark oval */}
-
       {/* Radial gradient background */}
       <div
         className="absolute inset-0"
@@ -93,41 +89,57 @@ const BInstantSection = () => {
       />
 
       {/* THREE.JS CANVAS */}
-      <Canvas
-        camera={{ position: [0, 0, 7.5], fov: 45 }}
-        className="w-full h-full relative z-20"
-        gl={{
-          physicallyCorrectLights: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          outputEncoding: THREE.sRGBEncoding,
-        }}
-      >
-        <Suspense fallback={null}>
-          {/* No ambient light */}
-          <ambientLight intensity={0} color="#fff8dc" /> 
+      <ThreeJSErrorBoundary>
+        <Canvas
+          camera={{ position: [0, 0, 7.5], fov: 45 }}
+          className="w-full h-full relative z-20"
+          gl={{
+            physicallyCorrectLights: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            outputEncoding: THREE.sRGBEncoding,
+            powerPreference: "high-performance",
+            antialias: true,
+            failIfMajorPerformanceCaveat: false,
+          }}
+          onCreated={({ gl }) => {
+            gl.setClearColor(0x000000, 0);
+            // Handle context loss gracefully
+            if (gl.canvas) {
+              gl.canvas.addEventListener('webglcontextlost', (event) => {
+                event.preventDefault();
+                console.warn('WebGL context lost, attempting to restore...');
+              }, false);
+            }
+          }}
+        >
+          <Suspense fallback={null}>
+            {/* No ambient light */}
+            <ambientLight intensity={0} color="#fff8dc" /> 
 
-          {/* Key light with warm golden tint */}
-          <directionalLight
-            position={[-6, 7, 4]}
-            intensity={0.45}      // reduced
-            color="#ffd27f"       // warm yellow-gold
-            castShadow
-          />
+            {/* Key light with warm golden tint */}
+            <directionalLight
+              position={[-6, 7, 4]}
+              intensity={0.45}      // reduced
+              color="#ffd27f"       // warm yellow-gold
+              castShadow
+            />
 
-          {/* Soft helper light for highlights */}
-          <spotLight
-            position={[-2, 8, 3]}
-            angle={0.5}
-            penumbra={0.5}
-            intensity={0.12}      // reduced
-            distance={40}
-            color="#ffebc2"       // warm cream-white
-          />
-          {/* Environment reflections */}
-          <Environment preset="studio" />
-          <CoinStack startAnimation={startCoinAnimation} />
-        </Suspense>
-      </Canvas>
+            {/* Soft helper light for highlights */}
+            <spotLight
+              position={[-2, 8, 3]}
+              angle={0.5}
+              penumbra={0.5}
+              intensity={0.12}      // reduced
+              distance={40}
+              color="#ffebc2"       // warm cream-white
+            />
+            
+            {/* Environment reflections - using local preset instead of external HDR */}
+            <Environment preset="city" />
+            <CoinStack startAnimation={startCoinAnimation} />
+          </Suspense>
+        </Canvas>
+      </ThreeJSErrorBoundary>
 
       {/* Transparent black film over coins */}
       <div

@@ -380,9 +380,9 @@ const B_Fast_Desktop = () => {
                 disablePictureInPicture
                 preload="auto"
                 onError={() => setVideoError(true)}
-                onLoadStart={() => console.log('Video loading started')}
-                onCanPlay={() => console.log('Video can start playing')}
-                onEnded={() => console.log('Video playback ended')}
+                onLoadStart={() => {}}
+                onCanPlay={() => {}}
+                onEnded={() => {}}
               />
             )}
           </div>

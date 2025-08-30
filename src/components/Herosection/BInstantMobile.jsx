@@ -3,6 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { motion } from "framer-motion";
+import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
 
 function Coin({ texture, position, animate, target }) {
   const ref = useRef();
@@ -113,45 +114,47 @@ const BInstantMobile = () => {
           zIndex: 20,
         }}
       >
-        <Canvas
-          camera={{ position: [0, 0, 50], fov: 15 }}
-          className="w-full h-full"
-          gl={{ 
-            powerPreference: "low-power", 
-            antialias: false, 
-            alpha: true,
-            preserveDrawingBuffer: false,
-            failIfMajorPerformanceCaveat: false
-          }}
-          dpr={[1, 1.5]}
-          onCreated={({ gl }) => {
-            gl.setClearColor(0x000000, 0);
-            gl.domElement.style.touchAction = 'none';
-          }}
-        >
-          <Suspense fallback={null}>
-            {/* Very soft global fill */}
-            <ambientLight intensity={0.0056} color="#fff8dc" />
+        <ThreeJSErrorBoundary>
+          <Canvas
+            camera={{ position: [0, 0, 50], fov: 15 }}
+            className="w-full h-full"
+            gl={{ 
+              powerPreference: "low-power", 
+              antialias: false, 
+              alpha: true,
+              preserveDrawingBuffer: false,
+              failIfMajorPerformanceCaveat: false
+            }}
+            dpr={[1, 1.5]}
+            onCreated={({ gl }) => {
+              gl.setClearColor(0x000000, 0);
+              gl.domElement.style.touchAction = 'none';
+            }}
+          >
+            <Suspense fallback={null}>
+              {/* Very soft global fill */}
+              <ambientLight intensity={0.0056} color="#fff8dc" />
 
-            {/* Dim warm key light */}
-            <directionalLight
-              position={[-6, 7, 4]}
-              intensity={0.014}      // 30% lower
-              color="#ffd27f"
-            />
+              {/* Dim warm key light */}
+              <directionalLight
+                position={[-6, 7, 4]}
+                intensity={0.014}      // 30% lower
+                color="#ffd27f"
+              />
 
-            {/* Dim helper highlight */}
-            <spotLight
-              position={[-2, 8, 3]}
-              angle={0.5}
-              penumbra={0.5}
-              intensity={0.007}      // 30% lower
-              distance={40}
-              color="#ffebc2"
-            />
-            <CoinStack startAnimation={startCoinAnimation} />
-          </Suspense>
-        </Canvas>
+              {/* Dim helper highlight */}
+              <spotLight
+                position={[-2, 8, 3]}
+                angle={0.5}
+                penumbra={0.5}
+                intensity={0.007}      // 30% lower
+                distance={40}
+                color="#ffebc2"
+              />
+              <CoinStack startAnimation={startCoinAnimation} />
+            </Suspense>
+          </Canvas>
+        </ThreeJSErrorBoundary>
       </div>
 
       {/* Reveal film moving up (coins below) */}

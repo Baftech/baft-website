@@ -1,14 +1,90 @@
 import React, { useRef, useEffect, useState } from "react";
+import VideoComponentMobile from "./VideoComponentMobile";
+
+// Custom hook to detect mobile devices
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  // Enhanced responsive hook for desktop
+  const [screenSize, setScreenSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const updateScreenSize = () => {
+      setScreenSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+
+    updateScreenSize();
+    window.addEventListener('resize', updateScreenSize);
+    window.addEventListener('orientationchange', updateScreenSize);
+
+    return () => {
+      window.removeEventListener('resize', updateScreenSize);
+      window.removeEventListener('orientationchange', updateScreenSize);
+    };
+  }, []);
+
+  return isMobile;
+};
 
 const Videocomponent = ({ slide = false }) => {
+  const isMobile = useIsMobile();
   const mainContainerRef = useRef(null);
   const videoSectionRef = useRef(null);
   const videoRef = useRef(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [screenSize, setScreenSize] = useState({ width: 0, height: 0 });
   const originalBodyOverflowRef = useRef('');
   const originalBodyTouchActionRef = useRef('');
   const originalHtmlOverscrollRef = useRef('');
+
+  // Enhanced responsive hook for desktop
+  useEffect(() => {
+    const updateScreenSize = () => {
+      setScreenSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+
+    updateScreenSize();
+    window.addEventListener('resize', updateScreenSize);
+    window.addEventListener('orientationchange', updateScreenSize);
+
+    return () => {
+      window.removeEventListener('resize', updateScreenSize);
+      window.removeEventListener('orientationchange', updateScreenSize);
+    };
+  }, []);
+
+  // Responsive sizing based on screen dimensions
+  const isSmallDesktop = screenSize.width <= 1024; // Small laptop
+  const isMediumDesktop = screenSize.width <= 1366; // Medium laptop
+  const isLargeDesktop = screenSize.width > 1366; // Large desktop
+
+  // Adaptive sizing
+  const containerMaxWidth = isSmallDesktop ? '1000px' : isMediumDesktop ? '1200px' : '1400px';
+  const containerPadding = isSmallDesktop ? '0 1.5rem' : '0 2rem';
+  const videoMaxWidth = isSmallDesktop ? '400px' : isMediumDesktop ? '500px' : '600px';
+  const videoMaxHeight = isSmallDesktop ? '300px' : isMediumDesktop ? '350px' : '400px';
+  const headingSize = isSmallDesktop ? 'clamp(28px, 5vw, 48px)' : isMediumDesktop ? 'clamp(32px, 6vw, 52px)' : 'clamp(36px, 6vw, 56px)';
+  const bodyTextSize = isSmallDesktop ? '15px' : isMediumDesktop ? '16px' : '17px';
+  const subheadingSize = isSmallDesktop ? '16px' : isMediumDesktop ? '18px' : '20px';
+  const gridGap = isSmallDesktop ? '2rem' : isMediumDesktop ? '2.5rem' : '3rem';
 
   // Handle scroll-based expansion in slide mode
   useEffect(() => {
@@ -142,10 +218,10 @@ const Videocomponent = ({ slide = false }) => {
   };
 
   const videoStyle = {
-    width: isExpanded ? '100vw' : 'min(100%, 500px)',
+    width: isExpanded ? '100vw' : `min(100%, ${videoMaxWidth})`,
     height: isExpanded ? '100vh' : 'auto',
-    maxHeight: isExpanded ? '100vh' : '350px',
-    borderRadius: isExpanded ? '0px' : '24px',
+    maxHeight: isExpanded ? '100vh' : videoMaxHeight,
+    borderRadius: isExpanded ? '0px' : isSmallDesktop ? '20px' : '24px',
     transition: isExpanded
       ? 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
       : 'none',
@@ -165,7 +241,7 @@ const Videocomponent = ({ slide = false }) => {
   };
 
   const gridStyle = {
-    gap: isExpanded ? '0rem' : '3rem',
+    gap: isExpanded ? '0rem' : gridGap,
     gridTemplateColumns: isExpanded ? '1fr 0fr' : '1fr 1fr',
     transition: isExpanded 
       ? 'gap 4s cubic-bezier(0.25, 0.46, 0.45, 0.94), grid-template-columns 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
@@ -173,6 +249,11 @@ const Videocomponent = ({ slide = false }) => {
     alignItems: 'center',
     justifyContent: 'flex-start',
   };
+
+  // Render mobile component on mobile devices
+  if (isMobile) {
+    return <VideoComponentMobile slide={slide} />;
+  }
 
   return (
     <div 
@@ -184,7 +265,7 @@ const Videocomponent = ({ slide = false }) => {
         scrollSnapType: slide ? undefined : 'y mandatory',
         scrollBehavior: slide ? undefined : 'smooth',
         overscrollBehavior: slide ? 'none' : undefined,
-        overscrollBehaviorY: slide ? 'none' : undefined,
+        
         touchAction: slide ? 'none' : undefined
       }}
     >
@@ -212,9 +293,9 @@ const Videocomponent = ({ slide = false }) => {
           <div style={{
             display: 'grid',
             ...gridStyle,
-            maxWidth: isExpanded ? 'none' : '1200px',
+            maxWidth: isExpanded ? 'none' : containerMaxWidth,
             width: '100%',
-            padding: isExpanded ? '0' : '0 2rem',
+            padding: isExpanded ? '0' : containerPadding,
             height: '100%',
             position: 'relative',
             overflow: 'hidden',
@@ -243,20 +324,21 @@ const Videocomponent = ({ slide = false }) => {
               {!isExpanded && !isAnimating && (
                 <div style={{
                   position: 'absolute',
-                  bottom: '20px',
+                  bottom: isSmallDesktop ? '18px' : '20px',
                   left: '50%',
                   transform: 'translateX(-50%)',
                   backgroundColor: 'rgba(25, 102, 187, 0.9)',
                   color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '25px',
-                  fontSize: '14px',
+                  padding: isSmallDesktop ? '10px 20px' : '12px 24px',
+                  borderRadius: isSmallDesktop ? '22px' : '25px',
+                  fontSize: isSmallDesktop ? '13px' : '14px',
                   fontFamily: 'Inter, sans-serif',
                   fontWeight: '500',
                   animation: 'gentlePulse 3s infinite',
                   zIndex: 10,
                   backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,255,255,0.2)'
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  whiteSpace: 'nowrap'
                 }}>
                   Scroll to expand video
                 </div>
@@ -270,41 +352,51 @@ const Videocomponent = ({ slide = false }) => {
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'flex-start',
-              gap: '1rem',
-              padding: '2rem',
+              gap: isSmallDesktop ? '0.75rem' : '1rem',
+              padding: isSmallDesktop ? '1.5rem' : '2rem',
               height: '100%'
             }}>
               <p
                 className="font-normal mb-2 flex items-center gap-2"
                 style={{
                   fontFamily: "Inter, sans-serif",
-                  fontSize: "18px",
+                  fontSize: subheadingSize,
                   color: "#092646",
-                  fontWeight: 500
+                  fontWeight: 500,
+                  margin: 0
                 }}
               >
-                <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
+                <img 
+                  src="/SVG.svg" 
+                  alt="Icon" 
+                  className="w-5 h-5" 
+                  style={{
+                    width: isSmallDesktop ? '18px' : '20px',
+                    height: isSmallDesktop ? '18px' : '20px'
+                  }}
+                />
                 Know our story
               </p>
               
               <h1 style={{
                 fontFamily: 'EB Garamond, serif',
-                fontSize: 'clamp(32px, 6vw, 56px)',
+                fontSize: headingSize,
                 fontWeight: 'bold',
                 color: '#1966BB',
                 lineHeight: '1.2',
-                marginBottom: '1rem'
+                margin: 0
               }}>
                 The Video
               </h1>
               
               <p style={{
                 fontFamily: 'Inter, sans-serif',
-                fontSize: '16px',
+                fontSize: bodyTextSize,
                 color: '#666666',
                 lineHeight: '1.7',
                 fontWeight: 400,
-                maxWidth: '90%'
+                maxWidth: isSmallDesktop ? '95%' : '90%',
+                margin: 0
               }}>
                 BaFT Technology is a next-gen neo-banking startup headquartered in
                 Bangalore, proudly founded in 2025. We're a tight-knit team of
@@ -331,6 +423,19 @@ const Videocomponent = ({ slide = false }) => {
             100% { 
               opacity: 1; 
               transform: translateX(-50%) scale(1); 
+            }
+          }
+          
+          /* Additional responsive styles for desktop */
+          @media (max-width: 1024px) {
+            .desktop-container {
+              padding: 0 1.5rem;
+            }
+          }
+          
+          @media (min-width: 1367px) {
+            .desktop-container {
+              padding: 0 2.5rem;
             }
           }
         `}
