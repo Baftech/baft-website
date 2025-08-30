@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./About.css";
+import AboutMobile from "./AboutMobile";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -789,8 +790,11 @@ const AboutBaft = () => {
 
   return (
     <>
-             {/* Desktop scroll animation version */}
-       {isDesktop && (
+      {/* Mobile/Tablet version - Use dedicated AboutMobile component */}
+      {!isDesktop && <AboutMobile />}
+      
+      {/* Desktop scroll animation version */}
+      {isDesktop && (
          <div ref={triggerRef} className="relative" style={{ height: '300vh' }}>
           <section
             id="about"
@@ -903,77 +907,7 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
         </div>
       )}
 
-      {/* Mobile/Tablet version - Original Layout */}
-      {!isDesktop && (
-        <section
-          id="about"
-          data-theme="light"
-          className="about-section-mobile bg-white"
-          style={{ 
-            minHeight: '100vh',
-            width: '100%',
-            position: 'relative'
-          }}
-        >
-          <div className="about-grid-mobile">
-            {/* Left Column */}
-            <div
-              className={`transition-all duration-1200 ease-in-out flex flex-col h-full ${
-                isExpanded ? "justify-start" : "justify-center"
-              }`}
-              style={{
-                transform: `translateY(${isExpanded ? "-20px" : "0px"})`,
-              }}
-            >
-              <p
-                className="font-normal mb-2 flex items-center gap-2 transition-all duration-1200 ease-out text-sm sm:text-base md:text-lg lg:text-xl"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  color: "#092646",
-                }}
-              >
-                <img src="/SVG.svg" alt="Icon" className="w-4 h-4 sm:w-5 sm:h-5" />
-                Know our story
-              </p>
-              <h1
-                className="leading-tight md:leading-none mb-3 sm:mb-4 md:mb-6 lg:mb-8 font-bold transition-all duration-1200 ease-out text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl text-[#1966BB]"
-                style={{
-                  fontFamily: "EB Garamond, serif",
-                }}
-              >
-                <span className="block">About BaFT</span>
-              </h1>
 
-              <ReadMoreText
-                content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
-
-Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BAFT Technology was born.
-
-At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
-                onExpandChange={setIsExpanded}
-              />
-            </div>
-
-            {/* Right Column - Fixed for mobile/tablet visibility */}
-            <div className="about-image-container-mobile">
-              <div style={{ width: '100%', height: '100%' }}>
-                {/* Test image to verify layout */}
-                <img 
-                  src="/Property 1=Image.png" 
-                  alt="Test Image" 
-                  className="w-full h-full object-cover object-center rounded-3xl"
-                  style={{ minHeight: '400px' }}
-                  onLoad={() => {}}
-                />
-                {/* Original InteractiveTeamImage */}
-                <div className="absolute inset-0">
-                  <InteractiveTeamImage />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
     </>
   );
 };
