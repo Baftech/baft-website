@@ -253,11 +253,11 @@ const VideoComponentMobile = ({ slide = false }) => {
           {/* Header Section - Centered */}
           <div style={{
             textAlign: 'center',
-            paddingTop: '0',
-            paddingBottom: '0',
+            
+            
             paddingLeft: '1.25rem',
             paddingRight: '1.25rem',
-            width: '100%',
+            width: isScrolled ? `${screenDimensions.width}px` : '100%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -267,8 +267,7 @@ const VideoComponentMobile = ({ slide = false }) => {
             zIndex: isScrolled ? 1001 : 'auto',
             background: isScrolled ? 'white' : 'transparent',
             paddingTop: isScrolled ? '1rem' : '0',
-            paddingBottom: isScrolled ? '1rem' : '0',
-            width: isScrolled ? `${screenDimensions.width}px` : '100%'
+            paddingBottom: isScrolled ? '1rem' : '0'
           }}>
             {/* Interactive Video Card - Centered */}
             <div style={{

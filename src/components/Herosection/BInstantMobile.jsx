@@ -1,9 +1,10 @@
-import React, { Suspense, useRef, useState } from "react";
+import React, { Suspense, useRef, useState, useEffect, useCallback } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { motion } from "framer-motion";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
+import { useWebGLContextManager, setupWebGLContext } from "./WebGLContextManager";
 
 function Coin({ texture, position, animate, target }) {
   const ref = useRef();
@@ -73,14 +74,73 @@ const CoinStack = ({ startAnimation }) => {
 const BInstantMobile = () => {
   const [startCoinAnimation, setStartCoinAnimation] = useState(false);
   const [showCoins, setShowCoins] = useState(false);
+  const [canvasKey, setCanvasKey] = useState(0);
+  
+  const { 
+    contextLost, 
+    retryCount, 
+    handleContextLost, 
+    handleContextRestored 
+  } = useWebGLContextManager({
+    maxRetries: 3,
+    recoveryDelay: 1000,
+    enableAutoRecovery: true
+  });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setStartCoinAnimation(true);
       setShowCoins(true);
     }, 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Enhanced canvas creation with better WebGL settings for mobile
+  const handleCanvasCreated = useCallback(({ gl }) => {
+    // Use the shared WebGL context setup for mobile
+    const cleanup = setupWebGLContext(gl, {
+      isMobile: true,
+      onContextLost: handleContextLost,
+      onContextRestored: handleContextRestored
+    });
+
+    return cleanup;
+  }, [handleContextLost, handleContextRestored]);
+
+  // Force canvas recreation on context loss
+  useEffect(() => {
+    if (contextLost) {
+      setCanvasKey(prev => prev + 1);
+    }
+  }, [contextLost]);
+
+  // Fallback UI when WebGL is not available on mobile
+  if (contextLost && retryCount >= 3) {
+    return (
+      <div
+        className="relative"
+        style={{
+          width: "100%",
+          height: "100vh",
+          backgroundColor: "#000",
+          overflow: "hidden",
+        }}
+      >
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center text-white p-6">
+            <h2 className="text-xl mb-4">Mobile Graphics Unavailable</h2>
+            <p className="text-sm mb-4">Your device doesn't support WebGL graphics.</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -116,6 +176,7 @@ const BInstantMobile = () => {
       >
         <ThreeJSErrorBoundary>
           <Canvas
+            key={canvasKey}
             camera={{ position: [0, 0, 50], fov: 15 }}
             className="w-full h-full"
             gl={{ 
@@ -123,13 +184,12 @@ const BInstantMobile = () => {
               antialias: false, 
               alpha: true,
               preserveDrawingBuffer: false,
-              failIfMajorPerformanceCaveat: false
+              failIfMajorPerformanceCaveat: false,
+              stencil: false,
+              depth: true
             }}
             dpr={[1, 1.5]}
-            onCreated={({ gl }) => {
-              gl.setClearColor(0x000000, 0);
-              gl.domElement.style.touchAction = 'none';
-            }}
+            onCreated={handleCanvasCreated}
           >
             <Suspense fallback={null}>
               {/* Very soft global fill */}

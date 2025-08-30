@@ -1,4 +1,4 @@
-import React, { Suspense, useRef, useState } from "react";
+import React, { Suspense, useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -41,6 +41,12 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
 const CoinStack = ({ startAnimation }) => {
   const coinTexture = useTexture("/b-coin.svg");
 
+  // Add error handling for texture loading
+  if (!coinTexture) {
+    console.log("Coin texture not loaded yet");
+    return null;
+  }
+
   return (
     <>
       <Coin
@@ -71,7 +77,7 @@ const CoinStack = ({ startAnimation }) => {
 const BInstantSection = () => {
   const [startCoinAnimation, setStartCoinAnimation] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => setStartCoinAnimation(true), 800);
     return () => clearTimeout(timer);
   }, []);
@@ -94,23 +100,10 @@ const BInstantSection = () => {
           camera={{ position: [0, 0, 7.5], fov: 45 }}
           className="w-full h-full relative z-20"
           gl={{
-            physicallyCorrectLights: true,
-            toneMapping: THREE.ACESFilmicToneMapping,
-            outputEncoding: THREE.sRGBEncoding,
-            powerPreference: "high-performance",
             antialias: true,
-            failIfMajorPerformanceCaveat: false,
+            alpha: false,
           }}
-          onCreated={({ gl }) => {
-            gl.setClearColor(0x000000, 0);
-            // Handle context loss gracefully
-            if (gl.canvas) {
-              gl.canvas.addEventListener('webglcontextlost', (event) => {
-                event.preventDefault();
-                console.warn('WebGL context lost, attempting to restore...');
-              }, false);
-            }
-          }}
+          dpr={Math.min(window.devicePixelRatio, 2)}
         >
           <Suspense fallback={null}>
             {/* No ambient light */}
@@ -119,8 +112,8 @@ const BInstantSection = () => {
             {/* Key light with warm golden tint */}
             <directionalLight
               position={[-6, 7, 4]}
-              intensity={0.45}      // reduced
-              color="#ffd27f"       // warm yellow-gold
+              intensity={0.45}
+              color="#ffd27f"
               castShadow
             />
 
@@ -129,9 +122,9 @@ const BInstantSection = () => {
               position={[-2, 8, 3]}
               angle={0.5}
               penumbra={0.5}
-              intensity={0.12}      // reduced
+              intensity={0.12}
               distance={40}
-              color="#ffebc2"       // warm cream-white
+              color="#ffebc2"
             />
             
             {/* Environment reflections - using local preset instead of external HDR */}
@@ -150,9 +143,6 @@ const BInstantSection = () => {
           pointerEvents: "none"
         }}
       />
-
-      {/* Dark transparent film (optional, can remove if too dark) */}
-      {/* Removed dark film overlay to keep coins bright */}
 
       {/* Overlay Text */}
       <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
