@@ -22,14 +22,14 @@ const ReadMoreText = ({ content, maxLength = 200, onExpandChange }) => {
 
   return (
     <div className="leading-relaxed">
-             <div
-         ref={contentRef}
-         style={{
-           height: isExpanded ? "auto" : "clamp(80px, 20vw, 120px)",
-           overflow: "hidden",
-           transition: "height 0.4s ease",
-         }}
-       >
+                     <div
+          ref={contentRef}
+          style={{
+            height: isExpanded ? "auto" : "clamp(180px, 32vw, 260px)",
+            overflow: "hidden",
+            transition: "height 3.2s cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+        >
                  {paragraphs.map((para, i) => (
            <p
              key={i}
@@ -52,42 +52,53 @@ const ReadMoreText = ({ content, maxLength = 200, onExpandChange }) => {
          ))}
       </div>
 
-      {isLong && (
-        <button
-          onClick={handleToggle}
-          className="mt-3 transition-all duration-300 ease-out"
-          style={{
-            fontFamily: "Inter, sans-serif",
-            fontWeight: "400",
-            fontStyle: "normal",
-            borderRadius: "200px",
-            backgroundColor: "#E3EDFF",
-            color: "#092646",
-            border: "none",
-            cursor: "pointer",
-            width: "clamp(70px, 20vw, 140px)",
-            height: "clamp(28px, 7vw, 44px)",
-            fontSize: "clamp(9px, 2.5vw, 13px)",
-            lineHeight: "clamp(12px, 3vw, 16px)",
-            letterSpacing: "0px",
-            verticalAlign: "middle",
-            opacity: 1,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-          onTouchStart={(e) => {
-            e.target.style.backgroundColor = "#000000";
-            e.target.style.color = "#ffffff";
-          }}
-          onTouchEnd={(e) => {
-            e.target.style.backgroundColor = "#E3EDFF";
-            e.target.style.color = "#092646";
-          }}
-        >
-          {isExpanded ? "Read Less" : "Read More"}
-        </button>
-      )}
+              {isLong && (
+          <div 
+            className="button-container"
+            style={{
+              transform: isExpanded ? "translateY(0)" : "translateY(0)",
+              transition: "all 3.2s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          >
+            <button
+              onClick={handleToggle}
+              className="mt-3 reveal-button"
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontWeight: "400",
+                fontStyle: "normal",
+                borderRadius: "200px",
+                backgroundColor: "#E3EDFF",
+                color: "#092646",
+                border: "none",
+                cursor: "pointer",
+                width: "clamp(70px, 20vw, 140px)",
+                height: "clamp(28px, 7vw, 44px)",
+                fontSize: "clamp(9px, 2.5vw, 13px)",
+                lineHeight: "clamp(12px, 3vw, 16px)",
+                letterSpacing: "0px",
+                verticalAlign: "middle",
+                opacity: 1,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                transition: "all 3.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+              onTouchStart={(e) => {
+                e.target.style.backgroundColor = "#000000";
+                e.target.style.color = "#ffffff";
+                e.target.style.transform = "scale(0.95)";
+              }}
+              onTouchEnd={(e) => {
+                e.target.style.backgroundColor = "#E3EDFF";
+                e.target.style.color = "#092646";
+                e.target.style.transform = "scale(1)";
+              }}
+            >
+              {isExpanded ? "Read Less" : "Read More"}
+            </button>
+          </div>
+        )}
     </div>
   );
 };
@@ -291,19 +302,19 @@ const InteractiveTeamImage = ({ disabled = false }) => {
     <div 
       className="relative bg-gray-100 w-full h-full" 
       style={{
-        borderRadius: '24px',
+        borderRadius: 'inherit',
         flex: 'none',
         order: 1,
         flexGrow: 0,
-        minHeight: '400px',
-        minWidth: '300px'
+        width: '100%',
+        height: '100%'
       }}
     >
       {/* Main Image Container */}
       <div
         className="relative w-full h-full overflow-hidden bg-gray-100"
         style={{
-          borderRadius: '24px',
+          borderRadius: 'inherit',
           pointerEvents: disabled ? 'none' : 'auto'
         }}
         onMouseEnter={disabled ? undefined : handleMouseEnterImage}
@@ -418,7 +429,7 @@ const AboutMobile = () => {
     <section
       id="about"
       data-theme="light"
-      className="about-section-mobile bg-white"
+      className={`about-section-mobile bg-white ${isExpanded ? 'expanded' : ''}`}
       style={{ 
         minHeight: '100vh',
         width: '100%',
@@ -427,15 +438,20 @@ const AboutMobile = () => {
     >
       <div className="about-grid-mobile">
         {/* Content Column */}
-        <div
-          className={`transition-all duration-500 ease-in-out flex flex-col h-full ${
-            isExpanded ? "justify-start" : "justify-center"
-          }`}
-          style={{
-            transform: `translateY(${isExpanded ? "-10px" : "0px"})`,
-            padding: "clamp(16px, 4vw, 32px)",
-          }}
-        >
+                  <div
+            className={`content-column transition-all duration-500 ease-in-out flex flex-col h-full ${
+              isExpanded ? "justify-start" : "justify-center"
+            }`}
+            style={{
+              padding: "clamp(16px, 4vw, 32px)",
+              paddingTop: "clamp(24px, 6vw, 48px)",
+              position: "sticky",
+              top: 0,
+              zIndex: 10,
+              backgroundColor: "white",
+              marginBottom: isExpanded ? "0.5rem" : "0",
+            }}
+          >
           <p
             className="font-normal mb-2 flex items-center gap-2 transition-all duration-500 ease-out"
             style={{
@@ -500,16 +516,29 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
         </div>
 
         {/* Image Column */}
-        <div className="about-image-container-mobile">
-          <div style={{
-            width: "clamp(250px, 70vw, 327.0002136230469px)",
-            height: "clamp(450px, 90vw, 600px)",
-            margin: "0 auto",
-            borderRadius: "clamp(10px, 3vw, 14.19px)",
-            opacity: 1,
-            transform: "rotate(0deg)",
-            overflow: "hidden",
-          }}>
+        <div 
+          className="about-image-container-mobile"
+          style={{
+            marginTop: "auto",
+            transition: "all 0.5s ease-in-out",
+          }}
+        >
+          <div 
+            className="responsive-image-wrapper"
+            style={{
+              width: "clamp(350px, 85vw, 450px)",
+              height: "clamp(550px, 120vw, 700px)",
+              margin: "0 auto 0 auto",
+              borderRadius: "clamp(10px, 3vw, 14.19px)",
+              opacity: 1,
+              transform: "rotate(0deg)",
+              overflow: "hidden",
+              position: "relative",
+              alignSelf: "flex-end",
+              marginTop: "auto",
+              transition: "all 0.5s ease-in-out",
+            }}
+          >
             <InteractiveTeamImage />
           </div>
         </div>
