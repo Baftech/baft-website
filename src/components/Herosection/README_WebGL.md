@@ -176,3 +176,4 @@ See the following components for complete examples:
 - `BInstantMobile.jsx` - Mobile Three.js component
 - `ThreeJSErrorBoundary.jsx` - Error boundary for Three.js
 
+

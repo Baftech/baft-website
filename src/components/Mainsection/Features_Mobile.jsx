@@ -262,11 +262,9 @@ const Cards = () => {
     <div className="bg-white" data-theme="light">
                     <section
           id="features"
-          className="relative overflow-hidden px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-8 pre-enter"
+          className="relative overflow-hidden py-8 sm:py-12 md:py-8 pre-enter"
           style={{
             marginTop: "clamp(0.5vh, 1vh, 2vh)",
-            marginLeft: "0.5cm",
-            marginRight: "0.5cm",
             marginBottom: "0.1cm"
           }}
           ref={sectionRef}
@@ -275,7 +273,7 @@ const Cards = () => {
         
         {/* Mobile Layout - Stacked vertically */}
         <div 
-          className="w-full max-w-4xl mx-auto flex flex-col gap-0 items-center"
+          className="w-full max-w-4xl mx-auto flex flex-col gap-0 items-center px-4 sm:px-6 md:px-8"
           style={{ marginTop: "4rem" }}
         >
 
