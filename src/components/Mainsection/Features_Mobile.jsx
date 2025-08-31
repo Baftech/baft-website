@@ -450,11 +450,11 @@ const Cards = () => {
                           fontWeight: 400,
                           fontStyle: "normal",
                           fontSize: "clamp(10px, 1vw, 12px)",
-                          lineHeight: "100%",
+                          lineHeight: "120%",
                           letterSpacing: "0%",
                           color: "#989898",
                           margin: 0,
-                          marginTop: "clamp(4px, 0.8vw, 8px)"
+                          marginTop: "clamp(8px, 1.2vw, 12px)"
                         }}
                       >
                         {feature.description}
