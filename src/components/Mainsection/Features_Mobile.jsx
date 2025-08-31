@@ -353,7 +353,10 @@ const Cards = () => {
                       updateCardPositions(index, false);
                     }}
                     onMouseLeave={() => {
-                      startAutoRotate(); // Resume auto-rotation when leaving
+                      // Small delay before resuming auto-rotation for better UX
+                      setTimeout(() => {
+                        startAutoRotate(); // Resume auto-rotation when leaving
+                      }, 500);
                     }}
                     style={{
                       boxSizing: "border-box",
