@@ -10,6 +10,7 @@ const Cards = () => {
   const [overlayActive, setOverlayActive] = useState(false);
   const overlayTimerRef = useRef(null);
   const currentIndexRef = useRef(0);
+  const prevIndexRef = useRef(0);
   const rotateIntervalRef = useRef(null);
 
   const featuresData = [
@@ -24,7 +25,7 @@ const Cards = () => {
       icon: null,
       customIcon: "/manage-account.svg",
       image: "/baft_card2.svg",
-      title: "Manage Accounts",
+      title: "Manage Account",
       description: "Control your finances with management tools and insights.",
     },
     {
@@ -54,137 +55,82 @@ const Cards = () => {
     }
   };
 
+  const animateCardFall = (fallIndex) => {
+    if (!cardsRef.current) return;
+    const card = cardsRef.current.children[fallIndex];
+    if (!card) return;
+
+    gsap.to(card, {
+      y: 400,
+      opacity: 0,
+      scale: 0.9,
+      rotateZ: 15,
+      zIndex: 5,
+      duration: 1.2,
+      ease: "power2.inOut"
+    });
+  };
+
   const updateCardPositions = (activeIndex, immediate = false) => {
     if (!cardsRef.current) return;
 
     const cardElements = Array.from(cardsRef.current.children);
     const totalCards = featuresData.length;
 
-    // Simple card stack positioning - each card with small offset and progressive scaling
     cardElements.forEach((card, index) => {
-      const isActive = index === activeIndex;
-      
-      if (isActive) {
-        // Active card: animate from above with swiping down effect
-        if (immediate) {
-          // Immediate positioning for initial load
-          setOrAnimate(card, { 
-            x: 0,
-            y: 0,
-            z: 0,
-            scale: 1,
-            opacity: 1,
-            zIndex: totalCards + 10,
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0
-          }, true);
-        } else {
-          // Simple fall down motion - no z-axis changes
-          setOrAnimate(card, { 
-            x: 0,
-            y: -50, // Start above for smooth fall
-            z: 0, // Keep at same depth - no jumping
-            scale: 0.9, // Start smaller for smooth scaling
-            opacity: 1, // Start fully visible
-            zIndex: totalCards + 10,
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0
-          }, false);
-          
-          // Smooth fall down to final position
-          setTimeout(() => {
-            setOrAnimate(card, { 
-              x: 0,
-              y: 0,
-              z: 0, // Same depth - no movement
-              scale: 1,
-              opacity: 1,
-              zIndex: totalCards + 10,
-              rotateX: 0,
-              rotateY: 0,
-              rotateZ: 0
-            }, false);
-          }, 100);
-        }
+      // Direct mapping: card index should match list item index exactly
+      if (index === activeIndex) {
+        // Current active card (should be visible on top, not falling)
+        setOrAnimate(card, { 
+          x: 0,
+          y: 0,
+          z: 0,
+          scale: 1,
+          opacity: 1,
+          zIndex: 30,
+          rotateX: 0,
+          rotateY: 0,
+          rotateZ: 0
+        }, immediate);
+      } else if (index === (activeIndex + 1) % totalCards) {
+        // Next card - slides up to become active
+        setOrAnimate(card, { 
+          x: 0,
+          y: -30, // Slightly above
+          z: -30,
+          scale: 0.95,
+          opacity: 1,
+          zIndex: 20,
+          rotateX: 0,
+          rotateY: 0,
+          rotateZ: 0
+        }, immediate);
+      } else if (index === (activeIndex + 2) % totalCards) {
+        // Third card - visible peek
+        setOrAnimate(card, { 
+          x: 0,
+          y: -60, // Further above
+          z: -60,
+          scale: 0.9,
+          opacity: 1,
+          zIndex: 10,
+          rotateX: 0,
+          rotateY: 0,
+          rotateZ: 0
+        }, immediate);
       } else {
-        // Calculate position for simple card stack - ensure top to bottom flow
-        let relativeIndex = index - activeIndex;
-        if (relativeIndex > totalCards / 2) relativeIndex -= totalCards;
-        if (relativeIndex < -totalCards / 2) relativeIndex += totalCards;
-        
-        // Simple stack positioning - ensure cards always fall from top to bottom
-        const stackOffset = Math.abs(relativeIndex) * 25; // 25px offset for better visibility
-        const stackScale = 1 - Math.abs(relativeIndex) * 0.08; // Progressive scaling like reference
-        const stackOpacity = 1 - Math.abs(relativeIndex) * 0.15; // Progressive opacity like reference
-        
-        if (relativeIndex > 0) {
-          // Cards after active: hide below (no bottom stack)
-          setOrAnimate(card, { 
-            x: 0,
-            y: 100, // Move far below to hide
-            z: 0,
-            scale: 0.8,
-            opacity: 0, // Hidden
-            zIndex: 0,
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0
-          }, immediate);
-        } else if (relativeIndex === -1) {
-          // Card that will become active next: positioned above to fall down
-          setOrAnimate(card, { 
-            x: 0,
-            y: -40, // Position above to fall down
-            z: 0, // Same depth - no jumping
-            scale: 0.9, // Ready to scale up when falling
-            opacity: 0.8, // Ready to become fully visible
-            zIndex: totalCards - 1,
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0
-          }, immediate);
-        } else if (relativeIndex === -2) {
-          // Second card above: visible layer
-          setOrAnimate(card, { 
-            x: 0,
-            y: -70, // Further above
-            z: 0, // Same depth - no jumping
-            scale: 0.85,
-            opacity: 0.7,
-            zIndex: totalCards - 2,
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0
-          }, immediate);
-        } else if (relativeIndex === -3) {
-          // Third card above: visible layer
-          setOrAnimate(card, { 
-            x: 0,
-            y: -100, // Furthest above
-            z: 0, // Same depth - no jumping
-            scale: 0.8,
-            opacity: 0.6,
-            zIndex: totalCards - 3,
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0
-          }, immediate);
-        } else {
-          // Other cards: stack above with z-depth
-          setOrAnimate(card, { 
-            x: 0,
-            y: -stackOffset,
-            z: -Math.abs(relativeIndex) * 30,
-            scale: stackScale,
-            opacity: stackOpacity,
-            zIndex: totalCards - Math.abs(relativeIndex),
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0
-          }, immediate);
-        }
+        // Hide all other cards
+        setOrAnimate(card, { 
+          x: 0,
+          y: 200, // Move far below to hide
+          z: 0,
+          scale: 0.7,
+          opacity: 0,
+          zIndex: 0,
+          rotateX: 0,
+          rotateY: 0,
+          rotateZ: 0
+        }, immediate);
       }
     });
   };
@@ -198,6 +144,8 @@ const Cards = () => {
 
   const startAutoRotate = () => {
     if (rotateIntervalRef.current) return;
+    // Ensure we start from index 0 to match the initial list item
+    setCurrentIndex(0);
     rotateIntervalRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % featuresData.length);
     }, 3000);
@@ -207,6 +155,7 @@ const Cards = () => {
     if (!cardsRef.current) return;
 
     // Instantly place cards on first paint to avoid initial bounce
+    // Ensure cards start with index 0 to match list item 0
     updateCardPositions(0, true);
 
     // Handle window resize for responsive updates
@@ -225,8 +174,20 @@ const Cards = () => {
 
   // Keep positions in sync when index changes (hover/auto-rotate)
   useEffect(() => {
-    currentIndexRef.current = currentIndex;
+    const prevIndex = prevIndexRef.current;
+    
+    // Only animate fall if we're not on the initial load (prevIndex !== currentIndex)
+    if (prevIndex !== currentIndex && prevIndexRef.current !== 0) {
+      // Make the old active card fall
+      animateCardFall(prevIndex);
+    }
+    
+    // Bring new active card to front
     updateCardPositions(currentIndex, false);
+    
+    // Update refs
+    prevIndexRef.current = currentIndex;
+    currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
   // Scroll-in appearance for the whole section
@@ -372,8 +333,6 @@ const Cards = () => {
 
             <ul
               className="space-y-1 sm:space-y-1.5 md:space-y-2"
-              onMouseEnter={stopAutoRotate}
-              onMouseLeave={startAutoRotate}
               style={{ 
                 cursor: "default", 
                 marginBottom: "0",
@@ -387,7 +346,15 @@ const Cards = () => {
                 return (
                   <li
                     key={index}
-                    onMouseEnter={() => setCurrentIndex(index)}
+                    onMouseEnter={() => {
+                      stopAutoRotate(); // Stop auto-rotation when hovering
+                      setCurrentIndex(index);
+                      // Update cards immediately when hovering
+                      updateCardPositions(index, false);
+                    }}
+                    onMouseLeave={() => {
+                      startAutoRotate(); // Resume auto-rotation when leaving
+                    }}
                     style={{
                       boxSizing: "border-box",
                       display: "flex",
