@@ -310,3 +310,17 @@
 .smooth-scroll {
   scroll-behavior: smooth;
 }
+
+/* Force hide scrollbars in footer - override everything */
+.combined-footer,
+.combined-footer *,
+.combined-footer *::before,
+.combined-footer *::after {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.combined-footer::-webkit-scrollbar,
+.combined-footer *::-webkit-scrollbar {
+  display: none !important;
+}

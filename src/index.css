@@ -5,6 +5,26 @@
 @import url('/fonts/GeneralSans_Complete/Fonts/WEB/css/general-sans.css');
 @import "tailwindcss";
 
+/* Global scrollbar hiding - Force hide all scrollbars */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+}
+
+html, body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  overflow: hidden !important;
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none !important;
+}
+
 @utility flex-center{
     @apply flex items-center justify-center;
 }

@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import { GridBackground } from "../Themes/Gridbackground";
+import React, { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
 
 const HeroMobileComponent = () => {
   const videoRef = useRef(null);
@@ -10,40 +9,24 @@ const HeroMobileComponent = () => {
   const shrinkStartedRef = useRef(false);
   const [orientation, setOrientation] = useState('portrait');
   const [isMobile, setIsMobile] = useState(true);
+  const [isTablet, setIsTablet] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
+  const [viewMode, setViewMode] = useState('mobile'); // 'mobile', 'tablet', 'desktop'
   const scaleRef = useRef(1);
   
   // Function to navigate to next slide
   const navigateToNextSlide = () => {
-    console.log('Mobile hero: Attempting to navigate to next slide...');
+    // Scroll to the next section or slide
+    const nextSection = document.querySelector('#next-section') || 
+                       document.querySelector('.next-slide') ||
+                       document.querySelector('main') ||
+                       document.body;
     
-    // Add visual feedback
-    const button = document.querySelector('#scroll-down-btn button');
-    if (button) {
-      button.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        button.style.transform = 'scale(1)';
-      }, 150);
-    }
-    
-    try {
-      // Dispatch the slide navigation event that SlideContainer listens for
-      const evt = new CustomEvent('navigateToSlide', { 
-        detail: { index: 1, slow: false }  // Navigate to slide 1 (BaFT Coin)
+    if (nextSection) {
+      nextSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
       });
-      console.log('Mobile hero: Dispatching navigateToSlide event:', evt.detail);
-      
-      // Dispatch immediately
-      window.dispatchEvent(evt);
-      
-      // Also try after a short delay in case SlideContainer isn't ready
-      setTimeout(() => {
-        console.log('Mobile hero: Dispatching navigateToSlide event (delayed)');
-        window.dispatchEvent(evt);
-      }, 100);
-      
-    } catch (error) {
-      console.error('Mobile hero: Navigation failed:', error);
     }
   };
 
@@ -53,20 +36,35 @@ const HeroMobileComponent = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       
-      // Check if mobile device
-      const mobile = width <= 768;
+      // Check device type - adjusted for smaller iPads and modern tablets
+      const mobile = width <= 575; // Reduced from 768 to 575 to catch smaller iPads
+      const tablet = width > 575 && width <= 1600; // Tablets start from 576px
+      const desktop = width > 1600;
+      
       setIsMobile(mobile);
+      setIsTablet(tablet);
       
       // Determine orientation
-      if (mobile) {
-        if (width > height) {
-          setOrientation('landscape');
-          setIsLandscape(true);
-        } else {
-          setOrientation('portrait');
-          setIsLandscape(false);
-        }
+      if (width > height) {
+        setOrientation('landscape');
+        setIsLandscape(true);
+      } else {
+        setOrientation('portrait');
+        setIsLandscape(false);
       }
+      
+      // Set view mode based on device and orientation
+      if (mobile) {
+        setViewMode('mobile');
+      } else if (tablet) {
+        // Tablet: portrait = tablet-portrait view, landscape = desktop view
+        setViewMode(orientation === 'portrait' ? 'tablet-portrait' : 'desktop');
+      } else {
+        setViewMode('desktop');
+      }
+      
+      // Debug logging for device detection
+      console.log(`Device Detection: width=${width}, height=${height}, mobile=${mobile}, tablet=${tablet}, desktop=${desktop}, orientation=${orientation}, viewMode=${orientation === 'portrait' ? 'tablet-portrait' : 'desktop'}`);
     };
 
     checkOrientation();
@@ -77,7 +75,9 @@ const HeroMobileComponent = () => {
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
     };
-  }, []);
+  }, [orientation]);
+
+  // ... existing code ...
 
   // Mobile animation synced to video time
   useEffect(() => {
@@ -89,19 +89,48 @@ const HeroMobileComponent = () => {
         return;
       }
 
+      // Only run animation if we're in mobile or tablet-portrait view mode
+      if (viewMode !== 'mobile' && viewMode !== 'tablet-portrait') return;
+
       // Mobile-specific initial frame (not fullscreen):
       // - Start 5cm below top
       // - Width ~85vw (capped), centered
       // - Maintain original video aspect ratio 1056x594
       const viewportWidth = window.innerWidth;
       const videoAspect = 594 / 1056; // ≈ 0.5625
-      // Use Figma iPhone 13 mini specs, scaled to the current viewport width (375 base)
-      const baseViewportWidth = 375; // iPhone 13 mini logical width
-      const scale = viewportWidth / baseViewportWidth;
+      
+      // Aggressive scaling for tablet portrait to ensure complete viewport fit
+      let baseViewportWidth, scale;
+      if (viewMode === 'tablet-portrait') {
+        // Tablet portrait: use much smaller scale to guarantee fit
+        baseViewportWidth = viewportWidth; // Use actual device width
+        scale = 1; // Base scale of 1 for natural sizing
+        // Apply very aggressive scaling factor to ensure video fits
+        if (viewportWidth <= 575) {
+          scale = 0.4; // Very small tablets get 40% scale
+        } else if (viewportWidth <= 768) {
+          scale = 0.5; // Small tablets get 50% scale
+        } else if (viewportWidth <= 1024) {
+          scale = 0.6; // Medium tablets get 60% scale
+        } else if (viewportWidth <= 1600) {
+          scale = 0.7; // Large tablets (like Pixel Tablet) get 70% scale
+        } else {
+          scale = 0.8; // Extra large tablets get 80% scale
+        }
+      } else if (viewMode === 'mobile') {
+        // Mobile: use iPhone 13 mini specs for consistent mobile experience
+        baseViewportWidth = 375; // iPhone 13 mini logical width
+        scale = viewportWidth / baseViewportWidth;
+      } else {
+        // Landscape: use original scaling
+        baseViewportWidth = 375;
+        scale = viewportWidth / baseViewportWidth;
+      }
+      
       const initialWidth = 1056 * scale;
       const initialHeight = 594 * scale; // keeps exact aspect
-      const initialTop = 218 * scale;
-      const initialLeft = -340.89 * scale;
+      const initialTop = viewMode === 'tablet-portrait' ? 60 * scale : 218 * scale; // Much higher for tablet portrait
+      const initialLeft = viewMode === 'tablet-portrait' ? -80 * scale : -340.89 * scale; // Better centered for tablet portrait
 
       const initial = {
         width: initialWidth,
@@ -121,12 +150,7 @@ const HeroMobileComponent = () => {
         borderRadius: 0,
         zIndex: 50,
       });
-      // Grid container disabled - removed GSAP reference
-      // gsap.set("#grid_container", { 
-      //   opacity: 1, 
-      //   visibility: "visible",
-      //   zIndex: 10 
-      // });
+
       // Text starts centered vertically, hidden
       gsap.set("#text-mobile", { opacity: 0, top: "50%", yPercent: -50 });
 
@@ -134,14 +158,39 @@ const HeroMobileComponent = () => {
         if (!videoRef.current || !wrapperRef.current || !placeholderRef.current) return;
         if (videoRef.current.currentTime < 8 || animationCompletedRef.current || shrinkStartedRef.current) return;
 
-        // Use Figma final frame specs, positioned at center of mobile viewport
-        const baseViewportWidth = 375; // iPhone 13 mini logical width
-        const scale = window.innerWidth / baseViewportWidth;
+        // Use Figma final frame specs with aggressive scaling for tablet portrait
+        let baseViewportWidth, scale;
+        if (viewMode === 'tablet-portrait') {
+          // Tablet portrait: use much smaller scale to guarantee fit
+          baseViewportWidth = window.innerWidth; // Use actual device width
+          scale = 1; // Base scale of 1 for natural sizing
+          // Apply very aggressive scaling factor to ensure video fits
+          if (window.innerWidth <= 575) {
+            scale = 0.4; // Very small tablets get 40% scale
+          } else if (window.innerWidth <= 768) {
+            scale = 0.5; // Small tablets get 50% scale
+          } else if (window.innerWidth <= 1024) {
+            scale = 0.6; // Medium tablets get 60% scale
+          } else if (window.innerWidth <= 1600) {
+            scale = 0.7; // Large tablets (like Pixel Tablet) get 70% scale
+          } else {
+            scale = 0.8; // Extra large tablets get 80% scale
+          }
+        } else if (viewMode === 'mobile') {
+          // Mobile: use iPhone 13 mini specs for consistent mobile experience
+          baseViewportWidth = 375; // iPhone 13 mini logical width
+          scale = window.innerWidth / baseViewportWidth;
+        } else {
+          // Landscape: use original scaling
+          baseViewportWidth = 375;
+          scale = window.innerWidth / baseViewportWidth;
+        }
+        
         const finalWidth = 618.6666870117188 * scale;
         const finalHeight = 348 * scale;
-        const finalTop = 350 * scale;
-        const finalLeft = -122.33 * scale;
-        const finalRadius = 125.1 * scale;
+        const finalTop = viewMode === 'tablet-portrait' ? 120 * scale : 350 * scale; // Much higher for tablet portrait
+        const finalLeft = viewMode === 'tablet-portrait' ? -60 * scale : -122.33 * scale; // Better centered for tablet portrait
+        const finalRadius = viewMode === 'tablet-portrait' ? 60 * scale : 125.1 * scale; // Smaller radius for tablet portrait
 
         // prevent multiple concurrent animations
         shrinkStartedRef.current = true;
@@ -160,9 +209,8 @@ const HeroMobileComponent = () => {
           }
         });
 
-        const textTop = 134 * scale; // animate to designed position
+        const textTop = viewMode === 'tablet-portrait' ? 40 * scale : 134 * scale; // Much higher for tablet portrait
         gsap.to("#text-mobile", { opacity: 1, top: textTop, yPercent: 0, duration: 0.8, ease: "sine.out" });
-        // Button is now visible immediately, no need for GSAP animation
       };
 
       videoRef.current.addEventListener("timeupdate", handleTimeUpdate);
@@ -181,15 +229,15 @@ const HeroMobileComponent = () => {
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, []); // Remove isLandscape dependency to prevent re-initialization
+  }, [viewMode]); // Add viewMode dependency
 
-  // Text will animate in at 8s from screen center → target position
-  // No initial fade-in on mount
+  // ... existing code ...
 
-  // Mobile-optimized scroll handling
+  // Responsive scroll handling
   useEffect(() => {
     const handleScroll = () => {
       if (!animationCompletedRef.current || !wrapperRef.current || !placeholderRef.current) return;
+      if (viewMode !== 'mobile' && viewMode !== 'tablet-portrait') return; // Handle scroll for mobile and tablet portrait
       
       const rect = placeholderRef.current.getBoundingClientRect();
       gsap.set(wrapperRef.current, {
@@ -201,7 +249,12 @@ const HeroMobileComponent = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [viewMode]);
+
+  // Don't render mobile component if we're in desktop view mode
+  if (viewMode === 'desktop') {
+    return null; // This will fall back to the desktop component
+  }
 
   return (
     <>
@@ -264,6 +317,22 @@ const HeroMobileComponent = () => {
             margin-bottom: 1.5rem;
           }
           
+          /* Tablet-specific adjustments */
+          .tablet-portrait .mobile-hero-text {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+          }
+          
+          .tablet-portrait .mobile-hero-subtitle {
+            font-size: clamp(1.2rem, 3vw, 1.3rem);
+          }
+          
+          /* Tablet portrait video container adjustments */
+          .tablet-portrait .mobile-video-blend {
+            transform-origin: center center !important;
+            will-change: transform, width, height, top, left;
+            backface-visibility: hidden;
+          }
+          
           /* Landscape-specific adjustments */
           .mobile-landscape .mobile-hero-text {
             font-size: clamp(2.5rem, 6vw, 3.5rem);
@@ -308,7 +377,7 @@ const HeroMobileComponent = () => {
         id="hero-mobile" 
         className={`relative w-full min-h-screen bg-black flex flex-col items-center overflow-y-auto ${
           isLandscape ? 'mobile-landscape' : 'mobile-portrait'
-        }`}
+        } ${isTablet && !isLandscape ? 'tablet-portrait' : ''}`}
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
@@ -327,10 +396,10 @@ const HeroMobileComponent = () => {
           alt="BaFT"
           style={{
             position: 'absolute',
-            top: '18px',
+            top: isTablet ? '24px' : '18px',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '64px',
+            width: isTablet ? '80px' : '64px',
             height: 'auto',
             zIndex: 80,
             opacity: 0.92,
@@ -343,29 +412,29 @@ const HeroMobileComponent = () => {
           className={"opacity-0"}
           style={{
             position: 'absolute',
-            width: '375px',
-            height: '192.53px',
+            width: isTablet ? '600px' : '375px',
+            height: isTablet ? 'auto' : '192.53px',
             left: '50%',
             transform: 'translateX(-50%)',
-            top: '134px',
+            top: isTablet ? '180px' : '134px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',
             padding: 0,
-            gap: '7.53px',
+            gap: isTablet ? '12px' : '7.53px',
             zIndex: 70,
             textAlign: 'left',
           }}
         >
           <p 
             style={{
-              width: '375px',
-              height: '17px',
+              width: '100%',
+              height: 'auto',
               fontFamily: 'Inter',
               fontStyle: 'normal',
               fontWeight: 400,
-              fontSize: '14px',
-              lineHeight: '17px',
+              fontSize: isTablet ? '18px' : '14px',
+              lineHeight: isTablet ? '22px' : '17px',
               textAlign: 'center',
               color: '#777575',
               flex: 'none',
@@ -381,13 +450,13 @@ const HeroMobileComponent = () => {
           
           <h1 
             style={{
-              width: '375px',
-              height: '168px',
+              width: '100%',
+              height: 'auto',
               fontFamily: 'EB Garamond',
               fontStyle: 'normal',
               fontWeight: 700,
-              fontSize: '64px',
-              lineHeight: '84px',
+              fontSize: isTablet ? '80px' : '64px',
+              lineHeight: isTablet ? '96px' : '84px',
               textAlign: 'center',
               backgroundImage: 'linear-gradient(165.6deg, #999999 32.7%, #161616 70.89%)',
               WebkitBackgroundClip: 'text',
@@ -405,7 +474,7 @@ const HeroMobileComponent = () => {
           </h1>
         </div>
 
-        {/* Mobile-responsive placeholder container */}
+        {/* Responsive placeholder container */}
         <div className={`relative z-10 w-full px-4 ${
           isLandscape ? 'mt-4' : 'mt-6'
         }`}>
@@ -413,9 +482,17 @@ const HeroMobileComponent = () => {
             ref={placeholderRef}
             className="shadow-lg mx-auto"
             style={{
-              width: isLandscape ? "clamp(280px, 70vw, 600px)" : "clamp(320px, 85vw, 400px)",
-              aspectRatio: isLandscape ? "16 / 9" : "4 / 3",
-              borderRadius: isLandscape ? "16%" : "20%",
+              width: viewMode === 'tablet-portrait'
+                ? "clamp(250px, 70vw, 500px)" // Tablet portrait: optimized for smaller tablets
+                : viewMode === 'mobile'
+                  ? "clamp(320px, 90vw, 400px)" // Mobile: responsive sizing
+                  : "clamp(280px, 70vw, 600px)", // Landscape: original sizing
+              aspectRatio: "16 / 9", // Consistent 16:9 for all modes (matches video 1056x594)
+              borderRadius: viewMode === 'tablet-portrait'
+                ? "20%" // Tablet portrait: elegant border radius
+                : viewMode === 'mobile'
+                  ? "20%" // Mobile: consistent border radius
+                  : "16%", // Landscape: original border radius
               overflow: "hidden",
               background: "transparent",
               position: "relative",
@@ -423,7 +500,7 @@ const HeroMobileComponent = () => {
           />
         </div>
 
-        {/* Mobile video wrapper with radial gradient background only (no beams/spotlights) */}
+        {/* Responsive video wrapper with radial gradient background */}
         <div
           ref={wrapperRef}
           className="w-full opacity-0"
@@ -432,7 +509,11 @@ const HeroMobileComponent = () => {
             top: 0,
             left: 0,
             width: "100%",
-            height: isLandscape ? "calc(100vh - 2rem)" : "calc(100vh - 4rem)",
+            height: viewMode === 'tablet-portrait'
+              ? "calc(100vh - 12rem)" // Tablet portrait: adjusted margin for smaller tablets
+              : viewMode === 'mobile'
+                ? "calc(100vh - 4rem)" // Mobile: original margin
+                : "calc(100vh - 2rem)", // Landscape: minimal margin
             overflow: "hidden",
             borderRadius: 0,
             background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)",
@@ -469,11 +550,15 @@ const HeroMobileComponent = () => {
           />
         </div>
 
-        {/* Mobile-optimized scroll button */}
+        {/* Responsive scroll button */}
         <div
           id="scroll-down-btn"
           className={`absolute pointer-events-auto mobile-scroll-btn ${
-            isLandscape ? 'bottom-6' : 'bottom-8'
+            viewMode === 'tablet-portrait'
+              ? 'bottom-1' // Tablet portrait: much higher to ensure visibility
+              : viewMode === 'mobile'
+                ? 'bottom-8' // Mobile: original position
+                : 'bottom-6' // Landscape: original position
           }`}
           style={{
             left: '50%',

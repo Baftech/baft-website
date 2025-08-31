@@ -1,9 +1,15 @@
 import React, { useRef, useEffect, useState } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
 const VideoComponentMobile = ({ slide = false }) => {
   const mainContainerRef = useRef(null);
   const videoSectionRef = useRef(null);
   const videoRef = useRef(null);
+  const videoCardRef = useRef(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -31,34 +37,56 @@ const VideoComponentMobile = ({ slide = false }) => {
     };
   }, []);
 
-  // Handle scroll-based video expansion
+  // GSAP ScrollTrigger setup for YouTube-style landscape tilt
   useEffect(() => {
-    let timeoutId;
-    
-    const handleScroll = () => {
-      // Don't handle scroll if touch animation is active
-      if (isAnimating || isExpanded) return;
-      
-      // Debounce scroll events
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const scrollY = window.scrollY;
-        const threshold = 100; // Start expansion after 100px scroll
-        
-        if (scrollY > threshold && !isScrolled) {
-          setIsScrolled(true);
-        } else if (scrollY <= threshold && isScrolled) {
-          setIsScrolled(false);
-        }
-      }, 50); // 50ms debounce
-    };
+    if (!videoCardRef.current) return;
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    const ctx = gsap.context(() => {
+      // Create the scroll-triggered animation for landscape tilt
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: videoSectionRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: 1,
+          pin: true,
+          pinSpacing: true,
+          onUpdate: (self) => {
+            // Update state based on progress
+            const progress = self.progress;
+            if (progress > 0.3 && !isExpanded) {
+              setIsExpanded(true);
+              setIsScrolled(true);
+            } else if (progress <= 0.3 && isExpanded) {
+              setIsExpanded(false);
+              setIsScrolled(false);
+            }
+          }
+        }
+      });
+
+      // YouTube-style landscape tilt animation - apply to the video card container
+      tl.to(videoCardRef.current, {
+        rotate: -90, // Rotate to landscape (negative direction)
+        scale: 1.2, // Slightly scale up
+        duration: 1,
+        ease: "power2.inOut",
+        transformOrigin: "center center"
+      }, 0);
+
+      console.log('GSAP animation timeline created:', tl);
+      console.log('Video card ref:', videoCardRef.current);
+
+    }, videoSectionRef);
+
+    // Cleanup function
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      clearTimeout(timeoutId);
+      ctx.revert();
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
-  }, [isScrolled, isAnimating, isExpanded]);
+  }, [isExpanded]);
+
+
 
   // Handle touch-based expansion in slide mode
   useEffect(() => {
@@ -159,59 +187,7 @@ const VideoComponentMobile = ({ slide = false }) => {
     };
   }, [slide, isAnimating, isExpanded]);
 
-  // Synchronized animation styles for mobile
-  const containerStyle = {
-    transition: isExpanded ? 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
-    transform: isExpanded ? 'scale(1)' : 'scale(1)',
-  };
 
-  const videoContainerStyle = {
-    transition: isExpanded
-      ? 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-      : 'none',
-    transform: isExpanded ? 'translate(calc(50vw - 50%), calc(50vh - 50%))' : 'translateX(0)',
-    position: 'relative',
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  };
-
-  const videoStyle = {
-    width: isExpanded ? '100vw' : '100%',
-    height: isExpanded ? '100vh' : 'auto',
-    maxHeight: isExpanded ? '100vh' : '250px',
-    borderRadius: isExpanded ? '0px' : '16px',
-    transition: isExpanded
-      ? 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-      : 'all 0.3s ease',
-    objectFit: isExpanded ? 'cover' : 'contain',
-    display: 'block',
-    margin: '0 auto',
-    boxShadow: isExpanded ? 'none' : '0 8px 32px rgba(0, 0, 0, 0.12)',
-    cursor: 'pointer'
-  };
-
-  const textContainerStyle = {
-    transform: isExpanded ? 'translateY(100vh)' : 'translateY(0)',
-    opacity: isExpanded ? 0 : 1,
-    transition: isExpanded 
-      ? 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s, opacity 0.4s ease 0.2s'
-      : 'transform 0.3s ease, opacity 0.3s ease',
-    pointerEvents: isExpanded ? 'none' : 'auto',
-  };
-
-  const layoutStyle = {
-    flexDirection: isExpanded ? 'column' : 'column',
-    gap: isExpanded ? '0rem' : '2rem',
-    transition: isExpanded 
-      ? 'gap 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
-      : 'none',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  };
 
   return (
     <div 
@@ -270,44 +246,40 @@ const VideoComponentMobile = ({ slide = false }) => {
             paddingBottom: isScrolled ? '1rem' : '0'
           }}>
             {/* Interactive Video Card - Centered */}
-            <div style={{
-              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-              borderRadius: isScrolled ? '0' : 'clamp(12px, 3vw, 20px)',
-              width: isScrolled ? '100vw' : 'clamp(280px, 85vw, 400px)',
-              height: isScrolled ? '100vh' : 'clamp(10rem, 25vh, 15rem)',
-              marginTop: isScrolled ? '0' : '-5rem',
-              marginBottom: '0',
-              overflow: 'hidden',
-              position: isScrolled ? 'fixed' : 'relative',
-              top: isScrolled ? '0' : 'auto',
-              left: isScrolled ? '0' : 'auto',
-              zIndex: isScrolled ? 1000 : 'auto',
-              boxShadow: isScrolled ? 'none' : '0 15px 35px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1)',
-              cursor: 'pointer',
-              transform: isScrolled ? 'rotateX(0deg) rotateY(0deg) scale(1)' : 'rotateX(5deg) rotateY(-2deg) scale(0.98)',
-              transformOrigin: 'center center',
-              animation: isScrolled ? 'horizontalVideoPlay 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards' : 'none',
-              transition: isScrolled ? 'none' : 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-              backfaceVisibility: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
+            <div 
+              ref={videoCardRef}
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                borderRadius: 'clamp(12px, 3vw, 20px)',
+                width: 'clamp(280px, 85vw, 400px)',
+                height: 'clamp(10rem, 25vh, 15rem)',
+                marginTop: '-5rem',
+                marginBottom: '0',
+                overflow: 'hidden',
+                position: 'relative',
+                boxShadow: '0 15px 35px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1)',
+                cursor: 'pointer',
+                transform: 'rotateX(5deg) rotateY(-2deg) scale(0.98)',
+                transformOrigin: 'center center',
+                backfaceVisibility: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
               {/* Video/Image */}
               <img
                 ref={videoRef}
                 src="/video_com.png"
                 alt="Video Preview"
                 style={{
-                  ...videoStyle,
                   width: '100%',
                   height: '100%',
-                  objectFit: isScrolled ? 'contain' : 'cover',
-                  borderRadius: isScrolled ? '0' : '1rem',
-                  transform: isScrolled ? 'scale(1) rotate(0deg)' : 'scale(1)',
+                  objectFit: 'cover',
+                  borderRadius: '1rem',
                   transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                  maxWidth: isScrolled ? '100vw' : '100%',
-                  maxHeight: isScrolled ? '100vh' : '100%'
+                  maxWidth: '100%',
+                  maxHeight: '100%'
                 }}
               />
               
@@ -341,12 +313,36 @@ const VideoComponentMobile = ({ slide = false }) => {
                         <path d="M8 5v14l11-7z"/>
                       </svg>
                     </div>
-                                      <p style={{
-                    fontSize: '0.875rem',
-                    opacity: 0.9
-                  }}>
-                    {isScrolled ? 'Scroll to collapse' : 'Scroll to expand to full screen'}
-                  </p>
+                                                          <p style={{
+                      fontSize: '0.875rem',
+                      opacity: 0.9
+                    }}>
+                      Scroll to tilt to landscape mode
+                    </p>
+                    <button 
+                      onClick={() => {
+                        if (videoCardRef.current) {
+                          gsap.to(videoCardRef.current, {
+                            rotate: -90,
+                            scale: 1.2,
+                            duration: 1,
+                            ease: "power2.inOut"
+                          });
+                        }
+                      }}
+                      style={{
+                        marginTop: '0.5rem',
+                        padding: '0.25rem 0.5rem',
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        borderRadius: '0.25rem',
+                        color: 'white',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Test Tilt
+                    </button>
                   </div>
                 </div>
               )}
@@ -398,7 +394,7 @@ const VideoComponentMobile = ({ slide = false }) => {
                       opacity: 0.8,
                       marginBottom: '1rem'
                     }}>
-                      Horizontal full-screen mode
+                      Landscape mode - YouTube style
                     </p>
                     <div style={{
                       display: 'flex',
@@ -451,7 +447,6 @@ const VideoComponentMobile = ({ slide = false }) => {
             <div 
               className="text-container"
               style={{
-                ...textContainerStyle,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'flex-start',
@@ -517,7 +512,7 @@ const VideoComponentMobile = ({ slide = false }) => {
                 Bangalore, proudly founded in 2025. We're a tight-knit team of
                 financial innovators and tech experts on a mission: to reimagine
                 financial services in India with customer-first solutions.
-              </p>
+            </p>
             </div>
           </div>
         </div>
