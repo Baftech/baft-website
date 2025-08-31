@@ -6,7 +6,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [previousSlideIndex, setPreviousSlideIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionDirection, setTransitionDirection] = useState('none');
-  const [isMobile, setIsMobile] = useState(false);
+
   const [canScrollToNext, setCanScrollToNext] = useState(true);
   const [canScrollToPrev, setCanScrollToPrev] = useState(true);
   const totalSlides = React.Children.count(children);
@@ -31,21 +31,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     inline: 'nearest'
   };
 
-  // Responsive detection
-  useEffect(() => {
-    const checkDeviceType = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
 
-    checkDeviceType();
-    window.addEventListener('resize', checkDeviceType);
-    window.addEventListener('orientationchange', checkDeviceType);
-
-    return () => {
-      window.removeEventListener('resize', checkDeviceType);
-      window.removeEventListener('orientationchange', checkDeviceType);
-    };
-  }, []);
 
   // Check if current slide can scroll and update scroll permissions
   useEffect(() => {
@@ -360,8 +346,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       if (currentSlide >= 0 && currentSlide < totalSlides) {
         setSlideIndex(currentSlide);
         setPreviousSlideIndex(slideIndex);
-      } else {
-        console.error("Invalid slide index:", currentSlide, "Total slides:", totalSlides);
       }
     }
   }, [currentSlide, slideIndex, totalSlides]);
@@ -381,12 +365,10 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
 
   // Validate slide indices
   if (slideIndex < 0 || slideIndex >= totalSlides) {
-    console.error("Invalid slide index:", slideIndex, "Total slides:", totalSlides);
     return null;
   }
 
   if (!currentChild) {
-    console.error("No content found for slide:", slideIndex);
     return null;
   }
 
@@ -435,11 +417,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
             }
           }}
         >
-          {currentChild || (
-            <div className="w-full h-full bg-yellow-500 flex items-center justify-center text-black text-2xl">
-              No slide content found for index {slideIndex}
-            </div>
-          )}
+          {currentChild}
         </div>
       )}
       {showAboutCrossfade && (
@@ -465,15 +443,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         />
       )}
 
-      {/* Progress bar for mobile */}
-      {isMobile && (
-        <div className="fixed top-0 left-0 w-full h-1 bg-black/20 z-50">
-          <div 
-            className="h-full bg-white transition-all duration-300 ease-out"
-            style={{ width: `${((slideIndex + 1) / totalSlides) * 100}%` }}
-          />
-        </div>
-      )}
+
     </div>
   );
 };

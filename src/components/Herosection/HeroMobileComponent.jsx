@@ -12,6 +12,40 @@ const HeroMobileComponent = () => {
   const [isMobile, setIsMobile] = useState(true);
   const [isLandscape, setIsLandscape] = useState(false);
   const scaleRef = useRef(1);
+  
+  // Function to navigate to next slide
+  const navigateToNextSlide = () => {
+    console.log('Mobile hero: Attempting to navigate to next slide...');
+    
+    // Add visual feedback
+    const button = document.querySelector('#scroll-down-btn button');
+    if (button) {
+      button.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        button.style.transform = 'scale(1)';
+      }, 150);
+    }
+    
+    try {
+      // Dispatch the slide navigation event that SlideContainer listens for
+      const evt = new CustomEvent('navigateToSlide', { 
+        detail: { index: 1, slow: false }  // Navigate to slide 1 (BaFT Coin)
+      });
+      console.log('Mobile hero: Dispatching navigateToSlide event:', evt.detail);
+      
+      // Dispatch immediately
+      window.dispatchEvent(evt);
+      
+      // Also try after a short delay in case SlideContainer isn't ready
+      setTimeout(() => {
+        console.log('Mobile hero: Dispatching navigateToSlide event (delayed)');
+        window.dispatchEvent(evt);
+      }, 100);
+      
+    } catch (error) {
+      console.error('Mobile hero: Navigation failed:', error);
+    }
+  };
 
   // Detect device orientation and screen size
   useEffect(() => {
@@ -87,12 +121,12 @@ const HeroMobileComponent = () => {
         borderRadius: 0,
         zIndex: 50,
       });
-      // Ensure grid is always visible from start
-      gsap.set("#grid_container", { 
-        opacity: 1, 
-        visibility: "visible",
-        zIndex: 10 
-      });
+      // Grid container disabled - removed GSAP reference
+      // gsap.set("#grid_container", { 
+      //   opacity: 1, 
+      //   visibility: "visible",
+      //   zIndex: 10 
+      // });
       // Text starts centered vertically, hidden
       gsap.set("#text-mobile", { opacity: 0, top: "50%", yPercent: -50 });
 
@@ -128,7 +162,7 @@ const HeroMobileComponent = () => {
 
         const textTop = 134 * scale; // animate to designed position
         gsap.to("#text-mobile", { opacity: 1, top: textTop, yPercent: 0, duration: 0.8, ease: "sine.out" });
-        gsap.to("#scroll-down-btn", { opacity: 1, y: 0, duration: 0.6, ease: "sine.out" });
+        // Button is now visible immediately, no need for GSAP animation
       };
 
       videoRef.current.addEventListener("timeupdate", handleTimeUpdate);
@@ -173,12 +207,12 @@ const HeroMobileComponent = () => {
     <>
       <style>
         {`
-          /* Grid container - always visible */
-          #grid_container {
+          /* Grid container - disabled */
+          /* #grid_container {
             opacity: 1 !important;
             visibility: visible !important;
             z-index: 10 !important;
-          }
+          } */
           
           /* Mobile-specific scrollbar hiding */
           #hero-mobile::-webkit-scrollbar {
@@ -282,10 +316,10 @@ const HeroMobileComponent = () => {
           overflow: '-moz-scrollbars-none'
         }}
       >
-        {/* Grid overlay - always visible from start */}
-        <div id="grid_container" className="absolute inset-0 z-10">
+        {/* Grid overlay - disabled */}
+        {/* <div id="grid_container" className="absolute inset-0 z-10">
           <GridBackground forceMobile={true} key="mobile-grid" />
-        </div>
+        </div> */}
 
         {/* Top-centered logo */}
         <img
@@ -444,8 +478,8 @@ const HeroMobileComponent = () => {
           style={{
             left: '50%',
             zIndex: 100,
-            opacity: 0,
-            transform: 'translateX(-50%) translateY(20px)',
+            opacity: 1, // Make visible immediately for testing
+            transform: 'translateX(-50%) translateY(0)', // Remove translateY offset
           }}
         >
           <button
@@ -455,14 +489,7 @@ const HeroMobileComponent = () => {
               boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
               fontFamily: 'GeneralSans, sans-serif',
             }}
-            onClick={() => {
-              const nextSection = document.querySelector('[data-section="next"]') || 
-                                 document.getElementById('about') ||
-                                 document.querySelector('main > div:nth-child(2)');
-              if (nextSection) {
-                nextSection.scrollIntoView({ behavior: "smooth" });
-              }
-            }}
+            onClick={navigateToNextSlide}
           >
             <span className="text-white font-medium tracking-wide">
               Scroll Down
