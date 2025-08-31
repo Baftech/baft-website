@@ -109,8 +109,8 @@ const SignupFormMobile = ({ onOpenThanks }) => {
                   : 'cursor-not-allowed opacity-50'
               }`}
               style={{
-                width: 'clamp(120px, 30vw, 200px)',
-                height: '8px',
+                width: 'clamp(100px, 25vw, 160px)',
+                height: '0.1px',
                 justifyContent: 'center',
                 opacity: email.trim() ? 1 : 0.5,
                 top: '32px',
