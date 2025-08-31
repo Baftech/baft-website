@@ -6,6 +6,7 @@ import {
   faFacebook,
 } from "@fortawesome/free-brands-svg-icons";
 import Thanks from "./Thanks";
+import CombinedFooterMobile from "./CombinedFooterMobile";
 import "./CombinedFooter.css";
 
 const SignupForm = ({ onOpenThanks }) => {
@@ -124,6 +125,31 @@ const CombinedFooter = () => {
   const animationFrameRef = useRef(null);
   const isVisibleRef = useRef(false);
   const [isThanksOpen, setIsThanksOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Mobile detection logic
+  useEffect(() => {
+    const checkDeviceAndOrientation = () => {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isMobileDevice = window.innerWidth <= 768 || 
+                           (window.innerWidth <= 1024 && isPortrait) ||
+                           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      setIsMobile(isMobileDevice && isPortrait);
+    };
+
+    // Check on mount
+    checkDeviceAndOrientation();
+
+    // Check on resize and orientation change
+    window.addEventListener('resize', checkDeviceAndOrientation);
+    window.addEventListener('orientationchange', checkDeviceAndOrientation);
+
+    return () => {
+      window.removeEventListener('resize', checkDeviceAndOrientation);
+      window.removeEventListener('orientationchange', checkDeviceAndOrientation);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -214,6 +240,11 @@ const CombinedFooter = () => {
       observer.disconnect();
     };
   }, []);
+
+  // If mobile device in portrait mode, render mobile footer
+  if (isMobile) {
+    return <CombinedFooterMobile />;
+  }
 
   return (
     <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
