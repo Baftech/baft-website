@@ -424,9 +424,37 @@ const InteractiveTeamImage = ({ disabled = false }) => {
 // Main mobile component
 const AboutMobile = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const sectionRef = useRef(null);
+  const imageRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      
+      const rect = sectionRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Simple scroll progress: 0 = section visible, 1 = section scrolled out
+      let progress = 0;
+      if (rect.top < 0) {
+        progress = Math.min(1, Math.abs(rect.top) / windowHeight);
+      }
+      
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Simple expansion values
+  const imageScale = 1 + (scrollProgress * 2); // Scale from 1x to 3x
+  const imageOpacity = Math.max(0.1, 1 - scrollProgress); // Fade from 1 to 0.1
 
   return (
     <section
+      ref={sectionRef}
       id="about"
       data-theme="light"
       className={`about-section-mobile bg-white ${isExpanded ? 'expanded' : ''}`}
@@ -521,25 +549,48 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
           style={{
             marginTop: "auto",
             transition: "all 0.5s ease-in-out",
+            position: "relative",
           }}
         >
+          {/* Simple expanding image */}
           <div 
+            ref={imageRef}
             className="responsive-image-wrapper"
             style={{
-              width: "clamp(350px, 85vw, 450px)",
-              height: "clamp(550px, 120vw, 700px)",
+              width: "clamp(327px, 80vw, 400px)",
+              height: "clamp(462px, 100vh, 600px)",
               margin: "0 auto 0 auto",
               borderRadius: "clamp(10px, 3vw, 14.19px)",
-              opacity: 1,
-              transform: "rotate(0deg)",
+              opacity: imageOpacity,
+              transform: `scale(${imageScale})`,
               overflow: "hidden",
               position: "relative",
               alignSelf: "flex-end",
               marginTop: "auto",
-              transition: "all 0.5s ease-in-out",
+              transition: "none",
+              transformOrigin: "center center",
             }}
           >
             <InteractiveTeamImage />
+          </div>
+
+          {/* Debug indicator */}
+          <div
+            style={{
+              position: "fixed",
+              top: "20px",
+              right: "20px",
+              backgroundColor: "rgba(0,0,0,0.8)",
+              color: "white",
+              padding: "10px",
+              borderRadius: "5px",
+              zIndex: 1001,
+              fontSize: "12px",
+            }}
+          >
+            Scroll: {Math.round(scrollProgress * 100)}%<br/>
+            Scale: {imageScale.toFixed(1)}x<br/>
+            Opacity: {imageOpacity.toFixed(2)}
           </div>
         </div>
       </div>

@@ -8,6 +8,8 @@
   overflow: hidden;
   padding-bottom: 1rem;
   padding-top: 0;
+  /* Ensure smooth scrolling for the image expansion effect */
+  scroll-behavior: smooth;
 }
 
 .about-grid-mobile {
@@ -118,8 +120,8 @@
 /* Responsive Image Wrapper - Mobile First Approach */
 .responsive-image-wrapper {
   /* Base mobile styles */
-  width: clamp(350px, 85vw, 450px);
-  height: clamp(550px, 120vw, 700px);
+  width: clamp(327px, 80vw, 400px);
+  height: clamp(462px, 100vh, 600px);
   border-radius: clamp(10px, 3vw, 14.19px);
   opacity: 1;
   transform: rotate(0deg);
@@ -134,8 +136,8 @@
 /* Small mobile devices (320px - 480px) */
 @media (max-width: 480px) {
   .responsive-image-wrapper {
-    width: clamp(350px, 95vw, 400px);
-    height: clamp(550px, 130vw, 600px);
+    width: clamp(327px, 90vw, 380px);
+    height: clamp(462px, 95vh, 550px);
     border-radius: clamp(8px, 2.5vw, 12px);
   }
 }
@@ -143,8 +145,8 @@
 /* Medium mobile devices (481px - 767px) */
 @media (min-width: 481px) and (max-width: 767px) {
   .responsive-image-wrapper {
-    width: clamp(370px, 85vw, 430px);
-    height: clamp(570px, 115vw, 650px);
+    width: clamp(327px, 85vw, 400px);
+    height: clamp(462px, 100vh, 600px);
     border-radius: clamp(10px, 3vw, 14.19px);
   }
 }
@@ -152,8 +154,8 @@
 /* Large mobile devices (768px - 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
   .responsive-image-wrapper {
-    width: clamp(400px, 80vw, 450px);
-    height: clamp(600px, 110vw, 700px);
+    width: clamp(327px, 80vw, 400px);
+    height: clamp(462px, 100vh, 600px);
     border-radius: clamp(12px, 3.5vw, 14.19px);
   }
 }
@@ -161,8 +163,8 @@
 /* Portrait tablets (768px - 1024px) */
 @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
   .responsive-image-wrapper {
-    width: clamp(410px, 75vw, 450px);
-    height: clamp(610px, 105vw, 700px);
+    width: clamp(327px, 75vw, 400px);
+    height: clamp(462px, 100vh, 600px);
     border-radius: clamp(13px, 4vw, 14.19px);
   }
 }
@@ -172,6 +174,25 @@
   width: 100% !important;
   height: 100% !important;
   border-radius: inherit;
+}
+
+/* Scroll-based image expansion styles */
+.responsive-image-wrapper {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform-origin: center center;
+}
+
+/* When image is expanding, ensure it's above everything */
+.responsive-image-wrapper[style*="position: fixed"] {
+  z-index: 1000 !important;
+  pointer-events: none;
+}
+
+/* Smooth transition to next section */
+.about-section-mobile {
+  position: relative;
+  z-index: 1;
 }
 
 /* Ensure image stays at bottom */
