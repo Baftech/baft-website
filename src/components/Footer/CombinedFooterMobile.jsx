@@ -109,22 +109,27 @@ const SignupFormMobile = ({ onOpenThanks }) => {
                   : 'cursor-not-allowed opacity-50'
               }`}
               style={{
-                width: 'clamp(100px, 25vw, 160px)',
-                height: '0.1px',
+                width: 'clamp(80px, 20vw, 120px)',
+                height: 'clamp(28px, 7vw, 36px)',
+                minHeight: 'clamp(28px, 7vw, 36px)',
+                maxHeight: 'clamp(28px, 7vw, 36px)',
                 justifyContent: 'center',
                 opacity: email.trim() ? 1 : 0.5,
-                top: '32px',
+                top: '15px',
                 borderRadius: '9999px',
                 borderWidth: '0.28px',
                 borderStyle: 'solid',
                 padding: '0',
+                margin: '0',
+                lineHeight: '1',
                 color: email.trim() ? '#000000' : '#666666',
                 backgroundColor: email.trim() ? '#FFFFFF' : '#E5E5E5',
                 border: '0.28px solid',
                 borderImageSource: 'linear-gradient(121.31deg, rgba(49, 49, 49, 0.048) -10.95%, rgba(49, 49, 49, 0) 146.16%), linear-gradient(297.75deg, rgba(255, 255, 255, 0.048) 22.05%, rgba(0, 0, 0, 0) 120.83%, rgba(255, 255, 255, 0) 120.83%)',
                 display: 'flex',
                 alignItems: 'center',
-                fontSize: 'clamp(10px, 2.5vw, 14px)'
+                fontSize: 'clamp(10px, 2.5vw, 14px)',
+                boxSizing: 'border-box'
               }}
             >
               Subscribe
@@ -344,7 +349,7 @@ const CombinedFooterMobile = () => {
           </div>
           
           {/* Spacing between signup and contact info */}
-          <div className="mb-4"></div>
+          <div className="mb-10"></div>
           
           <div className="flex flex-col items-center gap-6">
            
@@ -408,7 +413,7 @@ const CombinedFooterMobile = () => {
             </div>
             
             {/* Logo and Company Info - Added to Upper Container */}
-            <div className="flex flex-col items-center gap-2 text-center mt-[-1px] pt-1 border-none border-gray-300">
+            <div className="flex flex-col items-center gap-2 text-center mt-[-6] pt-0 border-none border-gray-300">
               <img
                 src="/baft_pic.png"
                 alt="BaFT Logo"
