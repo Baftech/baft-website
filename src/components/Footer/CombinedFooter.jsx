@@ -121,9 +121,6 @@ const socialLinks = [
 ];
 
 const CombinedFooter = () => {
-  const canvasRef = useRef(null);
-  const animationFrameRef = useRef(null);
-  const isVisibleRef = useRef(false);
   const [isThanksOpen, setIsThanksOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -151,95 +148,7 @@ const CombinedFooter = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext("2d");
 
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-
-    const stars = [];
-    const starCount = Math.floor(canvas.width * canvas.height / 16000); // reduce stars for smoother scroll
-
-    for (let i = 0; i < starCount; i++) {
-      stars.push({
-        radius: Math.random() * 1.5 + 0.5,
-        opacity: 0.05 + Math.random() * 0.3,
-        angle: Math.random() * Math.PI * 2, // polar angle
-        dist: Math.random() * (Math.min(canvas.width, canvas.height) / 2),
-      });
-    }
-
-    let rotationSpeed = 0.0005; // galaxy swirl
-    let lastTime = 0;
-    const targetFPS = 20; // Further reduced FPS for better scroll performance
-    const frameInterval = 1000 / targetFPS;
-
-    function draw(currentTime) {
-      // Skip rendering if not visible to improve scroll performance
-      if (!isVisibleRef.current) {
-        animationFrameRef.current = requestAnimationFrame(draw);
-        return;
-      }
-      
-      // Throttle to target FPS to reduce scroll interference
-      if (currentTime - lastTime < frameInterval) {
-        animationFrameRef.current = requestAnimationFrame(draw);
-        return;
-      }
-      
-      lastTime = currentTime;
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-
-      // Batch rendering for better performance
-      ctx.beginPath();
-      for (let i = 0; i < stars.length; i++) {
-        const star = stars[i];
-        star.angle += rotationSpeed;
-
-        const x = cx + Math.cos(star.angle) * star.dist;
-        const y = cy + Math.sin(star.angle) * star.dist;
-
-        ctx.moveTo(x + star.radius, y);
-        ctx.arc(x, y, star.radius, 0, Math.PI * 2);
-      }
-      
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      ctx.fill();
-
-      animationFrameRef.current = requestAnimationFrame(draw);
-    }
-
-    // Intersection Observer for performance optimization
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Only run animation when at least 60% of the footer is visible
-        isVisibleRef.current = entry.isIntersecting && entry.intersectionRatio >= 0.6;
-      },
-      { threshold: [0, 0.25, 0.5, 0.6, 0.75, 1] }
-    );
-    
-    observer.observe(canvas);
-    animationFrameRef.current = requestAnimationFrame(draw);
-
-    return () => {
-      window.removeEventListener("resize", resizeCanvas);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      observer.disconnect();
-    };
-  }, []);
 
   // If mobile device in portrait mode, render mobile footer
   if (isMobile) {
@@ -250,7 +159,6 @@ const CombinedFooter = () => {
     <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
       {/* Pre-footer Section with Animation */}
       <div className="pre-footer-container">
-        <canvas ref={canvasRef} className="starfield-canvas" />
 
         <div className="concentric-wrapper">
           <div className="concentric-circle" />
@@ -258,6 +166,40 @@ const CombinedFooter = () => {
           <div className="concentric-circle" />
           <div className="concentric-circle" />
           <div className="concentric-circle" />
+        </div>
+
+        {/* Star Groups */}
+        <div className="star-groups">
+          <svg width="100%" height="100%" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Group 1 - Central stars (spread across screen) */}
+            <g className="star-group-1">
+              <circle cx="960" cy="540" r="2" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="800" cy="400" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="1120" cy="400" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="800" cy="680" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="1120" cy="680" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="960" cy="300" r="1" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="960" cy="780" r="1" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="700" cy="540" r="1" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="1220" cy="540" r="1" fill="rgba(255,255,255,0.4)"/>
+            </g>
+            
+            {/* Group 2 - Revolving stars around the entire screen */}
+            <g className="star-group-2">
+              <circle cx="200" cy="200" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="1720" cy="200" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="200" cy="880" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="1720" cy="880" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="200" cy="400" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="1720" cy="400" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="200" cy="680" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="1720" cy="680" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="400" cy="300" r="1" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="1520" cy="300" r="1" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="400" cy="780" r="1" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="1520" cy="780" r="1" fill="rgba(255,255,255,0.5)"/>
+            </g>
+          </svg>
         </div>
 
         <div className="text-container">
