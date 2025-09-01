@@ -136,7 +136,7 @@ const B_Fast_Desktop = () => {
               .to(contentRef.current, {
                 opacity: 1,
                 y: 0,
-                duration: 4.0,
+                duration: 2.8,
                 ease: "power1.inOut"
               }, "+=2.0")
               .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
@@ -149,7 +149,7 @@ const B_Fast_Desktop = () => {
               tl.to(contentRef.current, {
                 opacity: 1,
                 y: 0,
-                duration: 4.0,
+                duration: 2.8,
                 ease: "power1.inOut",
                 delay: 1.5
               })
@@ -230,7 +230,7 @@ const B_Fast_Desktop = () => {
             width: 'clamp(280px, 90vw, 1600px)', // Responsive width for all small screens
             height: 'clamp(80px, 15vh, 200px)', // Responsive height for all small screens
             opacity: 1,
-            backgroundImage: 'linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%)',
+            backgroundImage: 'linear-gradient(180deg, #B8C9E0 33.59%, #0A2A4A 77.13%)',
             backgroundRepeat: 'no-repeat',
             backgroundSize: '100% 100%',
             backgroundPosition: 'center',
