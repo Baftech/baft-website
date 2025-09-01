@@ -13,6 +13,7 @@ const Cards = () => {
   const currentIndexRef = useRef(0);
   const rotateIntervalRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const featuresData = [
           {
@@ -47,6 +48,40 @@ const Cards = () => {
 
   // Global vertical offset to move all cards slightly down
   const CARD_Y_OFFSET = 40; // px
+  
+  // Mark component as ready immediately to prevent delay
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
+
+  // Aggressive preloading of all feature assets to eliminate any delay
+  useEffect(() => {
+    const preloadFeatureAssets = () => {
+      const assets = [
+        "/baft_card1.svg",
+        "/baft_card2.svg",
+        "/baft_card3.svg",
+        "/baft_card4.svg",
+        "/pay-bills.svg",
+        "/manage-account.svg",
+        "/rewards.svg",
+        "/seamless-payments.svg"
+      ];
+      
+      assets.forEach(src => {
+        const img = new Image();
+        img.decoding = "sync";
+        img.fetchPriority = "high";
+        img.src = src;
+        // Force immediate loading
+        img.onload = () => console.log(`Features asset loaded: ${src}`);
+        img.onerror = () => console.warn(`Failed to load Features asset: ${src}`);
+      });
+    };
+
+    // Preload immediately when component mounts
+    preloadFeatureAssets();
+  }, []);
 
   const setOrAnimate = (card, props, immediate) => {
     if (immediate) {
@@ -260,7 +295,7 @@ const Cards = () => {
     <div className="bg-white" data-theme="light">
       <section
         id="features"
-        className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 sm:py-16 lg:py-20 xl:py-24 2xl:py-28 pre-enter"
+        className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 sm:py-16 lg:py-20 xl:py-24 2xl:py-28 pre-enter features-section"
         style={{
           marginTop: "clamp(2vh, 4vh, 8vh)",
           marginLeft: "1cm",
@@ -437,8 +472,9 @@ const Cards = () => {
                   alt={feature.title}
                   className="w-full h-full object-contain"
                   loading="eager"
-                  decoding="async"
+                  decoding="sync"
                   fetchPriority="high"
+                  style={{ willChange: 'transform, opacity' }}
                 />
               </div>
             ))}

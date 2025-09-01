@@ -7,10 +7,11 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionDirection, setTransitionDirection] = useState('none');
 
+
+
   const [canScrollToNext, setCanScrollToNext] = useState(true);
   const [canScrollToPrev, setCanScrollToPrev] = useState(true);
   const totalSlides = React.Children.count(children);
-  const handoffFromAboutRef = useRef(false);
   const [showAboutCrossfade, setShowAboutCrossfade] = useState(false);
   const [aboutCrossfadeFadeOut, setAboutCrossfadeFadeOut] = useState(false);
   const [aboutCrossfadeOpaque, setAboutCrossfadeOpaque] = useState(false);
@@ -79,8 +80,8 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         (slideIndex === 7 && newIndex === 6)
       );
       const isSeamlessTransition = movingUpSeamless || movingDownSeamless;
-      // Match CSS durations: seamless 1.3s, banner overlay 1.6s
-      const transitionDurationMs = isSeamlessTransition ? 1300 : 1600;
+      // Optimized timing: seamless 1.2s for instant feel, banner overlay 1.6s
+      const transitionDurationMs = isSeamlessTransition ? 1200 : 1600;
 
       // Set a momentum guard immediately so inertial scroll doesn't affect target slide
       momentumGuardUntilRef.current = Date.now() + transitionDurationMs + 450;
@@ -173,7 +174,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       element.removeEventListener('touchmove', tm);
       element.removeEventListener('touchend', te);
     };
-  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd, slideIndex]);
 
   const handleWheel = useCallback((e) => {
     if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
@@ -217,96 +218,11 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     return () => {
       element.removeEventListener('wheel', wheelListener);
     };
-  }, [handleWheel]);
+  }, [handleWheel, slideIndex]);
 
-  // Listen for About section pinned end to advance to next slide (pre-footer)
-  useEffect(() => {
-    const handleAboutPinnedEnd = () => {
-      if (isTransitioning) return;
-      const nextIndex = Math.min(slideIndex + 1, totalSlides - 1);
-      if (nextIndex !== slideIndex) {
-        handoffFromAboutRef.current = true;
-        // Prepare a black crossfade overlay to cover the handoff
-        setShowAboutCrossfade(true);
-        setAboutCrossfadeOpaque(false); // start transparent
-        setAboutCrossfadeFadeOut(false);
-        // Fade to black quickly
-        setTimeout(() => {
-          setAboutCrossfadeOpaque(true);
-        }, 10);
-        // Once fully black, change slide under cover
-        setTimeout(() => {
-          // Ensure current slide is at top without animation
-          const element = currentSlideRef.current;
-          if (element) {
-            try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
-          }
-          handleSlideChange(nextIndex);
-          // After a short hold, fade the cover out smoothly
-          setTimeout(() => {
-            setAboutCrossfadeFadeOut(true);
-            // Remove overlay after fade completes
-            setTimeout(() => {
-              setShowAboutCrossfade(false);
-              setAboutCrossfadeFadeOut(false);
-              setAboutCrossfadeOpaque(false);
-              handoffFromAboutRef.current = false;
-            }, 720);
-          }, 150);
-        }, 220); // allow ~220ms for fade-in to black
-      }
-    };
-    window.addEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
-    return () => window.removeEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
-  }, [slideIndex, totalSlides, isTransitioning, handleSlideChange]);
 
-  // Listen for programmatic navigation requests (e.g., slow smooth transition to a target slide)
-  useEffect(() => {
-    const handleNavigateToSlide = (e) => {
-      if (!e || !e.detail) return;
-      const { index: targetIndex, slow } = e.detail;
-      if (typeof targetIndex !== 'number') return;
-      if (targetIndex < 0 || targetIndex >= totalSlides) return;
-      if (isTransitioning) return;
 
-      // Use an overlay crossfade for a slow, smooth transition
-      const fadeInMs = slow ? 700 : 220;
-      const holdMs = slow ? 200 : 150;
-      const fadeOutMs = slow ? 1000 : 700;
 
-      setShowAboutCrossfade(true);
-      setAboutCrossfadeOpaque(false);
-      setAboutCrossfadeFadeOut(false);
-
-      // Fade to black
-      setTimeout(() => {
-        setAboutCrossfadeOpaque(true);
-      }, 10);
-
-      // Once black, change slide under cover
-      setTimeout(() => {
-        const element = currentSlideRef.current;
-        if (element) {
-          try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
-        }
-        handleSlideChange(targetIndex);
-
-        // After a short hold, fade the cover out smoothly
-        setTimeout(() => {
-          setAboutCrossfadeFadeOut(true);
-          // Remove overlay after fade completes
-          setTimeout(() => {
-            setShowAboutCrossfade(false);
-            setAboutCrossfadeFadeOut(false);
-            setAboutCrossfadeOpaque(false);
-          }, fadeOutMs);
-        }, holdMs);
-      }, fadeInMs);
-    };
-
-    window.addEventListener('navigateToSlide', handleNavigateToSlide);
-    return () => window.removeEventListener('navigateToSlide', handleNavigateToSlide);
-  }, [isTransitioning, totalSlides, handleSlideChange]);
 
   const handleKeyDown = useCallback((e) => {
     if (isTransitioning) return;
@@ -340,6 +256,8 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
 
   // No global listeners; handlers are attached to elements
 
+
+
   // Update slide index when currentSlide prop changes
   useEffect(() => {
     if (currentSlide !== undefined && currentSlide !== slideIndex) {
@@ -372,39 +290,183 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     return null;
   }
 
-  // Seamless transition conditions
-  const seamlessEnabled = false; // Disable seamless to avoid double-rendering heavy slides (e.g., WebGL)
+    // Enhanced seamless transition conditions for slides 4-8 (continuous motion roll)
+  const seamlessEnabled = true; // Enable seamless for slides 4-8
+  
+  // Immediate preloading of all critical assets on mount
+  useEffect(() => {
+    const preloadAllCriticalAssets = () => {
+      // Features section assets (highest priority)
+      const featureImages = [
+        "/baft_card1.svg",
+        "/baft_card2.svg", 
+        "/baft_card3.svg",
+        "/baft_card4.svg",
+        "/pay-bills.svg",
+        "/manage-account.svg",
+        "/rewards.svg",
+        "/seamless-payments.svg"
+      ];
+      
+      // Video section assets
+      const videoAssets = [
+        "/video-thumbnail.jpg",
+        "/play-button.svg"
+      ];
+      
+      // Preload all assets with maximum priority and force completion
+      [...featureImages, ...videoAssets].forEach(src => {
+        const img = new Image();
+        img.decoding = "sync";
+        img.fetchPriority = "high";
+        img.src = src;
+        
+        // Force immediate loading with multiple strategies
+        img.onload = () => {
+          console.log(`Critical asset preloaded: ${src}`);
+          // Force browser to keep image in memory
+          img.style.display = 'none';
+          document.body.appendChild(img);
+          setTimeout(() => document.body.removeChild(img), 100);
+        };
+        img.onerror = () => console.warn(`Failed to preload critical asset: ${src}`);
+        
+        // Additional force loading for critical assets
+        if (featureImages.includes(src)) {
+          // For Features section, use multiple loading strategies
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.href = src;
+          link.fetchPriority = 'high';
+          document.head.appendChild(link);
+        }
+      });
+    };
+
+    // Preload immediately on mount - don't wait for slideIndex
+    preloadAllCriticalAssets();
+  }, []); // Empty dependency array = runs once on mount
+
+  // Aggressive preloading for Features section to eliminate delay
+  useEffect(() => {
+    // Preload Features section assets immediately when component mounts
+    const preloadFeaturesAssets = () => {
+      const featureImages = [
+        "/baft_card1.svg",
+        "/baft_card2.svg", 
+        "/baft_card3.svg",
+        "/baft_card4.svg",
+        "/pay-bills.svg",
+        "/manage-account.svg",
+        "/rewards.svg",
+        "/seamless-payments.svg"
+      ];
+      
+      // Preload with high priority and immediate loading
+      featureImages.forEach(src => {
+        const img = new Image();
+        img.decoding = "sync";
+        img.fetchPriority = "high";
+        img.src = src;
+        // Force load completion
+        img.onload = () => console.log(`Preloaded: ${src}`);
+        img.onerror = () => console.warn(`Failed to preload: ${src}`);
+      });
+    };
+
+    // Preload immediately on mount
+    preloadFeaturesAssets();
+    
+    // Preload Features section from the very beginning (slides 1-3)
+    if (slideIndex <= 3) {
+      preloadFeaturesAssets();
+    }
+    
+    // Also preload when approaching Features section
+    if (slideIndex === 3 || slideIndex === 4) {
+      preloadFeaturesAssets();
+      
+      // Preload next few slides for ultra-smooth transitions
+      if (slideIndex === 3) {
+        const videoAssets = [
+          "/video-thumbnail.jpg",
+          "/play-button.svg"
+        ];
+        videoAssets.forEach(src => {
+          const img = new Image();
+          img.decoding = "sync";
+          img.fetchPriority = "high";
+          img.src = src;
+        });
+      }
+    }
+  }, [slideIndex]);
+  
+  // Listen for About section pinned end to advance to next slide (pre-footer)
+  useEffect(() => {
+    const handleAboutPinnedEnd = () => {
+      if (isTransitioning) return;
+      const nextIndex = Math.min(slideIndex + 1, totalSlides - 1);
+      if (nextIndex !== slideIndex) {
+        // Prepare a smooth fade-out transition to pre-footer
+        setShowAboutCrossfade(true);
+        setAboutCrossfadeOpaque(false); // start transparent
+        setAboutCrossfadeFadeOut(false);
+        
+        // Fade to black smoothly over 800ms
+        setTimeout(() => {
+          setAboutCrossfadeOpaque(true);
+        }, 50);
+        
+        // Once fully black, change slide under cover
+        setTimeout(() => {
+          // Ensure current slide is at top without animation
+          const element = currentSlideRef.current;
+          if (element) {
+            try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
+          }
+          handleSlideChange(nextIndex);
+          
+          // After a brief hold, fade the cover out smoothly
+          setTimeout(() => {
+            setAboutCrossfadeFadeOut(true);
+            // Remove overlay after fade completes
+            setTimeout(() => {
+              setShowAboutCrossfade(false);
+              setAboutCrossfadeFadeOut(false);
+              setAboutCrossfadeOpaque(false);
+            }, 1000);
+          }, 300);
+        }, 850); // allow ~850ms for fade-in to black
+      }
+    };
+    
+    window.addEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
+    return () => window.removeEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
+  }, [slideIndex, totalSlides, isTransitioning, handleSlideChange]);
+  
   const isSeamlessUp = isTransitioning && transitionDirection === 'up' && 
     ((previousSlideIndex === 3 && slideIndex === 4) || 
      (previousSlideIndex === 4 && slideIndex === 5) ||
      (previousSlideIndex === 5 && slideIndex === 6) ||
-     (previousSlideIndex === 6 && slideIndex === 7));
+     (previousSlideIndex === 6 && slideIndex === 7) ||
+     (previousSlideIndex === 7 && slideIndex === 8));
   const isSeamlessDown = isTransitioning && transitionDirection === 'down' && 
     ((previousSlideIndex === 4 && slideIndex === 3) || 
      (previousSlideIndex === 5 && slideIndex === 4) ||
      (previousSlideIndex === 6 && slideIndex === 5) ||
-     (previousSlideIndex === 7 && slideIndex === 6));
+     (previousSlideIndex === 7 && slideIndex === 6) ||
+     (previousSlideIndex === 8 && slideIndex === 7));
   const isSeamless = seamlessEnabled && (isSeamlessUp || isSeamlessDown);
 
   return (
-    <div className="slide-container relative w-full h-screen overflow-hidden" tabIndex={0} onKeyDown={handleKeyDown}>
-      {isSeamless ? (
-        <>
-          <div className={`absolute inset-0 w-full h-full ${
-            isSeamlessUp ? 'seamless-up-prev' : 'seamless-down-prev'
-          }`}>
-            {previousChild}
-          </div>
-          <div className={`absolute inset-0 w-full h-full ${
-            isSeamlessUp ? 'seamless-up-next' : 'seamless-down-next'
-          }`}>
-            {currentChild}
-          </div>
-        </>
-      ) : (
+    <div className={`slide-container relative w-full h-screen overflow-hidden ${isSeamless ? 'seamless-mode' : ''}`} tabIndex={0} onKeyDown={handleKeyDown}>
+      {/* Main slide container - always visible for slides 1-3, conditional for slides 4+ */}
+      {(!isTransitioning || slideIndex < 3) && (
         <div 
           ref={currentSlideRef}
-          className="w-full h-full transition-all duration-[1000ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] overflow-auto scroll-smooth custom-scroll buttery-smooth-scroll"
+          className="w-full h-full transition-all duration-300 ease-out overflow-auto scroll-smooth custom-scroll buttery-smooth-scroll"
           onScroll={() => {
             // Update scroll permissions when user scrolls
             if (currentSlideRef.current) {
@@ -420,20 +482,27 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
           {currentChild}
         </div>
       )}
-      {showAboutCrossfade && (
-        <div 
-          className={`pointer-events-none absolute inset-0 z-40`}
-          style={{ 
-            background: '#000', 
-            opacity: aboutCrossfadeFadeOut ? 0 : (aboutCrossfadeOpaque ? 1 : 0),
-            transition: 'opacity 700ms ease-out', 
-            willChange: 'opacity' 
-          }}
-        />
+      
+      {/* Clean PowerPoint-style transition for slides 4-8 */}
+      {isSeamless && (
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
+          {/* Previous slide - slides out cleanly */}
+          <div className={`absolute inset-0 w-full h-full seamless-transition ${
+            isSeamlessUp ? 'seamless-up-prev' : 'seamless-down-prev'
+          }`}>
+            {previousChild}
+          </div>
+          {/* Current slide - slides in cleanly */}
+          <div className={`absolute inset-0 w-full h-full seamless-transition ${
+            isSeamlessUp ? 'seamless-up-next' : 'seamless-down-next'
+          }`}>
+            {currentChild}
+          </div>
+        </div>
       )}
 
-      {/* Banner-style transition overlay (disabled for seamless transitions) */}
-      {isTransitioning && !isSeamless && (
+      {/* Standard banner transition for other slides - only for slides 4+ */}
+      {isTransitioning && !isSeamless && slideIndex >= 3 && (
         <div 
           className={`absolute inset-0 z-30 pointer-events-none ${
             transitionDirection === 'up' 
@@ -443,7 +512,17 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         />
       )}
 
-
+      {/* About section crossfade overlay for smooth transition to pre-footer */}
+      {showAboutCrossfade && (
+        <div 
+          className={`pointer-events-none absolute inset-0 z-40 about-fade-transition`}
+          style={{ 
+            background: '#000', 
+            opacity: aboutCrossfadeFadeOut ? 0 : (aboutCrossfadeOpaque ? 1 : 0),
+            willChange: 'opacity' 
+          }}
+        />
+      )}
     </div>
   );
 };
