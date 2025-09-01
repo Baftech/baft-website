@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GridBackground } from "../Themes/Grid_coins";
+import { B_COIN_IMAGE_PNG } from "../../assets/assets";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -185,7 +186,7 @@ const BaftCoinMobile = () => {
       <div className="absolute inset-0 z-10">
         <img
           ref={coinRef}
-          src="/b-coin image.png"
+          src={B_COIN_IMAGE_PNG}
           alt="BaFT Coin"
           className="absolute h-auto w-[80vw] max-w-[400px] opacity-0"
         />

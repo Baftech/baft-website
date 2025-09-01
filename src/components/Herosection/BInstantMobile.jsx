@@ -4,6 +4,7 @@ import { useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { motion } from "framer-motion";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
+import { B_COIN_SVG } from "../../assets/assets";
 
 function Coin({ texture, position, animate, target, opacity = 0.97 }) {
   const ref = useRef();
@@ -41,7 +42,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
 }
 
 const CoinStack = ({ startAnimation }) => {
-  const coinTexture = useTexture("/b-coin.svg");
+  const coinTexture = useTexture(B_COIN_SVG);
 
   // Add error handling for texture loading
   if (!coinTexture) {

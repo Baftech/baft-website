@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { motion } from "framer-motion";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
 import BInstantMobile from "./BInstantMobile";
+import { B_COIN_SVG } from "../../assets/assets";
 
 function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 3.5 }) {
   const ref = useRef();
@@ -90,7 +91,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
 }
 
 const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
-  const coinTexture = useTexture("/b-coin.svg");
+  const coinTexture = useTexture(B_COIN_SVG);
   const curtainRef = useRef();
 
   // Add error handling for texture loading

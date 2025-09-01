@@ -5,6 +5,7 @@ import BInstantSection from "./BInstantSection";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { BAFT_VID_MP4, BAFT_VIDEO_GIF } from "../../assets/assets";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -50,12 +51,12 @@ const VideoElement = () => {
       />
       <video
         id="videoElement"
-        src="/BAFT Vid 2_1.mp4"
+        src={BAFT_VID_MP4}
         autoPlay
         muted
         playsInline
         preload="auto"
-        poster="/baft_video.gif"
+        poster={BAFT_VIDEO_GIF}
         className="w-full h-full object-cover object-center"
         style={{
           transformOrigin: "center center",

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { gsap } from "gsap";
 import { FaCreditCard, FaUser, FaGift, FaShieldAlt } from "react-icons/fa";
 import FeaturesMobile from "./Features_Mobile";
+import { BAFT_CARD1_SVG, BAFT_CARD2_SVG, BAFT_CARD3_SVG, BAFT_CARD4_SVG, PAY_BILLS_SVG, MANAGE_ACCOUNT_SVG, REWARDS_SVG, SEAMLESS_PAYMENTS_SVG, SVG_SVG } from "../../assets/assets";
 
 const Cards = () => {
   const cardsRef = useRef(null);
@@ -14,29 +15,29 @@ const Cards = () => {
   const featuresData = [
           {
         icon: null,
-        customIcon: "/pay-bills.svg",
-        image: "/baft_card1.svg",
+        customIcon: PAY_BILLS_SVG,
+        image: BAFT_CARD1_SVG,
         title: "Pay Bills",
         description: "Sort your bills with automated payments and reminders.",
       },
           {
         icon: null,
-        customIcon: "/manage-account.svg",
-        image: "/baft_card2.svg",
+        customIcon: MANAGE_ACCOUNT_SVG,
+        image: BAFT_CARD2_SVG,
         title: "Manage Accounts",
         description: "Control your finances with management tools and insights.",
       },
           {
         icon: null,
-        customIcon: "/rewards.svg",
-        image: "/baft_card3.svg",
+        customIcon: REWARDS_SVG,
+        image: BAFT_CARD3_SVG,
         title: "Rewards",
         description: "Earn points and redeem them for rewards and benefits.",
       },
           {
         icon: null,
-        customIcon: "/seamless-payments.svg",
-        image: "/baft_card4.svg",
+        customIcon: SEAMLESS_PAYMENTS_SVG,
+        image: BAFT_CARD4_SVG,
         title: "Seamless Payments",
         description: "Send and receive coins instantly with just a few taps.",
       },
@@ -54,14 +55,14 @@ const Cards = () => {
   useEffect(() => {
     const preloadFeatureAssets = () => {
       const assets = [
-        "/baft_card1.svg",
-        "/baft_card2.svg",
-        "/baft_card3.svg",
-        "/baft_card4.svg",
-        "/pay-bills.svg",
-        "/manage-account.svg",
-        "/rewards.svg",
-        "/seamless-payments.svg"
+        BAFT_CARD1_SVG,
+        BAFT_CARD2_SVG,
+        BAFT_CARD3_SVG,
+        BAFT_CARD4_SVG,
+        PAY_BILLS_SVG,
+        MANAGE_ACCOUNT_SVG,
+        REWARDS_SVG,
+        SEAMLESS_PAYMENTS_SVG
       ];
       
       assets.forEach(src => {
@@ -261,7 +262,7 @@ const Cards = () => {
                 color: "#092646",
               }}
             >
-              <img src="/SVG.svg" alt="Icon" className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+              <img src={SVG_SVG} alt="Icon" className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
               Features
             </p>
 

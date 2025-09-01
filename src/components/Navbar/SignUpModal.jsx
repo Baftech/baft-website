@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./SignUpModal.css";
+import { LOGO_PNG } from "../../assets/assets";
 
 const SignUpModal = ({ isOpen, onClose }) => {
   const [showThanks, setShowThanks] = useState(false);
@@ -76,7 +77,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
 
         {/* Logo - Always visible */}
         <div className="signup-header">
-          <img src="/logo.png" alt="BaFT Logo" className="signup-logo" />
+          <img src={LOGO_PNG} alt="BaFT Logo" className="signup-logo" />
           <p className="signup-tagline">Built for You, Powered by Tech</p>
         </div>
 

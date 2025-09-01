@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import "./Navbar.css";
 import ContactModal from "./ContactModal";
 import SignUpModal from "./SignUpModal";
+import { LOGO_PNG, LOGO1_PNG } from "../../assets/assets";
 
 export const Navbar = ({ onNavigate, currentSlide }) => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -124,7 +125,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[38%] flex gap-1 items-center justify-center"
         >
           <img
-            src={theme === "dark" ? "logo.png" : "logo1.png"}
+            src={theme === "dark" ? LOGO_PNG : LOGO1_PNG}
             alt="Logo"
             className="w-16 h-auto sm:w-18 md:w-20 lg:w-22 xl:w-24 cursor-pointer"
             onClick={() => {

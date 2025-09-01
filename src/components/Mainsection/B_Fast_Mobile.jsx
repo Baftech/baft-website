@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { BFAST_VIDEO_MP4 } from "../../assets/assets";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -259,7 +260,7 @@ const B_Fast_Mobile = () => {
                 />
                 <video
                   ref={videoRef}
-                  src="/bfast_video.mp4"
+                  src={BFAST_VIDEO_MP4}
                   className="relative z-10"
                   style={{
                     width: "100%",

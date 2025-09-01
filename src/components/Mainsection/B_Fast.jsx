@@ -3,6 +3,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import B_Fast_Mobile from "./B_Fast_Mobile.jsx";
+import { BFAST_VIDEO_MP4 } from "../../assets/assets";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -339,7 +340,7 @@ const B_Fast_Desktop = () => {
             ) : (
               <video
                 ref={videoRef}
-                src="/bfast_video.mp4"
+                src={BFAST_VIDEO_MP4}
                 className="object-contain relative z-10"
                 style={{ 
                   // Dynamic scaling using calculated dimensions with fallback
