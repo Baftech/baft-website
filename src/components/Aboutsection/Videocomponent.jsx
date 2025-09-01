@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import VideoComponentMobile from "./VideoComponentMobile";
+import { VIDEO_COM_PNG, SVG_SVG } from "../../assets/assets";
 
 // Custom hook to detect mobile devices
 const useIsMobile = () => {
@@ -315,7 +316,7 @@ const Videocomponent = ({ slide = false }) => {
               {/* Video/Image */}
               <img
                 ref={videoRef}
-                src="/video_com.png"
+                src={VIDEO_COM_PNG}
                 alt="Video Preview"
                 style={videoStyle}
               />
@@ -367,7 +368,7 @@ const Videocomponent = ({ slide = false }) => {
                 }}
               >
                 <img 
-                  src="/SVG.svg" 
+                  src={SVG_SVG} 
                   alt="Icon" 
                   className="w-5 h-5" 
                   style={{

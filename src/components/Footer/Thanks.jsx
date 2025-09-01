@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "./Thanks.css" // Use the same CSS file
+import { LOGO_PNG } from "../../assets/assets";
 
 const Thanks = ({ isOpen, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -53,7 +54,7 @@ const Thanks = ({ isOpen, onClose }) => {
           </button>
           
           <div className="signup-header">
-            <img src="/logo.png" alt="BaFT Logo" className="signup-logo" />
+            <img src={LOGO_PNG} alt="BaFT Logo" className="signup-logo" />
             <p className="signup-tagline">Built for You, Powered by Tech</p>
           </div>
           

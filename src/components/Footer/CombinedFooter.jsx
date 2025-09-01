@@ -8,6 +8,7 @@ import {
 import Thanks from "./Thanks";
 import CombinedFooterMobile from "./CombinedFooterMobile";
 import "./CombinedFooter.css";
+import { HAND_IPHONE_IMAGE_SVG, BAFT_PIC_PNG } from "../../assets/assets";
 
 const SignupForm = ({ onOpenThanks }) => {
   const [email, setEmail] = useState("");
@@ -93,7 +94,7 @@ const SignupForm = ({ onOpenThanks }) => {
       {/* Image positioned at bottom right of the component */}
       <div className="absolute right-4 md:right-8 -bottom-0 md:-bottom-3 lg:-bottom-5.5 z-20">
         <img
-          src="/hand_iphone_image.svg"
+          src={HAND_IPHONE_IMAGE_SVG}
           alt="Signup Illustration"
           className="w-[200px] sm:w-[245px] md:w-[300px] lg:w-[350px] object-contain"
         />
@@ -221,7 +222,7 @@ const CombinedFooter = () => {
             {/* Left */}
             <div className="flex flex-col items-center md:items-start gap-1 w-full md:w-[280px]">
               <img
-                src="/baft_pic.png"
+                src={BAFT_PIC_PNG}
                 alt="BaFT Logo"
                 className="p-2 w-[80px] h-[80px] rounded-[20px] object-cover"
               />

@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "./SafeSecure.css";
+import { SAFE_SEC_SVG } from "../../assets/assets";
 
 const SafeSecureMobile = () => {
   // Force dark theme for navbar
@@ -74,7 +75,7 @@ const SafeSecureMobile = () => {
             <div className="safe-secure-logo">
               <div className="security-logo-wrapper flex justify-center">
                 <img
-                  src="/safe_sec.svg"
+                  src={SAFE_SEC_SVG}
                   alt="Security Badge"
                   className="security-logo-svg w-24 h-24"
                 />

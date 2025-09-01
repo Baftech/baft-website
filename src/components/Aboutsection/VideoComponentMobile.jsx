@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
+import { VIDEO_COM_PNG, SVG_SVG } from "../../assets/assets";
 
 const VideoComponentMobile = ({ slide = false }) => {
   const mainContainerRef = useRef(null);
@@ -221,7 +222,7 @@ const VideoComponentMobile = ({ slide = false }) => {
               {/* Video/Image */}
               <img
                 ref={videoRef}
-                src="/video_com.png"
+                src={VIDEO_COM_PNG}
                 alt="Video Preview"
                 style={{
                   width: '100%',
@@ -426,7 +427,7 @@ const VideoComponentMobile = ({ slide = false }) => {
                   height: 'auto'
                 }}
               >
-                <img src="/SVG.svg" alt="Icon" className="w-4 h-4" />
+                <img src={SVG_SVG} alt="Icon" className="w-4 h-4" />
                 Know our story
               </p>
               

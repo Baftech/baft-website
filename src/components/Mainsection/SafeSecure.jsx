@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./SafeSecure.css";
 import SafeSecureMobile from "./SafeSecureMobile.jsx";
+import { SAFE_SEC_SVG } from "../../assets/assets";
 
 // Desktop layout
 const SafeSecureDesktop = () => {
@@ -25,7 +26,7 @@ const SafeSecureDesktop = () => {
               <div className="safe-secure-logo">
                 <div className="security-logo-wrapper">
                   <img
-                    src="/safe_sec.svg"
+                    src={SAFE_SEC_SVG}
                     alt="Security Badge"
                     className="security-logo-svg"
                   />

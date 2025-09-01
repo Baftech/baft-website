@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { BAFT_VID_MP4, LOGO1_PNG } from "../../assets/assets";
 
 const HeroMobileComponent = () => {
   const videoRef = useRef(null);
@@ -392,7 +393,7 @@ const HeroMobileComponent = () => {
 
         {/* Top-centered logo */}
         <img
-          src="/logo1.png"
+          src={LOGO1_PNG}
           alt="BaFT"
           style={{
             position: 'absolute',
@@ -522,7 +523,7 @@ const HeroMobileComponent = () => {
         >
           <video
             ref={videoRef}
-            src="/BAFT Vid 2_1.mp4"
+            src={BAFT_VID_MP4}
             preload="auto"
             autoPlay
             muted

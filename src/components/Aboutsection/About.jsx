@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./About.css";
 import AboutMobile from "./AboutMobile";
+import { SVG_SVG, PROPERTY_IMAGE_PNG, PROPERTY_VIBHA_PNG, PROPERTY_DION_PNG, PROPERTY_SAKET_PNG } from "../../assets/assets";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -110,7 +111,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
   const [autoHighlight, setAutoHighlight] = useState("full");
   const [activeImageId, setActiveImageId] = useState("full");
   const [loadedImages, setLoadedImages] = useState(
-    new Set(["/Property 1=Image.png"])
+    new Set([PROPERTY_IMAGE_PNG])
   );
 
   // Add debugging for component dimensions
@@ -125,7 +126,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
         name: "Vibha Harish",
         position: "Co-Founder, BaFT Technology",
         area: { x: "35%", y: "45%", width: "30%", height: "55%" },
-        image: "/Property 1=Vibha Harish (1).png",
+        image: PROPERTY_VIBHA_PNG,
         textPosition: {
           left: "51%",
           bottom: "26%",
@@ -138,7 +139,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
         name: "Dion Monteiro",
         position: "Co-Founder, BaFT Technology",
         area: { x: "5%", y: "20%", width: "35%", height: "70%" },
-        image: "/Property 1=Dion Monteiro (1).png",
+        image: PROPERTY_DION_PNG,
         textPosition: { left: "8%", bottom: "27%" },
         animation: "fade-right",
       },
@@ -147,7 +148,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
         name: "Saket Borkar",
         position: "Co-Founder, BaFT Technology",
         area: { x: "60%", y: "15%", width: "35%", height: "75%" },
-        image: "/Property 1=Saket Borkar (1).png",
+        image: PROPERTY_SAKET_PNG,
         textPosition: { right: "5%", bottom: "27%" },
         animation: "fade-left",
       },
@@ -314,7 +315,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
       >
         {/* Base Image - Full Team */}
         <img
-          src="/Property 1=Image.png"
+          src={PROPERTY_IMAGE_PNG}
           alt="BaFT Team Full"
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{
@@ -826,7 +827,7 @@ const AboutBaft = () => {
                     color: "#092646",
                   }}
                 >
-                  <img src="/SVG.svg" alt="Icon" className="w-5 h-5" />
+                  <img src={SVG_SVG} alt="Icon" className="w-5 h-5" />
                   Know our story
                 </p>
                 <h1

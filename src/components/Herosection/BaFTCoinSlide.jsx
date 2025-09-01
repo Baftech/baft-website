@@ -3,6 +3,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GridBackground } from "../Themes/Grid_coins";
 import BaftCoinMobile from "./BaftCoinMobile";
+import { B_COIN_IMAGE_PNG } from "../../assets/assets";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -171,7 +172,7 @@ const BaFTCoin = () => {
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <img
           ref={coinRef}
-          src="/b-coin image.png"
+          src={B_COIN_IMAGE_PNG}
           alt="BaFT Coin"
           className="absolute md:relative h-auto w-[60vw] sm:w-[54vw] md:w-[40vw] lg:w-[34vw] xl:w-[32vw] 2xl:w-[30vw] 3xl:w-[28vw] max-w-[800px] left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
         />
