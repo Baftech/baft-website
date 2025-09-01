@@ -98,8 +98,8 @@ const B_Fast_Desktop = () => {
     // Check if refs exist before animating
     if (!contentRef.current || !videoRef.current || !sectionRef.current || !overlayRef.current) return;
     
-    // Set initial heading state for animation but ensure visibility
-    gsap.set(contentRef.current, { opacity: 1, y: 0 }); // Heading starts visible and in position
+    // Set initial heading state - start hidden and above position
+    gsap.set(contentRef.current, { opacity: 0, y: -80 }); // Heading starts hidden and above position
     
     // Always start with overlay hidden, we'll show it conditionally
     gsap.set(overlayRef.current, { opacity: 0 });
@@ -136,7 +136,7 @@ const B_Fast_Desktop = () => {
               .to(contentRef.current, {
                 opacity: 1,
                 y: 0,
-                duration: 2.8,
+                duration: 1.2,
                 ease: "power1.inOut"
               }, "+=2.0")
               .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
@@ -149,7 +149,7 @@ const B_Fast_Desktop = () => {
               tl.to(contentRef.current, {
                 opacity: 1,
                 y: 0,
-                duration: 2.8,
+                duration: 1.2,
                 ease: "power1.inOut",
                 delay: 1.5
               })
@@ -162,8 +162,7 @@ const B_Fast_Desktop = () => {
             
             lastScrollY = currentScrollY; // ✅ update scroll position
           } else {
-            // Keep content visible when leaving
-            gsap.set(contentRef.current, { opacity: 1, y: 0 });
+            // Don't reset content when leaving - let the animation handle it
             lastScrollY = window.scrollY;
           }
         });
@@ -211,8 +210,6 @@ const B_Fast_Desktop = () => {
             justifyContent: 'center',
             alignItems: 'center',
             gap: '0.5cm', // Consistent gap between h1 and p
-            opacity: 1, // Ensure content is visible by default
-            transform: 'translateY(0px)', // Ensure content is in position by default
             marginLeft: 'auto',
             marginRight: 'auto'
           }}
@@ -229,7 +226,6 @@ const B_Fast_Desktop = () => {
                           textAlign: 'center',
             width: 'clamp(280px, 90vw, 1600px)', // Responsive width for all small screens
             height: 'clamp(80px, 15vh, 200px)', // Responsive height for all small screens
-            opacity: 1,
             backgroundImage: 'linear-gradient(180deg, #B8C9E0 33.59%, #0A2A4A 77.13%)',
             backgroundRepeat: 'no-repeat',
             backgroundSize: '100% 100%',
