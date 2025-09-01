@@ -6,12 +6,62 @@ import { motion } from "framer-motion";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
 import BInstantMobile from "./BInstantMobile";
 
-function Coin({ texture, position, animate, target, opacity = 0.97 }) {
+function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 3.5 }) {
   const ref = useRef();
+  const [hasReachedTarget, setHasReachedTarget] = useState(false);
+  const [animationStartTime, setAnimationStartTime] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-  useFrame(() => {
-    if (animate && ref.current) {
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.004);
+  useFrame((state) => {
+    if (animate && ref.current && !hasReachedTarget) {
+      // Set start time on first frame
+      if (!animationStartTime) {
+        setAnimationStartTime(state.clock.elapsedTime);
+      }
+
+      const currentTime = state.clock.elapsedTime;
+      const elapsed = currentTime - animationStartTime;
+      
+      // Wait for curtain to fade out before showing coins
+      if (elapsed < 0.4) {
+        if (ref.current.material) {
+          ref.current.material.opacity = 0; // Keep coins invisible
+        }
+        return; // Wait for curtain fade out to complete
+      }
+      
+      // Make coins visible when curtain fades out
+      if (elapsed >= 0.4 && !isVisible) {
+        setIsVisible(true);
+        if (ref.current.material) {
+          ref.current.material.opacity = opacity; // Show coins
+        }
+      }
+      
+      // Start expanding immediately after becoming visible
+      if (elapsed >= 0.4) {
+        // Coins are now visible, start expanding
+        const currentPos = ref.current.position;
+        const targetPos = new THREE.Vector3(...target);
+        
+        // Check if we're close enough to target to consider it reached
+        const distance = currentPos.distanceTo(targetPos);
+        if (distance < 0.01) {
+          setHasReachedTarget(true);
+          return;
+        }
+        
+        // Smooth expansion with easing
+        const progress = (elapsed - 0.4) / (animationDuration - 0.4);
+        const easedProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+        currentPos.lerp(targetPos, easedProgress * 0.02);
+      }
+      
+      // Stop animation after duration
+      if (elapsed >= animationDuration) {
+        setHasReachedTarget(true);
+        return;
+      }
     }
   });
 
@@ -30,7 +80,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
         <meshBasicMaterial
           map={texture}
           transparent
-          opacity={opacity * 1}
+          opacity={0}
           brightness={0.5}
           color="#808080"
         />
@@ -39,8 +89,9 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
   );
 }
 
-const CoinStack = ({ startAnimation }) => {
+const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
   const coinTexture = useTexture("/b-coin.svg");
+  const curtainRef = useRef();
 
   // Add error handling for texture loading
   if (!coinTexture) {
@@ -48,14 +99,50 @@ const CoinStack = ({ startAnimation }) => {
     return null;
   }
 
+  // Animate the curtain fade in and reveal
+  useFrame((state) => {
+    if (startAnimation && curtainRef.current) {
+      const elapsed = state.clock.elapsedTime;
+      
+      // First 0.2 seconds: quickly fade in the curtain
+      if (elapsed < 0.2) {
+        const progress = elapsed / 0.2;
+        curtainRef.current.material.opacity = progress * 0.9;
+      }
+      // Next 0.2 seconds: quickly fade out the curtain to reveal coins
+      else if (elapsed < 0.4) {
+        const progress = (elapsed - 0.2) / 0.2;
+        curtainRef.current.material.opacity = 0.9 - (progress * 0.9);
+      } else {
+        // Hide curtain after reveal
+        curtainRef.current.visible = false;
+      }
+    }
+  });
+
   return (
     <>
+      {/* Black curtain that reveals the coins */}
+      <mesh
+        ref={curtainRef}
+        position={[0, 0, 5]}
+        scale={[30, 3, 1]}
+      >
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial
+          color="#000000"
+          transparent
+          opacity={0}
+        />
+      </mesh>
+      
       <Coin
         texture={coinTexture}
         position={[0.4, -0.4, -0.4]}
         animate={startAnimation}
         target={[0.68, -0.68, -0.68]}
         opacity={1.0}
+        animationDuration={animationDuration}
       />
       <Coin
         texture={coinTexture}
@@ -63,6 +150,7 @@ const CoinStack = ({ startAnimation }) => {
         animate={startAnimation}
         target={[0, 0, 0]}
         opacity={1.0}
+        animationDuration={animationDuration}
       />
       <Coin
         texture={coinTexture}
@@ -70,6 +158,7 @@ const CoinStack = ({ startAnimation }) => {
         animate={startAnimation}
         target={[-0.7, 0.7, 0.7]}
         opacity={0.97}
+        animationDuration={animationDuration}
       />
     </>
   );
@@ -98,7 +187,9 @@ const BInstantSection = () => {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    const timer = setTimeout(() => setStartCoinAnimation(true), 800);
+    // Start both text and coin animations at the same time
+    // Text animation duration is 3.8s, coins reveal over 0.8s then expand for 3.0s
+    const timer = setTimeout(() => setStartCoinAnimation(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
@@ -108,14 +199,23 @@ const BInstantSection = () => {
   }
 
   return (
-    <div className="relative w-full h-screen bg-black">
-      {/* Radial gradient background */}
-      <div
+    <div 
+      className="relative w-full h-screen"
+      style={{ backgroundColor: 'black' }}
+    >
+      {/* Radial gradient background - will animate with coins */}
+      <motion.div
         className="absolute inset-0"
         style={{
           background: "radial-gradient(41.99% 33.2% at 50% 50%, #092646 0%, rgba(9, 38, 70, 0) 100%)",
           zIndex: 10,
           pointerEvents: "none"
+        }}
+        initial={{ opacity: 0.3 }}
+        animate={{ opacity: 1 }}
+        transition={{ 
+          duration: 2.0, 
+          ease: "easeOut"
         }}
       />
 
@@ -154,7 +254,7 @@ const BInstantSection = () => {
             
             {/* Environment reflections - using local preset instead of external HDR */}
             <Environment preset="city" />
-            <CoinStack startAnimation={startCoinAnimation} />
+            <CoinStack startAnimation={startCoinAnimation} animationDuration={3.0} />
           </Suspense>
         </Canvas>
       </ThreeJSErrorBoundary>
@@ -175,7 +275,7 @@ const BInstantSection = () => {
           className="flex flex-col items-start leading-tight text-center"
           initial={{ y: 120, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 3.5, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 3.8, ease: [0.25, 0.1, 0.25, 1] }}
           style={{ marginTop: "clamp(2rem, 8vh, 6rem)" }}
         >
           <motion.span
@@ -187,7 +287,7 @@ const BInstantSection = () => {
             }}
             initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
             animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-            transition={{ duration: 1.2, ease: [0.2, 0.8, 0.2, 1] }}
+            transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
           >
             B-Coin
           </motion.span>
@@ -201,7 +301,7 @@ const BInstantSection = () => {
               }}
               initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-              transition={{ duration: 1.2, ease: [0.2, 0.8, 0.2, 1] }}
+              transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
             >
               Instant Value
             </motion.span>
@@ -210,16 +310,19 @@ const BInstantSection = () => {
               style={{ fontSize: "clamp(26px, 5vw, 90px)", fontWeight: 400 }}
               initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-              transition={{ duration: 1.2, ease: [0.2, 0.8, 0.2, 1] }}
+              transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
             >
               —
             </motion.span>
             <motion.span
               className="ml-2 shared-word text-white uppercase bc-shared"
-              style={{ fontSize: "clamp(28px, 5.5vw, 100px)", fontWeight: 500 }}
+              style={{
+                fontSize: "clamp(28px, 5.5vw, 100px)",
+                fontWeight: 500
+              }}
               initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-              transition={{ duration: 1.2, ease: [0.2, 0.8, 0.2, 1] }}
+              transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
             >
               SHARED
             </motion.span>
@@ -233,7 +336,7 @@ const BInstantSection = () => {
             }}
             initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
             animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-            transition={{ duration: 1.2, ease: [0.2, 0.8, 0.2, 1] }}
+            transition={{ duration: 2.0, ease: [0.2, 0.8, 0.2, 1] }}
           >
             Instantly
           </motion.span>
