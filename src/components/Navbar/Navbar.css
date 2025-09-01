@@ -46,13 +46,13 @@
   font-family: 'Inter', sans-serif;
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 19px;
+  font-size: 10px; /* Uniform smaller base font size for mobile */
+  line-height: 14px; /* Adjusted line height */
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 28px; /* Smaller height for more compact navbar */
-  min-width: 28px;
+  min-height: 32px; /* Match nav-btn-size height */
+  min-width: 80px; /* Match nav-btn-size width */
   white-space: nowrap; /* Prevent text wrapping */
   display: flex;
   align-items: center;
@@ -83,24 +83,48 @@
 @media (min-width: 640px) {
   .nav-btn {
     padding: 6px 12px; /* Increased padding for better text fitting */
-    min-height: 32px; /* Reduced height for more compact navbar */
-    font-size: 16px;
+    min-height: 32px; /* Match nav-btn-size height */
+    min-width: 80px; /* Match nav-btn-size width */
+    font-size: 11px; /* Uniform medium font size for small tablets */
+    line-height: 15px;
   }
 }
 
 @media (min-width: 768px) {
   .nav-btn {
     padding: 8px 16px; /* Increased padding for better text fitting */
-    min-height: 36px; /* Reduced height for more compact navbar */
-    font-size: 16px;
+    min-height: 36px; /* Match nav-btn-size height */
+    min-width: 80px; /* Match nav-btn-size width */
+    font-size: 12px; /* Uniform medium font size for tablets */
+    line-height: 16px;
   }
 }
 
 @media (min-width: 1024px) {
   .nav-btn {
     padding: 10px 18px; /* Increased padding for better text fitting */
-    min-height: 40px; /* Reduced height for more compact navbar */
-    font-size: 16px;
+    min-height: 40px; /* Match nav-btn-size height */
+    min-width: 96px; /* Match nav-btn-size width */
+    font-size: 13px; /* Uniform medium font size for desktop */
+    line-height: 17px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .nav-btn {
+    min-height: 48px; /* Match nav-btn-size height */
+    min-width: 112px; /* Match nav-btn-size width */
+    font-size: 14px; /* Uniform larger font size for large screens */
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .nav-btn {
+    min-height: 48px; /* Match nav-btn-size height */
+    min-width: 112px; /* Match nav-btn-size width */
+    font-size: 15px; /* Uniform largest font size for extra large screens */
+    line-height: 19px;
   }
 }
 
@@ -147,9 +171,9 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 28px; /* Smaller height for more compact navbar */
-  min-width: 56px; /* Smaller width for more compact navbar */
-  font-size: 10px; /* Smaller font size for more compact navbar */
+  min-height: 32px; /* Match nav-btn-size height */
+  min-width: 80px; /* Match nav-btn-size width */
+  font-size: 10px; /* Uniform smaller font size for mobile */
   font-weight: 500; /* Slightly bolder for better readability */
   letter-spacing: 0.025em; /* Better text spacing */
   white-space: nowrap; /* Prevent text wrapping */
@@ -178,25 +202,41 @@
 /* Responsive fancy button sizing using 8-point spacing */
 @media (min-width: 640px) {
   .fancy button { 
-    min-height: 32px; /* Reduced height for more compact navbar */
-    min-width: 64px; /* Reduced width for more compact navbar */
+    min-height: 32px; /* Match nav-btn-size height */
+    min-width: 80px; /* Match nav-btn-size width */
     font-size: 11px;
   }
 }
 
 @media (min-width: 768px) {
   .fancy button { 
-    min-height: 36px; /* Reduced height for more compact navbar */
-    min-width: 72px; /* Reduced width for more compact navbar */
+    min-height: 36px; /* Match nav-btn-size height */
+    min-width: 80px; /* Match nav-btn-size width */
     font-size: 12px;
   }
 }
 
 @media (min-width: 1024px) {
   .fancy button { 
-    min-height: 40px; /* Reduced height for more compact navbar */
-    min-width: 80px; /* Reduced width for more compact navbar */
-    font-size: 13px;
+    min-height: 40px; /* Match nav-btn-size height */
+    min-width: 96px; /* Match nav-btn-size width */
+    font-size: 13px; /* Uniform medium font size for desktop */
+  }
+}
+
+@media (min-width: 1280px) {
+  .fancy button {
+    min-height: 48px; /* Match nav-btn-size height */
+    min-width: 112px; /* Match nav-btn-size width */
+    font-size: 14px; /* Uniform larger font size for large screens */
+  }
+}
+
+@media (min-width: 1536px) {
+  .fancy button {
+    min-height: 48px; /* Match nav-btn-size height */
+    min-width: 112px; /* Match nav-btn-size width */
+    font-size: 15px; /* Uniform largest font size for extra large screens */
   }
 }
 
@@ -257,29 +297,43 @@
   font-family: 'SF Pro Display', sans-serif;
   font-style: normal;
   font-weight: 500;
-  font-size: 14px;
-  line-height: 18px;
+  font-size: 10px; /* Uniform smaller base font size for mobile */
+  line-height: 14px;
   text-align: center;
 }
 
 @media (min-width: 640px) {
   .dark-theme .fancy button {
-    font-size: 15px;
-    line-height: 20px;
+    font-size: 11px; /* Uniform medium font size for small tablets */
+    line-height: 15px;
   }
 }
 
 @media (min-width: 768px) {
   .dark-theme .fancy button {
-    font-size: 16px;
-    line-height: 21px;
+    font-size: 12px; /* Uniform medium font size for tablets */
+    line-height: 16px;
   }
 }
 
 @media (min-width: 1024px) {
   .dark-theme .fancy button {
-    font-size: 16px;
-    line-height: 21px;
+    font-size: 13px; /* Uniform medium font size for desktop */
+    line-height: 17px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .dark-theme .fancy button {
+    font-size: 14px; /* Uniform larger font size for large screens */
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .dark-theme .fancy button {
+    font-size: 15px; /* Uniform largest font size for extra large screens */
+    line-height: 19px;
   }
 }
 
@@ -294,14 +348,50 @@
   font-family: 'Inter', sans-serif;
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 19px;
+  font-size: 10px; /* Uniform smaller base font size for mobile */
+  line-height: 14px;
   color: #092646;
 }
 
 .light-theme .nav-btn {
   background: transparent;
   color: #092646;
+}
+
+/* Responsive font sizing for light theme nav-btn */
+@media (min-width: 640px) {
+  .light-theme .nav-btn {
+    font-size: 11px; /* Uniform medium font size for small tablets */
+    line-height: 15px;
+  }
+}
+
+@media (min-width: 768px) {
+  .light-theme .nav-btn {
+    font-size: 12px; /* Uniform medium font size for tablets */
+    line-height: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .light-theme .nav-btn {
+    font-size: 13px; /* Uniform medium font size for desktop */
+    line-height: 17px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .light-theme .nav-btn {
+    font-size: 14px; /* Uniform larger font size for large screens */
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .light-theme .nav-btn {
+    font-size: 15px; /* Uniform largest font size for extra large screens */
+    line-height: 19px;
+  }
 }
 
 .light-theme .nav-btn:hover {
@@ -338,28 +428,42 @@
   font-family: 'SF Pro Display', sans-serif;
   font-style: normal;
   font-weight: 500;
-  font-size: 14px;
-  line-height: 18px;
+  font-size: 10px; /* Uniform smaller base font size for mobile */
+  line-height: 14px;
   text-align: center;
 }
 
 @media (min-width: 640px) {
   .light-theme .fancy button {
-    font-size: 15px;
-    line-height: 20px;
+    font-size: 11px; /* Uniform medium font size for small tablets */
+    line-height: 15px;
   }
 }
 
 @media (min-width: 768px) {
   .light-theme .fancy button {
-    font-size: 16px;
-    line-height: 21px;
+    font-size: 12px; /* Uniform medium font size for tablets */
+    line-height: 16px;
   }
 }
 
 @media (min-width: 1024px) {
   .light-theme .fancy button {
-    font-size: 16px;
-    line-height: 21px;
+    font-size: 13px; /* Uniform medium font size for desktop */
+    line-height: 17px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .light-theme .fancy button {
+    font-size: 14px; /* Uniform larger font size for large screens */
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .light-theme .fancy button {
+    font-size: 15px; /* Uniform largest font size for extra large screens */
+    line-height: 19px;
   }
 }
