@@ -5,7 +5,6 @@ import * as THREE from "three";
 import { motion } from "framer-motion";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
 import BInstantMobile from "./BInstantMobile";
-import { B_COIN_SVG } from "../../assets/assets";
 
 function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 3.5 }) {
   const ref = useRef();
@@ -23,16 +22,25 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
       const currentTime = state.clock.elapsedTime;
       const elapsed = currentTime - animationStartTime;
       
-      // Show coins immediately with full opacity
-      if (!isVisible) {
+      // Wait for curtain to fade out before showing coins
+      if (elapsed < 0.4) {
+        if (ref.current.material) {
+          ref.current.material.opacity = 0; // Keep coins invisible
+        }
+        return; // Wait for curtain fade out to complete
+      }
+      
+      // Make coins visible when curtain fades out
+      if (elapsed >= 0.4 && !isVisible) {
         setIsVisible(true);
         if (ref.current.material) {
-          ref.current.material.opacity = opacity;
+          ref.current.material.opacity = opacity; // Show coins
         }
       }
       
-      // Start expanding immediately
-      if (elapsed >= 0) {
+      // Start expanding immediately after becoming visible
+      if (elapsed >= 0.4) {
+        // Coins are now visible, start expanding
         const currentPos = ref.current.position;
         const targetPos = new THREE.Vector3(...target);
         
@@ -44,7 +52,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
         }
         
         // Smooth expansion with easing
-        const progress = elapsed / animationDuration;
+        const progress = (elapsed - 0.4) / (animationDuration - 0.4);
         const easedProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
         currentPos.lerp(targetPos, easedProgress * 0.02);
       }
@@ -72,7 +80,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
         <meshBasicMaterial
           map={texture}
           transparent
-          opacity={opacity}
+          opacity={0}
           brightness={0.5}
           color="#808080"
         />
@@ -82,7 +90,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
 }
 
 const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
-  const coinTexture = useTexture(B_COIN_SVG);
+  const coinTexture = useTexture("/b-coin.svg");
   const curtainRef = useRef();
 
   // Add error handling for texture loading
@@ -96,15 +104,15 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
     if (startAnimation && curtainRef.current) {
       const elapsed = state.clock.elapsedTime;
       
-      // First 0.3 seconds: quickly fade in the curtain
-      if (elapsed < 0.3) {
-        const progress = elapsed / 0.3;
-        curtainRef.current.material.opacity = progress * 0.8;
+      // First 0.2 seconds: quickly fade in the curtain
+      if (elapsed < 0.2) {
+        const progress = elapsed / 0.2;
+        curtainRef.current.material.opacity = progress * 0.9;
       }
-      // Next 0.3 seconds: quickly fade out the curtain
-      else if (elapsed < 0.6) {
-        const progress = (elapsed - 0.3) / 0.3;
-        curtainRef.current.material.opacity = 0.8 - (progress * 0.8);
+      // Next 0.2 seconds: quickly fade out the curtain to reveal coins
+      else if (elapsed < 0.4) {
+        const progress = (elapsed - 0.2) / 0.2;
+        curtainRef.current.material.opacity = 0.9 - (progress * 0.9);
       } else {
         // Hide curtain after reveal
         curtainRef.current.visible = false;
@@ -133,7 +141,7 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
         position={[0.4, -0.4, -0.4]}
         animate={startAnimation}
         target={[0.68, -0.68, -0.68]}
-        opacity={0.97}
+        opacity={1.0}
         animationDuration={animationDuration}
       />
       <Coin
@@ -141,7 +149,7 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
         position={[0, 0, 0]}
         animate={startAnimation}
         target={[0, 0, 0]}
-        opacity={0.97}
+        opacity={1.0}
         animationDuration={animationDuration}
       />
       <Coin
@@ -180,7 +188,7 @@ const BInstantSection = () => {
 
   useEffect(() => {
     // Start both text and coin animations at the same time
-    // Text animation duration is 3.8s, coins show immediately and expand for 3.0s
+    // Text animation duration is 3.8s, coins reveal over 0.8s then expand for 3.0s
     const timer = setTimeout(() => setStartCoinAnimation(true), 100);
     return () => clearTimeout(timer);
   }, []);

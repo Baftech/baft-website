@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import "./Navbar.css";
 import ContactModal from "./ContactModal";
 import SignUpModal from "./SignUpModal";
-import { LOGO_PNG, LOGO1_PNG } from "../../assets/assets";
 
 export const Navbar = ({ onNavigate, currentSlide }) => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -101,7 +100,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
               } else {
                 document
                   .getElementById("about")
-                  ?.scrollIntoView({ behavior: "auto" }); // Changed from "smooth" for better mobile performance
+                  ?.scrollIntoView({ behavior: "smooth" });
               }
             }}
             className={`rounded-[200px] nav-btn nav-btn-size ${
@@ -125,16 +124,16 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[38%] flex gap-1 items-center justify-center"
         >
           <img
-            src={theme === "dark" ? LOGO_PNG : LOGO1_PNG}
+            src={theme === "dark" ? "logo.png" : "logo1.png"}
             alt="Logo"
             className="w-16 h-auto sm:w-18 md:w-20 lg:w-22 xl:w-24 cursor-pointer"
             onClick={() => {
               if (typeof onNavigate === 'function') {
-                onNavigate('hero', { instant: true });
+                onNavigate('hero');
               } else {
                 document
                   .getElementById("hero")
-                  ?.scrollIntoView({ behavior: "instant" });
+                  ?.scrollIntoView({ behavior: "smooth" });
               }
             }}
             loading="eager"

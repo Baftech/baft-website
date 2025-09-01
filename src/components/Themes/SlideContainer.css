@@ -1,12 +1,11 @@
 .slide-container {
-  /* Remove smooth scrolling for better mobile performance */
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   /* Enhanced smooth scrolling */
   scroll-snap-type: none;
   overscroll-behavior: none;
   /* Premium hardware acceleration */
-  will-change: transform;
+  will-change: transform, scroll-position;
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
@@ -59,24 +58,22 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
-/* Enhanced smooth scrolling for slide content - optimized for mobile */
+/* Enhanced smooth scrolling for slide content */
 .scroll-smooth {
-  /* Remove smooth scrolling for better mobile performance */
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   /* Avoid snapping inside content to keep native feel */
   scroll-snap-type: none;
 }
 
-/* Premium buttery smooth scroll enhancements - mobile optimized */
+/* Premium buttery smooth scroll enhancements */
 .buttery-smooth-scroll {
-  /* Remove smooth scrolling for better mobile performance */
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
-  will-change: transform;
+  will-change: scroll-position, transform;
   /* Enhanced momentum and inertia */
   scroll-padding: 20px;
   overscroll-behavior: contain;
@@ -85,7 +82,8 @@
   /* Enhanced performance */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  /* Remove transition that can interfere with scrolling */
+  /* Smooth acceleration */
+  transition: scroll-behavior 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   /* Premium momentum scrolling */
   -webkit-overflow-scrolling: touch;
   overflow-scrolling: touch;
@@ -298,102 +296,50 @@
   }
 }
 
-/* Enhanced smooth seamless transitions with continuous motion roll effect */
+/* Enhanced smooth seamless transitions */
 .seamless-up-prev {
-  animation: seamlessPrevUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  will-change: transform, opacity, scale;
+  animation: seamlessPrevUp 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
-  /* Enhanced smoothness and performance */
+  /* Enhanced smoothness */
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
-  /* Clean transitions with no remnants */
-  filter: blur(0px);
-  transition: filter 0.1s ease-out;
-  /* Add subtle depth for smooth motion */
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  /* Ensure clean masking */
-  overflow: hidden;
 }
 
 .seamless-up-next {
-  animation: seamlessNextUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  will-change: transform, opacity, scale;
+  animation: seamlessNextUp 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
-  /* Enhanced smoothness and performance */
+  /* Enhanced smoothness */
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
-  /* Smooth scaling and opacity transitions */
-  filter: blur(0px);
-  transition: filter 0.1s ease-out;
-  /* Add subtle depth and motion blur for continuous roll effect */
-  perspective: 1000px;
-  transform-style: preserve-3d;
 }
 
 @keyframes seamlessPrevUp {
-  0% { 
-    transform: translateY(0) scale(1); 
-    opacity: 1; 
-  }
-  50% { 
-    transform: translateY(-50%) scale(0.98); 
-    opacity: 0.8; 
-  }
-  100% { 
-    transform: translateY(-100%) scale(0.95); 
-    opacity: 0.6; 
-  }
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-100%); opacity: 1; }
 }
 
 @keyframes seamlessNextUp {
-  0% { 
-    transform: translateY(100%) scale(0.95); 
-    opacity: 0.6; 
-  }
-  50% { 
-    transform: translateY(50%) scale(0.98); 
-    opacity: 0.8; 
-  }
-  100% { 
-    transform: translateY(0) scale(1); 
-    opacity: 1; 
-  }
+  0% { transform: translateY(100%); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 /* Seamless slide-down between slide 5 -> 4 */
 .seamless-down-prev {
-  animation: seamlessPrevDown 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  will-change: transform, opacity, scale;
+  animation: seamlessPrevDown 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
-  /* Enhanced smoothness and performance */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  /* Smooth scaling and opacity transitions */
-  filter: blur(0px);
-  transition: filter 0.1s ease-out;
-  /* Add subtle depth and motion blur for continuous roll effect */
-  perspective: 1000px;
-  transform-style: preserve-3d;
 }
 
 .seamless-down-next {
-  animation: seamlessNextDown 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  will-change: transform, opacity, scale;
+  animation: seamlessNextDown 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
-  /* Enhanced smoothness and performance */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  /* Smooth scaling and opacity transitions */
-  filter: blur(0px);
-  transition: filter 0.1s ease-out;
-  /* Add subtle depth and motion blur for continuous roll effect */
-  perspective: 1000px;
-  transform-style: preserve-3d;
 }
 
 /* Handoff animation: preview expands into full video */
@@ -407,33 +353,13 @@
 }
 
 @keyframes seamlessPrevDown {
-  0% { 
-    transform: translateY(0) scale(1); 
-    opacity: 1; 
-  }
-  50% { 
-    transform: translateY(50%) scale(0.98); 
-    opacity: 0.8; 
-  }
-  100% { 
-    transform: translateY(100%) scale(0.95); 
-    opacity: 0.6; 
-  }
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(100%); opacity: 1; }
 }
 
 @keyframes seamlessNextDown {
-  0% { 
-    transform: translateY(-100%) scale(0.95); 
-    opacity: 0.6; 
-  }
-  50% { 
-    transform: translateY(-50%) scale(0.98); 
-    opacity: 0.8; 
-  }
-  100% { 
-    transform: translateY(0) scale(1); 
-    opacity: 1; 
-  }
+  0% { transform: translateY(-100%); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
@@ -681,174 +607,4 @@
   .slide-indicator {
     background-color: rgba(0, 0, 0, 0.6);
   }
-}
-
-/* Enhanced continuous motion roll effect for slides 4-8 */
-.slide-container.seamless-mode {
-  perspective: 1200px;
-  transform-style: preserve-3d;
-  /* Performance optimizations for 60fps transitions */
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  /* Smooth scrolling and transitions */
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  /* Prevent layout thrashing */
-  contain: layout style paint;
-  /* Clean masking to prevent slide remnants */
-  overflow: hidden;
-  position: relative;
-}
-
-/* Clean transitions for slides 1-3 - no white effects */
-.slide-container:not(.seamless-mode) {
-  /* Simple, clean transitions for early slides */
-  transition: none;
-  /* Ensure no overlay effects */
-  background: transparent;
-}
-
-/* Smooth momentum scrolling for seamless transitions */
-.seamless-scroll {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-/* Enhanced performance for seamless transitions */
-.seamless-transition {
-  will-change: transform, opacity, scale;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  /* Clean masking to prevent remnants */
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-/* Smooth fade-out transition for About section to pre-footer */
-.about-fade-transition {
-  will-change: opacity;
-  transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  /* Ensure smooth fade without any slide movement */
-  transform: none;
-  /* Clean masking */
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-/* Optimize Features section rendering */
-.features-section {
-  will-change: transform, opacity;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-  /* Ensure immediate rendering */
-  contain: layout style paint;
-  /* Optimize for smooth transitions */
-  transition: opacity 0.1s ease-out;
-}
-
-/* Ultra-fast Features section loading - eliminate all delays */
-.features-section img {
-  will-change: transform, opacity;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-  /* Force immediate rendering */
-  contain: layout style paint;
-  /* No transition delays */
-  transition: none;
-  /* Ensure images are loaded and ready */
-  image-rendering: optimizeSpeed;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
-/* Instant preloading for zero-delay transitions */
-.slide-preload {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(100%);
-  transition: none;
-  will-change: auto;
-}
-
-.slide-preload.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-}
-
-/* Optimized z-index layering for smooth transitions */
-.slide-layer-0 { z-index: 0; }
-.slide-layer-10 { z-index: 10; }
-.slide-layer-20 { z-index: 20; }
-.slide-layer-30 { z-index: 30; }
-
-/* Features section as slide content - immediate rendering */
-.slide-container .features-section {
-  /* Immediate visibility - no delays */
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-  /* No animation delays */
-  animation: none !important;
-  transition: none !important;
-  /* Force immediate rendering */
-  will-change: auto !important;
-  /* Ensure content is visible */
-  display: block !important;
-}
-
-/* Features section images - immediate loading */
-.slide-container .features-section img {
-  /* Immediate visibility */
-  opacity: 1 !important;
-  visibility: visible !important;
-  /* No transition delays */
-  transition: none !important;
-  /* Force immediate rendering */
-  will-change: auto !important;
-}
-
-/* B_Fast section as slide content - immediate rendering */
-.slide-container .b-fast-section {
-  /* Immediate visibility - no delays */
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-  /* No animation delays */
-  animation: none !important;
-  transition: none !important;
-  /* Force immediate rendering */
-  will-change: auto !important;
-  /* Ensure content is visible */
-  display: block !important;
-}
-
-/* B_Fast section content - immediate visibility */
-.slide-container .b-fast-section * {
-  /* Immediate visibility for all child elements */
-  opacity: 1 !important;
-  visibility: visible !important;
-  /* No transition delays */
-  transition: none !important;
-  /* Force immediate rendering */
-  will-change: auto !important;
 }

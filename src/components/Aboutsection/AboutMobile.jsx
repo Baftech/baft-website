@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./About.css";
-import { SVG_SVG, PROPERTY_IMAGE_PNG, PROPERTY_VIBHA_PNG, PROPERTY_DION_PNG, PROPERTY_SAKET_PNG } from "../../assets/assets";
 
 // Simplified ReadMoreText for mobile
 const ReadMoreText = ({ content, maxLength = 200, onExpandChange }) => {
@@ -111,7 +110,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
   const [autoHighlight, setAutoHighlight] = useState("full");
   const [activeImageId, setActiveImageId] = useState("full");
   const [loadedImages, setLoadedImages] = useState(
-    new Set([PROPERTY_IMAGE_PNG])
+    new Set(["/Property 1=Image.png"])
   );
 
   const teamMembers = React.useMemo(
@@ -121,7 +120,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
         name: "Vibha Harish",
         position: "Co-Founder, BaFT Technology",
         area: { x: "35%", y: "45%", width: "30%", height: "55%" },
-        image: PROPERTY_VIBHA_PNG,
+        image: "/Property 1=Vibha Harish (1).png",
         textPosition: {
           left: "51%",
           bottom: "26%",
@@ -134,7 +133,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
         name: "Dion Monteiro",
         position: "Co-Founder, BaFT Technology",
         area: { x: "5%", y: "20%", width: "35%", height: "70%" },
-        image: PROPERTY_DION_PNG,
+        image: "/Property 1=Dion Monteiro (1).png",
         textPosition: { left: "8%", bottom: "27%" },
         animation: "fade-right",
       },
@@ -143,7 +142,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
         name: "Saket Borkar",
         position: "Co-Founder, BaFT Technology",
         area: { x: "60%", y: "15%", width: "35%", height: "75%" },
-        image: PROPERTY_SAKET_PNG,
+        image: "/Property 1=Saket Borkar (1).png",
         textPosition: { right: "5%", bottom: "27%" },
         animation: "fade-left",
       },
@@ -325,7 +324,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
       >
         {/* Base Image - Full Team */}
         <img
-          src={PROPERTY_IMAGE_PNG}
+          src="/Property 1=Image.png"
           alt="BaFT Team Full"
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{
@@ -429,31 +428,23 @@ const AboutMobile = () => {
   const sectionRef = useRef(null);
   const imageRef = useRef(null);
 
-  // Optimized scroll handler for mobile performance
   useEffect(() => {
-    let ticking = false;
-    
     const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          if (!sectionRef.current) return;
-          
-          const rect = sectionRef.current.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
-          let progress = 0;
-          if (rect.top < 0) {
-            progress = Math.min(1, Math.abs(rect.top) / windowHeight);
-          }
-          
-          setScrollProgress(progress);
-          ticking = false;
-        });
-        ticking = true;
+      if (!sectionRef.current) return;
+      
+      const rect = sectionRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Simple scroll progress: 0 = section visible, 1 = section scrolled out
+      let progress = 0;
+      if (rect.top < 0) {
+        progress = Math.min(1, Math.abs(rect.top) / windowHeight);
       }
+      
+      setScrollProgress(progress);
     };
 
-    // Use passive event listener for better mobile performance
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -507,7 +498,7 @@ const AboutMobile = () => {
             }}
           >
             <img 
-              src={SVG_SVG} 
+              src="/SVG.svg" 
               alt="Icon" 
               style={{
                 width: "clamp(8px, 2.5vw, 12px)",
