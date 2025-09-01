@@ -4,6 +4,7 @@ import { useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { motion } from "framer-motion";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
+import BInstantMobile from "./BInstantMobile";
 
 function Coin({ texture, position, animate, target, opacity = 0.97 }) {
   const ref = useRef();
@@ -74,13 +75,37 @@ const CoinStack = ({ startAnimation }) => {
   );
 };
 
+// Custom hook to detect mobile devices
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  return isMobile;
+};
+
 const BInstantSection = () => {
   const [startCoinAnimation, setStartCoinAnimation] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const timer = setTimeout(() => setStartCoinAnimation(true), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Render mobile component on mobile devices
+  if (isMobile) {
+    return <BInstantMobile />;
+  }
 
   return (
     <div className="relative w-full h-screen bg-black">

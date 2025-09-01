@@ -10,9 +10,9 @@ const Cards = () => {
   const [overlayActive, setOverlayActive] = useState(false);
   const overlayTimerRef = useRef(null);
   const currentIndexRef = useRef(0);
-  const prevIndexRef = useRef(0);
+  const prevIndexRef = useRef(null);
   const rotateIntervalRef = useRef(null);
-
+  
   const featuresData = [
     {
       icon: null,
@@ -220,6 +220,7 @@ const Cards = () => {
         el.classList.add('animate-slideInFromBottom');
         setHasAnimatedIn(true);
         setOverlayActive(true);
+        
         if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
         overlayTimerRef.current = setTimeout(() => {
           setOverlayActive(false);
@@ -434,40 +435,40 @@ const Cards = () => {
             </ul>
           </div>
 
-                                {/* Bottom Section - Phone Mockups (Horizontal Cylinder) */}
-            <div
-              className="relative w-full flex items-end justify-center perspective-[1200px] mt-0"
-              style={{ 
-                willChange: "transform, opacity", 
-                backfaceVisibility: "hidden", 
-                transformStyle: "preserve-3d",
-                minHeight: "600px",
-                paddingBottom: "7rem",
-                paddingTop: "0",
-                overflow: "hidden",
-                marginTop: "-2rem"
-              }}
-              ref={cardsRef}
-            >
-                                                                                                       {featuresData.map((feature, index) => (
-                 <div
-                   key={index}
-                   className="absolute flex flex-col items-center justify-center"
-                   style={{
-                     width: "clamp(350px, 85vw, 500px)",
-                     height: "clamp(450px, 90vw, 600px)"
-                   }}
-                 >
-                   <img
-                     src={feature.image}
-                     alt={feature.title}
-                     className="w-full h-full object-contain"
-                     loading="eager"
-                     decoding="async"
-                     fetchPriority="high"
-                   />
-                 </div>
-               ))}
+          {/* Bottom Section - Phone Mockups (Horizontal Cylinder) */}
+          <div
+            className="relative w-full flex items-end justify-center perspective-[1200px] mt-0"
+            style={{ 
+              willChange: "transform, opacity", 
+              backfaceVisibility: "hidden", 
+              transformStyle: "preserve-3d",
+              minHeight: "600px",
+              paddingBottom: "7rem",
+              paddingTop: "0",
+              overflow: "hidden",
+              marginTop: "-2rem"
+            }}
+            ref={cardsRef}
+          >
+            {featuresData.map((feature, index) => (
+              <div
+                key={index}
+                className="absolute flex flex-col items-center justify-center"
+                style={{
+                  width: "clamp(350px, 85vw, 500px)",
+                  height: "clamp(450px, 90vw, 600px)"
+                }}
+              >
+                <img
+                  src={feature.image}
+                  alt={feature.title}
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                />
+              </div>
+            ))}
           </div>
 
         </div>

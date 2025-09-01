@@ -279,7 +279,6 @@ const B_Fast_Mobile = () => {
                   }}
                   autoPlay
                   muted
-                  loop
                   playsInline
                   controls={false}
                   disablePictureInPicture

@@ -1,9 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-// Register ScrollTrigger plugin
-gsap.registerPlugin(ScrollTrigger);
 
 const VideoComponentMobile = ({ slide = false }) => {
   const mainContainerRef = useRef(null);
@@ -17,6 +13,8 @@ const VideoComponentMobile = ({ slide = false }) => {
   const originalBodyOverflowRef = useRef('');
   const originalBodyTouchActionRef = useRef('');
   const originalHtmlOverscrollRef = useRef('');
+  
+
 
   // Get phone screen dimensions
   useEffect(() => {
@@ -37,54 +35,7 @@ const VideoComponentMobile = ({ slide = false }) => {
     };
   }, []);
 
-  // GSAP ScrollTrigger setup for YouTube-style landscape tilt
-  useEffect(() => {
-    if (!videoCardRef.current) return;
-
-    const ctx = gsap.context(() => {
-      // Create the scroll-triggered animation for landscape tilt
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: videoSectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-          pin: true,
-          pinSpacing: true,
-          onUpdate: (self) => {
-            // Update state based on progress
-            const progress = self.progress;
-            if (progress > 0.3 && !isExpanded) {
-              setIsExpanded(true);
-              setIsScrolled(true);
-            } else if (progress <= 0.3 && isExpanded) {
-              setIsExpanded(false);
-              setIsScrolled(false);
-            }
-          }
-        }
-      });
-
-      // YouTube-style landscape tilt animation - apply to the video card container
-      tl.to(videoCardRef.current, {
-        rotate: -90, // Rotate to landscape (negative direction)
-        scale: 1.2, // Slightly scale up
-        duration: 1,
-        ease: "power2.inOut",
-        transformOrigin: "center center"
-      }, 0);
-
-      console.log('GSAP animation timeline created:', tl);
-      console.log('Video card ref:', videoCardRef.current);
-
-    }, videoSectionRef);
-
-    // Cleanup function
-    return () => {
-      ctx.revert();
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, [isExpanded]);
+  // Removed swipe-to-tilt functionality for cleaner mobile experience
 
 
 
@@ -512,7 +463,7 @@ const VideoComponentMobile = ({ slide = false }) => {
                 Bangalore, proudly founded in 2025. We're a tight-knit team of
                 financial innovators and tech experts on a mission: to reimagine
                 financial services in India with customer-first solutions.
-            </p>
+              </p>
             </div>
           </div>
         </div>

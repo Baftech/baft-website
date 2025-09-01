@@ -1,43 +1,39 @@
-import React, { Suspense, useRef, useState, useEffect, useCallback } from "react";
+import React, { Suspense, useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { motion } from "framer-motion";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
-import { useWebGLContextManager, setupWebGLContext } from "./WebGLContextManager";
 
-function Coin({ texture, position, animate, target }) {
+function Coin({ texture, position, animate, target, opacity = 0.97 }) {
   const ref = useRef();
 
   useFrame(() => {
     if (animate && ref.current) {
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.02); // increased from 0.005 for more prominent movement
+      ref.current.position.lerp(new THREE.Vector3(...target), 0.03); // Slower, more elegant expansion
     }
   });
 
-  const scaleFactor = (0.1 - position[2] * 0.05) * 0.01; // Dramatically smaller scale for mobile
+  const scaleFactor = (2.0 - position[2] * 0.3); // Balanced size with good expansion
 
   return (
     <group>
+      {/* Main coin face */}
       <mesh
         ref={ref}
         position={position}
-        scale={[0.001, 0.001, 1]}
-        rotation={[-0.02, 0, 0.1]}
+        scale={[scaleFactor, scaleFactor, 1]}
+        rotation={[-0.02, 0, 0.0999]}
       >
-        <planeGeometry args={[0.001, 0.001]} />
+        <planeGeometry args={[1.8, 1.8]} />
         <meshStandardMaterial
           map={texture}
-          color="#FFD700"          // classic yellow gold
-          metalness={0.8}          // reduced metalness for mild appearance
-          roughness={0.5}          // balanced roughness for mild shine
-          envMapIntensity={0.3}    // moderate reflections
-          emissive="#FFB347"       // warm yellow-gold warmth
-          emissiveMap={texture}
-          emissiveIntensity={0.02} // subtle glow
+          color="#E5E5E5"
+          metalness={0.6}
+          roughness={0.3}
+          envMapIntensity={1.0}
           transparent
-          opacity={0.95}
-          toneMapped
+          opacity={opacity * 1}
         />
       </mesh>
     </group>
@@ -47,25 +43,34 @@ function Coin({ texture, position, animate, target }) {
 const CoinStack = ({ startAnimation }) => {
   const coinTexture = useTexture("/b-coin.svg");
 
+  // Add error handling for texture loading
+  if (!coinTexture) {
+    console.log("Coin texture not loaded yet");
+    return null;
+  }
+
   return (
     <>
       <Coin
         texture={coinTexture}
-        position={[0.005, -0.005, -0.01]}
+        position={[0.3, -0.4, -0.3]}
         animate={startAnimation}
-        target={[0.008, -0.008, -0.008]}
+        target={[0.7, -0.7, -0.5]}
+        opacity={1.0}
       />
       <Coin
         texture={coinTexture}
         position={[0, 0, 0]}
         animate={startAnimation}
         target={[0, 0, 0]}
+        opacity={1.0}
       />
       <Coin
         texture={coinTexture}
-        position={[-0.005, 0.005, 0.005]}
+        position={[-0.3, 0.4, 0.3]}
         animate={startAnimation}
-        target={[-0.008, 0.008, 0.008]}
+        target={[-0.7, 0.7, 0.5]}
+        opacity={0.95}
       />
     </>
   );
@@ -74,73 +79,21 @@ const CoinStack = ({ startAnimation }) => {
 const BInstantMobile = () => {
   const [startCoinAnimation, setStartCoinAnimation] = useState(false);
   const [showCoins, setShowCoins] = useState(false);
-  const [canvasKey, setCanvasKey] = useState(0);
-  
-  const { 
-    contextLost, 
-    retryCount, 
-    handleContextLost, 
-    handleContextRestored 
-  } = useWebGLContextManager({
-    maxRetries: 3,
-    recoveryDelay: 1000,
-    enableAutoRecovery: true
-  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      console.log("Setting coin animation and show coins to true");
       setStartCoinAnimation(true);
       setShowCoins(true);
-    }, 800);
+    }, 0); // Start immediately when component mounts
     return () => clearTimeout(timer);
   }, []);
 
-  // Enhanced canvas creation with better WebGL settings for mobile
-  const handleCanvasCreated = useCallback(({ gl }) => {
-    // Use the shared WebGL context setup for mobile
-    const cleanup = setupWebGLContext(gl, {
-      isMobile: true,
-      onContextLost: handleContextLost,
-      onContextRestored: handleContextRestored
-    });
-
-    return cleanup;
-  }, [handleContextLost, handleContextRestored]);
-
-  // Force canvas recreation on context loss
+  // Debug logging
   useEffect(() => {
-    if (contextLost) {
-      setCanvasKey(prev => prev + 1);
-    }
-  }, [contextLost]);
-
-  // Fallback UI when WebGL is not available on mobile
-  if (contextLost && retryCount >= 3) {
-    return (
-      <div
-        className="relative"
-        style={{
-          width: "100%",
-          height: "100vh",
-          backgroundColor: "#000",
-          overflow: "hidden",
-        }}
-      >
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center text-white p-6">
-            <h2 className="text-xl mb-4">Mobile Graphics Unavailable</h2>
-            <p className="text-sm mb-4">Your device doesn't support WebGL graphics.</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    console.log("startCoinAnimation:", startCoinAnimation);
+    console.log("showCoins:", showCoins);
+  }, [startCoinAnimation, showCoins]);
 
   return (
     <div
@@ -152,180 +105,168 @@ const BInstantMobile = () => {
         overflow: "hidden",
       }}
     >
-      <div
-        className="absolute"
-        style={{
-          inset: 0,
-          pointerEvents: "none",
-          background:
-            "radial-gradient(41.99% 33.2% at 50% 50%, #092646 0%, rgba(9, 38, 70, 0) 100%)",
-          zIndex: 0,
-        }}
-      />
+      {/* Glow overlay removed - clean black background */}
 
-      {/* Coins canvas container — extremely small for mobile */}
+      {/* Coins canvas — no container constraints */}
       <div
         className="absolute"
         style={{
-          top: "307.63px",
-          left: "318.71px",
-          width: "40px",
-          height: "30px",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
           zIndex: 20,
         }}
       >
         <ThreeJSErrorBoundary>
           <Canvas
-            key={canvasKey}
-            camera={{ position: [0, 0, 50], fov: 15 }}
-            className="w-full h-full"
+            camera={{ position: [0, 0, 7.5], fov: 45 }}
+            style={{ width: "800px", height: "600px" }}
             gl={{ 
-              powerPreference: "low-power", 
-              antialias: false, 
-              alpha: true,
+              powerPreference: "low-power",
+              antialias: false,
+              alpha: false,
               preserveDrawingBuffer: false,
               failIfMajorPerformanceCaveat: false,
               stencil: false,
               depth: true
             }}
             dpr={[1, 1.5]}
-            onCreated={handleCanvasCreated}
           >
-            <Suspense fallback={null}>
-              {/* Very soft global fill */}
-              <ambientLight intensity={0.0056} color="#fff8dc" />
-
-              {/* Dim warm key light */}
-              <directionalLight
-                position={[-6, 7, 4]}
-                intensity={0.014}      // 30% lower
-                color="#ffd27f"
-              />
-
-              {/* Dim helper highlight */}
-              <spotLight
-                position={[-2, 8, 3]}
-                angle={0.5}
-                penumbra={0.5}
-                intensity={0.007}      // 30% lower
-                distance={40}
-                color="#ffebc2"
-              />
+            <Suspense fallback={
+              <div style={{ color: "white", textAlign: "center", padding: "20px" }}>
+                Loading coins...
+              </div>
+            }>
+              {/* Brighter lighting for better visibility */}
+              <ambientLight intensity={0.8} color="#ffffff" />
+              <directionalLight position={[1, 2, 1]} intensity={0.7} color="#ffffff" />
+              
               <CoinStack startAnimation={startCoinAnimation} />
             </Suspense>
           </Canvas>
         </ThreeJSErrorBoundary>
       </div>
 
-      {/* Reveal film moving up (coins below) */}
-      <motion.div
-        className="absolute"
-        style={{ inset: 0, background: "#000", zIndex: 15, pointerEvents: "none" }}
-        initial={{ y: 0 }}
-        animate={{ y: showCoins ? -100 : 0 }}
-        transition={{ duration: 9.5, ease: [0.25, 0.1, 0.25, 1], delay: 0.8 }}
-      />
+      {/* Black overlay removed - no more container structure */}
 
-      {/* CSS overlay over coins — extremely small for mobile */}
-      <div
-        className="absolute"
-        style={{
-          width: "40px",
-          height: "30px",
-          left: "318.71px",
-          top: "307.63px",
-          opacity: 0,
-          transform: "rotate(0deg)",
-          zIndex: 25,
-          pointerEvents: "none"
-        }}
-      />
+      {/* CSS overlay removed - no more box constraints */}
 
-      {/* Text overlay — positioned to match design */}
-      <div className="absolute" style={{ 
-        top: "clamp(280px, 25vh, 320px)", 
-        left: "clamp(20px, 8vw, 60px)", 
-        width: "clamp(200px, 60vw, 280px)", 
+      {/* Text overlay — centered in mobile viewport */}
+      <div className="absolute inset-0 flex items-center justify-center" style={{ 
         zIndex: 30, 
         pointerEvents: "none" 
       }}>
         <motion.div
-          initial={{ y: 60, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 2.2, ease: [0.25, 0.1, 0.25, 1] }}
-          style={{ lineHeight: 1.05 }}
+          style={{ position: "relative", width: "300px", height: "100px" }}
         >
+          {/* Left Chunk - B-Coin + Instant Value */}
           <motion.div
-            style={{ 
-              color: "#FFEFD5", 
-              fontSize: "clamp(24px, 5vw, 32px)", 
-              fontWeight: 200, 
-              fontStyle: "italic", 
-              textShadow: "0 0 12px rgba(255,215,0,0.5)" 
-            }}
-            initial={{ scaleX: 0.94, scaleY: 0.92, opacity: 0 }}
-            animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-            transition={{ duration: 1.0, ease: [0.2, 0.8, 0.2, 1] }}
+            style={{ position: "relative" }}
+            initial={{ y: 120, opacity: 0, scale: 0.8 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            transition={{ duration: 3.5, ease: [0.25, 0.1, 0.25, 1], delay: 0 }}
           >
-            B-Coin
-          </motion.div>
-          <div style={{ display: "flex", alignItems: "baseline" }}>
-            <motion.div
+            {/* B-Coin */}
+            <div
               style={{ 
-                color: "#FFEFD5", 
-                marginRight: 6, 
-                fontSize: "clamp(24px, 5vw, 32px)", 
-                fontWeight: 200, 
-                fontStyle: "italic", 
-                textShadow: "0 0 12px rgba(255,215,0,0.5)" 
+                position: "absolute",
+                width: "83px",
+                height: "30px",
+                left: "3.41px",
+                top: "0px",
+                fontFamily: "Inter, sans-serif",
+                fontStyle: "italic",
+                fontWeight: 200,
+                fontSize: "25.7199px",
+                lineHeight: "116.36%",
+                color: "#FFFFFF"
               }}
-              initial={{ scaleX: 0.94, scaleY: 0.92, opacity: 0 }}
-              animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-              transition={{ duration: 1.0, ease: [0.2, 0.8, 0.2, 1] }}
+            >
+              B-Coin
+            </div>
+            
+            {/* Instant Value */}
+            <div
+              style={{ 
+                position: "absolute",
+                width: "154px",
+                height: "30px",
+                left: "-1px",
+                top: "30.04px",
+                fontFamily: "Inter, sans-serif",
+                fontStyle: "italic",
+                fontWeight: 200,
+                fontSize: "25.7199px",
+                lineHeight: "116.36%",
+                textAlign: "center",
+                color: "#FFFFFF"
+              }}
             >
               Instant Value
-            </motion.div>
-            <motion.div
+            </div>
+            
+            {/* Dash Separator */}
+            <div
               style={{ 
-                color: "#fff", 
-                fontSize: "clamp(22px, 4.5vw, 30px)", 
-                fontWeight: 400 
+                position: "absolute",
+                width: "10.92257308959961px",
+                height: "0px",
+                top: "45.74px",
+                left: "158.72px",
+                border: "1.54px solid #FFFFFF",
+                opacity: 1
               }}
-              initial={{ scaleX: 0.94, scaleY: 0.92, opacity: 0 }}
-              animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-              transition={{ duration: 1.0, ease: [0.2, 0.8, 0.2, 1] }}
-            >
-              —
-            </motion.div>
-            <motion.div
+            />
+          </motion.div>
+          
+          {/* Right Chunk - SHARED + Instantly */}
+          <motion.div
+            style={{ position: "relative" }}
+            initial={{ y: 120, opacity: 0, scale: 0.8 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            transition={{ duration: 3.5, ease: [0.25, 0.1, 0.25, 1], delay: 0 }}
+          >
+            {/* Shared */}
+            <div
               style={{ 
-                color: "#fff", 
-                marginLeft: 6, 
-                fontSize: "clamp(26px, 5.5vw, 34px)", 
-                fontWeight: 500, 
-                textTransform: "uppercase" 
+                position: "absolute",
+                width: "116px",
+                height: "33px",
+                left: "175.1px",
+                top: "28.33px",
+                fontFamily: "EB Garamond, serif",
+                fontStyle: "normal",
+                fontWeight: 500,
+                fontSize: "28.6868px",
+                lineHeight: "116.36%",
+                textAlign: "right",
+                textTransform: "uppercase",
+                color: "#FFFFFF",
+                textShadow: "0px 0px 11.6052px rgba(255, 255, 255, 0.25)"
               }}
-              initial={{ scaleX: 0.94, scaleY: 0.92, opacity: 0 }}
-              animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-              transition={{ duration: 1.0, ease: [0.2, 0.8, 0.2, 1] }}
             >
               SHARED
-            </motion.div>
-          </div>
-          <motion.div
-            style={{ 
-              color: "#FFEFD5", 
-              fontSize: "clamp(24px, 5vw, 32px)", 
-              fontWeight: 200, 
-              alignSelf: "flex-end", 
-              fontStyle: "italic", 
-              textShadow: "0 0 12px rgba(255,215,0,0.5)" 
-            }}
-            initial={{ scaleX: 0.94, scaleY: 0.92, opacity: 0 }}
-            animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-            transition={{ duration: 1.0, ease: [0.2, 0.8, 0.2, 1] }}
-          >
-            Instantly
+            </div>
+            
+            {/* Instantly */}
+            <div
+              style={{ 
+                position: "absolute",
+                width: "102px",
+                height: "30px",
+                left: "185.37px",
+                top: "61.78px",
+                fontFamily: "Inter, sans-serif",
+                fontStyle: "italic",
+                fontWeight: 200,
+                fontSize: "25.7199px",
+                lineHeight: "116.36%",
+                textAlign: "right",
+                color: "#FFFFFF"
+              }}
+            >
+              Instantly
+            </div>
           </motion.div>
         </motion.div>
       </div>

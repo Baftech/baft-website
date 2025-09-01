@@ -1,0 +1,156 @@
+/* Mobile Transitions CSS */
+.transition-element {
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.page-transition-container {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+/* Smooth swipe indicators */
+.swipe-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.swipe-indicator.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.swipe-indicator::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-top: none;
+  border-right: none;
+  transform: rotate(-45deg);
+  animation: swipeArrow 1.5s ease-in-out infinite;
+}
+
+@keyframes swipeArrow {
+  0%, 100% {
+    transform: rotate(-45deg) translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: rotate(-45deg) translateY(-5px);
+    opacity: 1;
+  }
+}
+
+/* Section entrance animations */
+.section-enter {
+  opacity: 0;
+  transform: translateY(50px) scale(0.95);
+  filter: blur(10px);
+}
+
+.section-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0px);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.section-exit {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0px);
+}
+
+.section-exit-active {
+  opacity: 0;
+  transform: translateY(-50px) scale(0.95);
+  filter: blur(10px);
+  transition: all 0.6s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
+
+/* Smooth scroll behavior */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Touch feedback */
+.touch-feedback {
+  transition: transform 0.1s ease;
+}
+
+.touch-feedback:active {
+  transform: scale(0.98);
+}
+
+/* Momentum scrolling for iOS */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+/* Section transition states */
+.section-transitioning {
+  pointer-events: none;
+  user-select: none;
+}
+
+.section-ready {
+  pointer-events: auto;
+  user-select: auto;
+}
+
+/* Performance optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Mobile-specific transitions */
+@media (max-width: 768px) {
+  .transition-element {
+    transition-duration: 0.6s;
+  }
+  
+  .section-enter-active {
+    transition-duration: 0.6s;
+  }
+  
+  .section-exit-active {
+    transition-duration: 0.4s;
+  }
+}
+
+/* High-end device optimizations */
+@media (min-resolution: 2dppx) {
+  .transition-element {
+    transition-duration: 0.4s;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .transition-element,
+  .section-enter-active,
+  .section-exit-active {
+    transition: none !important;
+    animation: none !important;
+  }
+}
