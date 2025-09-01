@@ -1,15 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import B_Fast_Mobile from "./B_Fast_Mobile.jsx";
-
-gsap.registerPlugin(ScrollTrigger);
 
 // Desktop implementation extracted to keep hooks order safe when switching to mobile
 const B_Fast_Desktop = () => {
   const contentRef = useRef(null);
   const videoRef = useRef(null);
+  const videoSectionRef = useRef(null);
   const sectionRef = useRef(null);
   const overlayRef = useRef(null);
   const starsGroup2Ref = useRef(null);
@@ -94,104 +90,71 @@ const B_Fast_Desktop = () => {
     return () => window.removeEventListener('resize', calculateVideoSizeAndSpacing);
   }, []);
 
-  useGSAP(() => {
-    // Check if refs exist before animating
-    if (!contentRef.current || !videoRef.current || !sectionRef.current || !overlayRef.current) return;
-    
-    // Set initial heading state - start hidden and above position
-    gsap.set(contentRef.current, { opacity: 0, y: -80 }); // Heading starts hidden and above position
-    
-    // Always start with overlay hidden, we'll show it conditionally
-    gsap.set(overlayRef.current, { opacity: 0 });
-    if (starsGroup2Ref.current) gsap.set(starsGroup2Ref.current, { opacity: 0 });
-    if (starsGroup1Ref.current) gsap.set(starsGroup1Ref.current, { opacity: 0 });
-    if (orbitingStarsRef.current) gsap.set(orbitingStarsRef.current, { opacity: 0 });
-    
-    // Track scroll direction to determine if coming from bottom
-    let lastScrollY = window.scrollY;
-    let isFromBottom = false;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Detect scroll direction
-            const currentScrollY = window.scrollY;
-            isFromBottom = currentScrollY < lastScrollY; // scrolling up
-            
-            // Reset heading for animation but ensure it becomes visible
-            gsap.set(contentRef.current, { opacity: 0, y: -80 });
-            
-            const tl = gsap.timeline();
-            
-            if (isFromBottom) {
-              // Coming from bottom → run page reveal
-              gsap.set(overlayRef.current, { opacity: 1 });
-              
-              tl.to(overlayRef.current, {
-                opacity: 0,
-                duration: 2.5,
-                ease: "power2.out"
-              })
-              .to(contentRef.current, {
-                opacity: 1,
-                y: 0,
-                duration: 1.2,
-                ease: "power1.inOut"
-              }, "+=2.0")
-              .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
-                opacity: 1,
-                duration: 2.0,
-                ease: "power1.out"
-              }, "<");
-            } else {
-              // Normal scroll from top → just animate heading
-              tl.to(contentRef.current, {
-                opacity: 1,
-                y: 0,
-                duration: 1.2,
-                ease: "power1.inOut",
-                delay: 1.5
-              })
-              .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
-                opacity: 1,
-                duration: 2.0,
-                ease: "power1.out"
-              }, "<");
-            }
-            
-            lastScrollY = currentScrollY; // ✅ update scroll position
-          } else {
-            // Don't reset content when leaving - let the animation handle it
-            lastScrollY = window.scrollY;
-          }
-        });
-      },
-      {
-        threshold: 0.3, // Trigger when 30% of section is visible
-        rootMargin: "0px 0px -20% 0px"
-      }
-    );
-    
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+  // Ensure content is visible immediately when component mounts
+  useEffect(() => {
+    // Start with video hidden and text hidden
+    if (videoSectionRef.current) {
+      videoSectionRef.current.style.opacity = '0';
+      videoSectionRef.current.style.transform = 'scale(0.8)';
+    }
+    if (contentRef.current) {
+      // Start with text hidden and above position for slide-down animation
+      const el = contentRef.current;
+      el.style.opacity = '0';
+      el.style.transform = 'translate3d(0, -60px, 0)';
+      el.style.willChange = 'opacity, transform';
+      el.style.backfaceVisibility = 'hidden';
+      el.style.WebkitBackfaceVisibility = 'hidden';
+      el.style.perspective = '1000px';
+      el.style.contain = 'layout paint style';
     }
     
-    // Cleanup function
-    return () => {
-      observer.disconnect();
-      gsap.killTweensOf([contentRef.current, overlayRef.current, starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current]);
-    };
+    // Animation sequence: Video appears first, then text slides down
+    setTimeout(() => {
+      // Step 1: Video appears with scale and fade effect
+      if (videoSectionRef.current) {
+        videoSectionRef.current.style.transition = 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+        videoSectionRef.current.style.opacity = '1';
+        videoSectionRef.current.style.transform = 'scale(1)';
+      }
+    }, 200); // Video starts appearing after 200ms
+    
+    setTimeout(() => {
+      // Step 2: Text slides down after video is visible with smoother easing
+      const el = contentRef.current;
+      if (!el) return;
+      // Ensure the initial styles are committed before transitioning
+      el.style.transition = 'none';
+      void el.offsetHeight; // force reflow
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          el.style.transition = 'opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1), transform 1.5s cubic-bezier(0.22, 1, 0.36, 1)';
+          el.style.opacity = '1';
+          el.style.transform = 'translate3d(0, 0, 0)';
+        });
+      });
+    }, 800); // Text starts sliding down after 800ms (600ms after video starts)
+    
+    if (overlayRef.current) {
+      // Keep overlay hidden
+      overlayRef.current.style.opacity = '0';
+    }
+    if (starsGroup2Ref.current) {
+      starsGroup2Ref.current.style.opacity = '1';
+    }
+    if (starsGroup1Ref.current) {
+      starsGroup1Ref.current.style.opacity = '1';
+    }
+    if (orbitingStarsRef.current) {
+      orbitingStarsRef.current.style.opacity = '1';
+    }
   }, []);
 
+
+
   return (
-    <section ref={sectionRef} className="relative w-full h-screen overflow-hidden" style={{ backgroundColor: '#ffffff' }} data-theme="light">
-      {/* Reveal Overlay - starts covering everything, then fades out */}
-      <div 
-        ref={overlayRef}
-        className="absolute inset-0 z-50 pointer-events-none"
-        style={{ backgroundColor: '#ffffff' }}
-      />
+    <section ref={sectionRef} className="relative w-full h-screen overflow-hidden b-fast-section" style={{ backgroundColor: '#ffffff' }} data-theme="light">
+
       
       {/* Content Container */}
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-start" style={{ backgroundColor: '#ffffff', textAlign: 'center' }}>
@@ -278,19 +241,23 @@ const B_Fast_Desktop = () => {
 
 
                 {/* Video Section */}
-        <div className="relative w-full mx-auto mac-margin" style={{ 
-          backgroundColor: 'transparent',
-          position: 'relative',
-          flex: '1 1 auto', // Allow growing and shrinking, but maintain aspect ratio
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: 'clamp(500px, 70vh, 1000px)', // Much bigger video: 500px minimum, scales to 1000px
-          maxHeight: 'clamp(700px, 90vh, 1200px)', // Much bigger video: 700px minimum, scales to 1200px
-          marginTop: 'clamp(60px, 6vh, 100px)', // Move video a bit higher - reduced from 80px to 60px
-          marginLeft: 'clamp(5px, 0.5vw, 5px)', // X-5 margin for bigger screens
-          marginRight: 'clamp(5px, 0.5vw, 5px)' // X-5 margin for bigger screens
-        }}>
+        <div 
+          ref={videoSectionRef}
+          className="relative w-full mx-auto mac-margin" 
+          style={{ 
+            backgroundColor: 'transparent',
+            position: 'relative',
+            flex: '1 1 auto', // Allow growing and shrinking, but maintain aspect ratio
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 'clamp(500px, 70vh, 1000px)', // Much bigger video: 500px minimum, scales to 1000px
+            maxHeight: 'clamp(700px, 90vh, 1200px)', // Much bigger video: 700px minimum, scales to 1200px
+            marginTop: 'clamp(60px, 6vh, 100px)', // Move video a bit higher - reduced from 80px to 60px
+            marginLeft: 'clamp(5px, 0.5vw, 5px)', // X-5 margin for bigger screens
+            marginRight: 'clamp(5px, 0.5vw, 5px)' // X-5 margin for bigger screens
+          }}
+        >
           {/* Centered Video Glow (deeper ellipse) */}
           <div style={{
             position: 'absolute',

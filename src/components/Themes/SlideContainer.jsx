@@ -12,9 +12,8 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [canScrollToNext, setCanScrollToNext] = useState(true);
   const [canScrollToPrev, setCanScrollToPrev] = useState(true);
   const totalSlides = React.Children.count(children);
-  const [showAboutCrossfade, setShowAboutCrossfade] = useState(false);
-  const [aboutCrossfadeFadeOut, setAboutCrossfadeFadeOut] = useState(false);
-  const [aboutCrossfadeOpaque, setAboutCrossfadeOpaque] = useState(false);
+  const [isAboutFadeOut, setIsAboutFadeOut] = useState(false);
+  const [crossfadeOpacity, setCrossfadeOpacity] = useState(0);
   const lastNavTime = useRef(0);
   const navCooldownMs = 300;
   const momentumGuardUntilRef = useRef(0);
@@ -71,13 +70,15 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         (slideIndex === 3 && newIndex === 4) ||
         (slideIndex === 4 && newIndex === 5) ||
         (slideIndex === 5 && newIndex === 6) ||
-        (slideIndex === 6 && newIndex === 7)
+        (slideIndex === 6 && newIndex === 7) ||
+        (slideIndex === 7 && newIndex === 8)
       );
       const movingDownSeamless = direction === 'down' && (
         (slideIndex === 4 && newIndex === 3) ||
         (slideIndex === 5 && newIndex === 4) ||
         (slideIndex === 6 && newIndex === 5) ||
-        (slideIndex === 7 && newIndex === 6)
+        (slideIndex === 7 && newIndex === 6) ||
+        (slideIndex === 8 && newIndex === 7)
       );
       const isSeamlessTransition = movingUpSeamless || movingDownSeamless;
       // Optimized timing: seamless 1.2s for instant feel, banner overlay 1.6s
@@ -110,51 +111,51 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   }, [totalSlides, onSlideChange, isTransitioning, slideIndex]);
 
   // Touch gesture handlers (element-level)
-  const handleTouchStart = useCallback((e) => {
-    if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
-      if (e && e.cancelable) e.preventDefault();
-      return;
-    }
-    if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
-    touchStartY.current = e.touches[0].clientY;
-  }, [isTransitioning]);
+           const handleTouchStart = useCallback((e) => {
+      if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
+        if (e && e.cancelable) e.preventDefault();
+        return;
+      }
+     if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
+     touchStartY.current = e.touches[0].clientY;
+   }, [isTransitioning]);
 
-  const handleTouchMove = useCallback((e) => {
-    if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
-      if (e && e.cancelable) e.preventDefault();
-      return;
-    }
-    // Allow native scrolling otherwise; do not prevent default
-  }, [isTransitioning]);
+           const handleTouchMove = useCallback((e) => {
+      if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
+        if (e && e.cancelable) e.preventDefault();
+        return;
+      }
+     // Allow native scrolling otherwise; do not prevent default
+   }, [isTransitioning]);
 
-  const handleTouchEnd = useCallback((e) => {
-    if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
-      if (e && e.cancelable) e.preventDefault();
-      return;
-    }
-    if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
-    const now = Date.now();
-    if (now - lastNavTime.current < navCooldownMs) return;
+           const handleTouchEnd = useCallback((e) => {
+      if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
+        if (e && e.cancelable) e.preventDefault();
+        return;
+      }
+     if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
+     const now = Date.now();
+     if (now - lastNavTime.current < navCooldownMs) return;
 
-    const endY = e.changedTouches[0].clientY;
-    const distance = touchStartY.current - endY;
-    if (Math.abs(distance) < minSwipeDistance) return;
+     const endY = e.changedTouches[0].clientY;
+     const distance = touchStartY.current - endY;
+     if (Math.abs(distance) < minSwipeDistance) return;
 
-    const element = currentSlideRef.current;
-    if (!element) return;
-    const atTop = element.scrollTop <= scrollThreshold;
-    const atBottom = element.scrollTop >= (element.scrollHeight - element.clientHeight - scrollThreshold);
+     const element = currentSlideRef.current;
+     if (!element) return;
+     const atTop = element.scrollTop <= scrollThreshold;
+     const atBottom = element.scrollTop >= (element.scrollHeight - element.clientHeight - scrollThreshold);
 
-    if (distance > 0 && atBottom && slideIndex < totalSlides - 1) {
-      // Swipe up at bottom -> next slide
-      lastNavTime.current = now;
-      handleSlideChange(slideIndex + 1);
-    } else if (distance < 0 && atTop && slideIndex > 0) {
-      // Swipe down at top -> previous slide
-      lastNavTime.current = now;
-      handleSlideChange(slideIndex - 1);
-    }
-  }, [isTransitioning, slideIndex, totalSlides, handleSlideChange]);
+     if (distance > 0 && atBottom && slideIndex < totalSlides - 1) {
+       // Swipe up at bottom -> next slide
+       lastNavTime.current = now;
+       handleSlideChange(slideIndex + 1);
+     } else if (distance < 0 && atTop && slideIndex > 0) {
+       // Swipe down at top -> previous slide
+       lastNavTime.current = now;
+       handleSlideChange(slideIndex - 1);
+     }
+   }, [isTransitioning, slideIndex, totalSlides, handleSlideChange]);
 
   // Attach non-passive touch listeners so preventDefault works when needed (iOS/Android)
   useEffect(() => {
@@ -176,13 +177,13 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     };
   }, [handleTouchStart, handleTouchMove, handleTouchEnd, slideIndex]);
 
-  const handleWheel = useCallback((e) => {
-    if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
-      // Prevent momentum scroll from affecting the next slide during transitions
-      if (e && e.cancelable) e.preventDefault();
-      return;
-    }
-    if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
+           const handleWheel = useCallback((e) => {
+      if (isTransitioning || Date.now() < momentumGuardUntilRef.current) {
+        // Prevent momentum scroll from affecting the next slide during transitions
+        if (e && e.cancelable) e.preventDefault();
+        return;
+      }
+     if (typeof window !== 'undefined' && (window.__videoHandoffActive || window.__aboutPinnedActive)) return;
 
     const element = currentSlideRef.current;
     if (!element) return;
@@ -401,22 +402,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         });
       }
     }
-    
-    // Special optimization for Features section (slide 4)
-    if (slideIndex === 4) {
-      // Force immediate rendering of Features section
-      requestAnimationFrame(() => {
-        const featuresSection = document.getElementById('features');
-        if (featuresSection) {
-          // Ensure immediate visibility
-          featuresSection.style.opacity = '1';
-          featuresSection.style.visibility = 'visible';
-          featuresSection.style.transform = 'none';
-          // Force GPU acceleration
-          featuresSection.style.willChange = 'auto';
-        }
-      });
-    }
   }, [slideIndex]);
   
   // Listen for About section pinned end to advance to next slide (pre-footer)
@@ -425,42 +410,46 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       if (isTransitioning) return;
       const nextIndex = Math.min(slideIndex + 1, totalSlides - 1);
       if (nextIndex !== slideIndex) {
-        // Prepare a smooth fade-out transition to pre-footer
-        setShowAboutCrossfade(true);
-        setAboutCrossfadeOpaque(false); // start transparent
-        setAboutCrossfadeFadeOut(false);
+        // Create a true crossfade effect using state-based approach
+        setIsAboutFadeOut(true);
+        setCrossfadeOpacity(1);
         
-        // Fade to black smoothly over 800ms
+        // After the crossfade overlay appears, change the slide
         setTimeout(() => {
-          setAboutCrossfadeOpaque(true);
-        }, 50);
-        
-        // Once fully black, change slide under cover
-        setTimeout(() => {
-          // Ensure current slide is at top without animation
-          const element = currentSlideRef.current;
-          if (element) {
-            try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
-          }
-          handleSlideChange(nextIndex);
+          // Change slide
+          setPreviousSlideIndex(slideIndex);
+          setSlideIndex(nextIndex);
+          onSlideChange?.(nextIndex);
           
-          // After a brief hold, fade the cover out smoothly
+          // Wait for new slide to render, then fade out the overlay
           setTimeout(() => {
-            setAboutCrossfadeFadeOut(true);
-            // Remove overlay after fade completes
+            setCrossfadeOpacity(0);
+            
+            // After fade-out completes, reset everything
             setTimeout(() => {
-              setShowAboutCrossfade(false);
-              setAboutCrossfadeFadeOut(false);
-              setAboutCrossfadeOpaque(false);
-            }, 1000);
-          }, 300);
-        }, 850); // allow ~850ms for fade-in to black
+              setIsAboutFadeOut(false);
+              setCrossfadeOpacity(0);
+              
+              // Force scroll permissions check for the new slide
+              setTimeout(() => {
+                if (currentSlideRef.current) {
+                  const element = currentSlideRef.current;
+                  const canScrollUp = element.scrollTop > scrollThreshold;
+                  const canScrollDown = element.scrollTop < (element.scrollHeight - element.clientHeight - scrollThreshold);
+                  
+                  setCanScrollToPrev(canScrollUp);
+                  setCanScrollToNext(canScrollDown);
+                }
+              }, 50);
+            }, 1200); // Match the fade-out duration
+          }, 300); // Wait for new slide to render
+        }, 100); // Brief delay to ensure overlay is visible
       }
     };
     
     window.addEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
     return () => window.removeEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
-  }, [slideIndex, totalSlides, isTransitioning, handleSlideChange]);
+  }, [slideIndex, totalSlides, isTransitioning, onSlideChange]);
   
   const isSeamlessUp = isTransitioning && transitionDirection === 'up' && 
     ((previousSlideIndex === 3 && slideIndex === 4) || 
@@ -475,6 +464,38 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
      (previousSlideIndex === 7 && slideIndex === 6) ||
      (previousSlideIndex === 8 && slideIndex === 7));
   const isSeamless = seamlessEnabled && (isSeamlessUp || isSeamlessDown);
+
+  // Special optimization for Features section (slide 4)
+  if (slideIndex === 4) {
+    // Force immediate rendering of Features section
+    requestAnimationFrame(() => {
+      const featuresSection = document.getElementById('features');
+      if (featuresSection) {
+        // Ensure immediate visibility
+        featuresSection.style.opacity = '1';
+        featuresSection.style.visibility = 'visible';
+        featuresSection.style.transform = 'none';
+        // Force GPU acceleration
+        featuresSection.style.willChange = 'auto';
+      }
+    });
+  }
+  
+  // Special optimization for B_Fast section (slide 3)
+  if (slideIndex === 3) {
+    // Force immediate rendering of B_Fast section
+    requestAnimationFrame(() => {
+      const bFastSection = document.querySelector('.b-fast-section');
+      if (bFastSection) {
+        // Ensure immediate visibility
+        bFastSection.style.opacity = '1';
+        bFastSection.style.visibility = 'visible';
+        bFastSection.style.transform = 'none';
+        // Force GPU acceleration
+        bFastSection.style.willChange = 'auto';
+      }
+    });
+  }
 
   return (
     <div className={`slide-container relative w-full h-screen overflow-hidden ${isSeamless ? 'seamless-mode' : ''}`} tabIndex={0} onKeyDown={handleKeyDown}>
@@ -528,17 +549,18 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         />
       )}
 
-      {/* About section crossfade overlay for smooth transition to pre-footer */}
-      {showAboutCrossfade && (
-        <div 
-          className={`pointer-events-none absolute inset-0 z-40 about-fade-transition`}
-          style={{ 
-            background: '#000', 
-            opacity: aboutCrossfadeFadeOut ? 0 : (aboutCrossfadeOpaque ? 1 : 0),
-            willChange: 'opacity' 
-          }}
-        />
-      )}
+                           {/* About section crossfade overlay for smooth transition to pre-footer */}
+        {isAboutFadeOut && (
+          <div 
+            className="pointer-events-none fixed inset-0 z-50 transition-opacity duration-1200 ease-in-out"
+            style={{ 
+              background: '#000', 
+              opacity: crossfadeOpacity,
+              willChange: 'opacity',
+              pointerEvents: 'none'
+            }}
+          />
+        )}
     </div>
   );
 };
