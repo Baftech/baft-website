@@ -401,6 +401,22 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         });
       }
     }
+    
+    // Special optimization for Features section (slide 4)
+    if (slideIndex === 4) {
+      // Force immediate rendering of Features section
+      requestAnimationFrame(() => {
+        const featuresSection = document.getElementById('features');
+        if (featuresSection) {
+          // Ensure immediate visibility
+          featuresSection.style.opacity = '1';
+          featuresSection.style.visibility = 'visible';
+          featuresSection.style.transform = 'none';
+          // Force GPU acceleration
+          featuresSection.style.willChange = 'auto';
+        }
+      });
+    }
   }, [slideIndex]);
   
   // Listen for About section pinned end to advance to next slide (pre-footer)

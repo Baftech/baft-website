@@ -5,14 +5,10 @@ import { FaCreditCard, FaUser, FaGift, FaShieldAlt } from "react-icons/fa";
 const Cards = () => {
   const cardsRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const sectionRef = useRef(null);
-  const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
-  const [overlayActive, setOverlayActive] = useState(false);
-  const overlayTimerRef = useRef(null);
   const currentIndexRef = useRef(0);
   const prevIndexRef = useRef(null);
   const rotateIntervalRef = useRef(null);
-  
+   
   const featuresData = [
     {
       icon: null,
@@ -51,7 +47,8 @@ const Cards = () => {
     if (immediate) {
       gsap.set(card, props);
     } else {
-      gsap.to(card, { ...props, duration: 1.2, ease: "power2.inOut", overwrite: "auto" });
+      // Reduced duration from 1.2s to 0.4s for faster transitions
+      gsap.to(card, { ...props, duration: 0.4, ease: "power2.out", overwrite: "auto" });
     }
   };
 
@@ -66,8 +63,8 @@ const Cards = () => {
       scale: 0.9,
       rotateZ: 15,
       zIndex: 5,
-      duration: 1.2,
-      ease: "power2.inOut"
+      duration: 0.4, // Reduced from 1.2s to 0.4s
+      ease: "power2.out"
     });
   };
 
@@ -190,88 +187,16 @@ const Cards = () => {
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  // Scroll-in appearance for the whole section
-  useEffect(() => {
-    if (!sectionRef.current || hasAnimatedIn) return;
-
-    const el = sectionRef.current;
-
-    const findScrollParent = (node) => {
-      let cur = node.parentElement;
-      while (cur) {
-        const style = window.getComputedStyle(cur);
-        const overflowY = style.overflowY;
-        const canScroll = cur.scrollHeight > cur.clientHeight;
-        if ((overflowY === 'auto' || overflowY === 'scroll') && canScroll) return cur;
-        cur = cur.parentElement;
-      }
-      return window;
-    };
-
-    const scrollParent = findScrollParent(el);
-
-    const checkVisibility = () => {
-      if (hasAnimatedIn) return;
-      const rect = el.getBoundingClientRect();
-      const vh = window.innerHeight || document.documentElement.clientHeight;
-      const visible = rect.top < vh * 0.85 && rect.bottom > vh * 0.15;
-      if (visible) {
-        el.classList.remove('pre-enter');
-        el.classList.add('animate-slideInFromBottom');
-        setHasAnimatedIn(true);
-        setOverlayActive(true);
-        
-        if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-        overlayTimerRef.current = setTimeout(() => {
-          setOverlayActive(false);
-        }, 1000);
-        detach();
-      }
-    };
-
-    const onScroll = () => checkVisibility();
-    const onResize = () => checkVisibility();
-
-    const attach = () => {
-      if (scrollParent === window) {
-        window.addEventListener('scroll', onScroll, { passive: true });
-      } else {
-        scrollParent.addEventListener('scroll', onScroll, { passive: true });
-      }
-      window.addEventListener('resize', onResize);
-      // initial check
-      requestAnimationFrame(checkVisibility);
-    };
-
-    const detach = () => {
-      if (scrollParent === window) {
-        window.removeEventListener('scroll', onScroll);
-      } else if (scrollParent && scrollParent.removeEventListener) {
-        scrollParent.removeEventListener('scroll', onScroll);
-      }
-      window.removeEventListener('resize', onResize);
-    };
-
-    attach();
-    return () => {
-      detach();
-      if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-    };
-  }, [hasAnimatedIn]);
-
   return (
     <div className="bg-white" data-theme="light">
-                    <section
-          id="features"
-          className="relative overflow-hidden py-8 sm:py-12 md:py-8 pre-enter"
-          style={{
-            marginTop: "clamp(0.5vh, 1vh, 2vh)",
-            marginBottom: "0.1cm"
-          }}
-          ref={sectionRef}
-        >
-        {overlayActive && <div className="screen-reveal-overlay" />}
-        
+      <section
+        id="features"
+        className="relative overflow-hidden py-8 sm:py-12 md:py-8"
+        style={{
+          marginTop: "clamp(0.5vh, 1vh, 2vh)",
+          marginBottom: "0.1cm"
+        }}
+      >
         {/* Mobile Layout - Stacked vertically */}
         <div 
           className="w-full max-w-4xl mx-auto flex flex-col gap-0 items-center px-4 sm:px-6 md:px-8"

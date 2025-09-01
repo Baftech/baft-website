@@ -6,14 +6,10 @@ import FeaturesMobile from "./Features_Mobile";
 const Cards = () => {
   const cardsRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const sectionRef = useRef(null);
-  const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
-  const [overlayActive, setOverlayActive] = useState(false);
-  const overlayTimerRef = useRef(null);
-  const currentIndexRef = useRef(0);
-  const rotateIntervalRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const currentIndexRef = useRef(0);
+  const rotateIntervalRef = useRef(null);
 
   const featuresData = [
           {
@@ -87,7 +83,8 @@ const Cards = () => {
     if (immediate) {
       gsap.set(card, props);
     } else {
-      gsap.to(card, { ...props, duration: 0.8, ease: "power3.out", overwrite: "auto" });
+      // Reduced duration from 0.8s to 0.3s for faster transitions
+      gsap.to(card, { ...props, duration: 0.3, ease: "power2.out", overwrite: "auto" });
     }
   };
 
@@ -218,74 +215,6 @@ const Cards = () => {
     updateCardPositions(currentIndex, false);
   }, [currentIndex]);
 
-  // Scroll-in appearance for the whole section
-  useEffect(() => {
-    if (!sectionRef.current || hasAnimatedIn) return;
-
-    const el = sectionRef.current;
-
-    const findScrollParent = (node) => {
-      let cur = node.parentElement;
-      while (cur) {
-        const style = window.getComputedStyle(cur);
-        const overflowY = style.overflowY;
-        const canScroll = cur.scrollHeight > cur.clientHeight;
-        if ((overflowY === 'auto' || overflowY === 'scroll') && canScroll) return cur;
-        cur = cur.parentElement;
-      }
-      return window;
-    };
-
-    const scrollParent = findScrollParent(el);
-
-    const checkVisibility = () => {
-      if (hasAnimatedIn) return;
-      const rect = el.getBoundingClientRect();
-      const vh = window.innerHeight || document.documentElement.clientHeight;
-      const visible = rect.top < vh * 0.85 && rect.bottom > vh * 0.15;
-      if (visible) {
-        el.classList.remove('pre-enter');
-        el.classList.add('animate-slideInFromBottom');
-        setHasAnimatedIn(true);
-        setOverlayActive(true);
-        if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-        overlayTimerRef.current = setTimeout(() => {
-          setOverlayActive(false);
-        }, 1000);
-        detach();
-      }
-    };
-
-    const onScroll = () => checkVisibility();
-    const onResize = () => checkVisibility();
-
-    const attach = () => {
-      if (scrollParent === window) {
-        window.addEventListener('scroll', onScroll, { passive: true });
-      } else {
-        scrollParent.addEventListener('scroll', onScroll, { passive: true });
-      }
-      window.addEventListener('resize', onResize);
-      // initial check
-      requestAnimationFrame(checkVisibility);
-    };
-
-    const detach = () => {
-      if (scrollParent === window) {
-        window.removeEventListener('scroll', onScroll);
-      } else if (scrollParent && scrollParent.removeEventListener) {
-        scrollParent.removeEventListener('scroll', onScroll);
-      }
-      window.removeEventListener('resize', onResize);
-    };
-
-    attach();
-    return () => {
-      detach();
-      if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-    };
-  }, [hasAnimatedIn]);
-
   // Return mobile version if on mobile device
   if (isMobile) {
     return <FeaturesMobile />;
@@ -295,15 +224,13 @@ const Cards = () => {
     <div className="bg-white" data-theme="light">
       <section
         id="features"
-        className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 sm:py-16 lg:py-20 xl:py-24 2xl:py-28 pre-enter features-section"
+        className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 sm:py-16 lg:py-20 xl:py-24 2xl:py-28 features-section"
         style={{
           marginTop: "clamp(2vh, 4vh, 8vh)",
           marginLeft: "1cm",
           marginRight: "1cm"
         }}
-        ref={sectionRef}
       >
-        {overlayActive && <div className="screen-reveal-overlay" />}
         <div className="w-full max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 xl:gap-20 2xl:gap-24 items-start lg:items-center">
 
           {/* Left Column - Features Text */}

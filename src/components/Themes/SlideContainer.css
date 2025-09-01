@@ -798,3 +798,47 @@
 .slide-layer-10 { z-index: 10; }
 .slide-layer-20 { z-index: 20; }
 .slide-layer-30 { z-index: 30; }
+
+/* Features section as slide content - immediate rendering */
+.slide-container .features-section {
+  /* Immediate visibility - no delays */
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  /* No animation delays */
+  animation: none !important;
+  transition: none !important;
+  /* Force immediate rendering */
+  will-change: auto !important;
+  /* Ensure content is visible */
+  display: block !important;
+  /* Prevent any scroll-triggered effects */
+  position: relative !important;
+  z-index: auto !important;
+  /* Ensure smooth integration with slide system */
+  overflow: visible !important;
+}
+
+/* Features section images - immediate loading */
+.slide-container .features-section img {
+  /* Immediate visibility */
+  opacity: 1 !important;
+  visibility: visible !important;
+  /* No transition delays */
+  transition: none !important;
+  /* Force immediate rendering */
+  will-change: auto !important;
+}
+
+/* Ensure features section doesn't interfere with slide transitions */
+.slide-container.seamless-mode .features-section {
+  /* When in seamless mode, ensure features section is fully visible */
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  /* No animation interference */
+  animation: none !important;
+  transition: none !important;
+  /* Prevent any overlay effects */
+  z-index: auto !important;
+}
