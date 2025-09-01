@@ -129,11 +129,11 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
             className="w-16 h-auto sm:w-18 md:w-20 lg:w-22 xl:w-24 cursor-pointer"
             onClick={() => {
               if (typeof onNavigate === 'function') {
-                onNavigate('hero');
+                onNavigate('hero', { instant: true });
               } else {
                 document
                   .getElementById("hero")
-                  ?.scrollIntoView({ behavior: "smooth" });
+                  ?.scrollIntoView({ behavior: "instant" });
               }
             }}
             loading="eager"

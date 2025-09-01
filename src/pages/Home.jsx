@@ -45,9 +45,11 @@ const Home = () => {
           // Map named targets to slide indices
           // 0: Hero, 1: BaFTCoin, 2: BInstant, 3: B_Fast, 4: Features, 5: Video, 6: SafeSecure, 7: About, 8: Footer
           const slow = Boolean(opts.slow);
-          const dispatchSlowNav = (index) => {
+          const instant = Boolean(opts.instant);
+          
+          const dispatchNav = (index) => {
             try {
-              const evt = new CustomEvent('navigateToSlide', { detail: { index, slow } });
+              const evt = new CustomEvent('navigateToSlide', { detail: { index, slow, instant } });
               window.dispatchEvent(evt);
             } catch {
               setCurrentSlide(index);
@@ -55,11 +57,17 @@ const Home = () => {
           };
 
           if (target === 'hero') {
-            dispatchSlowNav(0);
+            if (instant) {
+              // Instant navigation - set slide immediately
+              setCurrentSlide(0);
+            } else {
+              // Normal navigation
+              dispatchNav(0);
+            }
             return;
           }
           if (target === 'about') {
-            dispatchSlowNav(7);
+            dispatchNav(7);
             return;
           }
         }}
