@@ -232,23 +232,30 @@ const HeroMobileComponent = () => {
     };
   }, [viewMode]); // Add viewMode dependency
 
-  // ... existing code ...
-
-  // Responsive scroll handling
+  // Optimized scroll handler for mobile performance
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      if (!animationCompletedRef.current || !wrapperRef.current || !placeholderRef.current) return;
-      if (viewMode !== 'mobile' && viewMode !== 'tablet-portrait') return; // Handle scroll for mobile and tablet portrait
-      
-      const rect = placeholderRef.current.getBoundingClientRect();
-      gsap.set(wrapperRef.current, {
-        top: rect.top,
-        left: rect.left,
-        transformOrigin: "center center",
-      });
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          if (!animationCompletedRef.current || !wrapperRef.current || !placeholderRef.current) return;
+          if (viewMode !== 'mobile' && viewMode !== 'tablet-portrait') return; // Handle scroll for mobile and tablet portrait
+          
+          const rect = placeholderRef.current.getBoundingClientRect();
+          gsap.set(wrapperRef.current, {
+            top: rect.top,
+            left: rect.left,
+            transformOrigin: "center center",
+          });
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    // Use passive event listener for better mobile performance
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [viewMode]);
 

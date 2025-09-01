@@ -1,11 +1,12 @@
 .slide-container {
-  scroll-behavior: smooth;
+  /* Remove smooth scrolling for better mobile performance */
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
   /* Enhanced smooth scrolling */
   scroll-snap-type: none;
   overscroll-behavior: none;
   /* Premium hardware acceleration */
-  will-change: transform, scroll-position;
+  will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
@@ -58,22 +59,24 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
-/* Enhanced smooth scrolling for slide content */
+/* Enhanced smooth scrolling for slide content - optimized for mobile */
 .scroll-smooth {
-  scroll-behavior: smooth;
+  /* Remove smooth scrolling for better mobile performance */
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   /* Avoid snapping inside content to keep native feel */
   scroll-snap-type: none;
 }
 
-/* Premium buttery smooth scroll enhancements */
+/* Premium buttery smooth scroll enhancements - mobile optimized */
 .buttery-smooth-scroll {
-  scroll-behavior: smooth;
+  /* Remove smooth scrolling for better mobile performance */
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
-  will-change: scroll-position, transform;
+  will-change: transform;
   /* Enhanced momentum and inertia */
   scroll-padding: 20px;
   overscroll-behavior: contain;
@@ -82,8 +85,7 @@
   /* Enhanced performance */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  /* Smooth acceleration */
-  transition: scroll-behavior 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Remove transition that can interfere with scrolling */
   /* Premium momentum scrolling */
   -webkit-overflow-scrolling: touch;
   overflow-scrolling: touch;

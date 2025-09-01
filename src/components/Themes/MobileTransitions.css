@@ -84,9 +84,10 @@
   transition: all 0.6s cubic-bezier(0.55, 0.055, 0.675, 0.19);
 }
 
-/* Smooth scroll behavior */
+/* Mobile-optimized scroll behavior */
 .smooth-scroll {
-  scroll-behavior: smooth;
+  /* Remove smooth scrolling for better mobile performance */
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
 }
 

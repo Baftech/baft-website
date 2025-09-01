@@ -101,7 +101,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
               } else {
                 document
                   .getElementById("about")
-                  ?.scrollIntoView({ behavior: "smooth" });
+                  ?.scrollIntoView({ behavior: "auto" }); // Changed from "smooth" for better mobile performance
               }
             }}
             className={`rounded-[200px] nav-btn nav-btn-size ${

@@ -429,23 +429,31 @@ const AboutMobile = () => {
   const sectionRef = useRef(null);
   const imageRef = useRef(null);
 
+  // Optimized scroll handler for mobile performance
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      if (!sectionRef.current) return;
-      
-      const rect = sectionRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      // Simple scroll progress: 0 = section visible, 1 = section scrolled out
-      let progress = 0;
-      if (rect.top < 0) {
-        progress = Math.min(1, Math.abs(rect.top) / windowHeight);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          if (!sectionRef.current) return;
+          
+          const rect = sectionRef.current.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+          let progress = 0;
+          if (rect.top < 0) {
+            progress = Math.min(1, Math.abs(rect.top) / windowHeight);
+          }
+          
+          setScrollProgress(progress);
+          ticking = false;
+        });
+        ticking = true;
       }
-      
-      setScrollProgress(progress);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    // Use passive event listener for better mobile performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

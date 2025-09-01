@@ -26,7 +26,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const currentSlideRef = useRef(null);
   const scrollThreshold = 30; // Reduced threshold for smoother transitions
   const smoothScrollOptions = {
-    behavior: 'smooth',
+    behavior: 'auto', // Changed from 'smooth' for better mobile performance
     block: 'nearest',
     inline: 'nearest'
   };
@@ -234,7 +234,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
 
     if (e.key === "ArrowDown" || e.key === "PageDown") {
       if (!atBottom && element) {
-        element.scrollBy({ top: 100, behavior: 'smooth' });
+        element.scrollBy({ top: 100, behavior: 'auto' }); // Changed from 'smooth' for better mobile performance
         return;
       }
       if (slideIndex < totalSlides - 1) {
@@ -242,7 +242,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       }
     } else if (e.key === "ArrowUp" || e.key === "PageUp") {
       if (!atTop && element) {
-        element.scrollBy({ top: -100, behavior: 'smooth' });
+        element.scrollBy({ top: -100, behavior: 'auto' }); // Changed from 'smooth' for better mobile performance
         return;
       }
       if (slideIndex > 0) {

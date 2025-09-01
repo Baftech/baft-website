@@ -244,62 +244,71 @@ const Hero = () => {
       }
     };
 
-    // Constrain scroll to prevent going beyond video end
+    // Optimized scroll constraint for mobile performance
     const constrainScroll = (e) => {
-      if (!animationCompletedRef.current || !placeholderRef.current) return;
+      if (!placeholderRef.current || !animationCompletedRef.current) return;
       
-      const placeholderRect = placeholderRef.current.getBoundingClientRect();
-      const videoBottom = placeholderRect.bottom;
-      const viewportHeight = window.innerHeight;
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      // Throttle scroll constraint checks for better mobile performance
+      if (constrainScroll.throttle) return;
+      constrainScroll.throttle = true;
       
-      // Check if video is currently playing
-      const isVideoPlaying = videoRef.current && !videoRef.current.paused && !videoRef.current.ended;
-      
-      // Calculate the maximum scroll position (video bottom should stay visible)
-      const maxScrollTop = Math.max(0, videoBottom - viewportHeight + 100); // Add 100px buffer
-      
-      // If trying to scroll beyond video end, prevent it
-      if (scrollTop > maxScrollTop) {
-        e.preventDefault();
-        e.stopPropagation();
+      requestAnimationFrame(() => {
+        constrainScroll.throttle = false;
         
-        // Add visual feedback for scroll constraint
-        const heroElement = document.getElementById('hero');
-        if (heroElement) {
-          heroElement.classList.add('scroll-limit-reached');
-          setTimeout(() => heroElement.classList.remove('scroll-limit-reached'), 500);
+        const placeholderRect = placeholderRef.current.getBoundingClientRect();
+        const videoBottom = placeholderRect.bottom;
+        const viewportHeight = window.innerHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Check if video is currently playing
+        const isVideoPlaying = videoRef.current && !videoRef.current.paused && !videoRef.current.ended;
+        
+        // Calculate the maximum scroll position (video bottom should stay visible)
+        const maxScrollTop = Math.max(0, videoBottom - viewportHeight + 100); // Add 100px buffer
+        
+        // If trying to scroll beyond video end, prevent it
+        if (scrollTop > maxScrollTop) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Add visual feedback for scroll constraint
+          const heroElement = document.getElementById('hero');
+          if (heroElement) {
+            heroElement.classList.add('scroll-limit-reached');
+            setTimeout(() => heroElement.classList.remove('scroll-limit-reached'), 500);
+          }
+          
+          // Use auto behavior for better mobile performance
+          window.scrollTo({
+            top: maxScrollTop,
+            behavior: 'auto'
+          });
+          return false;
         }
         
-        // Smooth scroll back to the boundary
-        window.scrollTo({
-          top: maxScrollTop,
-          behavior: 'smooth'
-        });
-        return false;
-      }
-      
-      // Also prevent scrolling too far up (before video starts)
-      const videoTop = placeholderRect.top;
-      const minScrollTop = Math.max(0, videoTop - 50); // 50px buffer above video
-      
-      if (scrollTop < minScrollTop) {
-        e.preventDefault();
-        e.stopPropagation();
+        // Also prevent scrolling too far up (before video starts)
+        const videoTop = placeholderRect.top;
+        const minScrollTop = Math.max(0, videoTop - 50); // 50px buffer above video
         
-        // Add visual feedback for scroll constraint
-        const heroElement = document.getElementById('hero');
-        if (heroElement) {
-          heroElement.classList.add('scroll-limit-reached');
-          setTimeout(() => heroElement.classList.remove('scroll-limit-reached'), 500);
+        if (scrollTop < minScrollTop) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Add visual feedback for scroll constraint
+          const heroElement = document.getElementById('hero');
+          if (heroElement) {
+            heroElement.classList.add('scroll-limit-reached');
+            setTimeout(() => heroElement.classList.remove('scroll-limit-reached'), 500);
+          }
+          
+          // Use auto behavior for better mobile performance
+          window.scrollTo({
+            top: minScrollTop,
+            behavior: 'auto'
+          });
+          return false;
         }
-        
-        window.scrollTo({
-          top: minScrollTop,
-          behavior: 'smooth'
-        });
-        return false;
-      }
+      });
     };
 
     window.addEventListener("resize", handleResize);
