@@ -28,7 +28,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
     }
   }, [currentSlide]);
 
-  // Hide/show on scroll
+  // Hide/show on scroll and when video is expanded
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
@@ -39,8 +39,34 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
       }
       lastScrollY = window.scrollY;
     };
+    
+    // Check for navbar-hidden attribute from video expansion
+    const checkNavbarHidden = () => {
+      const isNavbarHidden = document.documentElement.hasAttribute('data-navbar-hidden');
+      if (isNavbarHidden) {
+        setShowNavbar(false);
+      } else {
+        // Only show navbar if not scrolling down
+        if (window.scrollY <= lastScrollY || window.scrollY <= 50) {
+          setShowNavbar(true);
+        }
+      }
+    };
+    
+    // Initial check
+    checkNavbarHidden();
+    
+    // Listen for scroll events
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Listen for attribute changes
+    const observer = new MutationObserver(checkNavbarHidden);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-navbar-hidden'] });
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      observer.disconnect();
+    };
   }, []);
 
   // Handle window resize for responsive theme switching
