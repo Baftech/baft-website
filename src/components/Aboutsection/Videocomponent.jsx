@@ -200,13 +200,13 @@ const Videocomponent = ({ slide = false }) => {
 
   // Synchronized animation styles
   const containerStyle = {
-    transition: isExpanded ? 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+    transition: isExpanded ? 'all 3s linear' : 'none',
     transform: isExpanded ? 'scale(1)' : 'scale(1)',
   };
 
   const videoContainerStyle = {
     transition: isExpanded
-      ? 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      ? 'transform 3s linear'
       : 'none',
     transform: isExpanded ? 'translate(calc(50vw - 50%), calc(50vh - 50%))' : 'translateX(0)',
     position: 'relative',
@@ -224,7 +224,7 @@ const Videocomponent = ({ slide = false }) => {
     maxHeight: isExpanded ? '100vh' : videoMaxHeight,
     borderRadius: isExpanded ? '0px' : isSmallDesktop ? '20px' : '24px',
     transition: isExpanded
-      ? 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      ? 'width 3s linear, height 3s linear, max-height 3s linear, border-radius 3s linear, box-shadow 3s linear'
       : 'none',
     objectFit: 'contain',
     display: 'block',
@@ -236,7 +236,7 @@ const Videocomponent = ({ slide = false }) => {
     transform: isExpanded ? 'translateX(100vw)' : 'translateX(0)',
     opacity: isExpanded ? 0 : 1,
     transition: isExpanded 
-      ? 'transform 5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
+      ? 'transform 5s linear, opacity 4s linear' 
       : 'none',
     pointerEvents: isExpanded ? 'none' : 'auto',
   };
@@ -245,7 +245,7 @@ const Videocomponent = ({ slide = false }) => {
     gap: isExpanded ? '0rem' : gridGap,
     gridTemplateColumns: isExpanded ? '1fr 0fr' : '1fr 1fr',
     transition: isExpanded 
-      ? 'gap 4s cubic-bezier(0.25, 0.46, 0.45, 0.94), grid-template-columns 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
+      ? 'gap 4s linear, grid-template-columns 4s linear' 
       : 'none',
     alignItems: 'center',
     justifyContent: 'flex-start',
