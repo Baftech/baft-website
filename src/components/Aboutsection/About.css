@@ -343,3 +343,146 @@
     image-rendering: crisp-edges;
   }
 }
+
+/* Dynamically scale write layers inside any container */
+img[src*="layer1_write"],
+img[src*="layer2_write"],
+img[src*="layer3_write"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important; /* keep full layer visible */
+  object-position: center center !important;
+  pointer-events: none;
+  transform-origin: center center;
+  will-change: transform;
+  /* slight downscale globally so layers don't touch edges */
+  padding: 1.5%;
+  box-sizing: border-box;
+  transform: scale(0.97);
+}
+
+/* Slightly shrink layers on smaller desktops so they don't feel oversized */
+@media (max-width: 1440px), (max-height: 900px) {
+  img[src*="layer1_write"],
+  img[src*="layer2_write"],
+  img[src*="layer3_write"] {
+    left: 2.5%;
+    right: 2.5%;
+    top: 2.5%;
+    bottom: 2.5%;
+  }
+}
+
+/* More reduction for compact laptops */
+@media (max-width: 1280px), (max-height: 800px) {
+  img[src*="layer1_write"],
+  img[src*="layer2_write"],
+  img[src*="layer3_write"] {
+    left: 10%;
+    right: 10%;
+    top: 10%;
+    bottom: 10%;
+    transform: scale(0.86);
+  }
+}
+
+/* Very small height screens */
+@media (max-height: 720px) {
+  img[src*="layer1_write"],
+  img[src*="layer2_write"],
+  img[src*="layer3_write"] {
+    left: 9.5%;
+    right: 9.5%;
+    top: 9.5%;
+    bottom: 9.5%;
+  }
+}
+
+/* Narrow width laptops */
+@media (max-width: 1152px) {
+  img[src*="layer1_write"],
+  img[src*="layer2_write"],
+  img[src*="layer3_write"] {
+    left: 14%;
+    right: 14%;
+    top: 14%;
+    bottom: 14%;
+    transform: scale(0.82);
+  }
+}
+
+/* Aggressive downscale for very compact viewports */
+@media (max-width: 1024px), (max-height: 680px) {
+  img[src*="layer1_write"],
+  img[src*="layer2_write"],
+  img[src*="layer3_write"] {
+    left: 16%;
+    right: 16%;
+    top: 16%;
+    bottom: 16%;
+    transform: scale(0.78);
+  }
+}
+
+@media (max-width: 900px), (max-height: 620px) {
+  img[src*="layer1_write"],
+  img[src*="layer2_write"],
+  img[src*="layer3_write"] {
+    left: 18%;
+    right: 18%;
+    top: 18%;
+    bottom: 18%;
+    transform: scale(0.74);
+  }
+}
+
+/* Desktop right-column responsive container */
+.about-right-responsive {
+  width: clamp(560px, 34vw, 980px);
+  aspect-ratio: 553 / 782;
+  max-height: 96vh;
+  max-width: 92vw;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+@media (max-width: 1440px) {
+  .about-right-responsive {
+    width: clamp(500px, 36vw, 900px);
+    max-height: 96vh;
+  }
+}
+
+@media (max-width: 1366px) {
+  .about-right-responsive {
+    width: clamp(460px, 38vw, 840px);
+    max-height: 96vh;
+  }
+}
+
+@media (max-width: 1280px) {
+  .about-right-responsive {
+    width: clamp(420px, 40vw, 800px);
+    max-height: 96vh;
+  }
+}
+
+@media (min-width: 1600px) {
+  .about-right-responsive {
+    width: clamp(620px, 32vw, 1100px);
+    max-height: 98vh;
+  }
+}
+
+@media (min-width: 1920px) {
+  .about-right-responsive {
+    width: clamp(680px, 32vw, 1200px);
+  }
+}
