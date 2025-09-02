@@ -199,10 +199,6 @@ const Cards = () => {
     // Handle window resize for responsive updates
     const handleResize = () => {
       updateCardPositions(currentIndexRef.current, true);
-      // Clear stale transforms when DPI changes affect layout
-      if (cardsRef.current) {
-        gsap.set(cardsRef.current, { clearProps: "transform" });
-      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -229,13 +225,11 @@ const Cards = () => {
     <div className="bg-white" data-theme="light">
       <section
         id="features"
-        className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-16 sm:py-20 lg:py-24 xl:py-24 2xl:py-28 features-section"
+        className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 sm:py-16 lg:py-20 xl:py-24 2xl:py-28 features-section"
         style={{
-          marginTop: "clamp(4vh, 8vh, 12vh)",
-          marginBottom: "clamp(0.5vh, 1vh, 2vh)",
+          marginTop: "clamp(2vh, 4vh, 8vh)",
           marginLeft: "1cm",
-          marginRight: "1cm",
-          minHeight: "clamp(75vh, 90vh, 100vh)"
+          marginRight: "1cm"
         }}
       >
         <div className="w-full max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 xl:gap-20 2xl:gap-24 items-start lg:items-center">
@@ -243,22 +237,22 @@ const Cards = () => {
           {/* Left Column - Features Text */}
           <div 
             className="flex flex-col justify-start w-full lg:w-auto order-2 lg:order-1 z-10"
-                          style={{
-                /* Container */
-                /* Auto layout */
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start",
-                padding: "0px",
-                width: "clamp(400px, 60vw, 757.63px)",
-                height: "clamp(500px, 75vh, 900px)",
-                transform: "rotate(0.08deg)",
-                /* Inside auto layout */
-                flex: "none",
-                order: 0,
-                flexGrow: 1
-              }}
+            style={{
+              /* Container */
+              /* Auto layout */
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              padding: "0px",
+              width: "clamp(400px, 60vw, 757.63px)",
+              height: "clamp(600px, 80vh, 1023.77px)",
+              transform: "rotate(0.08deg)",
+              /* Inside auto layout */
+              flex: "none",
+              order: 0,
+              flexGrow: 1
+            }}
           >
             <p
               className="font-normal mb-3 sm:mb-4 lg:mb-5 xl:mb-6 flex items-center gap-2"
@@ -276,11 +270,11 @@ const Cards = () => {
               className="leading-tight font-bold text-[#1966BB]"
               style={{ 
                 fontFamily: "EB Garamond, serif",
-                fontSize: "var(--title-fs)",
-                lineHeight: "var(--title-lh)",
+                fontSize: "clamp(24px, 5.5vw, 87px)",
+                lineHeight: "clamp(28px, 6vw, 90px)",
                 margin: 0,
                 padding: 0,
-                marginBottom: "clamp(0.8cm, 3vh, 2.5cm)"
+                marginBottom: "1cm"
               }}
             >
               <span className="block">All in</span>
@@ -293,9 +287,8 @@ const Cards = () => {
               onMouseLeave={startAutoRotate}
               style={{ 
                 cursor: "default", 
-                marginBottom: "clamp(0.1cm, 0.5vh, 0.4cm)",
-                width: "clamp(300px, 90%, 500px)",
-                gap: "clamp(0.5rem, 2vh, 3rem)"
+                marginBottom: "clamp(0.3cm, 1vh, 0.8cm)",
+                width: "clamp(300px, 90%, 500px)"
               }}
             >
               {featuresData.map((feature, index) => {
@@ -315,11 +308,11 @@ const Cards = () => {
                       justifyContent: "flex-start",
                       alignItems: "center",
                       padding: isActive 
-                        ? "var(--feature-padding) clamp(10px, 1.2vw, 24px)"
-                        : "var(--feature-padding) clamp(10px, 1.2vw, 24px)",
-                      gap: "var(--feature-gap)",
+                        ? "clamp(12px, 1.5vw, 20px) clamp(10px, 1.2vw, 14px)"
+                        : "clamp(12px, 1.5vw, 20px) clamp(10px, 1.2vw, 14px)",
+                      gap: "clamp(8px, 1vw, 14px)",
                       width: isActive ? "fit-content" : "100%",
-                      minHeight: "var(--feature-min-height)",
+                      minHeight: "clamp(50px, 5vh, 75px)",
                       background: isActive ? "#FFFFFF" : "transparent",
                       border: isActive 
                         ? "1px solid rgba(22, 93, 172, 0.19)"
@@ -339,8 +332,8 @@ const Cards = () => {
                         alt={feature.title}
                         className="flex-shrink-0"
                         style={{
-                          width: "var(--feature-icon-size)",
-                          height: "var(--feature-icon-size)"
+                          width: "clamp(16px, 2vw, 24px)",
+                          height: "clamp(16px, 2vw, 24px)"
                         }}
                       />
                     ) : (
@@ -356,8 +349,8 @@ const Cards = () => {
                           fontFamily: "Inter",
                           fontWeight: 500,
                           fontStyle: "normal",
-                          fontSize: "var(--feature-title-fs)",
-                          lineHeight: "120%",
+                          fontSize: "clamp(12px, 1.3vw, 15px)",
+                          lineHeight: "100%",
                           letterSpacing: "0%",
                           color: "#1966BB",
                           margin: 0
@@ -370,12 +363,12 @@ const Cards = () => {
                           fontFamily: "Inter",
                           fontWeight: 400,
                           fontStyle: "normal",
-                          fontSize: "var(--feature-desc-fs)",
-                          lineHeight: "130%",
+                          fontSize: "clamp(10px, 1vw, 12px)",
+                          lineHeight: "100%",
                           letterSpacing: "0%",
                           color: "#989898",
                           margin: 0,
-                          marginTop: "clamp(4px, 0.8vw, 10px)"
+                          marginTop: "clamp(4px, 0.8vw, 8px)"
                         }}
                       >
                         {feature.description}
@@ -393,15 +386,14 @@ const Cards = () => {
             style={{ 
               willChange: "transform, opacity", 
               backfaceVisibility: "hidden", 
-              transformStyle: "preserve-3d",
-              minHeight: "clamp(400px, 60vh, 700px)"
+              transformStyle: "preserve-3d" 
             }}
             ref={cardsRef}
           >
             {featuresData.map((feature, index) => (
               <div
                 key={index}
-                className="absolute w-[16rem] sm:w-[20rem] md:w-[24rem] lg:w-[28rem] xl:w-[32rem] 2xl:w-[36rem] flex flex-col items-center justify-center scale-100 sm:scale-110 md:scale-125 lg:scale-160 xl:scale-190 2xl:scale-220"
+                className="absolute w-[16rem] sm:w-[20rem] md:w-[24rem] lg:w-[28rem] xl:w-[32rem] 2xl:w-[36rem] flex flex-col items-center justify-center scale-100 sm:scale-110 md:scale-125 lg:scale-150 xl:scale-175 2xl:scale-200"
               >
                 <img
                   src={feature.image}
