@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
+import React, { useLayoutEffect, useRef, useState, useEffect, useCallback } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GridBackground } from "../Themes/Grid_coins";
@@ -25,6 +25,70 @@ const BaFTCoin = () => {
 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Method to trigger exit animations (called by SlideContainer)
+  const triggerExitAnimation = useCallback(() => {
+    console.log('🎯 BaFT Coin: triggerExitAnimation called!');
+    if (!introRef.current || !coinRef.current) {
+      console.log('❌ BaFT Coin: Refs not ready for exit animation');
+      return;
+    }
+    
+    console.log('🎯 BaFT Coin: Starting exit animations...');
+    
+    // Kill any existing floating animation
+    if (animationRef.current) {
+      gsap.killTweensOf(coinRef.current);
+      animationRef.current = null;
+    }
+    
+    // Create exit animation timeline
+    const exitTl = gsap.timeline({
+      onComplete: () => {
+        console.log('🎯 BaFT Coin: Exit animations complete, dispatching event...');
+        // Fire exit complete event when exit animations finish
+        // This will trigger automatic transition to BInstant section
+        window.dispatchEvent(new CustomEvent('baftCoinExitComplete'));
+      }
+    });
+
+    // Amazing exit animations in reverse order
+    // Coin fades from current opacity (0.3) to 0 - starts immediately on scroll
+    exitTl.fromTo(coinRef.current, 
+      { opacity: 0.3 }, // Start from current opacity
+      { 
+        opacity: 0, // Fade to completely transparent
+        scale: 0.8, // Come closer (shrink)
+        y: -20, // Move up slightly
+        duration: 1.5, 
+        ease: "power2.in" 
+      }
+    )
+    .to([".intro-text", ".coin-text"], { 
+      y: -120, // Move texts upwards
+      duration: 1.2, 
+      ease: "power2.in" 
+    }, "-=0.3") // Start 0.3s before coin animation ends (smaller gap)
+    .to([".intro-text", ".coin-text"], { 
+      opacity: 0, // Then fade out the texts
+      duration: 1.2, 
+      ease: "power2.out" 
+    }, "-=1.2"); // Start fading at the same time as moving up
+  }, []);
+
+  // Expose the method to SlideContainer
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('🎯 BaFT Coin: Exposing triggerBaftCoinExit to window');
+      window.triggerBaftCoinExit = triggerExitAnimation;
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        console.log('🎯 BaFT Coin: Cleaning up triggerBaftCoinExit from window');
+        delete window.triggerBaftCoinExit;
+      }
+    };
+  }, [triggerExitAnimation]);
 
   useLayoutEffect(() => {
     // Only proceed if refs are available
@@ -134,7 +198,9 @@ const BaFTCoin = () => {
         filter: "none",
         duration: 0.01,
         ease: "none",
-      }, "-=2.5"); // No glow
+      }, "-=2.5") // No glow
+      
+
     }, introRef);
 
     return () => {

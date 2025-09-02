@@ -1,8 +1,9 @@
-import React, { Suspense, useRef, useState, useEffect } from "react";
+import React, { Suspense, useRef, useState, useEffect, useCallback } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { motion } from "framer-motion";
+import { gsap } from "gsap";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
 import BInstantMobile from "./BInstantMobile";
 
@@ -185,6 +186,8 @@ const useIsMobile = () => {
 const BInstantSection = () => {
   const [startCoinAnimation, setStartCoinAnimation] = useState(false);
   const isMobile = useIsMobile();
+  const sectionRef = useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     // Start both text and coin animations at the same time
@@ -193,6 +196,54 @@ const BInstantSection = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Method to trigger exit animations (called by SlideContainer)
+  const triggerExitAnimation = useCallback(() => {
+    console.log('🎯 BInstant: triggerExitAnimation called!');
+    if (!sectionRef.current) {
+      console.log('❌ BInstant: Refs not ready for exit animation');
+      return;
+    }
+    
+    console.log('🎯 BInstant: Starting exit animations...');
+    
+    // Create exit animation timeline
+    const exitTl = gsap.timeline({
+      onComplete: () => {
+        console.log('🎯 BInstant: Exit animations complete, dispatching event...');
+        // Fire exit complete event when exit animations finish
+        // This will trigger automatic transition to B_Fast section
+        window.dispatchEvent(new CustomEvent('binstantExitComplete'));
+      }
+    });
+
+    // Exit animations - fade out coins and text
+    exitTl.to(canvasRef.current, { 
+      opacity: 0, // Fade out the entire canvas (coins)
+      duration: 1.5, 
+      ease: "power2.in" 
+    })
+    .to([".bc-bcoin", ".bc-instant", ".bc-dash", ".bc-shared", ".bc-instantly"], { 
+      opacity: 0, 
+      y: -50, // Move up and fade together
+      duration: 1.5, 
+      ease: "power2.in" 
+    }, "-=1.2");
+  }, []);
+
+  // Expose the method to SlideContainer
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('🎯 BInstant: Exposing triggerBinstantExit to window');
+      window.triggerBinstantExit = triggerExitAnimation;
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        console.log('🎯 BInstant: Cleaning up triggerBinstantExit from window');
+        delete window.triggerBinstantExit;
+      }
+    };
+  }, [triggerExitAnimation]);
+
   // Render mobile component on mobile devices
   if (isMobile) {
     return <BInstantMobile />;
@@ -200,6 +251,7 @@ const BInstantSection = () => {
 
   return (
     <div 
+      ref={sectionRef}
       className="relative w-full h-screen"
       style={{ backgroundColor: 'black' }}
     >
@@ -222,6 +274,7 @@ const BInstantSection = () => {
       {/* THREE.JS CANVAS */}
       <ThreeJSErrorBoundary>
         <Canvas
+          ref={canvasRef}
           camera={{ position: [0, 0, 7.5], fov: 45 }}
           className="w-full h-full relative z-20"
           gl={{

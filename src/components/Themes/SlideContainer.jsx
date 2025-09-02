@@ -18,6 +18,12 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const navCooldownMs = 300;
   const momentumGuardUntilRef = useRef(0);
   
+  // BaFT Coin section control
+  const [baftCoinPinned, setBaftCoinPinned] = useState(false);
+  
+  // BInstant section control
+  const [binstantPinned, setBinstantPinned] = useState(false);
+  
   // Touch gesture handling
   const touchStartY = useRef(0);
   const minSwipeDistance = 50;
@@ -194,6 +200,54 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       if (e && e.cancelable) e.preventDefault();
       if (now - lastNavTime.current >= navCooldownMs) {
         lastNavTime.current = now;
+        
+        // Special handling for BaFT Coin slide (slide 2, index 1)
+        if (slideIndex === 1 && !baftCoinPinned) {
+          console.log('🎯 BaFT Coin: Scroll triggered, starting exit animations immediately...');
+          // Pin the BaFT Coin section and trigger exit animations immediately on scroll
+          setBaftCoinPinned(true);
+          
+          // Trigger exit animations immediately on scroll (no 3-second wait)
+          if (typeof window !== 'undefined' && window.triggerBaftCoinExit) {
+            console.log('🎯 BaFT Coin: Calling triggerBaftCoinExit immediately...');
+            window.triggerBaftCoinExit();
+          } else {
+            console.log('❌ BaFT Coin: triggerBaftCoinExit not found on window!');
+          }
+          
+          // Reset pin state after a short delay
+          setTimeout(() => {
+            setBaftCoinPinned(false);
+          }, 100);
+          
+          return; // Don't change slide yet
+        }
+        
+        // Special handling for BInstant slide (slide 3, index 2)
+        if (slideIndex === 2 && !binstantPinned) {
+          console.log('🎯 BInstant: Scroll triggered, starting exit animations immediately...');
+          // Pin the BInstant section and trigger exit animations immediately on scroll
+          setBinstantPinned(true);
+          
+          // Trigger exit animations immediately on scroll
+          if (typeof window !== 'undefined' && window.triggerBinstantExit) {
+            console.log('🎯 BInstant: Calling triggerBinstantExit immediately...');
+            window.triggerBinstantExit();
+          } else {
+            console.log('❌ BInstant: triggerBinstantExit not found on window!');
+          }
+          
+          // Reset pin state after a short delay
+          setTimeout(() => {
+            setBinstantPinned(false);
+          }, 100);
+          
+          return; // Don't change slide yet
+        }
+        
+
+        
+        // Normal slide change
         handleSlideChange(slideIndex + 1);
       }
     } else if (e.deltaY < 0 && atTop && slideIndex > 0) {
@@ -259,6 +313,100 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     window.addEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
     return () => window.removeEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
   }, [slideIndex, totalSlides, isTransitioning, handleSlideChange]);
+
+  // Listen for BaFT Coin exit complete event - automatic transition to BInstant
+  useEffect(() => {
+    const handleBaftCoinExitComplete = () => {
+      console.log('🎯 BaFT Coin: Exit complete event received!');
+      if (slideIndex === 1 && !isTransitioning) { // BaFT Coin is slide 2 (index 1)
+        console.log('🎯 BaFT Coin: Starting smooth transition to BInstant...');
+        
+        const nextIndex = 2; // BInstant section
+        if (nextIndex !== slideIndex) {
+          // Prepare a black crossfade overlay to cover the handoff (same as About section)
+          setShowAboutCrossfade(true);
+          setAboutCrossfadeOpaque(false); // start transparent
+          setAboutCrossfadeFadeOut(false);
+          
+          // Fade to black quickly
+          setTimeout(() => {
+            setAboutCrossfadeOpaque(true);
+          }, 10);
+          
+          // Once fully black, change slide under cover
+          setTimeout(() => {
+            // Ensure current slide is at top without animation
+            const element = currentSlideRef.current;
+            if (element) {
+              try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
+            }
+            handleSlideChange(nextIndex);
+            
+            // After a short hold, fade the cover out smoothly
+            setTimeout(() => {
+              setAboutCrossfadeFadeOut(true);
+              // Remove overlay after fade completes
+              setTimeout(() => {
+                setShowAboutCrossfade(false);
+                setAboutCrossfadeFadeOut(false);
+                setAboutCrossfadeOpaque(false);
+              }, 720);
+            }, 150);
+          }, 220); // allow ~220ms for fade-in to black
+        }
+      }
+    };
+
+    window.addEventListener('baftCoinExitComplete', handleBaftCoinExitComplete);
+    return () => window.removeEventListener('baftCoinExitComplete', handleBaftCoinExitComplete);
+  }, [slideIndex, isTransitioning, handleSlideChange]);
+
+  // Listen for BInstant exit complete event - automatic transition to B_Fast
+  useEffect(() => {
+    const handleBinstantExitComplete = () => {
+      console.log('🎯 BInstant: Exit complete event received!');
+      if (slideIndex === 2 && !isTransitioning) { // BInstant is slide 3 (index 2)
+        console.log('🎯 BInstant: Starting smooth transition to B_Fast...');
+        
+        const nextIndex = 3; // B_Fast section (slide 4, index 3)
+        if (nextIndex !== slideIndex) {
+          // Prepare a black crossfade overlay to cover the handoff (same as About section)
+          setShowAboutCrossfade(true);
+          setAboutCrossfadeOpaque(false); // start transparent
+          setAboutCrossfadeFadeOut(false);
+          
+          // Fade to black quickly
+          setTimeout(() => {
+            setAboutCrossfadeOpaque(true);
+          }, 10);
+          
+          // Once fully black, change slide under cover
+          setTimeout(() => {
+            // Ensure current slide is at top without animation
+            const element = currentSlideRef.current;
+            if (element) {
+              try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
+            }
+            handleSlideChange(nextIndex);
+            
+            // After a short hold, fade the cover out smoothly
+            setTimeout(() => {
+              setAboutCrossfadeFadeOut(true);
+              // Remove overlay after fade completes
+              setTimeout(() => {
+                setShowAboutCrossfade(false);
+                setAboutCrossfadeFadeOut(false);
+                setAboutCrossfadeOpaque(false);
+              }, 720);
+            }, 150);
+          }, 220); // allow ~220ms for fade-in to black
+        }
+      }
+    };
+
+    window.addEventListener('binstantExitComplete', handleBinstantExitComplete);
+    return () => window.removeEventListener('binstantExitComplete', handleBinstantExitComplete);
+  }, [slideIndex, isTransitioning, handleSlideChange]);
 
   // Listen for programmatic navigation requests (e.g., slow smooth transition to a target slide)
   useEffect(() => {
@@ -442,6 +590,24 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
           }`}
         />
       )}
+
+          {/* BaFT Coin pinned indicator */}
+    {baftCoinPinned && slideIndex === 1 && (
+      <div className="absolute top-8 right-8 z-50 pointer-events-none">
+        <div className="bg-blue-500/80 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-sm font-medium shadow-lg">
+          BaFT Coin Exit Animations
+        </div>
+      </div>
+    )}
+
+    {/* BInstant pinned indicator */}
+    {binstantPinned && slideIndex === 2 && (
+      <div className="absolute top-8 right-8 z-50 pointer-events-none">
+        <div className="bg-green-500/80 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-sm font-medium shadow-lg">
+          BInstant Exit Animations
+        </div>
+      </div>
+    )}
 
 
     </div>
