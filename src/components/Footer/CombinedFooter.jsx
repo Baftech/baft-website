@@ -16,10 +16,9 @@ const SignupForm = ({ onOpenThanks }) => {
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [hasFocused, setHasFocused] = useState(false);
-
   const isValidEmail = (val) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
-
+  const isEmailValid = isValidEmail(email.trim().toLowerCase());
   const handleSubmit = async (e) => {
   e.preventDefault();
   setErrMsg(""); // clear previous errors
@@ -92,7 +91,7 @@ const SignupForm = ({ onOpenThanks }) => {
             />
             <button
               type="submit"
-              disabled={loading || !hasFocused}
+              disabled={loading || !isEmailValid}
               className="cursor-pointer w-full sm:w-auto px-5 py-2.5 rounded-full font-medium transition bg-white text-black hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ minWidth: "110px" }}
             >

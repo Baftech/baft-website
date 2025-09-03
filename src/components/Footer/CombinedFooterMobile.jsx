@@ -16,6 +16,8 @@ const SignupFormMobile = ({ onOpenThanks }) => {
 
   const isValidEmail = (val) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  
+const isEmailValid = isValidEmail(email);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -136,7 +138,7 @@ const SignupFormMobile = ({ onOpenThanks }) => {
             />
                         <button
               type="submit"
-              disabled={!email.trim()}
+              disabled={loading || !isEmailValid}
               className={`font-medium transition ${
                 email.trim() 
                   ? 'cursor-pointer hover:bg-gray-100' 
