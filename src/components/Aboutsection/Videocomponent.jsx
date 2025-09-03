@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import VideoComponentMobile from "./VideoComponentMobile";
-import { VIDEO_COM_PNG, SVG_SVG } from "../../assets/assets";
+import { VIDEO_COM_PNG, SVG_SVG, BAFT_VID_MP4 } from "../../assets/assets";
 
 // Custom hook to detect mobile devices
 const useIsMobile = () => {
@@ -204,6 +204,15 @@ const Videocomponent = ({ slide = false }) => {
     transform: isExpanded ? 'scale(1)' : 'scale(1)',
   };
 
+  // Autoplay MP4 when expanded
+  useEffect(() => {
+    if (isExpanded && videoRef.current && typeof videoRef.current.play === 'function') {
+      try {
+        videoRef.current.play().catch(() => {});
+      } catch {}
+    }
+  }, [isExpanded]);
+
   const videoContainerStyle = {
     transition: isExpanded
       ? 'transform 3s linear'
@@ -314,12 +323,26 @@ const Videocomponent = ({ slide = false }) => {
               ...videoContainerStyle
             }}>
               {/* Video/Image */}
-              <img
-                ref={videoRef}
-                src={VIDEO_COM_PNG}
-                alt="Video Preview"
-                style={videoStyle}
-              />
+              {isExpanded ? (
+                <video
+                  ref={videoRef}
+                  src={BAFT_VID_MP4}
+                  style={videoStyle}
+                  playsInline
+                  muted
+                  autoPlay
+                  controls
+                  preload="auto"
+                  poster={VIDEO_COM_PNG}
+                />
+              ) : (
+                <img
+                  ref={videoRef}
+                  src={VIDEO_COM_PNG}
+                  alt="Video Preview"
+                  style={videoStyle}
+                />
+              )}
               
               {/* Scroll hint - only show when not expanded */}
               {!isExpanded && !isAnimating && (

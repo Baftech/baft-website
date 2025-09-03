@@ -24,13 +24,13 @@ const SafeSecureDesktop = () => {
 
               {/* Right Logo Section */}
               <div className="safe-secure-logo">
-                <div className="security-logo-wrapper">
-                  <img
-                    src={SAFE_SEC_SVG}
-                    alt="Security Badge"
-                    className="security-logo-svg"
-                  />
-                </div>
+                              <div className="security-logo-wrapper">
+                <img
+                  src={SAFE_SEC_SVG}
+                  alt="Security Badge"
+                  className="security-logo-svg"
+                />
+              </div>
               </div>
             </div>
           </div>

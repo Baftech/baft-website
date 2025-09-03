@@ -1,8 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SVG_SVG, VIDEO_COM_PNG, PROPERTY_IMAGE_PNG, PROPERTY_VIBHA_PNG, PROPERTY_DION_PNG, PROPERTY_SAKET_PNG } from "../../assets/assets";
 
 const TeamAbout = () => {
   const [hoveredMember, setHoveredMember] = useState(null);
+
+  // Desktop navbar-aware spacing variables
+  useEffect(() => {
+    const navEl = document.querySelector('nav') || document.getElementById('navbar') || document.querySelector('.site-navbar');
+    const updateVars = () => {
+      const navH = navEl ? navEl.getBoundingClientRect().height : 64;
+      document.documentElement.style.setProperty('--nav-h', `${navH}px`);
+      const gap = Math.max(12, Math.min(window.innerHeight * 0.02, 28));
+      document.documentElement.style.setProperty('--gap', `${gap}px`);
+    };
+    updateVars();
+    window.addEventListener('resize', updateVars, { passive: true });
+    return () => window.removeEventListener('resize', updateVars);
+  }, []);
 
   const teamMembers = [
     {
@@ -29,7 +43,7 @@ const TeamAbout = () => {
   ];
 
   return (
-    <div className="bg-white min-h-screen flex items-center justify-center py-20" data-theme="light">
+    <div className="bg-white min-h-screen about-right-responsive relative rounded-3xl overflow-hidden" data-theme="light" style={{ paddingTop: 'calc(var(--nav-h, 64px) + calc(var(--gap, 16px) * 2))' }}>
       <div className="max-w-7xl mx-auto px-16">
         {/* Top Video Section */}
         <div className="relative mb-32">
@@ -117,7 +131,7 @@ const TeamAbout = () => {
 
           {/* Right Team Image Section */}
           <div className="relative">
-            <div className="w-[553px] h-[782px] relative rounded-3xl overflow-hidden">
+            <div className="about-right-responsive relative rounded-3xl overflow-hidden">
               {/* Base team image */}
               <img
                 src={PROPERTY_IMAGE_PNG}

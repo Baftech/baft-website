@@ -11,6 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentRef = useRef(null);
+  const [collapsedHeight, setCollapsedHeight] = useState(200);
 
   const isLong = content.length > maxLength;
 
@@ -26,7 +27,27 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
     if (onExpandChange) onExpandChange(newState);
   };
 
-  // GSAP height animation for smooth transitions - no auto snapping
+  // Compute a collapsed height that aligns to full lines to avoid cut-offs
+  useEffect(() => {
+    const measure = () => {
+      if (!contentRef.current) return;
+      try {
+        const firstP = contentRef.current.querySelector('p');
+        const cs = firstP ? window.getComputedStyle(firstP) : window.getComputedStyle(contentRef.current);
+        const lineH = parseFloat(cs.lineHeight || '0') || 28;
+        const linesToShow = 7; // show 7 full lines when collapsed
+        const next = Math.max(3, linesToShow) * lineH;
+        setCollapsedHeight(next);
+      } catch {
+        setCollapsedHeight(200);
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure, { passive: true });
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  // GSAP height animation for smooth transitions - snap to measured collapsed height
   useEffect(() => {
     if (contentRef.current) {
       // Kill any existing tweens to avoid conflicts
@@ -35,7 +56,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       if (isExpanded) {
         // Get the natural height of the content
         const contentHeight = contentRef.current.scrollHeight;
-        const targetHeight = Math.max(contentHeight, 200); // Ensure minimum height
+        const targetHeight = Math.max(contentHeight, collapsedHeight);
         
         gsap.to(contentRef.current, {
           height: targetHeight,
@@ -45,49 +66,77 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       } else {
         // Collapse back to base height
         gsap.to(contentRef.current, {
-          height: 200,
+          height: collapsedHeight,
           duration: 0.8,
           ease: "power2.out"
         });
       }
     }
-  }, [isExpanded]);
+  }, [isExpanded, collapsedHeight]);
 
   return (
-    <div className="leading-relaxed pr-2">
+    <div className="leading-relaxed pr-2" style={{ maxWidth: 'clamp(520px, 42vw, 680px)' }}>
       <div
         ref={contentRef}
         style={{
-          height: "200px", // Fixed base height - GSAP will animate this
+          height: `${collapsedHeight}px`,
           overflow: "hidden",
           opacity: isExpanded ? 1 : 0.9,
           transition: "opacity 0.6s ease",
+          position: 'relative',
         }}
       >
         {paragraphs.map((para, i) => (
           <p
             key={i}
-            className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#909090] mb-4 sm:mb-5 md:mb-6"
+            className="mb-4 sm:mb-5 md:mb-6"
             style={{
               fontFamily: "Inter, sans-serif",
+              color: '#909090',
+              fontSize: 'clamp(16px, 1.4vw, 24px)',
+              lineHeight: 'clamp(24px, 2.1vw, 35px)'
             }}
           >
             {para}
           </p>
         ))}
+        {!isExpanded && (
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: Math.max(24, Math.min(collapsedHeight * 0.25, 72)),
+              background: 'linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1))',
+              pointerEvents: 'none'
+            }}
+          />
+        )}
       </div>
 
       {isLong && (
         <button
           onClick={handleToggle}
-          className="mt-2 transition-all duration-500 ease-out w-32 sm:w-36 md:w-40 lg:w-44 h-12 sm:h-14 md:h-16 text-sm sm:text-base"
+          className="mt-2 transition-all duration-500 ease-out"
           style={{
             fontFamily: "Inter, sans-serif",
+            width: 'clamp(148px, calc(180px * var(--btn-scale, 1)), 220px)',
+            height: 'calc(64px * var(--btn-scale, 1))',
+            fontSize: 'clamp(13px, calc(16px * var(--btn-scale, 1)), 18px)',
+            lineHeight: 1.1,
             borderRadius: "200px",
             backgroundColor: "#E3EDFF",
             color: "#092646",
             border: "none",
             cursor: "pointer",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 'none',
+            order: 2,
+            flexGrow: 0
           }}
           onMouseEnter={(e) => {
             e.target.style.backgroundColor = "#000000";
@@ -422,6 +471,41 @@ const AboutBaft = () => {
   const originalHtmlOverscrollRef = useRef('');
   const [forcedAnimT, setForcedAnimT] = useState(0); // 0..1 during forced expansion
   const FORCED_DURATION_MS = 5500; // slow expansion
+  
+  // Measure navbar height and expose CSS variables for gap/spacing on desktop
+  useEffect(() => {
+    if (!isDesktop) return;
+    const navEl = document.querySelector('nav') || document.getElementById('navbar') || document.querySelector('.site-navbar');
+    const updateVars = () => {
+      const navH = navEl ? navEl.getBoundingClientRect().height : 64;
+      document.documentElement.style.setProperty('--nav-h', `${navH}px`);
+      const gap = Math.max(12, Math.min(window.innerHeight * 0.02, 28));
+      document.documentElement.style.setProperty('--gap', `${gap}px`);
+      // Button scale derived from viewport's smaller dimension
+      const vmin = Math.min(window.innerWidth || 0, window.innerHeight || 0);
+      const btnScale = Math.max(0.65, Math.min(vmin / 1100, 1.05));
+      document.documentElement.style.setProperty('--btn-scale', String(btnScale));
+      // Left column scale for compact desktops
+      const vw = window.innerWidth || 0;
+      let leftScale = 1;
+      if (vw <= 1366) leftScale = 0.94;
+      if (vw <= 1280) leftScale = 0.9;
+      if (vw <= 1180) leftScale = 0.86;
+      if (vw <= 1100) leftScale = 0.84;
+      if (vw <= 1024) leftScale = 0.82;
+      if (vw <= 980) leftScale = 0.8;
+      if (vw <= 940) leftScale = 0.78;
+      // Further reduce when height is compact or paragraph is expanded
+      if ((window.innerHeight || 0) <= 820) leftScale *= 0.94;
+      if ((window.innerHeight || 0) <= 760) leftScale *= 0.92;
+      if (isExpanded) leftScale *= 0.92;
+      leftScale = Math.max(0.72, Math.min(leftScale, 1));
+      document.documentElement.style.setProperty('--left-scale', String(leftScale));
+    };
+    updateVars();
+    window.addEventListener('resize', updateVars, { passive: true });
+    return () => window.removeEventListener('resize', updateVars);
+  }, [isDesktop, isExpanded]);
   
   // Ensure stable initial state
   useEffect(() => {
@@ -805,7 +889,8 @@ const AboutBaft = () => {
             style={{ 
               height: '100vh',
               width: '100vw',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              paddingTop: 'calc(var(--nav-h, 64px) + calc(var(--gap, 16px) * 2))'
             }}
           >
             {/* Static grid: text left, measuring placeholder right */}
@@ -821,19 +906,38 @@ const AboutBaft = () => {
                 }}
               >
                 <p
-                  className="font-normal mb-2 flex items-center gap-2 text-xl"
+                  className="font-normal mb-2 flex items-center"
                   style={{
                     fontFamily: "Inter, sans-serif",
                     color: "#092646",
+                    fontSize: 'calc(clamp(12px, 1.1vw, 16px) * var(--left-scale, 1))',
+                    lineHeight: 1.1,
+                    gap: 'clamp(6px, 0.6vw, 8px)',
+                    flex: 'none',
+                    order: 0,
+                    flexGrow: 0,
+                    whiteSpace: 'nowrap'
                   }}
                 >
-                  <img src={SVG_SVG} alt="Icon" className="w-5 h-5" />
+                  <img 
+                    src={SVG_SVG} 
+                    alt="Icon" 
+                    style={{ width: 'calc(clamp(14px, 1.0vw, 18px) * var(--left-scale, 1))', height: 'calc(clamp(14px, 1.0vw, 18px) * var(--left-scale, 1))' }}
+                  />
                   Know our story
                 </p>
                 <h1
-                  className="leading-tight mb-8 font-bold text-6xl text-[#1966BB]"
+                  className="mb-8 font-bold text-[#1966BB]"
                   style={{
                     fontFamily: "EB Garamond, serif",
+                    fontSize: 'calc(clamp(36px, 5.2vw, 64px) * var(--left-scale, 1))',
+                    lineHeight: 'calc(clamp(40px, 5.4vw, 64px) * var(--left-scale, 1))',
+                    letterSpacing: 'clamp(-0.18px, -0.02vw, -0.273006px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    flex: 'none',
+                    order: 0,
+                    flexGrow: 0
                   }}
                 >
                   <span className="block">About BaFT</span>
@@ -852,7 +956,7 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
               <div className="flex justify-end">
                 <div
                   ref={imageStartRef}
-                  style={{ width: '553px', height: '782px', borderRadius: '24px', overflow: 'hidden' }}
+                  className="about-right-responsive relative rounded-3xl overflow-hidden"
                 >
                   <div className="w-full h-full" style={{ opacity: 1 - easedProgress, transition: 'opacity 120ms linear' }}>
                     <InteractiveTeamImage disabled={easedProgress > 0.02} />
