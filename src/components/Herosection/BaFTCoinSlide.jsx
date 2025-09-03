@@ -9,21 +9,45 @@ gsap.registerPlugin(ScrollTrigger);
 
 const BaFTCoin = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [isMacBook, setIsMacBook] = useState(false);
   const introRef = useRef(null);
   const coinRef = useRef(null);
   const animationRef = useRef(null);
   const hasAnimatedRef = useRef(false);
 
-  // Mobile detection
+  // Mobile and MacBook detection
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+    const checkDevice = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      
+      setIsMobile(width <= 768);
+      
+      // Simplified MacBook detection: Check for Mac user agent and desktop size
+      const isMacUserAgent = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+      const isDesktopSize = width >= 1024 && height >= 640;
+      const isNotWindows = !/Windows/.test(navigator.userAgent);
+      
+      // Detect as MacBook if it's a Mac device with desktop size
+      const isMacBook = isMacUserAgent && isDesktopSize && isNotWindows;
+      setIsMacBook(isMacBook);
+      
+      // Debug logging
+      console.log('Device Detection:', {
+        width,
+        height,
+        isMacUserAgent,
+        isDesktopSize,
+        isNotWindows,
+        isMacBook,
+        userAgent: navigator.userAgent
+      });
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
 
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkDevice);
   }, []);
 
   // Method to trigger exit animations (called by SlideContainer)
@@ -68,7 +92,7 @@ const BaFTCoin = () => {
       y: -120, // Move texts upwards
       duration: 1.2, 
       ease: "power2.in" 
-    }, "-=0.3") // Start 0.3s before coin animation ends (smaller gap)
+    }, "+=0.2") // Start 0.2s AFTER coin animation starts
     .to([".intro-text", ".coin-text"], { 
       opacity: 0, // Then fade out the texts
       duration: 1.2, 
@@ -242,11 +266,19 @@ const BaFTCoin = () => {
           alt="BaFT Coin"
           className="absolute md:relative h-auto left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
           style={{
-            width: `clamp(400px, min(65vw, 65vh), 1000px)`,
-            height: `clamp(400px, min(65vw, 65vh), 1000px)`,
-            maxWidth: '1000px',
-            maxHeight: '1000px',
+            width: isMacBook 
+              ? `min(95vw, 95vh)`
+              : `min(80vw, 75vh)`,
+            height: isMacBook 
+              ? `min(95vw, 95vh)`
+              : `min(80vw, 75vh)`,
+            maxWidth: isMacBook ? '95vw' : '80vw',
+            maxHeight: isMacBook ? '95vh' : '75vh',
             objectFit: 'contain'
+          }}
+          onLoad={() => {
+            console.log('Coin loaded, isMacBook:', isMacBook);
+            console.log('Coin size applied:', isMacBook ? 'MacBook size' : 'Regular size');
           }}
         />
       </div>

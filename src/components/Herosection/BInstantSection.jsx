@@ -25,12 +25,18 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
       
       // Wait for curtain to fade out before showing coins
       if (elapsed < 0.4) {
+        if (ref.current.material) {
+          ref.current.material.opacity = 0; // Keep coins invisible
+        }
         return; // Wait for curtain fade out to complete
       }
       
       // Make coins visible when curtain fades out
       if (elapsed >= 0.4 && !isVisible) {
         setIsVisible(true);
+        if (ref.current.material) {
+          ref.current.material.opacity = opacity; // Show coins
+        }
       }
       
       // Start expanding immediately after becoming visible
@@ -70,15 +76,12 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
         position={position}
         scale={[scaleFactor, scaleFactor, 1]}
         rotation={[-0.02, 0, 0.0999]}
-        visible={isVisible}
       >
         <planeGeometry args={[2, 2]} />
         <meshBasicMaterial
           map={texture}
           transparent
-          opacity={opacity}
-          depthWrite={false}
-          depthTest
+          opacity={0}
           brightness={0.5}
           color="#808080"
         />
