@@ -240,7 +240,14 @@ const BaFTCoin = () => {
           ref={coinRef}
           src={B_COIN_IMAGE_PNG}
           alt="BaFT Coin"
-          className="absolute md:relative h-auto w-[60vw] sm:w-[54vw] md:w-[40vw] lg:w-[34vw] xl:w-[46vw] 2xl:w-[48vw] 3xl:w-[45vw] max-w-[1000px] left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
+          className="absolute md:relative h-auto left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
+          style={{
+            width: `clamp(400px, min(65vw, 65vh), 1000px)`,
+            height: `clamp(400px, min(65vw, 65vh), 1000px)`,
+            maxWidth: '1000px',
+            maxHeight: '1000px',
+            objectFit: 'contain'
+          }}
         />
       </div>
 
