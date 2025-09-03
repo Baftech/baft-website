@@ -32,10 +32,12 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
       }
       
       // Make coins visible when curtain fades out
-      if (elapsed >= 0.4 && !isVisible) {
-        setIsVisible(true);
+      if (elapsed >= 0.4) {
+        if (!isVisible) {
+          setIsVisible(true);
+        }
         if (ref.current.material) {
-          ref.current.material.opacity = opacity; // Show coins
+          ref.current.material.opacity = opacity; // Ensure coins stay visible
         }
       }
       
@@ -81,7 +83,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
         <meshBasicMaterial
           map={texture}
           transparent
-          opacity={0}
+          opacity={isVisible ? opacity : 0}
           brightness={0.5}
           color="#808080"
         />

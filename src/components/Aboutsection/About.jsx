@@ -11,10 +11,6 @@ gsap.registerPlugin(ScrollTrigger);
 const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentRef = useRef(null);
-  const paragraphRefs = useRef([]);
-  const [collapsedHeight, setCollapsedHeight] = useState(200);
-  const [maxExpandedHeight, setMaxExpandedHeight] = useState(520);
-  const touchStartRef = useRef(null);
 
   const isLong = content.length > maxLength;
 
@@ -30,31 +26,6 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
     if (onExpandChange) onExpandChange(newState);
   };
 
-  // Measure the first paragraph to set an exact collapsed height
-  useEffect(() => {
-    const measure = () => {
-      try {
-        const firstP = paragraphRefs.current && paragraphRefs.current[0];
-        if (firstP) {
-          const rect = firstP.getBoundingClientRect();
-          const styles = window.getComputedStyle(firstP);
-          const marginBottom = parseFloat(styles.marginBottom || '0');
-          const h = rect.height + marginBottom;
-          // Reasonable bounds to avoid 0 heights during layout thrash
-          setCollapsedHeight(Math.max(120, Math.min(h, 600)));
-        }
-        // Set safe maximum expansion to avoid overlapping navbar on small laptops
-        const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
-        // Allow up to ~80% of viewport height and enable inner scroll if more content
-        const safeMax = Math.max(380, Math.min(Math.floor(vh * 0.8), 840));
-        setMaxExpandedHeight(safeMax);
-      } catch {}
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [content]);
-
   // GSAP height animation for smooth transitions - no auto snapping
   useEffect(() => {
     if (contentRef.current) {
@@ -64,7 +35,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       if (isExpanded) {
         // Get the natural height of the content
         const contentHeight = contentRef.current.scrollHeight;
-        const targetHeight = Math.min(Math.max(contentHeight, collapsedHeight), maxExpandedHeight); // Clamp to safe maximum
+        const targetHeight = Math.max(contentHeight, 200); // Ensure minimum height
         
         gsap.to(contentRef.current, {
           height: targetHeight,
@@ -74,53 +45,12 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       } else {
         // Collapse back to base height
         gsap.to(contentRef.current, {
-          height: collapsedHeight,
+          height: 200,
           duration: 0.8,
           ease: "power2.out"
         });
       }
     }
-  }, [isExpanded, collapsedHeight, maxExpandedHeight]);
-
-  // Ensure inner scrolling works even in pinned section: capture wheel/touch on content
-  useEffect(() => {
-    const el = contentRef.current;
-    if (!el) return;
-
-    const onWheel = (e) => {
-      if (!isExpanded) return;
-      const canScroll = el.scrollHeight > el.clientHeight;
-      if (!canScroll) return;
-      e.preventDefault();
-      e.stopPropagation();
-      try { el.scrollTop += e.deltaY; } catch {}
-    };
-
-    const onTouchStart = (e) => {
-      if (!isExpanded) return;
-      try { touchStartRef.current = e.touches && e.touches[0] ? e.touches[0].clientY : null; } catch { touchStartRef.current = null; }
-    };
-    const onTouchMove = (e) => {
-      if (!isExpanded) return;
-      if (touchStartRef.current == null) return;
-      const y = (e.touches && e.touches[0]) ? e.touches[0].clientY : touchStartRef.current;
-      const dy = touchStartRef.current - y;
-      const canScroll = el.scrollHeight > el.clientHeight;
-      if (!canScroll) return;
-      e.preventDefault();
-      e.stopPropagation();
-      try { el.scrollTop += dy; } catch {}
-      touchStartRef.current = y;
-    };
-
-    el.addEventListener('wheel', onWheel, { passive: false });
-    el.addEventListener('touchstart', onTouchStart, { passive: false });
-    el.addEventListener('touchmove', onTouchMove, { passive: false });
-    return () => {
-      el.removeEventListener('wheel', onWheel);
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchmove', onTouchMove);
-    };
   }, [isExpanded]);
 
   return (
@@ -128,26 +58,18 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       <div
         ref={contentRef}
         style={{
-          height: `${collapsedHeight}px`, // Collapsed height equals first paragraph
-          overflow: isExpanded ? "auto" : "hidden",
+          height: "200px", // Fixed base height - GSAP will animate this
+          overflow: "hidden",
           opacity: isExpanded ? 1 : 0.9,
           transition: "opacity 0.6s ease",
-          maxWidth: 'clamp(520px, 42vw, 680px)',
-          maxHeight: isExpanded ? `${maxExpandedHeight}px` : `${collapsedHeight}px`,
-          WebkitOverflowScrolling: isExpanded ? 'touch' : 'auto',
-          willChange: 'height'
         }}
       >
         {paragraphs.map((para, i) => (
           <p
             key={i}
-            ref={(el) => (paragraphRefs.current[i] = el)}
-            className="mb-4 sm:mb-5 md:mb-6"
+            className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#909090] mb-4 sm:mb-5 md:mb-6"
             style={{
               fontFamily: "Inter, sans-serif",
-              color: "#909090",
-              fontSize: 'clamp(14px, 1.3vw, 26px)',
-              lineHeight: 'clamp(22px, 1.85vw, 36px)'
             }}
           >
             {para}
@@ -158,7 +80,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       {isLong && (
         <button
           onClick={handleToggle}
-          className="mt-2 transition-all duration-500 ease-out"
+          className="mt-2 transition-all duration-500 ease-out w-32 sm:w-36 md:w-40 lg:w-44 h-12 sm:h-14 md:h-16 text-sm sm:text-base"
           style={{
             fontFamily: "Inter, sans-serif",
             borderRadius: "200px",
@@ -166,15 +88,6 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
             color: "#092646",
             border: "none",
             cursor: "pointer",
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 'clamp(104px, 10vw, 177px)',
-            height: 'clamp(32px, 3.6vw, 64px)',
-            fontSize: 'clamp(11px, 0.9vw, 18px)',
-            paddingInline: 'clamp(10px, 1.6vw, 24px)',
-            paddingBlock: 'clamp(6px, 0.8vw, 12px)',
-            marginTop: 'clamp(0px, min(0.4vw, 0.4vh), 10px)'
           }}
           onMouseEnter={(e) => {
             e.target.style.backgroundColor = "#000000";
@@ -200,12 +113,6 @@ const InteractiveTeamImage = ({ disabled = false }) => {
   const [loadedImages, setLoadedImages] = useState(
     new Set([PROPERTY_IMAGE_PNG])
   );
-  const hoverRafRef = useRef(null);
-  const hoverElRef = useRef(null);
-  const hoverAnimIdRef = useRef(null);
-  const hoverTargetRef = useRef({ x: 0, y: 0, scale: 1 });
-  const hoverCurrentRef = useRef({ x: 0, y: 0, scale: 1 });
-  const parallaxRef = useRef(null);
 
   // Add debugging for component dimensions
   useEffect(() => {
@@ -305,22 +212,6 @@ const InteractiveTeamImage = ({ disabled = false }) => {
   const handleMouseEnterImage = () => {
     if (disabled) return;
     setIsUserInteracting(true);
-    // Start smoothing loop
-    if (!hoverAnimIdRef.current) {
-      const animate = () => {
-        const el = parallaxRef.current;
-        if (!el) { hoverAnimIdRef.current = null; return; }
-        const curr = hoverCurrentRef.current;
-        const tgt = hoverTargetRef.current;
-        // Damped spring/lerp
-        curr.x += (tgt.x - curr.x) * 0.15;
-        curr.y += (tgt.y - curr.y) * 0.15;
-        curr.scale += (tgt.scale - curr.scale) * 0.12;
-        el.style.transform = `translate3d(${curr.x.toFixed(2)}px, ${curr.y.toFixed(2)}px, 0) scale(${curr.scale.toFixed(3)})`;
-        hoverAnimIdRef.current = requestAnimationFrame(animate);
-      };
-      hoverAnimIdRef.current = requestAnimationFrame(animate);
-    }
   };
 
   const handleMouseLeaveImage = () => {
@@ -328,54 +219,12 @@ const InteractiveTeamImage = ({ disabled = false }) => {
     setHoveredMember(null);
     setIsUserInteracting(false);
     setAutoHighlight("full");
-    // Ease back to rest and stop loop when settled
-    hoverTargetRef.current = { x: 0, y: 0, scale: 1 };
-    const stopWhenSettled = () => {
-      const curr = hoverCurrentRef.current;
-      if (Math.abs(curr.x) < 0.2 && Math.abs(curr.y) < 0.2 && Math.abs(curr.scale - 1) < 0.002) {
-        if (hoverAnimIdRef.current) {
-          cancelAnimationFrame(hoverAnimIdRef.current);
-          hoverAnimIdRef.current = null;
-        }
-        const el = parallaxRef.current;
-        if (el) el.style.transform = 'translate3d(0,0,0) scale(1)';
-        return;
-      }
-      requestAnimationFrame(stopWhenSettled);
-    };
-    requestAnimationFrame(stopWhenSettled);
-  };
-
-  const handleMouseMoveImage = (e) => {
-    if (disabled) return;
-    const target = e.currentTarget;
-    if (!target) return;
-    const rect = target.getBoundingClientRect();
-    const nx = ((e.clientX - rect.left) / Math.max(rect.width, 1)) - 0.5;
-    const ny = ((e.clientY - rect.top) / Math.max(rect.height, 1)) - 0.5;
-    const maxShiftPx = 10; // subtle parallax
-    const dx = Math.max(-1, Math.min(1, nx)) * maxShiftPx;
-    const dy = Math.max(-1, Math.min(1, ny)) * maxShiftPx;
-    hoverTargetRef.current = { x: dx, y: dy, scale: 1.03 };
   };
 
   const handleMouseEnterMember = (memberId) => {
     if (disabled) return;
     setHoveredMember(memberId);
   };
-
-  // Keep base image visible until the target member image has loaded to avoid white flashes
-  const activeMember = React.useMemo(
-    () => teamMembers.find((m) => m.id === activeImageId),
-    [teamMembers, activeImageId]
-  );
-  const isActiveLoaded = React.useMemo(
-    () => {
-      if (!activeMember) return activeImageId === 'full';
-      return loadedImages.has(activeMember.image);
-    },
-    [activeMember, loadedImages, activeImageId]
-  );
 
   const getAnimationStyles = (member) => {
     if (!member) return {};
@@ -444,49 +293,26 @@ const InteractiveTeamImage = ({ disabled = false }) => {
 
   return (
     <div 
-      className="relative w-full h-full" 
+      className="relative bg-gray-100 w-full h-full" 
       style={{
         borderRadius: '24px',
         flex: 'none',
         order: 1,
         flexGrow: 0,
         minHeight: '400px',
-        minWidth: '300px',
-        backgroundColor: 'transparent'
+        minWidth: '300px'
       }}
     >
       {/* Main Image Container */}
       <div
-        ref={hoverElRef}
-        className="relative w-full h-full overflow-hidden"
+        className="relative w-full h-full overflow-hidden bg-gray-100"
         style={{
           borderRadius: '24px',
-          pointerEvents: disabled ? 'none' : 'auto',
-          transition: 'transform 0ms',
-          willChange: 'transform',
-          backfaceVisibility: 'hidden',
-          transformStyle: 'preserve-3d',
-          backgroundColor: 'transparent'
+          pointerEvents: disabled ? 'none' : 'auto'
         }}
         onMouseEnter={disabled ? undefined : handleMouseEnterImage}
         onMouseLeave={disabled ? undefined : handleMouseLeaveImage}
-        onMouseMove={disabled ? undefined : handleMouseMoveImage}
       >
-        {/* Parallax content wrapper with bleed to avoid edge reveal */}
-        <div
-          ref={parallaxRef}
-          className="absolute"
-          style={{
-            left: '-32px',
-            top: '-32px',
-            right: '-32px',
-            bottom: '-32px',
-            willChange: 'transform',
-            backfaceVisibility: 'hidden',
-            transform: 'translate3d(0,0,0) scale(1)',
-            backgroundColor: '#000'
-          }}
-        >
         {/* Base Image - Full Team */}
         <img
           src={PROPERTY_IMAGE_PNG}
@@ -494,14 +320,10 @@ const InteractiveTeamImage = ({ disabled = false }) => {
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{
             objectPosition: "center center",
-            opacity: activeImageId === "full" || !isActiveLoaded ? 1 : 0,
-            transition: "opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)",
+            opacity: activeImageId === "full" ? 1 : 0.999,
+            transition: "opacity 1200ms ease-in-out",
             zIndex: 1,
-            backfaceVisibility: 'hidden',
-            willChange: 'opacity',
           }}
-          loading="eager"
-          decoding="async"
           onLoad={() => {}}
         />
 
@@ -519,11 +341,9 @@ const InteractiveTeamImage = ({ disabled = false }) => {
               style={{
                 objectPosition: "center center",
                 opacity: isActive && isLoaded ? 1 : 0,
-                transition: "opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)",
+                transition: "opacity 1200ms ease-in-out",
                 zIndex: isActive ? 2 : 1,
-                visibility: isLoaded ? 'visible' : 'hidden',
-                backfaceVisibility: 'hidden',
-                willChange: 'opacity',
+                display: isLoaded ? "block" : "none",
               }}
               onLoad={() => {
                 setLoadedImages((prev) => new Set([...prev, member.image]));
@@ -531,20 +351,6 @@ const InteractiveTeamImage = ({ disabled = false }) => {
             />
           );
         })}
-
-        {/* Constant dark overlay above images, below text overlays */}
-        <div
-          className="absolute"
-          style={{
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.35)',
-            zIndex: 9,
-            pointerEvents: 'none'
-          }}
-        />
 
         {/* Text Overlays for all members */}
         {teamMembers.map((member) => {
@@ -600,7 +406,6 @@ const InteractiveTeamImage = ({ disabled = false }) => {
             onMouseEnter={() => handleMouseEnterMember(member.id)}
           />
         ))}
-        </div>
       </div>
     </div>
   );
@@ -611,9 +416,6 @@ const AboutBaft = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [textScale, setTextScale] = useState(1);
-  const [topGap, setTopGap] = useState(0);
-  const [imageBox, setImageBox] = useState({ width: 553, height: 782 });
   const isForceAnimatingRef = useRef(false);
   const originalBodyOverflowRef = useRef('');
   const originalBodyTouchActionRef = useRef('');
@@ -640,62 +442,11 @@ const AboutBaft = () => {
     const checkScreenSize = () => {
       const newIsDesktop = window.innerWidth >= 1024; // lg breakpoint and above
       setIsDesktop(newIsDesktop);
-      // Scale down left content slightly on smaller desktop widths
-      if (newIsDesktop) {
-        const w = window.innerWidth || 1440;
-        const h = window.innerHeight || 800;
-        let scale = 1;
-        if (w <= 1024) {
-          scale = 0.82;
-        } else if (w >= 1440) {
-          scale = 1;
-        } else {
-          const t = (w - 1024) / (1440 - 1024);
-          scale = 0.82 + 0.18 * Math.max(0, Math.min(1, t));
-        }
-        setTextScale(scale);
-
-        // Add a small top gap on short-height laptops to clear the navbar
-        if (h < 1000) {
-          const gap = Math.max(40, Math.min(96, Math.round(h * 0.12))); // ~12vh, clamped
-          setTopGap(gap);
-        } else {
-          setTopGap(0);
-        }
-      } else {
-        setTextScale(1);
-        setTopGap(0);
-      }
     };
 
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
-
-  // Dynamic right image container sizing based on viewport height (desktop)
-  useEffect(() => {
-    const ASPECT_RATIO = 553 / 782; // width / height
-    const computeImageBox = () => {
-      if (typeof window === 'undefined') return;
-      const vh = window.innerHeight || 900;
-      const vw = window.innerWidth || 1440;
-      // On smaller laptops, allow a smaller minimum; aim for ~85% of viewport height
-      const minH = Math.min(520, Math.max(380, Math.floor(vh * 0.72)));
-      const maxH = Math.floor(vh * 0.85);
-      let targetH = Math.max(minH, Math.min(782, maxH));
-      let targetW = Math.round(targetH * ASPECT_RATIO);
-      // Ensure the width never exceeds 90% of viewport width
-      const maxW = Math.floor(vw * 0.9);
-      if (targetW > maxW) {
-        targetW = maxW;
-        targetH = Math.round(targetW / ASPECT_RATIO);
-      }
-      setImageBox({ width: targetW, height: targetH });
-    };
-    computeImageBox();
-    window.addEventListener('resize', computeImageBox);
-    return () => window.removeEventListener('resize', computeImageBox);
   }, []);
 
   // Removed unnecessary logging effects that were causing performance issues
@@ -1009,32 +760,20 @@ const AboutBaft = () => {
       setStartRect(null);
       return;
     }
-    let rafId = null;
     const measure = () => {
-      if (!imageStartRef.current) return;
-      const rect = imageStartRef.current.getBoundingClientRect();
-      setStartRect({
-        left: rect.left,
-        top: rect.top,
-        width: rect.width,
-        height: rect.height,
-      });
-    };
-    const scheduleMeasure = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = null;
-        measure();
-      });
+      if (imageStartRef.current) {
+        const rect = imageStartRef.current.getBoundingClientRect();
+        setStartRect({
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        });
+      }
     };
     measure();
-    window.addEventListener('resize', scheduleMeasure, { passive: true });
-    window.addEventListener('scroll', scheduleMeasure, { passive: true });
-    return () => {
-      window.removeEventListener('resize', scheduleMeasure);
-      window.removeEventListener('scroll', scheduleMeasure);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
   }, [isDesktop]);
 
   // Animation values - only for image expansion, not text movement
@@ -1075,45 +814,26 @@ const AboutBaft = () => {
                 ref={textContainerRef}
                 className="flex flex-col justify-center"
                 style={{
-                  transform: `translateX(${textShiftX}px) scale(${textScale})`,
-                  transformOrigin: 'left top',
+                  transform: `translateX(${textShiftX}px)`,
                   opacity: textOpacity,
                   transition: 'none',
                   pointerEvents: textOpacity < 0.05 ? 'none' : 'auto',
-                  marginTop: topGap
                 }}
               >
                 <p
-                  className="font-normal mb-2 flex items-center"
+                  className="font-normal mb-2 flex items-center gap-2 text-xl"
                   style={{
                     fontFamily: "Inter, sans-serif",
                     color: "#092646",
-                    fontSize: 'clamp(16px, 1.15vw, 20px)',
-                    lineHeight: '20px',
-                    letterSpacing: '-0.273006px',
-                    gap: 'clamp(6px, 0.6vw, 8px)',
-                    marginTop: 'clamp(10px, min(2.2vh, 1.8vw), 28px)',
-                    marginBottom: 'clamp(6px, min(1.2vw, 1.2vh), 16px)'
                   }}
                 >
-                  <img
-                    src={SVG_SVG}
-                    alt="Icon"
-                    style={{
-                      width: 'clamp(16px, 1.1vw, 20px)',
-                      height: 'clamp(16px, 1.1vw, 20px)'
-                    }}
-                  />
+                  <img src={SVG_SVG} alt="Icon" className="w-5 h-5" />
                   Know our story
                 </p>
                 <h1
-                  className="leading-tight font-bold text-[#1966BB]"
+                  className="leading-tight mb-8 font-bold text-6xl text-[#1966BB]"
                   style={{
                     fontFamily: "EB Garamond, serif",
-                    fontSize: 'clamp(44px, 4.6vw, 72px)',
-                    lineHeight: 'clamp(48px, 4.8vw, 76px)',
-                    letterSpacing: '-0.273006px',
-                    marginBottom: 'clamp(8px, min(2vh, 1.8vw), 28px)'
                   }}
                 >
                   <span className="block">About BaFT</span>
@@ -1129,10 +849,10 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                 />
               </div>
 
-              <div className="flex justify-center items-center">
+              <div className="flex justify-end">
                 <div
                   ref={imageStartRef}
-                  style={{ width: `${imageBox.width}px`, height: `${imageBox.height}px`, borderRadius: '24px', overflow: 'hidden', margin: '0 auto' }}
+                  style={{ width: '553px', height: '782px', borderRadius: '24px', overflow: 'hidden' }}
                 >
                   <div className="w-full h-full" style={{ opacity: 1 - easedProgress, transition: 'opacity 120ms linear' }}>
                     <InteractiveTeamImage disabled={easedProgress > 0.02} />
@@ -1143,7 +863,7 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
 
             {/* Floating overlay image that enlarges from right to full screen */}
             <div className="fixed inset-0 pointer-events-none">
-              {startRect && easedProgress > 0.02 && (() => {
+              {startRect && (() => {
                 const vw = typeof window !== 'undefined' ? window.innerWidth : 0;
                 const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
                 const targetW = vw; // fill screen width
@@ -1161,20 +881,17 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                   <div
                     className="absolute"
                     style={{
-                      left: `${Math.round(currentLeft)}px`,
-                      top: `${Math.round(currentTop)}px`,
-                      width: `${Math.round(currentW)}px`,
-                      height: `${Math.round(currentH)}px`,
+                      left: `${currentLeft}px`,
+                      top: `${currentTop}px`,
+                      width: `${currentW}px`,
+                      height: `${currentH}px`,
                       borderRadius: `${currentRadius}px`,
                       overflow: 'hidden',
                       boxShadow: `0 40px 120px rgba(0,0,0,${boxShadowOpacity})`,
                       pointerEvents: 'none',
-                      transform: `translateZ(0) scale(${zoomScale})`,
+                      transform: `scale(${zoomScale})`,
                       transformOrigin: 'center center',
                       transition: 'transform 120ms linear',
-                      willChange: 'transform, left, top, width, height',
-                      backfaceVisibility: 'hidden',
-                      contain: 'layout paint size'
                     }}
                   >
                     <div className="relative w-full h-full" style={{ opacity: disperseOpacity }}>

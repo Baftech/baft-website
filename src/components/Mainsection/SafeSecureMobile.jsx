@@ -77,7 +77,7 @@ const SafeSecureMobile = () => {
                 <img
                   src={SAFE_SEC_SVG}
                   alt="Security Badge"
-                  className="security-logo-svg w-24 h-24"
+                  className="security-logo-svg"
                 />
               </div>
             </div>
