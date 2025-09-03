@@ -159,18 +159,62 @@ const CombinedFooter = () => {
   return (
     <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
       {/* Pre-footer Section with Animation */}
-      <div className="pre-footer-container">
+      <div className="pre-footer-container" style={{ position: 'relative' }}>
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            width: '887px',
+            height: '888px',
+            left: '0px',
+            top: '0px',
+            pointerEvents: 'none',
+            zIndex: 0,
+            background: 'radial-gradient(closest-side at 0 0, rgba(255,255,255,0.4), rgba(255,255,255,0))',
+            backgroundRepeat: 'no-repeat',
+            mixBlendMode: 'screen',
+            filter: 'none',
+            transform: 'translateZ(0)'
+          }}
+        />
 
-        <div className="concentric-wrapper">
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
+        {/* Concentric circles - centered */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            width: 'clamp(820px, 95vmin, 2600px)',
+            aspectRatio: '887 / 888',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity: 0.55,
+            pointerEvents: 'none',
+            zIndex: 0,
+            // Mask top and bottom portions (fade out)
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 15%, rgba(0,0,0,1) 85%, rgba(0,0,0,0))',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 15%, rgba(0,0,0,1) 85%, rgba(0,0,0,0))',
+          }}
+        >
+          {[0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: `${(1 - ratio) * 50}%`,
+                top: `${(1 - ratio) * 50}%`,
+                width: `${ratio * 100}%`,
+                height: `${ratio * 100}%`,
+                borderRadius: '50%',
+                border: '1px solid rgba(255,255,255,0.35)',
+                boxSizing: 'border-box',
+              }}
+            />
+          ))}
         </div>
-
+        
         {/* Star Groups */}
-        <div className="star-groups">
+        <div className="star-groups" style={{ position: 'relative', zIndex: 1 }}>
           <svg width="100%" height="100%" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Group 1 - Central stars (spread across screen) */}
             <g className="star-group-1">
