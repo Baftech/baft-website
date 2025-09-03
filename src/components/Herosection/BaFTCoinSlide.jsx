@@ -240,12 +240,12 @@ const BaFTCoin = () => {
           ref={coinRef}
           src={B_COIN_IMAGE_PNG}
           alt="BaFT Coin"
-          className="absolute md:relative h-auto w-[60vw] sm:w-[54vw] md:w-[40vw] lg:w-[34vw] xl:w-[32vw] 2xl:w-[30vw] 3xl:w-[28vw] max-w-[800px] left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
+          className="absolute md:relative h-auto w-[60vw] sm:w-[54vw] md:w-[40vw] lg:w-[34vw] xl:w-[46vw] 2xl:w-[48vw] 3xl:w-[45vw] max-w-[1000px] left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
         />
       </div>
 
       {/* Overlay Text */}
-      <div className="z-10">
+      <div className="z-10 mt-16 md:mt-20 lg:mt-24">
         <h2
           className="intro-text text-white eb-garamond-intro text-2xl sm:text-3xl md:text-[34px] lg:text-[48px] xl:text-[64px] 2xl:text-[72px] leading-[1.16] font-normal mb-4 opacity-0"
         >
