@@ -43,17 +43,16 @@
   border: none;
   border-radius: 9999px;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 500; /* Slightly bolder for better readability */
-  font-style: "normal";
-  font-size: 11px; /* Slightly larger font size for better readability */
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px; /* Uniform smaller base font size for mobile */
+  line-height: 14px; /* Adjusted line height */
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 28px; /* Smaller height for more compact navbar */
-  min-width: 28px;
-  letter-spacing: 0.025em; /* Better text spacing */
+  min-height: 32px; /* Match nav-btn-size height */
+  min-width: 80px; /* Match nav-btn-size width */
   white-space: nowrap; /* Prevent text wrapping */
   display: flex;
   align-items: center;
@@ -84,24 +83,48 @@
 @media (min-width: 640px) {
   .nav-btn {
     padding: 6px 12px; /* Increased padding for better text fitting */
-    min-height: 32px; /* Reduced height for more compact navbar */
-    font-size: 12px;
+    min-height: 32px; /* Match nav-btn-size height */
+    min-width: 80px; /* Match nav-btn-size width */
+    font-size: 11px; /* Uniform medium font size for small tablets */
+    line-height: 15px;
   }
 }
 
 @media (min-width: 768px) {
   .nav-btn {
     padding: 8px 16px; /* Increased padding for better text fitting */
-    min-height: 36px; /* Reduced height for more compact navbar */
-    font-size: 13px;
+    min-height: 36px; /* Match nav-btn-size height */
+    min-width: 80px; /* Match nav-btn-size width */
+    font-size: 12px; /* Uniform medium font size for tablets */
+    line-height: 16px;
   }
 }
 
 @media (min-width: 1024px) {
   .nav-btn {
     padding: 10px 18px; /* Increased padding for better text fitting */
-    min-height: 40px; /* Reduced height for more compact navbar */
-    font-size: 14px;
+    min-height: 40px; /* Match nav-btn-size height */
+    min-width: 96px; /* Match nav-btn-size width */
+    font-size: 13px; /* Uniform medium font size for desktop */
+    line-height: 17px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .nav-btn {
+    min-height: 48px; /* Match nav-btn-size height */
+    min-width: 112px; /* Match nav-btn-size width */
+    font-size: 14px; /* Uniform larger font size for large screens */
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .nav-btn {
+    min-height: 48px; /* Match nav-btn-size height */
+    min-width: 112px; /* Match nav-btn-size width */
+    font-size: 15px; /* Uniform largest font size for extra large screens */
+    line-height: 19px;
   }
 }
 
@@ -148,9 +171,9 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 28px; /* Smaller height for more compact navbar */
-  min-width: 56px; /* Smaller width for more compact navbar */
-  font-size: 10px; /* Smaller font size for more compact navbar */
+  min-height: 32px; /* Match nav-btn-size height */
+  min-width: 80px; /* Match nav-btn-size width */
+  font-size: 10px; /* Uniform smaller font size for mobile */
   font-weight: 500; /* Slightly bolder for better readability */
   letter-spacing: 0.025em; /* Better text spacing */
   white-space: nowrap; /* Prevent text wrapping */
@@ -179,25 +202,41 @@
 /* Responsive fancy button sizing using 8-point spacing */
 @media (min-width: 640px) {
   .fancy button { 
-    min-height: 32px; /* Reduced height for more compact navbar */
-    min-width: 64px; /* Reduced width for more compact navbar */
+    min-height: 32px; /* Match nav-btn-size height */
+    min-width: 80px; /* Match nav-btn-size width */
     font-size: 11px;
   }
 }
 
 @media (min-width: 768px) {
   .fancy button { 
-    min-height: 36px; /* Reduced height for more compact navbar */
-    min-width: 72px; /* Reduced width for more compact navbar */
+    min-height: 36px; /* Match nav-btn-size height */
+    min-width: 80px; /* Match nav-btn-size width */
     font-size: 12px;
   }
 }
 
 @media (min-width: 1024px) {
   .fancy button { 
-    min-height: 40px; /* Reduced height for more compact navbar */
-    min-width: 80px; /* Reduced width for more compact navbar */
-    font-size: 13px;
+    min-height: 40px; /* Match nav-btn-size height */
+    min-width: 96px; /* Match nav-btn-size width */
+    font-size: 13px; /* Uniform medium font size for desktop */
+  }
+}
+
+@media (min-width: 1280px) {
+  .fancy button {
+    min-height: 48px; /* Match nav-btn-size height */
+    min-width: 112px; /* Match nav-btn-size width */
+    font-size: 14px; /* Uniform larger font size for large screens */
+  }
+}
+
+@media (min-width: 1536px) {
+  .fancy button {
+    min-height: 48px; /* Match nav-btn-size height */
+    min-width: 112px; /* Match nav-btn-size width */
+    font-size: 15px; /* Uniform largest font size for extra large screens */
   }
 }
 
@@ -255,17 +294,104 @@
 
 .dark-theme .fancy button {
   color: white;
+  font-family: 'SF Pro Display', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 10px; /* Uniform smaller base font size for mobile */
+  line-height: 14px;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .dark-theme .fancy button {
+    font-size: 11px; /* Uniform medium font size for small tablets */
+    line-height: 15px;
+  }
+}
+
+@media (min-width: 768px) {
+  .dark-theme .fancy button {
+    font-size: 12px; /* Uniform medium font size for tablets */
+    line-height: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dark-theme .fancy button {
+    font-size: 13px; /* Uniform medium font size for desktop */
+    line-height: 17px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .dark-theme .fancy button {
+    font-size: 14px; /* Uniform larger font size for large screens */
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .dark-theme .fancy button {
+    font-size: 15px; /* Uniform largest font size for extra large screens */
+    line-height: 19px;
+  }
 }
 
 /* ===== LIGHT THEME ===== */
 .light-theme {
-  background: white;
+  background: transparent;
+  color: #092646;
+}
+
+/* Let's Chat button specific styling */
+.light-theme .nav-btn {
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px; /* Uniform smaller base font size for mobile */
+  line-height: 14px;
   color: #092646;
 }
 
 .light-theme .nav-btn {
-  background: white;
+  background: transparent;
   color: #092646;
+}
+
+/* Responsive font sizing for light theme nav-btn */
+@media (min-width: 640px) {
+  .light-theme .nav-btn {
+    font-size: 11px; /* Uniform medium font size for small tablets */
+    line-height: 15px;
+  }
+}
+
+@media (min-width: 768px) {
+  .light-theme .nav-btn {
+    font-size: 12px; /* Uniform medium font size for tablets */
+    line-height: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .light-theme .nav-btn {
+    font-size: 13px; /* Uniform medium font size for desktop */
+    line-height: 17px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .light-theme .nav-btn {
+    font-size: 14px; /* Uniform larger font size for large screens */
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .light-theme .nav-btn {
+    font-size: 15px; /* Uniform largest font size for extra large screens */
+    line-height: 19px;
+  }
 }
 
 .light-theme .nav-btn:hover {
@@ -277,21 +403,67 @@
 .light-theme .fancy::before {
   background: conic-gradient(
     transparent 0deg,
-    transparent 250deg, 
-    rgba(9, 38, 70, 0.1) 270deg,
-    rgba(9, 38, 70, 0.5) 285deg,
-    #092646 300deg,
-    rgba(9, 38, 70, 0.5) 315deg,
-    rgba(9, 38, 70, 0.1) 330deg,
-    transparent 350deg,
+    transparent 200deg, 
+    rgba(9, 38, 70, 0.2) 220deg,
+    rgba(9, 38, 70, 0.6) 240deg,
+    #092646 260deg,
+    rgba(9, 38, 70, 0.8) 280deg,
+    rgba(9, 38, 70, 0.6) 300deg,
+    rgba(9, 38, 70, 0.2) 320deg,
+    transparent 340deg,
     transparent 360deg
   );
 }
 
 .light-theme .fancy::after {
-  background: white;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.5px solid transparent;
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
 }
 
 .light-theme .fancy button {
-  color: #092646;
+  color: black;
+  background: rgba(255, 255, 255, 0.3);
+  font-family: 'SF Pro Display', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 10px; /* Uniform smaller base font size for mobile */
+  line-height: 14px;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .light-theme .fancy button {
+    font-size: 11px; /* Uniform medium font size for small tablets */
+    line-height: 15px;
+  }
+}
+
+@media (min-width: 768px) {
+  .light-theme .fancy button {
+    font-size: 12px; /* Uniform medium font size for tablets */
+    line-height: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .light-theme .fancy button {
+    font-size: 13px; /* Uniform medium font size for desktop */
+    line-height: 17px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .light-theme .fancy button {
+    font-size: 14px; /* Uniform larger font size for large screens */
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .light-theme .fancy button {
+    font-size: 15px; /* Uniform largest font size for extra large screens */
+    line-height: 19px;
+  }
 }

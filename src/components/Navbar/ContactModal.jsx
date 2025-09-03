@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../supabasedb/supabaseClient";
 import "./ContactModal.css";
+import { LOGO_PNG } from "../../assets/assets";
 
 const ContactModal = ({ isOpen, onClose }) => {
   const [showThanks, setShowThanks] = useState(false);
@@ -115,14 +116,8 @@ const ContactModal = ({ isOpen, onClose }) => {
 
         {/* Logo - Always visible */}
         <div className="flex flex-col items-center justify-center text-center mb-3 sm:mb-4">
-          <img
-            src="/logo.png"
-            alt="BaFT Logo"
-            className="w-[80px] sm:w-[100px] h-auto mx-auto"
-          />
-          <p className="mt-2 sm:mt-2 font-['Inter'] text-[12px] sm:text-[14px] text-white/70">
-            Built for You, Powered by Tech
-          </p>
+          <img src={LOGO_PNG} alt="BaFT Logo" className="w-[80px] sm:w-[100px] h-auto mx-auto" />
+          <p className="mt-2 sm:mt-2 font-['Inter'] text-[12px] sm:text-[14px] text-white/70">Built for You, Powered by Tech</p>
         </div>
 
         {/* Content Container - Flexible Height */}

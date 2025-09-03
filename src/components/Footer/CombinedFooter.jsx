@@ -7,7 +7,9 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { supabase } from "../../supabasedb/supabaseClient";
 import Thanks from "./Thanks";
+import CombinedFooterMobile from "./CombinedFooterMobile";
 import "./CombinedFooter.css";
+import { HAND_IPHONE_IMAGE_SVG, BAFT_PIC_PNG } from "../../assets/assets";
 
 const SignupForm = ({ onOpenThanks }) => {
   const [email, setEmail] = useState("");
@@ -105,7 +107,7 @@ const SignupForm = ({ onOpenThanks }) => {
 
       <div className="absolute right-4 md:right-8 -bottom-0 md:-bottom-3 lg:-bottom-5.5 z-20">
         <img
-          src="/hand_iphone_image.svg"
+          src={HAND_IPHONE_IMAGE_SVG}
           alt="Signup Illustration"
           className="w-[200px] sm:w-[245px] md:w-[300px] lg:w-[350px] object-contain"
         />
@@ -121,85 +123,44 @@ const socialLinks = [
 ];
 
 const CombinedFooter = () => {
-  const canvasRef = useRef(null);
-  const animationFrameRef = useRef(null);
-  const isVisibleRef = useRef(false);
   const [isThanksOpen, setIsThanksOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
+  // Mobile detection logic
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    const checkDeviceAndOrientation = () => {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isMobileDevice = window.innerWidth <= 768 || 
+                           (window.innerWidth <= 1024 && isPortrait) ||
+                           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      setIsMobile(isMobileDevice && isPortrait);
     };
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
 
-    const stars = [];
-    const starCount = Math.floor((canvas.width * canvas.height) / 16000);
-    for (let i = 0; i < starCount; i++) {
-      stars.push({ radius: Math.random() * 1.5 + 0.5, opacity: 0.05 + Math.random() * 0.3, angle: Math.random() * Math.PI * 2, dist: Math.random() * (Math.min(canvas.width, canvas.height) / 2) });
-    }
+    // Check on mount
+    checkDeviceAndOrientation();
 
-    let rotationSpeed = 0.0005;
-    let lastTime = 0;
-    const targetFPS = 20;
-    const frameInterval = 1000 / targetFPS;
-
-    function draw(currentTime) {
-      if (!isVisibleRef.current) {
-        animationFrameRef.current = requestAnimationFrame(draw);
-        return;
-      }
-      if (currentTime - lastTime < frameInterval) {
-        animationFrameRef.current = requestAnimationFrame(draw);
-        return;
-      }
-      lastTime = currentTime;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-
-      ctx.beginPath();
-      for (let i = 0; i < stars.length; i++) {
-        const star = stars[i];
-        star.angle += rotationSpeed;
-        const x = cx + Math.cos(star.angle) * star.dist;
-        const y = cy + Math.sin(star.angle) * star.dist;
-        ctx.moveTo(x + star.radius, y);
-        ctx.arc(x, y, star.radius, 0, Math.PI * 2);
-      }
-      ctx.fillStyle = "rgba(255,255,255,0.6)";
-      ctx.fill();
-
-      animationFrameRef.current = requestAnimationFrame(draw);
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isVisibleRef.current = entry.isIntersecting && entry.intersectionRatio >= 0.6;
-      },
-      { threshold: [0, 0.25, 0.5, 0.6, 0.75, 1] }
-    );
-
-    observer.observe(canvas);
-    animationFrameRef.current = requestAnimationFrame(draw);
+    // Check on resize and orientation change
+    window.addEventListener('resize', checkDeviceAndOrientation);
+    window.addEventListener('orientationchange', checkDeviceAndOrientation);
 
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      observer.disconnect();
+      window.removeEventListener('resize', checkDeviceAndOrientation);
+      window.removeEventListener('orientationchange', checkDeviceAndOrientation);
     };
   }, []);
+
+
+
+  // If mobile device in portrait mode, render mobile footer
+  if (isMobile) {
+    return <CombinedFooterMobile />;
+  }
 
   return (
     <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
       <div className="pre-footer-container">
-        <canvas ref={canvasRef} className="starfield-canvas" />
+
         <div className="concentric-wrapper">
           <div className="concentric-circle" />
           <div className="concentric-circle" />
@@ -207,6 +168,41 @@ const CombinedFooter = () => {
           <div className="concentric-circle" />
           <div className="concentric-circle" />
         </div>
+
+        {/* Star Groups */}
+        <div className="star-groups">
+          <svg width="100%" height="100%" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Group 1 - Central stars (spread across screen) */}
+            <g className="star-group-1">
+              <circle cx="960" cy="540" r="2" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="800" cy="400" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="1120" cy="400" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="800" cy="680" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="1120" cy="680" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="960" cy="300" r="1" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="960" cy="780" r="1" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="700" cy="540" r="1" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="1220" cy="540" r="1" fill="rgba(255,255,255,0.4)"/>
+            </g>
+            
+            {/* Group 2 - Revolving stars around the entire screen */}
+            <g className="star-group-2">
+              <circle cx="200" cy="200" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="1720" cy="200" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="200" cy="880" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="1720" cy="880" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="200" cy="400" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="1720" cy="400" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="200" cy="680" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="1720" cy="680" r="1.5" fill="rgba(255,255,255,0.6)"/>
+              <circle cx="400" cy="300" r="1" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="1520" cy="300" r="1" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="400" cy="780" r="1" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="1520" cy="780" r="1" fill="rgba(255,255,255,0.5)"/>
+            </g>
+          </svg>
+        </div>
+
         <div className="text-container">
           <h1 className="main-heading">Banking was never easy…</h1>
           <p className="sub-heading">BaFT – Built for You, Powered by Tech</p>
@@ -223,7 +219,7 @@ const CombinedFooter = () => {
             {/* Left */}
             <div className="flex flex-col items-center md:items-start gap-1 w-full md:w-[280px]">
               <img
-                src="/baft_pic.png"
+                src={BAFT_PIC_PNG}
                 alt="BaFT Logo"
                 className="p-2 w-[80px] h-[80px] rounded-[20px] object-cover"
               />

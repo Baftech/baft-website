@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SVG_SVG, VIDEO_COM_PNG, PROPERTY_IMAGE_PNG, PROPERTY_VIBHA_PNG, PROPERTY_DION_PNG, PROPERTY_SAKET_PNG } from "../../assets/assets";
 
 const TeamAbout = () => {
   const [hoveredMember, setHoveredMember] = useState(null);
@@ -7,21 +8,21 @@ const TeamAbout = () => {
     {
       id: 'dion',
       name: 'Dion Monteiro',
-      image: 'https://api.builder.io/api/v1/image/assets/TEMP/6bb801dfc1951b4f4445dea9a7723a3c0ca9e92f?width=1105',
+      image: PROPERTY_DION_PNG,
       position: { left: '23px', top: '233px', width: '211px', height: '393px' },
       description: 'Co-founder and Tech Lead at BaFT Technologies. Passionate about building seamless user experiences.'
     },
     {
       id: 'vibha',
       name: 'Vibha Harish',
-      image: 'https://api.builder.io/api/v1/image/assets/TEMP/6bb801dfc1951b4f4445dea9a7723a3c0ca9e92f?width=1105',
+      image: PROPERTY_VIBHA_PNG,
       position: { left: '207px', top: '233px', width: '118px', height: '393px' },
       description: 'Co-founder and Product Head at BaFT Technologies. Focused on creating customer-first solutions.'
     },
     {
       id: 'saket',
       name: 'Saket Borkar',
-      image: 'https://api.builder.io/api/v1/image/assets/TEMP/6bb801dfc1951b4f4445dea9a7723a3c0ca9e92f?width=1105',
+      image: PROPERTY_SAKET_PNG,
       position: { left: '304px', top: '233px', width: '217px', height: '393px' },
       description: 'Co-founder and Strategy Lead at BaFT Technologies. Expert in financial services innovation.'
     }
@@ -54,7 +55,7 @@ const TeamAbout = () => {
             {/* Right Video Section */}
             <div className="relative">
               <img 
-                src="https://api.builder.io/api/v1/image/assets/TEMP/25805b85ee9b7ab1a9bb9121e0ef8891b372b99b?width=2516" 
+                src={VIDEO_COM_PNG} 
                 alt="Team video"
                 className="w-full max-w-4xl rounded-3xl"
               />
@@ -119,7 +120,7 @@ const TeamAbout = () => {
             <div className="w-[553px] h-[782px] relative rounded-3xl overflow-hidden">
               {/* Base team image */}
               <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/c21ccf9d0d903a404042c4e880ce8a0e6456886c?width=1105"
+                src={PROPERTY_IMAGE_PNG}
                 alt="Team members"
                 className="w-full h-full object-cover"
                 style={{
