@@ -32,16 +32,19 @@ const BaFTCoin = () => {
       const isMacBook = isMacUserAgent && isDesktopSize && isNotWindows;
       setIsMacBook(isMacBook);
       
-      // Debug logging
-      console.log('Device Detection:', {
-        width,
-        height,
-        isMacUserAgent,
-        isDesktopSize,
-        isNotWindows,
-        isMacBook,
-        userAgent: navigator.userAgent
-      });
+      // Debug logging once per mount to avoid StrictMode noise
+      if (!window.__loggedBaftCoinDevice) {
+        window.__loggedBaftCoinDevice = true;
+        console.log('Device Detection:', {
+          width,
+          height,
+          isMacUserAgent,
+          isDesktopSize,
+          isNotWindows,
+          isMacBook,
+          userAgent: navigator.userAgent
+        });
+      }
     };
 
     checkDevice();

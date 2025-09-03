@@ -64,8 +64,11 @@ const HeroMobileComponent = () => {
         setViewMode('desktop');
       }
       
-      // Debug logging for device detection
-      console.log(`Device Detection: width=${width}, height=${height}, mobile=${mobile}, tablet=${tablet}, desktop=${desktop}, orientation=${orientation}, viewMode=${orientation === 'portrait' ? 'tablet-portrait' : 'desktop'}`);
+      // Debug logging for device detection (log once per mount)
+      if (!window.__loggedHeroDevice) {
+        window.__loggedHeroDevice = true;
+        console.log(`Device Detection: width=${width}, height=${height}, mobile=${mobile}, tablet=${tablet}, desktop=${desktop}, orientation=${orientation}, viewMode=${orientation === 'portrait' ? 'tablet-portrait' : 'desktop'}`);
+      }
     };
 
     checkOrientation();

@@ -192,9 +192,8 @@ const BInstantSection = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    // Start both text and coin animations at the same time
-    // Text animation duration is 3.8s, coins reveal over 0.8s then expand for 3.0s
-    const timer = setTimeout(() => setStartCoinAnimation(true), 100);
+    // Defer slightly to allow canvas to mount to reduce context-loss risk
+    const timer = setTimeout(() => setStartCoinAnimation(true), 200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -234,14 +233,16 @@ const BInstantSection = () => {
 
   // Expose the method to SlideContainer
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !window.__binstantExitHooked) {
       console.log('🎯 BInstant: Exposing triggerBinstantExit to window');
       window.triggerBinstantExit = triggerExitAnimation;
+      window.__binstantExitHooked = true;
     }
     return () => {
       if (typeof window !== 'undefined') {
         console.log('🎯 BInstant: Cleaning up triggerBinstantExit from window');
         delete window.triggerBinstantExit;
+        delete window.__binstantExitHooked;
       }
     };
   }, [triggerExitAnimation]);

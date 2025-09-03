@@ -11,11 +11,11 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
 
   useFrame(() => {
     if (animate && ref.current) {
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.03); // Slower, more elegant expansion
+      ref.current.position.lerp(new THREE.Vector3(...target), 0.02); // Slightly increased expansion speed
     }
   });
 
-  const scaleFactor = (2.0 - position[2] * 0.3); // Balanced size with good expansion
+  const scaleFactor = (1.8 - position[2] * 0.2); // Reduced expansion scale
 
   return (
     <group>
@@ -56,7 +56,7 @@ const CoinStack = ({ startAnimation }) => {
         texture={coinTexture}
         position={[0.3, -0.4, -0.3]}
         animate={startAnimation}
-        target={[0.7, -0.7, -0.5]}
+        target={[0.5, -0.5, -0.4]}
         opacity={1.0}
       />
       <Coin
@@ -70,7 +70,7 @@ const CoinStack = ({ startAnimation }) => {
         texture={coinTexture}
         position={[-0.3, 0.4, 0.3]}
         animate={startAnimation}
-        target={[-0.7, 0.7, 0.5]}
+        target={[-0.5, 0.5, 0.4]}
         opacity={0.95}
       />
     </>
@@ -83,17 +83,19 @@ const BInstantMobile = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      console.log("Setting coin animation and show coins to true");
       setStartCoinAnimation(true);
       setShowCoins(true);
-    }, 0); // Start immediately when component mounts
+    }, 100); // small defer to ensure WebGL context is ready
     return () => clearTimeout(timer);
   }, []);
 
   // Debug logging
   useEffect(() => {
-    console.log("startCoinAnimation:", startCoinAnimation);
-    console.log("showCoins:", showCoins);
+    if (!window.__loggedBInstantMobile) {
+      window.__loggedBInstantMobile = true;
+      console.log("startCoinAnimation:", startCoinAnimation);
+      console.log("showCoins:", showCoins);
+    }
   }, [startCoinAnimation, showCoins]);
 
   return (
@@ -133,11 +135,7 @@ const BInstantMobile = () => {
             }}
             dpr={[1, 1.5]}
           >
-            <Suspense fallback={
-              <div style={{ color: "white", textAlign: "center", padding: "20px" }}>
-                Loading coins...
-              </div>
-            }>
+            <Suspense fallback={null}>
               {/* Brighter lighting for better visibility */}
               <ambientLight intensity={0.8} color="#ffffff" />
               <directionalLight position={[1, 2, 1]} intensity={0.7} color="#ffffff" />
@@ -158,7 +156,7 @@ const BInstantMobile = () => {
         pointerEvents: "none" 
       }}>
         <motion.div
-          style={{ position: "relative", width: "300px", height: "100px" }}
+          style={{ position: "relative", width: "380px", height: "120px" }}
         >
           {/* Left Chunk - B-Coin + Instant Value */}
           <motion.div
@@ -171,14 +169,14 @@ const BInstantMobile = () => {
             <div
               style={{ 
                 position: "absolute",
-                width: "83px",
-                height: "30px",
+                width: "100px",
+                height: "36px",
                 left: "3.41px",
                 top: "0px",
                 fontFamily: "Inter, sans-serif",
                 fontStyle: "italic",
                 fontWeight: 200,
-                fontSize: "25.7199px",
+                fontSize: "32px",
                 lineHeight: "116.36%",
                 color: "#FFFFFF"
               }}
@@ -190,14 +188,14 @@ const BInstantMobile = () => {
             <div
               style={{ 
                 position: "absolute",
-                width: "154px",
-                height: "30px",
+                width: "180px",
+                height: "36px",
                 left: "-1px",
                 top: "30.04px",
                 fontFamily: "Inter, sans-serif",
                 fontStyle: "italic",
                 fontWeight: 200,
-                fontSize: "25.7199px",
+                fontSize: "32px",
                 lineHeight: "116.36%",
                 textAlign: "center",
                 color: "#FFFFFF"
@@ -213,7 +211,7 @@ const BInstantMobile = () => {
                 width: "10.92257308959961px",
                 height: "0px",
                 top: "45.74px",
-                left: "158.72px",
+                left: "185px",
                 border: "1.54px solid #FFFFFF",
                 opacity: 1
               }}
@@ -231,14 +229,14 @@ const BInstantMobile = () => {
             <div
               style={{ 
                 position: "absolute",
-                width: "116px",
-                height: "33px",
-                left: "175.1px",
+                width: "140px",
+                height: "40px",
+                left: "200px",
                 top: "28.33px",
                 fontFamily: "EB Garamond, serif",
                 fontStyle: "normal",
                 fontWeight: 500,
-                fontSize: "28.6868px",
+                fontSize: "36px",
                 lineHeight: "116.36%",
                 textAlign: "right",
                 textTransform: "uppercase",
@@ -253,14 +251,14 @@ const BInstantMobile = () => {
             <div
               style={{ 
                 position: "absolute",
-                width: "102px",
-                height: "30px",
-                left: "185.37px",
+                width: "120px",
+                height: "36px",
+                left: "220px",
                 top: "61.78px",
                 fontFamily: "Inter, sans-serif",
                 fontStyle: "italic",
                 fontWeight: 200,
-                fontSize: "25.7199px",
+                fontSize: "32px",
                 lineHeight: "116.36%",
                 textAlign: "right",
                 color: "#FFFFFF"

@@ -1,465 +1,224 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import { gsap } from "gsap";
-import { VIDEO_COM_PNG, SVG_SVG } from "../../assets/assets";
+import { VIDEO_COM_PNG, SVG_SVG, BAFT_VID_MP4 } from "../../assets/assets";
 
 const VideoComponentMobile = ({ slide = false }) => {
-  const mainContainerRef = useRef(null);
-  const videoSectionRef = useRef(null);
+  const cardRef = useRef(null);
+  const fullscreenRef = useRef(null);
   const videoRef = useRef(null);
-  const videoCardRef = useRef(null);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [screenDimensions, setScreenDimensions] = useState({ width: 0, height: 0 });
-  const originalBodyOverflowRef = useRef('');
-  const originalBodyTouchActionRef = useRef('');
-  const originalHtmlOverscrollRef = useRef('');
-  
+  const [isAnimating, setIsAnimating] = useState(false);
 
-
-  // Get phone screen dimensions
-  useEffect(() => {
-    const updateScreenDimensions = () => {
-      setScreenDimensions({
-        width: window.screen.width,
-        height: window.screen.height
-      });
-    };
-
-    updateScreenDimensions();
-    window.addEventListener('resize', updateScreenDimensions);
-    window.addEventListener('orientationchange', updateScreenDimensions);
+  const expandAndPlay = async () => {
+    if (isExpanded || isAnimating) return;
     
-    return () => {
-      window.removeEventListener('resize', updateScreenDimensions);
-      window.removeEventListener('orientationchange', updateScreenDimensions);
-    };
-  }, []);
+    setIsAnimating(true);
+    setIsExpanded(true);
 
-  // Removed swipe-to-tilt functionality for cleaner mobile experience
+    // Lock scroll
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
 
-
-
-  // Handle touch-based expansion in slide mode
-  useEffect(() => {
-    if (!slide) return;
-
-    const addOpts = { passive: false, capture: true };
-
-    const handleTouch = (e) => {
-      // Only trigger if not already animating/expanded
-      if (isAnimating || isExpanded) return;
-      
-      // Check if scrolling is in progress
-      if (document.documentElement.style.overflow === 'hidden') {
-        return; // Don't interfere with ongoing scroll operations
-      }
-      
-      // Only prevent default if the event is cancelable
-      if (e.cancelable) {
-        e.preventDefault();
-      }
-      e.stopPropagation();
-      
-      // Mark animation as starting
-      setIsAnimating(true);
-      
-      // Mark global handoff so SlideContainer ignores touch during expansion
-      if (typeof window !== 'undefined') {
-        window.__videoHandoffActive = true;
-      }
-
-      // Lock global scroll during animation
-      const prevent = (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        return false;
-      };
-      
-      // Save originals and apply strict locks
+    // Request fullscreen and lock orientation to landscape
+    if (fullscreenRef.current?.requestFullscreen) {
       try {
-        originalBodyOverflowRef.current = document.body.style.overflow;
-        originalBodyTouchActionRef.current = document.body.style.touchAction;
-        originalHtmlOverscrollRef.current = document.documentElement.style.overscrollBehavior;
-        document.body.style.overflow = 'hidden';
-        document.body.style.touchAction = 'none';
-        document.documentElement.style.overscrollBehavior = 'none';
-      } catch {}
-
-      document.addEventListener('touchmove', prevent, addOpts);
-      document.addEventListener('touchstart', prevent, addOpts);
-      document.addEventListener('touchend', prevent, addOpts);
-      document.addEventListener('scroll', prevent, addOpts);
-      document.addEventListener('keydown', prevent, addOpts);
-
-      // Start the synchronized animation
-      setTimeout(() => {
-        setIsExpanded(true);
-      }, 50);
-
-      // Ensure the section is in view
-      try {
-        videoSectionRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
-      } catch {}
-
-      // Release locks after animation completes
-      setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.__videoHandoffActive = false;
+        await fullscreenRef.current.requestFullscreen();
+        if (screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock("landscape").catch(() => {});
         }
-        document.removeEventListener('touchmove', prevent, addOpts);
-        document.removeEventListener('touchstart', prevent, addOpts);
-        document.removeEventListener('touchend', prevent, addOpts);
-        document.removeEventListener('scroll', prevent, addOpts);
-        document.removeEventListener('keydown', prevent, addOpts);
-        
-        try {
-          document.body.style.overflow = originalBodyOverflowRef.current || '';
-          document.body.style.touchAction = originalBodyTouchActionRef.current || '';
-          document.documentElement.style.overscrollBehavior = originalHtmlOverscrollRef.current || '';
-        } catch {}
-        setIsAnimating(false);
-      }, 3000);
-    };
-
-    // Add touch listener
-    const container = mainContainerRef.current;
-    if (container) {
-      container.addEventListener('touchstart', handleTouch, addOpts);
+      } catch (err) {
+        console.warn("Fullscreen request failed:", err);
+      }
     }
 
-    return () => {
-      if (container) {
-        container.removeEventListener('touchstart', handleTouch, addOpts);
-      }
-      // Clean up global handoff
-      if (typeof window !== 'undefined') {
-        window.__videoHandoffActive = false;
-      }
-    };
-  }, [slide, isAnimating, isExpanded]);
+    // Play video
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
 
+    gsap.to(cardRef.current, {
+      opacity: 0,
+      scale: 0.8,
+      duration: 0.3,
+      ease: "power2.out",
+      onComplete: () => {
+        setIsAnimating(false);
+      }
+    });
+  };
 
+  const collapse = async () => {
+    if (isAnimating) return;
+
+    setIsAnimating(true);
+    setIsExpanded(false);
+
+    // Exit fullscreen and unlock orientation
+    if (document.fullscreenElement) {
+      try {
+        await document.exitFullscreen();
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        }
+      } catch (err) {
+        console.warn("Exit fullscreen failed:", err);
+      }
+    }
+
+    // Pause & reset video
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+
+    gsap.to(cardRef.current, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.3,
+      ease: "power2.out",
+      onComplete: () => {
+        setIsAnimating(false);
+        document.body.style.overflow = "";
+        document.body.style.touchAction = "";
+      }
+    });
+  };
 
   return (
-    <div 
-      ref={mainContainerRef}
-      className="relative w-full h-screen overflow-hidden"
-      style={{
-        height: '100vh',
-        overflowY: slide ? 'hidden' : 'scroll',
-        scrollSnapType: slide ? undefined : 'y mandatory',
-        scrollBehavior: slide ? undefined : 'smooth',
-        overscrollBehavior: slide ? 'none' : undefined,
-        overscrollBehaviorY: slide ? 'none' : undefined,
-        touchAction: slide ? 'none' : undefined
-      }}
-    >
+    <div className="relative w-full h-screen flex items-center justify-center bg-white overflow-hidden">
       <section
-        ref={videoSectionRef}
         style={{
           height: '100vh',
           backgroundColor: 'white',
           position: 'relative',
           overflow: 'hidden',
-          overscrollBehavior: 'none',
-          touchAction: 'none'
-        }}
-        data-theme="light"
-      >
-        <div style={{
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          overflow: 'hidden',
-          perspective: '1000px'
-        }}>
-          {/* Header Section - Centered */}
-          <div style={{
-            textAlign: 'center',
-            
-            
-            paddingLeft: '1.25rem',
-            paddingRight: '1.25rem',
-            width: isScrolled ? `${screenDimensions.width}px` : '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            position: isScrolled ? 'fixed' : 'relative',
-            top: isScrolled ? '0' : 'auto',
-            left: isScrolled ? '0' : 'auto',
-            zIndex: isScrolled ? 1001 : 'auto',
-            background: isScrolled ? 'white' : 'transparent',
-            paddingTop: isScrolled ? '1rem' : '0',
-            paddingBottom: isScrolled ? '1rem' : '0'
-          }}>
-            {/* Interactive Video Card - Centered */}
-            <div 
-              ref={videoCardRef}
+          padding: '1.25rem'
+        }}
+        data-theme="light"
+      >
+                {/* Video Card Container */}
+        <div
+          ref={cardRef}
+          className="relative w-[85vw] h-[25vh] rounded-xl overflow-hidden shadow-lg cursor-pointer"
               style={{
                 background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                borderRadius: 'clamp(12px, 3vw, 20px)',
-                width: 'clamp(280px, 85vw, 400px)',
-                height: 'clamp(10rem, 25vh, 15rem)',
-                marginTop: '-5rem',
-                marginBottom: '0',
-                overflow: 'hidden',
-                position: 'relative',
                 boxShadow: '0 15px 35px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1)',
-                cursor: 'pointer',
                 transform: 'rotateX(5deg) rotateY(-2deg) scale(0.98)',
                 transformOrigin: 'center center',
-                backfaceVisibility: 'hidden',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+            backfaceVisibility: 'hidden'
               }}
+          onClick={expandAndPlay}
             >
-              {/* Video/Image */}
+          {/* Thumbnail Image - Only show when not expanded */}
+          {!isExpanded && (
               <img
-                ref={videoRef}
                 src={VIDEO_COM_PNG}
                 alt="Video Preview"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: '1rem',
-                  transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                  maxWidth: '100%',
-                  maxHeight: '100%'
-                }}
-              />
-              
-              {/* Touch hint overlay */}
-              {!isScrolled && !isExpanded && !isAnimating && (
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: 'rgba(0, 0, 0, 0.1)'
-                }}>
-                  <div style={{
-                    textAlign: 'center',
-                    color: 'white'
-                  }}>
-                    <div style={{
-                      width: '4rem',
-                      height: '4rem',
-                      background: 'rgba(255, 255, 255, 0.2)',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 0.5rem',
-                      backdropFilter: 'blur(8px)',
-                      transition: 'all 0.3s ease'
-                    }}>
-                      <svg style={{ width: '2rem', height: '2rem' }} fill="currentColor" viewBox="0 0 24 24">
+              className="w-full h-full object-cover rounded-xl"
+            />
+          )}
+
+          
+
+          {/* Play Button Overlay - Only show when not expanded */}
+          {!isExpanded && !isAnimating && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-10">
+              <div className="text-center text-white">
+                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-2 backdrop-blur-sm">
+                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z"/>
                       </svg>
                     </div>
-                                                          <p style={{
-                      fontSize: '0.875rem',
-                      opacity: 0.9
-                    }}>
-                      Scroll to tilt to landscape mode
-                    </p>
-                    <button 
-                      onClick={() => {
-                        if (videoCardRef.current) {
-                          gsap.to(videoCardRef.current, {
-                            rotate: -90,
-                            scale: 1.2,
-                            duration: 1,
-                            ease: "power2.inOut"
-                          });
-                        }
-                      }}
-                      style={{
-                        marginTop: '0.5rem',
-                        padding: '0.25rem 0.5rem',
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        borderRadius: '0.25rem',
-                        color: 'white',
-                        fontSize: '0.75rem',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Test Tilt
-                    </button>
+                <p className="text-sm opacity-90">
+                  Tap to play in landscape
+                </p>
                   </div>
                 </div>
               )}
-              
-              {/* Horizontal Video Player Overlay - Only visible when expanded */}
-              {isScrolled && (
-                <div style={{
-                  position: 'absolute',
-                  top: '0',
-                  left: '0',
-                  width: '100%',
-                  height: '100%',
-                  background: 'rgba(0, 0, 0, 0.9)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 1001
-                }}>
-                  <div style={{
-                    textAlign: 'center',
-                    color: 'white',
-                    padding: '2rem'
-                  }}>
-                    <div style={{
-                      width: '6rem',
-                      height: '6rem',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 1rem',
-                      backdropFilter: 'blur(8px)',
-                      border: '2px solid rgba(255, 255, 255, 0.2)'
-                    }}>
-                      <svg style={{ width: '3rem', height: '3rem' }} fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    </div>
-                    <h3 style={{
-                      fontSize: '1.5rem',
-                      marginBottom: '0.5rem',
-                      fontWeight: '600'
-                    }}>
-                      Video Playing
-                    </h3>
-                    <p style={{
-                      fontSize: '1rem',
-                      opacity: 0.8,
-                      marginBottom: '1rem'
-                    }}>
-                      Landscape mode - YouTube style
-                    </p>
-                    <div style={{
-                      display: 'flex',
-                      gap: '1rem',
-                      justifyContent: 'center'
-                    }}>
-                      <button style={{
-                        padding: '0.5rem 1rem',
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        borderRadius: '0.5rem',
-                        color: 'white',
-                        cursor: 'pointer',
-                        fontSize: '0.875rem'
-                      }}>
-                        Pause
-                      </button>
-                      <button style={{
-                        padding: '0.5rem 1rem',
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        borderRadius: '0.5rem',
-                        color: 'white',
-                        cursor: 'pointer',
-                        fontSize: '0.875rem'
-                      }}>
-                        Full Screen
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
           
-          {/* Content Section - Responsive margins */}
-          <div style={{
-            paddingLeft: 'clamp(1rem, 4vw, 1.5rem)',
-            paddingRight: 'clamp(1rem, 4vw, 1.5rem)',
-            paddingTop: '0',
-            marginTop: isScrolled ? '1rem' : '-3rem',
-            width: 'clamp(280px, 85vw, 400px)',
-            margin: '0 auto',
-            opacity: isScrolled ? 0 : 1,
-            transform: isScrolled ? 'translateY(20px)' : 'translateY(0)',
-            transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-            pointerEvents: isScrolled ? 'none' : 'auto'
-          }}>
-            {/* Text Container */}
-            <div 
-              className="text-container"
+        {/* Fullscreen Video Overlay - Only show when expanded */}
+        {isExpanded && (
+          <div
+            ref={fullscreenRef}
+            className="fixed inset-0 bg-black z-40 flex items-center justify-center"
+            style={{
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh'
+            }}
+            onClick={(e) => {
+              // Close when clicking outside the video
+              if (e.target === e.currentTarget) {
+                collapse();
+              }
+            }}
+          >
+            <div
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-                gap: '0.5rem',
-                padding: '0',
-                height: 'auto',
-                textAlign: 'left',
-                width: '100%',
-                maxWidth: '100%'
+                width: "100vw",
+                height: "100vh",
+                position: "relative",
+                background: "black",
+                overflow: "hidden",
               }}
             >
-              <p
-                className="font-normal mb-2 flex items-center gap-2"
+              <video
+                ref={videoRef}
+                src={BAFT_VID_MP4}
+                playsInline
+                muted
+                autoPlay
+                preload="auto"
+                poster={VIDEO_COM_PNG}
                 style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "clamp(12px, 3.5vw, 16px)",
-                  color: "#092646",
-                  fontWeight: 400,
-                  fontStyle: "normal",
-                  lineHeight: "1.2",
-                  letterSpacing: "-0.15px",
-                  margin: 0,
-                  padding: 0,
-                  width: 'auto',
-                  height: 'auto'
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%) rotate(90deg)",
+                  height: "100vw",   // scale using the larger side
+                  width: "auto",     // preserve aspect ratio
+                  objectFit: "cover", // YouTube-style edge-to-edge
                 }}
-              >
+              />
+            </div>
+            
+            {/* Close Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                collapse();
+              }}
+              className="absolute top-4 right-4 z-50 bg-black bg-opacity-70 text-white px-4 py-2 rounded-full text-lg font-bold"
+              style={{ 
+                backdropFilter: 'blur(8px)',
+                border: '2px solid rgba(255,255,255,0.3)'
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Text Content - Only show when not expanded */}
+        {!isExpanded && (
+          <div className="mt-8 w-[85vw] max-w-[400px]">
+            <div className="flex flex-col gap-2">
+              <p className="font-normal flex items-center gap-2 text-sm text-[#092646]">
                 <img src={SVG_SVG} alt="Icon" className="w-4 h-4" />
                 Know our story
               </p>
               
-              <h1 style={{
-                fontFamily: 'EB Garamond, serif',
-                fontSize: 'clamp(28px, 8vw, 44px)',
-                fontWeight: '700',
-                fontStyle: 'normal',
-                color: '#1966BB',
-                lineHeight: '1.2',
-                letterSpacing: '-0.15px',
-                margin: '0.5rem 0',
-                padding: 0,
-                width: 'auto',
-                height: 'auto'
-              }}>
+              <h1 className="text-3xl font-bold text-[#1966BB] leading-tight">
                 The Video
               </h1>
               
-              <p style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 'clamp(14px, 4vw, 18px)',
-                color: '#909090',
-                lineHeight: '1.5',
-                fontWeight: 400,
-                fontStyle: 'normal',
-                letterSpacing: '0px',
-                margin: 0,
-                padding: 0,
-                width: 'auto',
-                height: 'auto'
-              }}>
+              <p className="text-[#909090] text-sm leading-relaxed">
                 BaFT Technology is a next-gen neo-banking startup headquartered in
                 Bangalore, proudly founded in 2025. We're a tight-knit team of
                 financial innovators and tech experts on a mission: to reimagine
@@ -467,111 +226,8 @@ const VideoComponentMobile = ({ slide = false }) => {
               </p>
             </div>
           </div>
-        </div>
+        )}
       </section>
-
-      {/* CSS for animations and text container positioning */}
-      <style>
-        {`
-          @keyframes gentlePulse {
-            0% { 
-              opacity: 1; 
-              transform: translateX(-50%) scale(1); 
-            }
-            50% { 
-              opacity: 0.8; 
-              transform: translateX(-50%) scale(1.02); 
-            }
-            100% { 
-              opacity: 1; 
-              transform: translateX(-50%) scale(1); 
-            }
-          }
-          
-          @keyframes videoTilt {
-            0% { 
-              transform: rotateX(5deg) rotateY(-2deg) scale(0.98);
-            }
-            50% { 
-              transform: rotateX(2deg) rotateY(-1deg) scale(0.99);
-            }
-            100% { 
-              transform: rotateX(0deg) rotateY(0deg) scale(1);
-            }
-          }
-          
-          @keyframes youtubeExpand {
-            0% {
-              transform: rotateX(5deg) rotateY(-2deg) scale(0.98);
-              border-radius: 16px;
-              box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1);
-            }
-            25% {
-              transform: rotateX(2deg) rotateY(-1deg) scale(1.02);
-              border-radius: 12px;
-              box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            }
-            50% {
-              transform: rotateX(1deg) rotateY(-0.5deg) scale(1.05);
-              border-radius: 8px;
-              box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            }
-            75% {
-              transform: rotateX(0.5deg) rotateY(-0.25deg) scale(1.08);
-              border-radius: 4px;
-              box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
-            }
-            100% {
-              transform: rotateX(0deg) rotateY(0deg) scale(1);
-              border-radius: 0px;
-              box-shadow: none;
-            }
-          }
-          
-          @keyframes horizontalVideoPlay {
-            0% {
-              transform: scale(0.98) rotateX(5deg) rotateY(-2deg);
-              width: 85vw;
-              height: 25vh;
-            }
-            25% {
-              transform: scale(1.02) rotateX(2deg) rotateY(-1deg);
-              width: 90vw;
-              height: 30vh;
-            }
-            50% {
-              transform: scale(1.05) rotateX(1deg) rotateY(-0.5deg);
-              width: 95vw;
-              height: 40vh;
-            }
-            75% {
-              transform: scale(1.08) rotateX(0.5deg) rotateY(-0.25deg);
-              width: 98vw;
-              height: 60vh;
-            }
-            100% {
-              transform: scale(1) rotateX(0deg) rotateY(0deg);
-              width: 100vw;
-              height: 100vh;
-            }
-          }
-          
-          .text-container {
-            margin-left: 0 !important;
-            padding-left: 0 !important;
-            left: 0 !important;
-            position: relative !important;
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-          }
-          
-          /* Force no gap between video and text */
-          .text-container {
-            transform: translateY(clamp(-1.5rem, -4vw, -2.5rem)) !important;
-            margin-top: clamp(-0.75rem, -2vw, -1.25rem) !important;
-          }
-        `}
-      </style>
     </div>
   );
 };
