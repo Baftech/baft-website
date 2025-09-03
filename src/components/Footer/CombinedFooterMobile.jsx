@@ -6,14 +6,48 @@ import {
   faFacebook,
 } from "@fortawesome/free-brands-svg-icons";
 import Thanks from "./Thanks";
+import { supabase } from "../../supabasedb/supabaseClient";
 import "./CombinedFooter.css";
 
 const SignupFormMobile = ({ onOpenThanks }) => {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
 
-  const handleSubmit = (e) => {
+  const isValidEmail = (val) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onOpenThanks();
+    setErrMsg(""); // clear previous errors
+
+    const cleaned = email.trim().toLowerCase();
+
+    if (!isValidEmail(cleaned)) {
+      setErrMsg("Please enter a valid email address.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("subscribers")
+        .insert([{ email: cleaned }]);
+
+      if (error) {
+        console.error("Supabase insert error:", error);
+        setErrMsg("Something went wrong. Please try again.");
+        return;
+      }
+
+      setEmail("");         // Reset input
+      onOpenThanks();       // Open Thanks modal
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      setErrMsg("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
