@@ -77,27 +77,30 @@ const BaFTCoin = () => {
     });
 
     // Amazing exit animations in reverse order
-    // Coin fades from current opacity (0.3) to 0 - starts immediately on scroll
+    // Coin fades from current opacity to 0 - starts immediately on scroll
+    const currentCoinOpacity = gsap.getProperty(coinRef.current, "opacity") || 0.3;
     exitTl.fromTo(coinRef.current, 
-      { opacity: 0.3 }, // Start from current opacity
+      { opacity: currentCoinOpacity }, // Start from actual current opacity
       { 
         opacity: 0, // Fade to completely transparent
-        scale: 0.8, // Come closer (shrink)
-        y: -20, // Move up slightly
-        duration: 1.5, 
-        ease: "power2.in" 
+        scale: 0.95, // Very gentle shrink
+        y: -10, // Very gentle upward movement
+        duration: 0.5, // Smooth fast exit
+        ease: "power2.inOut" // Smooth easing to eliminate glitch
       }
     )
     .to([".intro-text", ".coin-text"], { 
-      y: -120, // Move texts upwards
-      duration: 1.2, 
-      ease: "power2.in" 
-    }, "+=0.2") // Start 0.2s AFTER coin animation starts
-    .to([".intro-text", ".coin-text"], { 
-      opacity: 0, // Then fade out the texts
-      duration: 1.2, 
-      ease: "power2.out" 
-    }, "-=1.2"); // Start fading at the same time as moving up
+      y: -100, // Move texts upwards
+      duration: 2.2, // Slower text movement
+      ease: "power1.out" // Very smooth easing
+    }, "<") // Start at the SAME time as coin animation
+    .fromTo([".intro-text", ".coin-text"], 
+      { opacity: 1 }, // Start from full opacity (text is always visible)
+      { 
+        opacity: 0, // Fade to completely transparent
+        duration: 2.2, // Same duration as text movement
+        ease: "power1.out" // Same smooth easing as movement
+      }, "<"); // Start fading at the SAME time as text movement
   }, []);
 
   // Expose the method to SlideContainer
