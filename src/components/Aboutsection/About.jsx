@@ -470,6 +470,7 @@ const AboutBaft = () => {
   const originalBodyTouchActionRef = useRef('');
   const originalHtmlOverscrollRef = useRef('');
   const [forcedAnimT, setForcedAnimT] = useState(0); // 0..1 during forced expansion
+  const [scrollProgressIndicator, setScrollProgressIndicator] = useState(0); // 0..1 for scroll accumulation progress
   const FORCED_DURATION_MS = 5500; // slow expansion
   
   // Measure navbar height and expose CSS variables for gap/spacing on desktop
@@ -520,6 +521,7 @@ const AboutBaft = () => {
   const triggerRef = useRef(null);
   const [startRect, setStartRect] = useState(null);
   const hasDispatchedPinnedEndRef = useRef(false);
+  const hasAcknowledgedIntroRef = useRef(false);
 
   // Check if screen is desktop size
   useEffect(() => {
@@ -573,12 +575,22 @@ const AboutBaft = () => {
               window.__aboutPinnedActive = false;
             }
             hasDispatchedPinnedEndRef.current = false;
+            // Reset scroll accumulator when leaving pinned zone
+            scrollAccumulator = 0;
+            lastScrollTime = 0;
+            setScrollProgressIndicator(0);
+            hasAcknowledgedIntroRef.current = false;
           } else {
             // After the trigger
             setScrollProgress(1);
             if (typeof window !== 'undefined') {
               window.__aboutPinnedActive = false;
             }
+            // Reset scroll accumulator when leaving pinned zone
+            scrollAccumulator = 0;
+            lastScrollTime = 0;
+            setScrollProgressIndicator(0);
+            hasAcknowledgedIntroRef.current = false;
 
             // Fire a one-time event to request advancing to the next slide (pre-footer)
             if (!hasDispatchedPinnedEndRef.current && typeof window !== 'undefined') {
@@ -619,6 +631,13 @@ const AboutBaft = () => {
     const addOpts = { passive: false, capture: true };
     const minSwipeDistance = 40;
     let touchStartY = null;
+    
+    // Add scroll accumulation for touchpad sensitivity
+    let scrollAccumulator = 0;
+    let lastScrollTime = 0;
+    const scrollThreshold = 150; // Minimum accumulated scroll before triggering
+    const scrollDecayTime = 200; // Time in ms for scroll accumulation to decay
+    const minScrollDelta = 10; // Minimum single scroll delta to accumulate
 
     const handleWheel = (e) => {
       if (isForceAnimatingRef.current) return;
@@ -631,6 +650,44 @@ const AboutBaft = () => {
 
       // Only trigger on scroll down (positive deltaY) as user moves to bottom section
       if (typeof e.deltaY !== 'number' || e.deltaY <= 0) return;
+
+      // Gate: first deliberate wheel-down only acknowledges the intro; expansion requires second action
+      if (!hasAcknowledgedIntroRef.current) {
+        hasAcknowledgedIntroRef.current = true;
+        scrollAccumulator = 0;
+        lastScrollTime = 0;
+        setScrollProgressIndicator(0.2);
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      const currentTime = Date.now();
+      
+      // Decay scroll accumulator over time
+      if (currentTime - lastScrollTime > scrollDecayTime) {
+        scrollAccumulator = Math.max(0, scrollAccumulator - (currentTime - lastScrollTime) / scrollDecayTime * 50);
+      }
+      
+      // Only accumulate significant scroll movements
+      if (e.deltaY >= minScrollDelta) {
+        scrollAccumulator += e.deltaY;
+        lastScrollTime = currentTime;
+        // Update progress indicator
+        setScrollProgressIndicator(Math.min(1, scrollAccumulator / scrollThreshold));
+      }
+      
+      // Don't trigger expansion until sufficient scroll accumulation
+      if (scrollAccumulator < scrollThreshold) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      // Reset accumulator after triggering
+      scrollAccumulator = 0;
+      lastScrollTime = 0;
+      setScrollProgressIndicator(0);
 
       e.preventDefault();
       e.stopPropagation();
@@ -720,6 +777,7 @@ const AboutBaft = () => {
 
           isForceAnimatingRef.current = false;
           setForcedAnimT(0);
+          hasAcknowledgedIntroRef.current = false;
         }
       };
 
@@ -747,6 +805,14 @@ const AboutBaft = () => {
       const endY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
       const distance = touchStartY - endY; // swipe up -> positive distance
       if (distance < minSwipeDistance) return;
+
+      // Gate: first qualifying swipe only acknowledges the intro; expansion requires next swipe
+      if (!hasAcknowledgedIntroRef.current) {
+        hasAcknowledgedIntroRef.current = true;
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
 
       e.preventDefault();
       e.stopPropagation();
@@ -824,6 +890,7 @@ const AboutBaft = () => {
           try { hasDispatchedPinnedEndRef.current = true; } catch {}
           isForceAnimatingRef.current = false;
           setForcedAnimT(0);
+          hasAcknowledgedIntroRef.current = false;
         }
       };
       requestAnimationFrame(step);
@@ -964,6 +1031,23 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                 </div>
               </div>
             </div>
+
+            {/* Scroll progress indicator */}
+            {scrollProgressIndicator > 0 && (
+              <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 pointer-events-none z-50">
+                <div className="bg-black/20 backdrop-blur-sm rounded-full px-4 py-2">
+                  <div className="flex items-center gap-2 text-white text-sm">
+                    <div className="w-16 h-1 bg-white/30 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-white rounded-full transition-all duration-200 ease-out"
+                        style={{ width: `${scrollProgressIndicator * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs opacity-80">Scroll to expand</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Floating overlay image that enlarges from right to full screen */}
             <div className="fixed inset-0 pointer-events-none">
