@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState, useEffect, useCallback } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { GridBackground } from "../Themes/Grid_coins";
+// import { GridBackground } from "../Themes/Grid_coins";
 import BaftCoinMobile from "./BaftCoinMobile";
 import { B_COIN_IMAGE_PNG } from "../../assets/assets";
 
@@ -32,19 +32,6 @@ const BaFTCoin = () => {
       const isMacBook = isMacUserAgent && isDesktopSize && isNotWindows;
       setIsMacBook(isMacBook);
       
-      // Debug logging once per mount to avoid StrictMode noise
-      if (!window.__loggedBaftCoinDevice) {
-        window.__loggedBaftCoinDevice = true;
-        console.log('Device Detection:', {
-          width,
-          height,
-          isMacUserAgent,
-          isDesktopSize,
-          isNotWindows,
-          isMacBook,
-          userAgent: navigator.userAgent
-        });
-      }
     };
 
     checkDevice();
@@ -55,16 +42,16 @@ const BaFTCoin = () => {
 
   // Method to trigger exit animations (called by SlideContainer)
   const triggerExitAnimation = useCallback(() => {
-    console.log('🎯 BaFT Coin: triggerExitAnimation called!');
     if (!introRef.current || !coinRef.current) {
-      console.log('❌ BaFT Coin: Refs not ready for exit animation');
       return;
     }
     
-    console.log('🎯 BaFT Coin: Starting exit animations...');
-    
     // Kill any existing floating animation
     if (animationRef.current) {
+      // Kill the stored tween instance if present
+      if (typeof animationRef.current.kill === 'function') {
+        animationRef.current.kill();
+      }
       gsap.killTweensOf(coinRef.current);
       animationRef.current = null;
     }
@@ -72,7 +59,6 @@ const BaFTCoin = () => {
     // Create exit animation timeline
     const exitTl = gsap.timeline({
       onComplete: () => {
-        console.log('🎯 BaFT Coin: Exit animations complete, dispatching event...');
         // Fire exit complete event when exit animations finish
         // This will trigger automatic transition to BInstant section
         window.dispatchEvent(new CustomEvent('baftCoinExitComplete'));
@@ -81,7 +67,9 @@ const BaFTCoin = () => {
 
     // Amazing exit animations in reverse order
     // Coin fades from current opacity to 0 - starts immediately on scroll
-    const currentCoinOpacity = gsap.getProperty(coinRef.current, "opacity") || 0.3;
+    const rawOpacity = gsap.getProperty(coinRef.current, "opacity");
+    const parsedOpacity = typeof rawOpacity === 'string' ? parseFloat(rawOpacity) : Number(rawOpacity);
+    const currentCoinOpacity = Number.isFinite(parsedOpacity) ? parsedOpacity : 0.3;
     exitTl.fromTo(coinRef.current, 
       { opacity: currentCoinOpacity }, // Start from actual current opacity
       { 
@@ -109,12 +97,10 @@ const BaFTCoin = () => {
   // Expose the method to SlideContainer
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      console.log('🎯 BaFT Coin: Exposing triggerBaftCoinExit to window');
       window.triggerBaftCoinExit = triggerExitAnimation;
     }
     return () => {
       if (typeof window !== 'undefined') {
-        console.log('🎯 BaFT Coin: Cleaning up triggerBaftCoinExit from window');
         delete window.triggerBaftCoinExit;
       }
     };
@@ -239,7 +225,9 @@ const BaFTCoin = () => {
         gsap.killTweensOf(coinRef.current);
       }
       if (animationRef.current) {
-        gsap.killTweensOf(animationRef.current);
+        if (typeof animationRef.current.kill === 'function') {
+          animationRef.current.kill();
+        }
         animationRef.current = null;
       }
       hasAnimatedRef.current = false;
@@ -261,9 +249,6 @@ const BaFTCoin = () => {
       ref={introRef}
       className="relative w-full h-screen flex items-center justify-center bg-black text-center overflow-hidden"
     >
-         <div id="grid_container" className="absolute inset-0 opacity-100 z-0">
-                <GridBackground />
-              </div>
       {/* Background Coin Image - Centered independently */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <img
@@ -281,10 +266,6 @@ const BaFTCoin = () => {
             maxWidth: isMacBook ? '95vw' : '80vw',
             maxHeight: isMacBook ? '95vh' : '75vh',
             objectFit: 'contain'
-          }}
-          onLoad={() => {
-            console.log('Coin loaded, isMacBook:', isMacBook);
-            console.log('Coin size applied:', isMacBook ? 'MacBook size' : 'Regular size');
           }}
         />
       </div>
