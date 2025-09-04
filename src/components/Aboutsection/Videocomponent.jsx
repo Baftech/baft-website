@@ -52,6 +52,12 @@ const Videocomponent = ({ slide = false }) => {
   const originalBodyOverflowRef = useRef('');
   const originalBodyTouchActionRef = useRef('');
   const originalHtmlOverscrollRef = useRef('');
+  const inViewRef = useRef(false);
+  const expansionArmedRef = useRef(false); // true after first scroll once in view
+  const lastArmAtRef = useRef(0);
+  const armCooldownMsRef = useRef(400); // delay to separate trackpad gesture from second step
+  const touchStartYRef = useRef(null);
+  const autoplayRetryRef = useRef(null);
 
   // Enhanced responsive hook for desktop
   useEffect(() => {
@@ -93,9 +99,70 @@ const Videocomponent = ({ slide = false }) => {
 
     const addOpts = { passive: false, capture: true };
 
+    // Observe when the section is actually in view so we can arm expansion only then
+    let observer;
+    if (videoSectionRef.current && typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === videoSectionRef.current) {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.4) {
+              // Section is visible enough: allow the first scroll to just settle/show content
+              inViewRef.current = true;
+              expansionArmedRef.current = false;
+            } else if (!entry.isIntersecting) {
+              // Leaving view resets the arming logic
+              inViewRef.current = false;
+              expansionArmedRef.current = false;
+            }
+          }
+        });
+      }, { threshold: [0, 0.4, 0.75, 1] });
+      try { observer.observe(videoSectionRef.current); } catch {}
+    }
+
     const handleScroll = (e) => {
       // Only trigger if not already animating/expanded
       if (isAnimating || isExpanded) return;
+      // If section isn't in view yet, let the scroll proceed to bring it into view
+      if (!inViewRef.current) return;
+      // Normalize input and direction
+      let directionDown = true;
+      let magnitude = 0;
+      if (e.type === 'wheel') {
+        const dy = typeof e.deltaY === 'number' ? e.deltaY : 0;
+        directionDown = dy > 0;
+        magnitude = Math.abs(dy);
+      } else if (e.type === 'touchstart') {
+        try { touchStartYRef.current = e.touches && e.touches[0] ? e.touches[0].clientY : null; } catch {}
+        return; // don't act on touchstart alone
+      } else if (e.type === 'touchmove') {
+        if (touchStartYRef.current != null) {
+          const y = (e.touches && e.touches[0]) ? e.touches[0].clientY : touchStartYRef.current;
+          const dy = touchStartYRef.current - y;
+          directionDown = dy > 0;
+          magnitude = Math.abs(dy);
+        }
+      } else if (e.type === 'touchend') {
+        touchStartYRef.current = null;
+        return;
+      }
+
+      // Require downward intent and a small threshold to avoid micro scrolls
+      const threshold = 10; // px or delta units
+      if (magnitude < threshold || !directionDown) return;
+
+      // Two-step behavior: first qualifying scroll arms expansion (let it pass)
+      if (!expansionArmedRef.current) {
+        expansionArmedRef.current = true;
+        lastArmAtRef.current = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+        return; // allow the first scroll to settle content
+      }
+
+      // Debounce: ignore additional events from the same gesture for a short window
+      const nowTs = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+      if (nowTs - lastArmAtRef.current < armCooldownMsRef.current) {
+        return;
+      }
       
       e.preventDefault();
       e.stopPropagation();
@@ -191,6 +258,9 @@ const Videocomponent = ({ slide = false }) => {
         container.removeEventListener('touchstart', handleScroll, addOpts);
         container.removeEventListener('touchend', handleScroll, addOpts);
       }
+      if (observer) {
+        try { observer.disconnect(); } catch {}
+      }
       // Clean up global handoff
       if (typeof window !== 'undefined') {
         window.__videoHandoffActive = false;
@@ -206,11 +276,31 @@ const Videocomponent = ({ slide = false }) => {
 
   // Autoplay MP4 when expanded
   useEffect(() => {
-    if (isExpanded && videoRef.current && typeof videoRef.current.play === 'function') {
-      try {
-        videoRef.current.play().catch(() => {});
-      } catch {}
-    }
+    if (!isExpanded) return;
+    const el = videoRef.current;
+    if (!el) return;
+
+    // Ensure ideal attributes for autoplay
+    try {
+      el.muted = true;
+      el.playsInline = true;
+      el.autoplay = true;
+    } catch {}
+
+    const tryPlay = () => {
+      if (!el || typeof el.play !== 'function') return;
+      try { el.play().catch(() => {}); } catch {}
+    };
+
+    // Attempt immediately, then on next frame, then after a short delay
+    tryPlay();
+    const raf = requestAnimationFrame(tryPlay);
+    autoplayRetryRef.current = setTimeout(tryPlay, 300);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      if (autoplayRetryRef.current) clearTimeout(autoplayRetryRef.current);
+    };
   }, [isExpanded]);
 
   const videoContainerStyle = {
@@ -331,9 +421,10 @@ const Videocomponent = ({ slide = false }) => {
                   playsInline
                   muted
                   autoPlay
-                  controls
                   preload="auto"
                   poster={VIDEO_COM_PNG}
+                  onLoadedMetadata={() => { try { videoRef.current && videoRef.current.play && videoRef.current.play(); } catch {} }}
+                  onCanPlay={() => { try { videoRef.current && videoRef.current.play && videoRef.current.play(); } catch {} }}
                 />
               ) : (
                 <img
