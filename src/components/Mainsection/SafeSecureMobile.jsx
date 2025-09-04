@@ -61,12 +61,29 @@ const SafeSecureMobile = () => {
 
             {/* Logo */}
             <div className="safe-secure-logo">
-              <div className="security-logo-wrapper flex justify-center">
+              <div className="security-logo-wrapper " style = {{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                transform: "scale(1.5)",
+                transformOrigin: "center center"
+              }}>
                 <img
-                  src={SAFE_SEC_SVG}
-                  alt="Security Badge"
-                  className="security-logo-svg"
-                />
+  src={SAFE_SEC_SVG}
+  alt="Security Badge"
+  className="security-logo-svg"
+  style={{
+    width: "100%",       // base size
+    height: "auto",
+    position : "relative",
+    display: "block",
+    transform: "scale(1.10004)", // scale 5x
+    transformOrigin: "center"
+  }}
+/>
+
               </div>
             </div>
           </div>

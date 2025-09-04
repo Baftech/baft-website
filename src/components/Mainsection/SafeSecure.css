@@ -48,10 +48,19 @@
 .safe-secure-title {
   font-family: 'EB Garamond', serif;
   font-weight: 700;
-  font-size: clamp(1.8rem, 4.5vw, 3rem);
-  line-height: 1.2;
+  /* Larger desktop max size while remaining responsive */
+  font-size: clamp(2rem, 5vw, 4.75rem); /* up to ~76px */
+  /* Line-height scaled accordingly */
+  line-height: clamp(2.5rem, 5.6vw, 92px);
   color: #fff;
   margin: 0;
+  /* Auto layout semantics */
+  align-self: stretch;     /* stretch within its flex column */
+  order: 0;
+  flex: 0 0 auto;         /* do not grow */
+  /* Wider heading area for larger desktops */
+  max-width: clamp(360px, 80vw, 900px);
+  width: 100%;
   /* Smooth text rendering and transitions */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -62,10 +71,18 @@
 .safe-secure-description {
   font-family: 'Inter', sans-serif;
   font-weight: 400;             /* Regular weight */
-  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
-  line-height: 1.6;
-  color: #aaa;                  /* light gray like the reference */
+  /* Target ~22.216px on large screens, scale down responsively */
+  font-size: clamp(0.8rem, 1.6vw, 1.35rem); /* smaller floor and slightly lower cap */
+  /* Target 27px line-height on large screens, scale down responsively */
+  line-height: clamp(1.15rem, 2vw, 1.6rem); /* ~25.6px cap for tighter leading */
+  color: rgba(255, 255, 255, 0.55);
   margin: 0;
+  /* Width responsive to match ~711.83px at large screens */
+  max-width: clamp(32ch, 60vw, 680px); /* reduce measure for readability */
+  /* Auto layout semantics */
+  align-self: stretch;
+  order: 1;
+  flex: 0 0 auto;
   /* Smooth text rendering and transitions */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -90,6 +107,17 @@
   will-change: transform;
   transform: translateZ(0);
 }
+
+/* Apply sweep overlay to the direct child wrapper used in JSX (without class) */
+/* Diagonal sweep overlay without relying on an inner wrapper */
+/* apply sweep directly on the image element to avoid wrappers */
+.security-logo-svg {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+/* Removed sweep on .safe-secure-logo to avoid double overlay; using wrapper only */
 
 .security-logo-wrapper {
   width: 100%;
@@ -140,16 +168,41 @@
   height: 200%;
   background: linear-gradient(
     115deg,
-    rgba(255,255,255,0) 30%,
-    rgba(255,255,255,0.6) 50%,
-    rgba(255,255,255,0) 70%
+    rgba(255,255,255,0) 43%,
+    rgba(255,255,255,0.85) 50%,
+    rgba(255,255,255,0) 57%
   );
   transform: rotate(20deg);
-  animation: diagonalSweep 5s linear infinite;
+  animation: diagonalSweep 8s linear infinite;
   z-index: 2;
   pointer-events: none;
   border-radius: 50%;
-  filter: blur(1.2px);
+  filter: blur(1px);
+  will-change: transform;
+  mix-blend-mode: screen;
+}
+
+/* Second parallel sweep for a double-line shine */
+.security-logo-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    115deg,
+    rgba(255,255,255,0) 48%,
+    rgba(255,255,255,0.9) 50%,
+    rgba(255,255,255,0) 52%
+  );
+  transform: rotate(20deg);
+  animation: diagonalSweep 8s linear infinite;
+  animation-delay: 4s; /* half-period offset to minimize gaps */
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(0.9px);
   will-change: transform;
   mix-blend-mode: screen;
 }
@@ -192,6 +245,11 @@
   }
   .safe-secure-title {
     font-size: 1.6rem;
+  }
+  .safe-secure-description {
+    font-size: 0.8rem;      /* smaller on small phones */
+    line-height: 1.35;      /* maintain readability */
+    max-width: 32ch;        /* keep measure tight */
   }
   .safe-secure-logo {
     width: min(60vw, 180px);  /* wrapper unchanged on mobile */
