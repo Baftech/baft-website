@@ -11,6 +11,26 @@ const Hero = () => {
   const animationCompletedRef = useRef(false);
   const lastUpdateAtRef = useRef(0);
   const lastTransform = useRef({});
+  // Responsive dome mask sizing (mirrors Gridbackground gentle arc params)
+  const [viewportWidth, setViewportWidth] = useState(() => {
+    try { return window.innerWidth; } catch (_) { return 0; }
+  });
+
+  useEffect(() => {
+    const onResize = () => {
+      try { setViewportWidth(window.innerWidth); } catch (_) {}
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, []);
+
+  const domeWidth = viewportWidth * 1.2;   // Wider than screen width for gentle curve
+  const domeHeight = 150;                   // Much shallower for gentle arc
+  const domeY = -50;                        // Closer to screen for subtle effect
 
   // Detect mobile devices by viewport width
   useEffect(() => {
@@ -55,6 +75,9 @@ const Hero = () => {
 
       gsap.set("#grid_container", { opacity: 1 });
       gsap.set("#dynamic-overlay", { opacity: 0 });
+      gsap.set("#hero-top-mask", { opacity: 0 });
+      gsap.set("#hero-side-mask", { opacity: 0 });
+      gsap.set("#hero-dome-mask", { opacity: 0 });
       gsap.set("#text", { opacity: 0, y: "50vh", scale: 0.9 });
 
       // Responsive target based on placeholder metrics
@@ -160,6 +183,10 @@ const Hero = () => {
           }
         }}, ">")
         .to("#dynamic-overlay", { opacity: 1, duration: 0.4, ease: "sine.out" }, "<")
+        // Fade in grid darkening masks as scaling begins
+        .to(["#hero-top-mask", "#hero-side-mask"], { opacity: 1, duration: 0.4, ease: "sine.out" }, "shrink")
+        // Reveal the top dome ellipse only after scaling completes
+        .to("#hero-dome-mask", { opacity: 1, duration: 0.6, ease: "sine.out" }, ">")
         .to(
           "#text",
           {
@@ -594,6 +621,47 @@ const Hero = () => {
       <div id="grid_container" className="absolute inset-0 z-0">
         <GridBackground />
       </div>
+
+      {/* Top and side black mask to darken hero edges */}
+      <div
+        id="hero-top-mask"
+        className="absolute inset-x-0 top-0 pointer-events-none z-[30]"
+        style={{
+          height: '40vh',
+          background:
+            'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.2) 80%, rgba(0,0,0,0) 100%)',
+          opacity: 0
+        }}
+      />
+      <div
+        id="hero-side-mask"
+        className="absolute inset-y-0 left-0 right-0 pointer-events-none z-[30]"
+        style={{
+          background:
+            'radial-gradient(60% 80% at 0% 50%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 22%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.0) 58%) , radial-gradient(60% 80% at 100% 50%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 22%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.0) 58%)',
+          opacity: 0
+        }}
+      />
+
+      {/* Gentle dome-shaped mask at the very top */}
+      <div
+        id="hero-dome-mask"
+        className="absolute pointer-events-none z-[40]"
+        style={{
+          position: 'absolute',
+          width: 'clamp(1024px, 94vw, 1600px)',
+          height: '360px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          top: '-160px',
+          background: '#272727',
+          filter: 'blur(162px)',
+          mixBlendMode: 'normal',
+          maskImage: 'linear-gradient(to bottom, black 0%, black 48%, rgba(0,0,0,0) 80%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 48%, rgba(0,0,0,0) 80%)',
+          opacity: 0
+        }}
+      />
 
       {/* Text appears later */}
       <div id="text" className="relative z-[70] text-center px-4 mt-40 opacity-0" style={{ marginTop: "calc(10rem + 0.5cm)" }}>
