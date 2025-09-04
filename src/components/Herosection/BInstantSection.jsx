@@ -1,4 +1,4 @@
-import React, { Suspense, useRef, useState, useEffect, useCallback } from "react";
+import React, { Suspense, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -9,62 +9,60 @@ import BInstantMobile from "./BInstantMobile";
 
 function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 3.5 }) {
   const ref = useRef();
-  const [hasReachedTarget, setHasReachedTarget] = useState(false);
-  const [animationStartTime, setAnimationStartTime] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const hasReachedTargetRef = useRef(false);
+  const animationStartTimeRef = useRef(null);
+  const isVisibleRef = useRef(false);
+  const targetVector = useMemo(() => new THREE.Vector3(...target), [target]);
 
   useFrame((state) => {
-    if (animate && ref.current && !hasReachedTarget) {
-      // Set start time on first frame
-      if (!animationStartTime) {
-        setAnimationStartTime(state.clock.elapsedTime);
-      }
+    const mesh = ref.current;
+    if (!animate || !mesh || hasReachedTargetRef.current) {
+      return;
+    }
 
-      const currentTime = state.clock.elapsedTime;
-      const elapsed = currentTime - animationStartTime;
-      
-      // Wait for curtain to fade out before showing coins
-      if (elapsed < 0.4) {
-        if (ref.current.material) {
-          ref.current.material.opacity = 0; // Keep coins invisible
-        }
-        return; // Wait for curtain fade out to complete
+    if (animationStartTimeRef.current == null) {
+      animationStartTimeRef.current = state.clock.elapsedTime;
+    }
+
+    const elapsed = state.clock.elapsedTime - animationStartTimeRef.current;
+
+    // Wait for curtain to fade out before showing coins
+    if (elapsed < 0.4) {
+      if (mesh.material) {
+        mesh.material.opacity = 0;
       }
-      
-      // Make coins visible when curtain fades out
-      if (elapsed >= 0.4) {
-        if (!isVisible) {
-          setIsVisible(true);
-        }
-        if (ref.current.material) {
-          ref.current.material.opacity = opacity; // Ensure coins stay visible
-        }
+      return;
+    }
+
+    // Make coins visible when curtain fades out
+    if (!isVisibleRef.current) {
+      isVisibleRef.current = true;
+      if (mesh.material) {
+        mesh.material.opacity = opacity;
       }
-      
-      // Start expanding immediately after becoming visible
-      if (elapsed >= 0.4) {
-        // Coins are now visible, start expanding
-        const currentPos = ref.current.position;
-        const targetPos = new THREE.Vector3(...target);
-        
-        // Check if we're close enough to target to consider it reached
-        const distance = currentPos.distanceTo(targetPos);
-        if (distance < 0.01) {
-          setHasReachedTarget(true);
-          return;
-        }
-        
-        // Smooth expansion with easing
-        const progress = (elapsed - 0.4) / (animationDuration - 0.4);
-        const easedProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
-        currentPos.lerp(targetPos, easedProgress * 0.02);
-      }
-      
-      // Stop animation after duration
-      if (elapsed >= animationDuration) {
-        setHasReachedTarget(true);
+    }
+
+    // Start expanding immediately after becoming visible
+    if (elapsed >= 0.4) {
+      const currentPos = mesh.position;
+
+      // Check if we're close enough to target to consider it reached
+      const distance = currentPos.distanceTo(targetVector);
+      if (distance < 0.01) {
+        hasReachedTargetRef.current = true;
         return;
       }
+
+      // Smooth expansion with easing
+      const progress = (elapsed - 0.4) / (animationDuration - 0.4);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      currentPos.lerp(targetVector, easedProgress * 0.02);
+    }
+
+    // Stop animation after duration
+    if (elapsed >= animationDuration) {
+      hasReachedTargetRef.current = true;
+      return;
     }
   });
 
@@ -82,10 +80,9 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
         <planeGeometry args={[2, 2]} />
         <meshBasicMaterial
           map={texture}
+          color="#b0b0b0"
           transparent
-          opacity={isVisible ? opacity : 0}
-          brightness={0.5}
-          color="#808080"
+          opacity={0}
         />
       </mesh>
     </group>
@@ -102,22 +99,22 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
     return null;
   }
 
-  // Animate the curtain fade in and reveal
+  // Animate the curtain fade in and reveal anchored to start time
+  const curtainStartTimeRef = useRef(null);
   useFrame((state) => {
     if (startAnimation && curtainRef.current) {
-      const elapsed = state.clock.elapsedTime;
-      
-      // First 0.2 seconds: quickly fade in the curtain
+      if (curtainStartTimeRef.current == null) {
+        curtainStartTimeRef.current = state.clock.elapsedTime;
+      }
+      const elapsed = state.clock.elapsedTime - curtainStartTimeRef.current;
+
       if (elapsed < 0.2) {
         const progress = elapsed / 0.2;
         curtainRef.current.material.opacity = progress * 0.9;
-      }
-      // Next 0.2 seconds: quickly fade out the curtain to reveal coins
-      else if (elapsed < 0.4) {
+      } else if (elapsed < 0.4) {
         const progress = (elapsed - 0.2) / 0.2;
         curtainRef.current.material.opacity = 0.9 - (progress * 0.9);
       } else {
-        // Hide curtain after reveal
         curtainRef.current.visible = false;
       }
     }
@@ -143,7 +140,7 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
         texture={coinTexture}
         position={[0.4, -0.4, -0.4]}
         animate={startAnimation}
-        target={[0.68, -0.68, -0.68]}
+        target={[0.6 , -0.6, -0.6]}
         opacity={1.0}
         animationDuration={animationDuration}
       />
@@ -159,8 +156,8 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
         texture={coinTexture}
         position={[-0.3, 0.4, 0.4]}
         animate={startAnimation}
-        target={[-0.7, 0.7, 0.7]}
-        opacity={0.97}
+        target={[-0.6, 0.6, 0.6]}
+        opacity={1}
         animationDuration={animationDuration}
       />
     </>

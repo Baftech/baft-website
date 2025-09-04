@@ -418,7 +418,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '15%',
             top: '20%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinDriftA 18s linear infinite, twinkle 3.8s ease-in-out infinite'
@@ -430,7 +430,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '65%',
             top: '15%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinDriftB 22s linear infinite, twinkle 4.6s ease-in-out infinite'
@@ -442,7 +442,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '35%',
             top: '60%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinDriftC 20s linear infinite, twinkle 4.2s ease-in-out infinite'
@@ -454,7 +454,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '85%',
             top: '70%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinDriftB 24s linear infinite, twinkle 5s ease-in-out infinite'
@@ -466,7 +466,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '80%',
             top: '85%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinStar 10s linear infinite'
@@ -478,7 +478,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '5%',
             top: '45%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinStar 10s linear infinite'
@@ -503,7 +503,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(6px, 0.35vw, 12px)',
             left: '12%',
             top: '18%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.85,
             animation: 'spinDriftA 26s linear infinite, twinkle 3.6s ease-in-out infinite'
@@ -514,7 +514,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(6px, 0.35vw, 12px)',
             left: '42%',
             top: '35%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.85,
             animation: 'spinDriftB 21s linear infinite, twinkle 4.3s ease-in-out infinite'
@@ -525,7 +525,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(6px, 0.35vw, 12px)',
             left: '72%',
             top: '28%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.85,
             animation: 'spinDriftC 28s linear infinite, twinkle 5.1s ease-in-out infinite'
@@ -536,7 +536,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(6px, 0.35vw, 12px)',
             left: '88%',
             top: '68%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.85,
             animation: 'spinDriftA 24s linear infinite, twinkle 4.8s ease-in-out infinite'
@@ -548,16 +548,16 @@ const B_Fast_Desktop = () => {
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0 }}>
             {/* Ring 1 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitSlow 24s linear infinite' }}>
-              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'translateX(clamp(280px, 22vw, 420px))' }} />
-              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(120deg) translateX(clamp(280px, 22vw, 420px))' }} />
-              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(240deg) translateX(clamp(280px, 22vw, 420px))' }} />
+              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'translateX(clamp(280px, 22vw, 420px))' }} />
+              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(120deg) translateX(clamp(280px, 22vw, 420px))' }} />
+              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(240deg) translateX(clamp(280px, 22vw, 420px))' }} />
             </div>
             {/* Ring 2 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitMed 18s linear infinite reverse' }}>
-              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'translateX(clamp(380px, 30vw, 580px))' }} />
-              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(90deg) translateX(clamp(380px, 30vw, 580px))' }} />
-              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(180deg) translateX(clamp(380px, 30vw, 580px))' }} />
-              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(270deg) translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(90deg) translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(180deg) translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(270deg) translateX(clamp(380px, 30vw, 580px))' }} />
             </div>
           </div>
         </div>

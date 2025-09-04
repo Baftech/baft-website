@@ -1,18 +1,24 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import "./About.css";
 
-// Simplified ReadMoreText for mobile
-const ReadMoreText = ({ content, maxLength = 200, onExpandChange }) => {
+// Hoisted constants and helpers
+const FORCED_DURATION_MS = 3800; // 3.8 seconds for expansion (optimized for mobile)
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+// Simplified ReadMoreText for mobile (memoized)
+const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentRef = useRef(null);
 
   const isLong = content.length > maxLength;
 
   // Split content into paragraphs
-  const paragraphs = content
-    .split(/\n+/)
-    .map((para) => para.trim())
-    .filter((para) => para.length > 0);
+  const paragraphs = useMemo(() => (
+    content
+      .split(/\n+/)
+      .map((para) => para.trim())
+      .filter((para) => para.length > 0)
+  ), [content]);
 
   const handleToggle = () => {
     const newState = !isExpanded;
@@ -101,10 +107,10 @@ const ReadMoreText = ({ content, maxLength = 200, onExpandChange }) => {
         )}
     </div>
   );
-};
+});
 
-// Use the same InteractiveTeamImage component from About.jsx
-const InteractiveTeamImage = ({ disabled = false }) => {
+// Use the same InteractiveTeamImage component from About.jsx (slightly memoized)
+const InteractiveTeamImage = React.memo(({ disabled = false }) => {
   const [hoveredMember, setHoveredMember] = useState(null);
   const [isUserInteracting, setIsUserInteracting] = useState(false);
   const [autoHighlight, setAutoHighlight] = useState("full");
@@ -419,7 +425,7 @@ const InteractiveTeamImage = ({ disabled = false }) => {
       </div>
     </div>
   );
-};
+});
 
 // Main mobile component
 const AboutMobile = () => {
@@ -435,6 +441,7 @@ const AboutMobile = () => {
   const triggerRef = useRef(null);
   const imageStartRef = useRef(null);
   const [startRect, setStartRect] = useState(null);
+  const lockedStartRectRef = useRef(null);
   const isForceAnimatingRef = useRef(false);
   const transitionTriggeredRef = useRef(false);
   const hasAnimationTriggeredRef = useRef(false);
@@ -448,7 +455,10 @@ const AboutMobile = () => {
   const originalBodyOverflowRef = useRef('');
   const originalBodyTouchActionRef = useRef('');
   const originalHtmlOverscrollRef = useRef('');
-  const FORCED_DURATION_MS = 3800; // 3.8 seconds for expansion (optimized for mobile)
+  const touchStartXRef = useRef(null);
+  const touchStartYRef = useRef(null);
+  const startedOnInteractiveRef = useRef(false);
+  // moved FORCED_DURATION_MS to module scope
 
   // Central lock/release functions for body scroll prevention
   const lockBodyScroll = () => {
@@ -475,7 +485,7 @@ const AboutMobile = () => {
   };
 
   // Central event prevention system
-  const preventEventListeners = [];
+  const preventEventListenersRef = useRef([]);
   const addEventPrevention = () => {
     const prevent = (evt) => { 
       evt.preventDefault(); 
@@ -488,15 +498,15 @@ const AboutMobile = () => {
     
     events.forEach(eventType => {
       document.addEventListener(eventType, prevent, addOpts);
-      preventEventListeners.push({ eventType, handler: prevent, options: addOpts });
+      preventEventListenersRef.current.push({ eventType, handler: prevent, options: addOpts });
     });
   };
 
   const removeEventPrevention = () => {
-    preventEventListeners.forEach(({ eventType, handler, options }) => {
+    preventEventListenersRef.current.forEach(({ eventType, handler, options }) => {
       document.removeEventListener(eventType, handler, options);
     });
-    preventEventListeners.length = 0;
+    preventEventListenersRef.current.length = 0;
   };
 
   // Cleanup on unmount to prevent frozen state
@@ -513,20 +523,16 @@ const AboutMobile = () => {
 
   // Robust auto-scroll to next section (CombinedFooter)
   const scrollToNextSection = () => {
-    console.log('AboutMobile: Starting auto-scroll to next section...');
-    
     // Method 1: Use slide navigation system (most reliable)
     try {
       const evt = new CustomEvent('navigateToSlide', { 
         detail: { index: 8, slow: false, instant: false } // Navigate to slide 8 (CombinedFooter)
       });
       window.dispatchEvent(evt);
-      console.log('AboutMobile: Dispatched navigateToSlide event to slide 8');
       
       // Also dispatch the transition event
       const transitionEvt = new CustomEvent('aboutToPreFooterTransition');
       window.dispatchEvent(transitionEvt);
-      console.log('AboutMobile: Dispatched aboutToPreFooterTransition event');
       return;
     } catch (e) {
       console.warn('AboutMobile: Slide navigation failed:', e);
@@ -544,7 +550,6 @@ const AboutMobile = () => {
     for (const selector of targets) {
       const element = document.querySelector(selector);
       if (element) {
-        console.log(`AboutMobile: Found target with selector "${selector}"`);
         element.scrollIntoView({ 
           behavior: 'smooth',
           block: 'start'
@@ -562,7 +567,6 @@ const AboutMobile = () => {
       }
       
       if (nextElement) {
-        console.log('AboutMobile: Found next section element');
         nextElement.scrollIntoView({ 
           behavior: 'smooth',
           block: 'start'
@@ -572,7 +576,6 @@ const AboutMobile = () => {
     }
     
     // Method 4: Force scroll by viewport height
-    console.log('AboutMobile: Using fallback - scroll by viewport height');
     const currentScroll = window.pageYOffset;
     const targetScroll = currentScroll + window.innerHeight;
     
@@ -715,9 +718,12 @@ const AboutMobile = () => {
             const dampeningFactor = 0.2; // Further reduce scroll sensitivity
             const dampenedProgress = rawProgress * dampeningFactor;
             
-            // Smooth the progress to prevent harsh movements
-            const smoothingFactor = 0.05; // Slower smoothing for more control
-            smoothScrollProgressRef.current += (dampenedProgress - smoothScrollProgressRef.current) * smoothingFactor;
+            // Smooth the progress with per-frame clamping to avoid sudden jumps
+            const smoothingFactor = 0.06; // Steady but responsive
+            const desiredNext = smoothScrollProgressRef.current + (dampenedProgress - smoothScrollProgressRef.current) * smoothingFactor;
+            const maxDelta = 0.02; // cap progress change per frame
+            const delta = Math.max(-maxDelta, Math.min(maxDelta, desiredNext - smoothScrollProgressRef.current));
+            smoothScrollProgressRef.current += delta;
             
             setScrollProgress(smoothScrollProgressRef.current);
           } else if (triggerRect.top > 0) {
@@ -775,7 +781,7 @@ const AboutMobile = () => {
     };
   }, []);
 
-  // Force expansion on scroll down (mobile touch/wheel)
+  // Force expansion on scroll down (mobile touch/wheel) and suppress native scrolling while pinned
   useEffect(() => {
       if (!sectionRef.current) return;
       
@@ -784,7 +790,6 @@ const AboutMobile = () => {
     let touchStartY = null;
 
     const handleWheel = (e) => {
-      if (isForceAnimatingRef.current) return;
       if (!triggerRef.current) return;
 
       const rect = triggerRef.current.getBoundingClientRect();
@@ -792,60 +797,33 @@ const AboutMobile = () => {
       const inPinned = rect.top <= 0 && rect.bottom > windowHeight;
       if (!inPinned) return;
 
+      // Always suppress native scroll inside pinned zone so image never moves with finger
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (isForceAnimatingRef.current) return false;
+
       // Only trigger on scroll down with sufficient intensity
       if (e.deltaY <= 0) return;
       
       // Enable scroll control for this section
       isScrollControlledRef.current = true;
       
-      // Aggressive scroll intensity control to prevent flying off
-      const scrollIntensity = Math.abs(e.deltaY);
-      const minScrollIntensity = 5; // Lower minimum for more responsive feel
-      const maxScrollIntensity = 40; // Even lower maximum for better control
-      
-      if (scrollIntensity < minScrollIntensity || scrollIntensity > maxScrollIntensity) {
-        return; // Block both too gentle and too harsh scrolls
-      }
-      
-      // Apply very aggressive dampening for controlled feel
-      let dampeningFactor = 0.15; // Start with very low factor
-      if (scrollIntensity > 20) {
-        dampeningFactor = 0.08; // Even lower for medium scrolls
-      }
-      if (scrollIntensity > 30) {
-        dampeningFactor = 0.03; // Very low for harsh scrolls
-      }
-      
-      const dampenedIntensity = scrollIntensity * dampeningFactor;
-      
-      // Track scroll velocity to prevent rapid consecutive scrolls
-      const now = Date.now();
-      const timeSinceLastScroll = now - lastScrollTimeRef.current;
-      const scrollVelocity = scrollIntensity / Math.max(timeSinceLastScroll, 1);
-      
-      // Add to velocity history
-      scrollVelocityHistoryRef.current.push(scrollVelocity);
-      if (scrollVelocityHistoryRef.current.length > 5) {
-        scrollVelocityHistoryRef.current.shift();
-      }
-      
-      // Calculate average velocity
-      const avgVelocity = scrollVelocityHistoryRef.current.reduce((a, b) => a + b, 0) / scrollVelocityHistoryRef.current.length;
-      
-      // Block if velocity is too high (rapid consecutive scrolls)
-      if (avgVelocity > 2 || timeSinceLastScroll < 300) { // Increased debounce time
-        return;
-      }
-      
-      lastScrollTimeRef.current = now;
-
-      e.preventDefault();
-      e.stopPropagation();
+      // Treat any harsh or sudden downward scroll as gentle and proceed
+      // Reset velocity tracking so we don't block the animation
+      lastScrollTimeRef.current = Date.now();
+      scrollVelocityHistoryRef.current = [];
 
       isForceAnimatingRef.current = true;
       setIsForceAnimating(true);
 
       // Lock scroll during animation
+      // Snapshot starting rect at the moment animation starts
+      try {
+        if (imageStartRef.current) {
+          lockedStartRectRef.current = imageStartRef.current.getBoundingClientRect();
+        }
+      } catch {}
       const prevent = (evt) => { 
         evt.preventDefault(); 
         evt.stopPropagation(); 
@@ -867,16 +845,15 @@ const AboutMobile = () => {
       document.addEventListener('touchend', prevent, addOpts);
       document.addEventListener('scroll', prevent, addOpts);
 
-      // Animate progress to 1 over duration
+      // Animate progress to 1 over duration (steady easing)
       const startTime = performance.now();
       const startProgress = Math.max(0, Math.min(scrollProgress, 1));
 
       const step = (nowTs) => {
         const now = nowTs || performance.now();
         const t = Math.max(0, Math.min((now - startTime) / FORCED_DURATION_MS, 1));
-        
-        // Use very gentle easing to make animation feel subtle
-        const eased = t * t * (3 - 2 * t); // Smooth step function for subtle feel
+        // Unified easing for steady feel
+        const eased = easeInOutCubic(t);
         const next = startProgress + (1 - startProgress) * eased;
         setScrollProgress(next);
         setForcedAnimT(t);
@@ -903,10 +880,6 @@ const AboutMobile = () => {
           
           // Auto-scroll to CombinedFooterMobile pre-footer section after animation completes
           setTimeout(() => {
-            console.log('AboutMobile: Starting auto-scroll to pre-footer...');
-            console.log('AboutMobile: Current scroll position:', window.pageYOffset);
-            console.log('AboutMobile: Document height:', document.documentElement.scrollHeight);
-            
             // Use the centralized scroll function
             
             // Execute scroll immediately
@@ -920,7 +893,6 @@ const AboutMobile = () => {
             try {
               const evt = new CustomEvent('aboutMobileExpansionComplete');
               window.dispatchEvent(evt);
-              console.log('AboutMobile: Dispatched aboutMobileExpansionComplete event');
             } catch (e) {
               console.warn('Could not dispatch aboutMobileExpansionComplete event:', e);
             }
@@ -937,11 +909,36 @@ const AboutMobile = () => {
       const windowHeight = window.innerHeight;
       const inPinned = rect.top <= 0 && rect.bottom > windowHeight;
       if (!inPinned) return;
-      touchStartY = e.touches && e.touches[0] ? e.touches[0].clientY : null;
+      const t = e.touches && e.touches[0] ? e.touches[0] : null;
+      touchStartY = t ? t.clientY : null;
+      touchStartXRef.current = t ? t.clientX : null;
+      touchStartYRef.current = t ? t.clientY : null;
+      // Allow taps on interactive elements (e.g., Read More button)
+      startedOnInteractiveRef.current = !!(e.target && (e.target.closest && e.target.closest('.reveal-button')));
+      // Do not prevent default immediately to allow clicks; prevention handled in touchmove if needed
+    };
+
+    const handleTouchMove = (e) => {
+      if (!triggerRef.current) return;
+      const rect = triggerRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const inPinned = rect.top <= 0 && rect.bottom > windowHeight;
+      if (!inPinned) return;
+      if (startedOnInteractiveRef.current) return;
+      // Only prevent when there is an actual swipe move beyond a tiny threshold
+      const t = e.touches && e.touches[0] ? e.touches[0] : null;
+      if (!t) return;
+      const dx = Math.abs((t.clientX || 0) - (touchStartXRef.current || 0));
+      const dy = Math.abs((t.clientY || 0) - (touchStartYRef.current || 0));
+      const moved = dx > 4 || dy > 4;
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
     };
 
     const handleTouchEnd = (e) => {
-      if (isForceAnimatingRef.current) return;
       if (!triggerRef.current) return;
       const rect = triggerRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
@@ -953,10 +950,17 @@ const AboutMobile = () => {
       const distance = touchStartY - endY; // swipe up -> positive distance
       if (distance < minSwipeDistance) return;
 
-      e.preventDefault();
-      e.stopPropagation();
+      // If interaction started on interactive element, allow click; otherwise prevent scroll flicks
+      if (!startedOnInteractiveRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
 
       // Trigger the same forced animation as wheel down
+      if (isForceAnimatingRef.current) {
+        startedOnInteractiveRef.current = false;
+        return;
+      }
       isForceAnimatingRef.current = true;
       setIsForceAnimating(true);
       
@@ -967,6 +971,10 @@ const AboutMobile = () => {
       };
 
       try {
+        // Snapshot starting rect at the moment animation starts (touch)
+        if (imageStartRef.current) {
+          lockedStartRectRef.current = imageStartRef.current.getBoundingClientRect();
+        }
         originalBodyOverflowRef.current = document.body.style.overflow;
         originalBodyTouchActionRef.current = document.body.style.touchAction;
         originalHtmlOverscrollRef.current = document.documentElement.style.overscrollBehavior;
@@ -987,7 +995,8 @@ const AboutMobile = () => {
       const step = (nowTs) => {
         const now = nowTs || performance.now();
         const t = Math.max(0, Math.min((now - startTime) / FORCED_DURATION_MS, 1));
-        const eased = 1 - Math.pow(1 - t, 4);
+        // Unified easing for steady feel
+        const eased = easeInOutCubic(t);
         const next = startProgress + (1 - startProgress) * eased;
         setScrollProgress(next);
         setForcedAnimT(t);
@@ -1013,10 +1022,6 @@ const AboutMobile = () => {
           
           // Auto-scroll to CombinedFooterMobile pre-footer section after animation completes
           setTimeout(() => {
-            console.log('AboutMobile: Starting auto-scroll to pre-footer...');
-            console.log('AboutMobile: Current scroll position:', window.pageYOffset);
-            console.log('AboutMobile: Document height:', document.documentElement.scrollHeight);
-            
             // Use the centralized scroll function
             
             // Execute scroll immediately
@@ -1030,7 +1035,6 @@ const AboutMobile = () => {
             try {
               const evt = new CustomEvent('aboutMobileExpansionComplete');
               window.dispatchEvent(evt);
-              console.log('AboutMobile: Dispatched aboutMobileExpansionComplete event');
             } catch (e) {
               console.warn('Could not dispatch aboutMobileExpansionComplete event:', e);
             }
@@ -1044,17 +1048,18 @@ const AboutMobile = () => {
     const el = sectionRef.current;
     el.addEventListener('wheel', handleWheel, addOpts);
     el.addEventListener('touchstart', handleTouchStart, addOpts);
+    el.addEventListener('touchmove', handleTouchMove, addOpts);
     el.addEventListener('touchend', handleTouchEnd, addOpts);
 
     return () => {
       el.removeEventListener('wheel', handleWheel, addOpts);
       el.removeEventListener('touchstart', handleTouchStart, addOpts);
+      el.removeEventListener('touchmove', handleTouchMove, addOpts);
       el.removeEventListener('touchend', handleTouchEnd, addOpts);
     };
   }, [scrollProgress]);
 
-  // Animation values
-  const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  // Animation values (easing hoisted to module scope)
   const easedProgress = easeInOutCubic(scrollProgress);
   
   // Overlay and zoom-out timing based on forced animation time (matching desktop)
@@ -1186,15 +1191,16 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                                         {/* Floating overlay image that enlarges to full screen and stays visible during transition */}
         <div className="fixed inset-0 pointer-events-none z-50">
           {/* Permanent floating overlay - never disappears once animation is triggered */}
-          {startRect && hasAnimationTriggeredRef.current && startRect.width > 0 && startRect.height > 0 && (() => {
+          {(lockedStartRectRef.current || startRect) && hasAnimationTriggeredRef.current && (lockedStartRectRef.current ? lockedStartRectRef.current.width > 0 : startRect.width > 0) && (() => {
             const vw = window.innerWidth;
             const vh = window.innerHeight;
             
             // Calculate center positions with strict bounds to prevent flying off screen
-            const clampedStartLeft = Math.max(0, Math.min(startRect.left, vw));
-            const clampedStartTop = Math.max(0, Math.min(startRect.top, vh));
-            const clampedStartWidth = Math.max(0, Math.min(startRect.width, vw));
-            const clampedStartHeight = Math.max(0, Math.min(startRect.height, vh));
+            const baseRect = lockedStartRectRef.current || startRect;
+            const clampedStartLeft = Math.max(0, Math.min(baseRect.left, vw));
+            const clampedStartTop = Math.max(0, Math.min(baseRect.top, vh));
+            const clampedStartWidth = Math.max(0, Math.min(baseRect.width, vw));
+            const clampedStartHeight = Math.max(0, Math.min(baseRect.height, vh));
             
             const startCenterX = clampedStartLeft + clampedStartWidth / 2;
             const startCenterY = clampedStartTop + clampedStartHeight / 2;
@@ -1210,20 +1216,12 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
             // Calculate expansion phase based on current animation progress
             const currentExpansionPhase = Math.min(1, forcedAnimT / 0.8); // Expansion completes at 80% of animation
             const imageExpansionProgress = (isTransitioning || transitionTriggeredRef.current) ? 1 : Math.max(currentExpansionPhase, 0.08);
-            
-            // Keep image anchored to original position during expansion to prevent flying off
-            const currentCenterX = startCenterX; // Stay at original position
-            const currentCenterY = startCenterY; // Stay at original position
-            
-            // Calculate dimensions with strict size limits to prevent flying off
-            const maxExpansionFactor = 1.5; // Limit expansion to 150% of original size
-            const currentW = imageExpansionProgress >= 1 ? vw : Math.min(vw, startRect.width * (1 + imageExpansionProgress * maxExpansionFactor));
-            const currentH = imageExpansionProgress >= 1 ? vh : Math.min(vh, startRect.height * (1 + imageExpansionProgress * maxExpansionFactor));
-            
-            // Position from center (so it's properly centered)
-            // When fully expanded, ensure it covers the entire viewport
-            const currentLeft = imageExpansionProgress >= 1 ? 0 : (currentCenterX - currentW / 2);
-            const currentTop = imageExpansionProgress >= 1 ? 0 : (currentCenterY - currentH / 2);
+
+            // Linearly interpolate from the original top-left and size to full viewport
+            const currentW = clampedStartWidth + (vw - clampedStartWidth) * imageExpansionProgress;
+            const currentH = clampedStartHeight + (vh - clampedStartHeight) * imageExpansionProgress;
+            const currentLeft = clampedStartLeft + (0 - clampedStartLeft) * imageExpansionProgress;
+            const currentTop = clampedStartTop + (0 - clampedStartTop) * imageExpansionProgress;
             
             const currentRadius = imageExpansionProgress >= 1 ? 0 : Math.max(0, 16 * (1 - imageExpansionProgress));
             const boxShadowOpacity = 0.25 * (1 - imageExpansionProgress);
@@ -1233,18 +1231,8 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                 className="absolute floating-overlay-container"
             style={{
                   position: 'fixed', // Use fixed positioning to break out of container constraints
-                  left: `${imageExpansionProgress >= 1 ? 0 : (() => {
-                    // Aggressive bounds to prevent flying off
-                    const maxLeft = Math.max(0, vw - currentW);
-                    const safeLeft = Math.max(0, Math.min(startRect.left, maxLeft));
-                    return safeLeft;
-                  })()}px`,
-                  top: `${imageExpansionProgress >= 1 ? 0 : (() => {
-                    // Aggressive bounds to prevent flying off
-                    const maxTop = Math.max(0, vh - currentH);
-                    const safeTop = Math.max(0, Math.min(startRect.top, maxTop));
-                    return safeTop;
-                  })()}px`,
+                  left: `${imageExpansionProgress >= 1 ? 0 : Math.max(0, Math.min(vw - currentW, currentLeft))}px`,
+                  top: `${imageExpansionProgress >= 1 ? 0 : Math.max(0, Math.min(vh - currentH, currentTop))}px`,
                   right: `${imageExpansionProgress >= 1 ? 0 : 'auto'}px`,
                   bottom: `${imageExpansionProgress >= 1 ? 0 : 'auto'}px`,
                   width: `${currentW}px`,
@@ -1253,7 +1241,8 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                   overflow: 'hidden',
                   boxShadow: `0 40px 120px rgba(0,0,0,${boxShadowOpacity})`,
                   pointerEvents: 'none',
-                  transform: `scale(${isTransitioning ? 1.05 : zoomScale})`,
+                  // Disable scaling during expansion to prevent visual drift; only apply slight bump during transition
+                  transform: `scale(${(isTransitioning && imageExpansionProgress >= 1) ? 1.02 : 1})`,
                   transformOrigin: 'center center',
                   transition: isTransitioning ? 'all 0.8s ease-out' : 'none', // Smooth transition during scroll
                   zIndex: 50,
@@ -1283,40 +1272,47 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
           
           {/* Fallback floating overlay for expansion phase */}
           {startRect && !hasAnimationTriggeredRef.current && (easedProgress > 0.08 || forcedAnimT >= 0.8 || isTransitioning || transitionTriggeredRef.current || forcedAnimT > 0) && (() => {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
-            
+            const vw = Math.max(1, window.innerWidth || 1);
+            const vh = Math.max(1, window.innerHeight || 1);
+
+            // Use locked rect if available to avoid jumps when layout changes
+            const baseRect = lockedStartRectRef.current || startRect;
+            const startLeft = Math.max(0, Math.min(baseRect.left, vw));
+            const startTop = Math.max(0, Math.min(baseRect.top, vh));
+            const startWidth = Math.max(0, Math.min(baseRect.width, vw));
+            const startHeight = Math.max(0, Math.min(baseRect.height, vh));
+
             // Calculate center positions for proper responsive centering on mobile
-            const startCenterX = startRect.left + startRect.width / 2;
-            const startCenterY = startRect.top + startRect.height / 2;
-            
-            // Ensure perfect viewport centering for mobile - use actual viewport dimensions
-            const targetCenterX = vw / 2;
-            const targetCenterY = vh / 2;
-            
+            const startCenterX = startLeft + startWidth / 2;
+            const startCenterY = startTop + startHeight / 2;
+
             // Mobile-specific viewport centering adjustments
-            const mobileViewportCenterX = window.innerWidth / 2;
-            const mobileViewportCenterY = window.innerHeight / 2;
-            
+            const mobileViewportCenterX = vw / 2;
+            const mobileViewportCenterY = vh / 2;
+
             // Calculate expansion phase based on current animation progress
             const currentExpansionPhase = Math.min(1, forcedAnimT / 0.8); // Expansion completes at 80% of animation
             const imageExpansionProgress = Math.max(currentExpansionPhase, 0.08);
-            
+
             // Interpolate center positions with mobile-optimized centering
             const currentCenterX = startCenterX + (mobileViewportCenterX - startCenterX) * imageExpansionProgress;
             const currentCenterY = startCenterY + (mobileViewportCenterY - startCenterY) * imageExpansionProgress;
-            
+
             // Calculate dimensions - ensure full viewport coverage when expanded
             const targetW = vw; // fill screen width
             const targetH = vh; // fill screen height
-            const currentW = imageExpansionProgress >= 1 ? vw : (startRect.width + (targetW - startRect.width) * imageExpansionProgress);
-            const currentH = imageExpansionProgress >= 1 ? vh : (startRect.height + (targetH - startRect.height) * imageExpansionProgress);
-            
+            const currentW = imageExpansionProgress >= 1 ? vw : (startWidth + (targetW - startWidth) * imageExpansionProgress);
+            const currentH = imageExpansionProgress >= 1 ? vh : (startHeight + (targetH - startHeight) * imageExpansionProgress);
+
             // Position from center (so it's properly centered)
             // When fully expanded, ensure it covers the entire viewport
-            const currentLeft = imageExpansionProgress >= 1 ? 0 : (currentCenterX - currentW / 2);
-            const currentTop = imageExpansionProgress >= 1 ? 0 : (currentCenterY - currentH / 2);
-            
+            let currentLeft = imageExpansionProgress >= 1 ? 0 : (currentCenterX - currentW / 2);
+            let currentTop = imageExpansionProgress >= 1 ? 0 : (currentCenterY - currentH / 2);
+
+            // Clamp positions so image never flies off-screen
+            if (currentW <= vw) currentLeft = Math.max(0, Math.min(currentLeft, vw - currentW)); else currentLeft = 0;
+            if (currentH <= vh) currentTop = Math.max(0, Math.min(currentTop, vh - currentH)); else currentTop = 0;
+
             const currentRadius = imageExpansionProgress >= 1 ? 0 : Math.max(0, 16 * (1 - imageExpansionProgress));
             const boxShadowOpacity = 0.25 * (1 - imageExpansionProgress);
 
@@ -1325,23 +1321,20 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                 className="absolute floating-overlay-container"
                 style={{
                   position: 'fixed', // Use fixed positioning to break out of container constraints
-                  left: `${imageExpansionProgress >= 1 ? 0 : (() => {
-                    const constrainedLeft = Math.max(0, Math.min(currentLeft, vw - currentW));
-                    return (currentW > vw) ? 0 : constrainedLeft;
-                  })()}px`,
-                  top: `${imageExpansionProgress >= 1 ? 0 : (() => {
-                    const constrainedTop = Math.max(0, Math.min(currentTop, vh - currentH));
-                    return (currentH > vh) ? 0 : constrainedTop;
-                  })()}px`,
+                  left: `${currentLeft}px`,
+                  top: `${currentTop}px`,
+                  right: `${imageExpansionProgress >= 1 ? 0 : 'auto'}px`,
+                  bottom: `${imageExpansionProgress >= 1 ? 0 : 'auto'}px`,
                   width: `${currentW}px`,
                   height: `${currentH}px`,
                   borderRadius: `${currentRadius}px`,
                   overflow: 'hidden',
                   boxShadow: `0 40px 120px rgba(0,0,0,${boxShadowOpacity})`,
                   pointerEvents: 'none',
-                  transform: `scale(${isTransitioning ? 1.05 : zoomScale})`,
+                  transform: `scale(${(isTransitioning && imageExpansionProgress >= 1) ? 1.02 : 1})`,
                   transformOrigin: 'center center',
                   transition: isTransitioning ? 'all 0.8s ease-out' : 'none', // Smooth transition during scroll
+                  willChange: 'left, top, width, height, transform, opacity',
                   zIndex: 50,
                   opacity: 1, // Keep fully visible to prevent image from returning to container
                 }}
