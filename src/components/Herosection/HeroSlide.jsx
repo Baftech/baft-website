@@ -73,7 +73,8 @@ const Hero = () => {
         zIndex: 50,
       });
 
-      gsap.set("#grid_container", { opacity: 1 });
+      // While video plays fullscreen, hide the grid to prevent bleed-through on tab switches
+      gsap.set("#grid_container", { opacity: 0 });
       gsap.set("#dynamic-overlay", { opacity: 0 });
       gsap.set("#hero-top-mask", { opacity: 0 });
       gsap.set("#hero-side-mask", { opacity: 0 });
@@ -187,6 +188,8 @@ const Hero = () => {
         .to(["#hero-top-mask", "#hero-side-mask"], { opacity: 1, duration: 0.4, ease: "sine.out" }, "shrink")
         // Reveal the top dome ellipse only after scaling completes
         .to("#hero-dome-mask", { opacity: 1, duration: 0.6, ease: "sine.out" }, ">")
+        // Restore grid visibility after scaling completes so the design returns
+        .to("#grid_container", { opacity: 1, duration: 0.4, ease: "sine.out" }, "<")
         .to(
           "#text",
           {
@@ -363,18 +366,36 @@ const Hero = () => {
     gsap.ticker.add(updateTransformState);
     
     document.addEventListener("visibilitychange", () => {
-      // When user comes back to tab, restore the last known transform state
+      // When user comes back to tab, restore the correct visual state
       if (animationCompletedRef.current && wrapperRef.current && lastTransform.current) {
         gsap.set(wrapperRef.current, lastTransform.current);
+        // Ensure post-scale overlays are visible
+        gsap.set("#dynamic-overlay", { opacity: 1 });
+        gsap.set("#hero-dome-mask", { opacity: 1 });
+        gsap.set("#grid_container", { opacity: 1 });
       } else {
+        // During pre-scale playback, keep fullscreen overlays active to hide grid
+        gsap.set("#fullscreen-spotlight", { opacity: 1 });
+        gsap.set("#dynamic-overlay", { opacity: 1 });
+        gsap.set("#hero-top-mask", { opacity: 0 });
+        gsap.set("#hero-side-mask", { opacity: 0 });
+        gsap.set("#grid_container", { opacity: 0 });
         resyncLockedVideo();
       }
     });
     window.addEventListener("pageshow", () => {
-      // When page is shown, also restore transform state
+      // When page is shown, also restore visual state
       if (animationCompletedRef.current && wrapperRef.current && lastTransform.current) {
         gsap.set(wrapperRef.current, lastTransform.current);
+        gsap.set("#dynamic-overlay", { opacity: 1 });
+        gsap.set("#hero-dome-mask", { opacity: 1 });
+        gsap.set("#grid_container", { opacity: 1 });
       } else {
+        gsap.set("#fullscreen-spotlight", { opacity: 1 });
+        gsap.set("#dynamic-overlay", { opacity: 1 });
+        gsap.set("#hero-top-mask", { opacity: 0 });
+        gsap.set("#hero-side-mask", { opacity: 0 });
+        gsap.set("#grid_container", { opacity: 0 });
         resyncLockedVideo();
       }
     });
@@ -689,7 +710,7 @@ const Hero = () => {
     textAlign: "center",
     width: "100%",
     // Removed height constraint to prevent text cropping
-            backgroundImage: "linear-gradient(175deg, #999999 32.7%, #161616 70.89%)",
+            backgroundImage: "linear-gradient(178deg, #999999 32.7%, #161616 70.89%)",
     backgroundClip: "text",
     WebkitBackgroundClip: "text",
     color: "transparent",
