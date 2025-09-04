@@ -280,6 +280,18 @@ const BInstantSection = () => {
           gl={{
             antialias: true,
             alpha: false,
+            powerPreference: 'high-performance',
+          }}
+          frameloop="always"
+          onCreated={({ gl }) => {
+            try {
+              const canvas = gl.domElement;
+              const handleContextLost = (e) => {
+                e.preventDefault();
+                console.warn('WebGL context lost, preventing default to allow restoration.');
+              };
+              canvas.addEventListener('webglcontextlost', handleContextLost, { passive: false });
+            } catch (_) {}
           }}
           dpr={Math.min(window.devicePixelRatio, 2)}
         >

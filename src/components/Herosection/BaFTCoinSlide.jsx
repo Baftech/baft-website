@@ -96,12 +96,16 @@ const BaFTCoin = () => {
 
   // Expose the method to SlideContainer
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !window.__baftCoinExitHooked) {
+      console.log('🎯 BaFT Coin: Exposing triggerBaftCoinExit to window');
       window.triggerBaftCoinExit = triggerExitAnimation;
+      window.__baftCoinExitHooked = true;
     }
     return () => {
       if (typeof window !== 'undefined') {
+        console.log('🎯 BaFT Coin: Cleaning up triggerBaftCoinExit from window');
         delete window.triggerBaftCoinExit;
+        delete window.__baftCoinExitHooked;
       }
     };
   }, [triggerExitAnimation]);
