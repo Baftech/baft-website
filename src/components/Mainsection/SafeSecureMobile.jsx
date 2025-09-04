@@ -3,21 +3,9 @@ import "./SafeSecure.css";
 import { SAFE_SEC_SVG } from "../../assets/assets";
 
 const SafeSecureMobile = () => {
-  // Force dark theme for navbar
-  useEffect(() => {
-    // Set data-theme on document body to ensure navbar gets dark theme
-    document.documentElement.setAttribute('data-theme', 'dark');
-    document.body.setAttribute('data-theme', 'dark');
-    
-    return () => {
-      // Cleanup when component unmounts
-      document.documentElement.removeAttribute('data-theme');
-      document.body.removeAttribute('data-theme');
-    };
-  }, []);
 
   return (
-    <div className="h-screen bg-gray-900 relative" data-theme="dark">
+    <div className="h-screen bg-gray-900 relative">
       <section className="h-full flex items-center justify-center px-0">
         <div className="w-full h-full relative">
           {/* Main Content */}

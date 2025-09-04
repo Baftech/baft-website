@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
-import { BAFT_VID_MP4, LOGO1_PNG } from "../../assets/assets";
+import { BAFT_VID_MP4, LOGO_PNG } from "../../assets/assets";
+
 
 const HeroMobileComponent = () => {
   const videoRef = useRef(null);
@@ -401,21 +402,7 @@ const HeroMobileComponent = () => {
           <GridBackground forceMobile={true} key="mobile-grid" />
         </div> */}
 
-        {/* Top-centered logo */}
-        <img
-          src={LOGO1_PNG}
-          alt="BaFT"
-          style={{
-            position: 'absolute',
-            top: isTablet ? '24px' : '18px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: isTablet ? '80px' : '64px',
-            height: 'auto',
-            zIndex: 80,
-            opacity: 0.92,
-          }}
-        />
+        
 
         {/* Text block visible from start (matches screenshot layout) */}
         <div 

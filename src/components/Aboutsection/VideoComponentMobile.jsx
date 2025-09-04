@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { gsap } from "gsap";
-import { VIDEO_COM_PNG, SVG_SVG, BAFT_VID_MP4 } from "../../assets/assets";
+import { VIDEO_COM_PNG, SVG_SVG, VIDEOPLAYBACK_MP4 } from "../../assets/assets";
 
 const VideoComponentMobile = ({ slide = false }) => {
   const cardRef = useRef(null);
@@ -85,7 +85,22 @@ const VideoComponentMobile = ({ slide = false }) => {
   };
 
   return (
-    <div className="relative w-full h-screen flex items-center justify-center bg-white overflow-hidden">
+    <>
+      <style>
+        {`
+          @media (min-width: 640px) {
+            .video-card-responsive {
+              transform: rotateX(4deg) rotateY(-1.5deg) scale(0.995) !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .video-card-responsive {
+              transform: rotateX(5deg) rotateY(-2deg) scale(0.99) !important;
+            }
+          }
+        `}
+      </style>
+      <div className="relative w-full h-screen flex items-center justify-center bg-white overflow-hidden">
       <section
         style={{
           height: '100vh',
@@ -103,13 +118,13 @@ const VideoComponentMobile = ({ slide = false }) => {
                 {/* Video Card Container */}
         <div
           ref={cardRef}
-          className="relative w-[85vw] h-[25vh] rounded-xl overflow-hidden shadow-lg cursor-pointer"
+          className="relative w-[85vw] h-[30vh] rounded-xl overflow-hidden shadow-lg cursor-pointer video-card-responsive"
               style={{
                 background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                 boxShadow: '0 15px 35px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1)',
-                transform: 'rotateX(5deg) rotateY(-2deg) scale(0.98)',
+                transform: 'rotateX(3deg) rotateY(-1deg) scale(0.998)',
                 transformOrigin: 'center center',
-            backfaceVisibility: 'hidden'
+                backfaceVisibility: 'hidden'
               }}
           onClick={expandAndPlay}
             >
@@ -118,7 +133,7 @@ const VideoComponentMobile = ({ slide = false }) => {
               <img
                 src={VIDEO_COM_PNG}
                 alt="Video Preview"
-              className="w-full h-full object-cover rounded-xl"
+              className="w-full h-full object-contain rounded-xl bg-gray-100"
             />
           )}
 
@@ -170,7 +185,7 @@ const VideoComponentMobile = ({ slide = false }) => {
             >
               <video
                 ref={videoRef}
-                src={BAFT_VID_MP4}
+                src={VIDEOPLAYBACK_MP4}
                 playsInline
                 muted
                 autoPlay
@@ -181,9 +196,10 @@ const VideoComponentMobile = ({ slide = false }) => {
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%) rotate(90deg)",
-                  height: "100vw",   // scale using the larger side
-                  width: "auto",     // preserve aspect ratio
-                  objectFit: "cover", // YouTube-style edge-to-edge
+                  minWidth: "100vh",   // ensure it always fills horizontally
+                  minHeight: "100vw",  // ensure it always fills vertically
+                  objectFit: "cover",  // fill like YouTube
+                  backgroundColor: "black"
                 }}
               />
             </div>
@@ -207,18 +223,63 @@ const VideoComponentMobile = ({ slide = false }) => {
 
         {/* Text Content - Only show when not expanded */}
         {!isExpanded && (
-          <div className="mt-8 w-[85vw] max-w-[400px]">
-            <div className="flex flex-col gap-2">
-              <p className="font-normal flex items-center gap-2 text-sm text-[#092646]">
-                <img src={SVG_SVG} alt="Icon" className="w-4 h-4" />
+          <div className="mt-12 w-[85vw] max-w-[400px] px-2">
+            <div className="flex flex-col gap-3">
+              {/* Know Our Story */}
+              <p 
+                className="flex items-center gap-2 text-[#092646]"
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontStyle: 'normal',
+                  fontWeight: 400,
+                  fontSize: 'clamp(11px, 3.5vw, 13.6834px)',
+                  lineHeight: 'clamp(9px, 2.8vw, 11px)',
+                  letterSpacing: '-0.153595px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  flex: 'none',
+                  order: 0,
+                  flexGrow: 0
+                }}
+              >
+                <img src={SVG_SVG} alt="Icon" className="w-3 h-3 sm:w-4 sm:h-4" />
                 Know our story
               </p>
               
-              <h1 className="text-3xl font-bold text-[#1966BB] leading-tight">
+              <h1 
+                className="text-[#1966BB]"
+                style={{
+                  fontFamily: 'EB Garamond, serif',
+                  fontStyle: 'normal',
+                  fontWeight: 700,
+                  fontSize: 'clamp(28px, 8vw, 43.7867px)',
+                  lineHeight: 'clamp(34px, 10vw, 54px)',
+                  letterSpacing: '-0.153595px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  flex: 'none',
+                  order: 1,
+                  flexGrow: 0
+                }}
+              >
                 The Video
               </h1>
               
-              <p className="text-[#909090] text-sm leading-relaxed">
+              <p 
+                className="text-[#909090]"
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontStyle: 'normal',
+                  fontWeight: 400,
+                  fontSize: 'clamp(14px, 4.2vw, 16.42px)',
+                  lineHeight: 'clamp(20px, 6vw, 24px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  flex: 'none',
+                  order: 2,
+                  flexGrow: 0
+                }}
+              >
                 BaFT Technology is a next-gen neo-banking startup headquartered in
                 Bangalore, proudly founded in 2025. We're a tight-knit team of
                 financial innovators and tech experts on a mission: to reimagine
@@ -229,6 +290,7 @@ const VideoComponentMobile = ({ slide = false }) => {
         )}
       </section>
     </div>
+    </>
   );
 };
 

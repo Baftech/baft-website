@@ -9,13 +9,32 @@ import { B_COIN_SVG } from "../../assets/assets";
 function Coin({ texture, position, animate, target, opacity = 0.97 }) {
   const ref = useRef();
 
+  useEffect(() => {
+    if (ref.current) {
+      // Initialize base scale
+      const base = (1.6 - position[2] * 0.2);
+      ref.current.scale.set(base, base, 1);
+      ref.current.userData.extraScale = 1;
+    }
+  }, [position]);
+
   useFrame(() => {
-    if (animate && ref.current) {
-      ref.current.position.lerp(new THREE.Vector3(...target), 0.02); // Slightly increased expansion speed
+    if (!ref.current) return;
+    if (animate) {
+      // Move toward target even more slowly for a longer expansion
+      ref.current.position.lerp(new THREE.Vector3(...target), 0.014);
+      // Add a gentle scale-up effect on expand
+      const base = (1.6 - position[2] * 0.2);
+      const current = ref.current.userData.extraScale ?? 1;
+      const targetScale = 1.12; // up to +12%
+      const next = current + (targetScale - current) * 0.014;
+      ref.current.userData.extraScale = next;
+      const s = base * next;
+      ref.current.scale.set(s, s, 1);
     }
   });
 
-  const scaleFactor = (1.8 - position[2] * 0.2); // Reduced expansion scale
+  const scaleFactor = (1.6 - position[2] * 0.2); // Slightly smaller base scale
 
   return (
     <group>
@@ -23,10 +42,9 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
       <mesh
         ref={ref}
         position={position}
-        scale={[scaleFactor, scaleFactor, 1]}
         rotation={[-0.02, 0, 0.0999]}
       >
-        <planeGeometry args={[1.8, 1.8]} />
+        <planeGeometry args={[1.6, 1.6]} />
         <meshStandardMaterial
           map={texture}
           color="#E5E5E5"
@@ -56,7 +74,7 @@ const CoinStack = ({ startAnimation }) => {
         texture={coinTexture}
         position={[0.3, -0.4, -0.3]}
         animate={startAnimation}
-        target={[0.5, -0.5, -0.4]}
+        target={[0.46, -0.46, -0.46]}
         opacity={1.0}
       />
       <Coin
@@ -70,7 +88,7 @@ const CoinStack = ({ startAnimation }) => {
         texture={coinTexture}
         position={[-0.3, 0.4, 0.3]}
         animate={startAnimation}
-        target={[-0.5, 0.5, 0.4]}
+        target={[-0.46, 0.46, 0.46]}
         opacity={0.95}
       />
     </>
@@ -80,6 +98,7 @@ const CoinStack = ({ startAnimation }) => {
 const BInstantMobile = () => {
   const [startCoinAnimation, setStartCoinAnimation] = useState(false);
   const [showCoins, setShowCoins] = useState(false);
+  const [textScale, setTextScale] = useState(1);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -97,6 +116,25 @@ const BInstantMobile = () => {
       console.log("showCoins:", showCoins);
     }
   }, [startCoinAnimation, showCoins]);
+
+  // Prevent text from cutting off on small screens by scaling the fixed-size block
+  useEffect(() => {
+    const updateScale = () => {
+      try {
+        const vw = window.innerWidth || 375;
+        const baseWidth = 380; // design width of the text block
+        const scale = Math.min((vw * 0.94) / baseWidth, 1);
+        setTextScale(scale);
+      } catch (_) {}
+    };
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    window.addEventListener('orientationchange', updateScale);
+    return () => {
+      window.removeEventListener('resize', updateScale);
+      window.removeEventListener('orientationchange', updateScale);
+    };
+  }, []);
 
   return (
     <div
@@ -150,14 +188,19 @@ const BInstantMobile = () => {
 
       {/* CSS overlay removed - no more box constraints */}
 
-      {/* Text overlay — centered in mobile viewport */}
-      <div className="absolute inset-0 flex items-center justify-center" style={{ 
-        zIndex: 30, 
-        pointerEvents: "none" 
-      }}>
-        <motion.div
-          style={{ position: "relative", width: "380px", height: "120px" }}
+      {/* Text overlay — robustly centered in viewport */}
+      <div className="absolute inset-0" style={{ zIndex: 30, pointerEvents: "none" }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(calc(-50% + 8px), -50%)",
+            width: "380px",
+            height: "120px",
+          }}
         >
+          <motion.div style={{ position: "relative", width: "100%", height: "100%", transform: `scale(${textScale})`, transformOrigin: "center center" }}>
           {/* Left Chunk - B-Coin + Instant Value */}
           <motion.div
             style={{ position: "relative" }}
@@ -267,7 +310,8 @@ const BInstantMobile = () => {
               Instantly
             </div>
           </motion.div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
