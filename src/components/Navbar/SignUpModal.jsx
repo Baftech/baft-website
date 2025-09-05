@@ -9,6 +9,8 @@ const SignUpModal = ({ isOpen, onClose }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form was ever submitted
   const [backdropVisible, setBackdropVisible] = useState(false);
+  const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  const [errMsg, setErrMsg] = useState(""); // for displaying email errors
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -43,10 +45,26 @@ const SignUpModal = ({ isOpen, onClose }) => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    
+    // Real-time email validation - clear error if email becomes valid
+    if (name === "email") {
+      const cleanedEmail = value.trim().toLowerCase();
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedEmail)) {
+        setErrMsg(""); // clear error if valid
+      }
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const cleanedEmail = formData.email.trim().toLowerCase();
+
+    setErrMsg("");
+    if (!isValidEmail(cleanedEmail)) {
+      setErrMsg("Please enter a valid email address.");
+      return;
+    }
+    
     console.log("Form submitted:", formData);
     setIsTransitioning(true);
     setHasSubmitted(true); // Mark that form has been submitted
@@ -123,7 +141,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
 
                 <div className="signup-input-group">
                   <input
-                    type="email"
+                    type="text"
                     name="email"
                     placeholder="Email Id"
                     className="signup-input"
@@ -131,6 +149,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
                 </div>
 
                 <div className="signup-input-group">

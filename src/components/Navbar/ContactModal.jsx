@@ -116,11 +116,11 @@ const ContactModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Content Container - Flexible Height */}
-        <div className="w-full min-h-[320px] sm:min-h-[360px] relative overflow-hidden">
+        <div className="w-full min-h-[360px] sm:min-h-[400px] relative">
           
           {/* Form Content */}
-          <div className={`absolute inset-0 w-full transition-all duration-800 ease-out ${
-            showThanks || isTransitioning ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
+          <div className={`w-full transition-all duration-800 ease-out ${
+            showThanks || isTransitioning ? 'opacity-0 scale-95 pointer-events-none absolute inset-0' : 'opacity-100 scale-100'
           }`}>
             <div className="w-full bg-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-3 sm:gap-3 mb-0">
               <div>
@@ -139,7 +139,7 @@ const ContactModal = ({ isOpen, onClose }) => {
                   className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70"
                 />
                 <input
-                  type="email"
+                  type="text"
                   name="email"
                   placeholder="Email Id"
                   value={formData.email}
@@ -169,8 +169,8 @@ const ContactModal = ({ isOpen, onClose }) => {
           </div>
 
           {/* Thanks Content */}
-          <div className={`absolute inset-0 w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
-            showThanks && !isTransitioning ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+          <div className={`w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
+            showThanks && !isTransitioning ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'
           }`}>
             {showThanks && !isClosing && (
               <>
