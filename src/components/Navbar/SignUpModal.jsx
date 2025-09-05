@@ -8,6 +8,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form was ever submitted
+  const [backdropVisible, setBackdropVisible] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -17,7 +18,10 @@ const SignUpModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => setIsAnimating(true), 10);
+      // Fade in backdrop first
+      setBackdropVisible(true);
+      // Then animate modal content
+      setTimeout(() => setIsAnimating(true), 50);
       // If user has already submitted, show thanks page immediately
       if (hasSubmitted) {
         setShowThanks(true);
@@ -25,6 +29,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
     } else {
       setIsAnimating(false);
       setIsClosing(false);
+      setBackdropVisible(false);
       setShowThanks(hasSubmitted); // Keep thanks state based on submission status
       setIsTransitioning(false);
     }
@@ -55,15 +60,21 @@ const SignUpModal = ({ isOpen, onClose }) => {
 
   const handleClose = () => {
     setIsClosing(true);
+    setBackdropVisible(false);
     setTimeout(() => {
       // Don't reset showThanks or hasSubmitted - keep the submission state
       setIsTransitioning(false);
       onClose();
-    }, 800);
+    }, 600); // Slightly faster close animation
   };
 
   return (
-    <div data-theme="dark" className="signup-modal-backdrop">
+    <div 
+      data-theme="dark" 
+      className={`signup-modal-backdrop transition-opacity duration-500 ease-out ${
+        backdropVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
       <div
         className={`signup-modal-container transition-all duration-1200 ease-in-out ${
           isAnimating && !isClosing

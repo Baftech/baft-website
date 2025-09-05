@@ -8,6 +8,9 @@ const ContactModal = ({ isOpen, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form was ever submitted
+  const [backdropVisible, setBackdropVisible] = useState(false);
+  const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  const [errMsg, setErrMsg] = useState(""); // for displaying email errors
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,7 +19,10 @@ const ContactModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => setIsAnimating(true), 10);
+      // Fade in backdrop first
+      setBackdropVisible(true);
+      // Then animate modal content
+      setTimeout(() => setIsAnimating(true), 50);
       // If user has already submitted, show thanks page immediately
       if (hasSubmitted) {
         setShowThanks(true);
@@ -24,6 +30,7 @@ const ContactModal = ({ isOpen, onClose }) => {
     } else {
       setIsAnimating(false);
       setIsClosing(false);
+      setBackdropVisible(false);
       setShowThanks(hasSubmitted); // Keep thanks state based on submission status
       setIsTransitioning(false);
     }
@@ -33,20 +40,37 @@ const ContactModal = ({ isOpen, onClose }) => {
 
   const handleClose = () => {
     setIsClosing(true);
+    setBackdropVisible(false);
     setTimeout(() => {
       // Don't reset showThanks or hasSubmitted - keep the submission state
       setIsTransitioning(false);
       onClose();
-    }, 800); // Match the duration-800
+    }, 600); // Slightly faster close animation
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Real-time email validation - clear error if email becomes valid
+    if (name === "email") {
+      const cleanedEmail = value.trim().toLowerCase();
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedEmail)) {
+        setErrMsg(""); // clear error if valid
+      }
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const cleanedEmail = formData.email.trim().toLowerCase();
+
+    setErrMsg("");
+    if (!isValidEmail(cleanedEmail)) {
+      setErrMsg("Please enter a valid email address.");
+      return;
+    }
+    
     setIsTransitioning(true);
     setHasSubmitted(true); // Mark that form has been submitted
     
@@ -59,7 +83,16 @@ const ContactModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-100 p-2 sm:p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={handleClose}></div>
+      <div 
+        className={`absolute inset-0 transition-opacity duration-500 ease-out ${
+          backdropVisible ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{
+          background: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(4px)'
+        }}
+        onClick={handleClose}
+      ></div>
       <div 
         className={`relative w-[95%] sm:w-[90%] max-w-[380px] sm:max-w-[420px] max-h-[90vh] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl backdrop-blur-[30px] z-10 overflow-hidden box-border flex flex-col items-center transition-all duration-800 ease-out ${
           isAnimating && !isClosing ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-8'
@@ -114,6 +147,7 @@ const ContactModal = ({ isOpen, onClose }) => {
                   required
                   className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70"
                 />
+                {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
                 <textarea
                   name="message"
                   placeholder="Your Message"
