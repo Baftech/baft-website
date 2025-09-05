@@ -4,6 +4,8 @@ import { LOGO_PNG } from "../../assets/assets";
 
 const SignUpModal = ({ isOpen, onClose }) => {
   const [showThanks, setShowThanks] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form was ever submitted
   const [formData, setFormData] = useState({
@@ -15,11 +17,14 @@ const SignUpModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
+      setTimeout(() => setIsAnimating(true), 10);
       // If user has already submitted, show thanks page immediately
       if (hasSubmitted) {
         setShowThanks(true);
       }
     } else {
+      setIsAnimating(false);
+      setIsClosing(false);
       setShowThanks(hasSubmitted); // Keep thanks state based on submission status
       setIsTransitioning(false);
     }
@@ -49,14 +54,23 @@ const SignUpModal = ({ isOpen, onClose }) => {
   };
 
   const handleClose = () => {
-    // Close immediately without animation
-    setIsTransitioning(false);
-    onClose();
+    setIsClosing(true);
+    setTimeout(() => {
+      // Don't reset showThanks or hasSubmitted - keep the submission state
+      setIsTransitioning(false);
+      onClose();
+    }, 800);
   };
 
   return (
     <div data-theme="dark" className="signup-modal-backdrop">
-      <div className="signup-modal-container">
+      <div
+        className={`signup-modal-container transition-all duration-1200 ease-in-out ${
+          isAnimating && !isClosing
+            ? "opacity-100 scale-100 translate-y-0"
+            : "opacity-0 scale-90 translate-y-8"
+        }`}
+      >
         <button onClick={handleClose} className="signup-close-button">
           ✕
         </button>
@@ -196,7 +210,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
                 : "opacity-0 scale-95 pointer-events-none"
             }`}
           >
-            {showThanks && (
+            {showThanks && !isClosing && (
               <>
                 <div className="checkmark-wrapper">
                   <svg

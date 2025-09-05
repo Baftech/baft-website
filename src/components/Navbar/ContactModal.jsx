@@ -4,6 +4,8 @@ import { LOGO_PNG } from "../../assets/assets";
 
 const ContactModal = ({ isOpen, onClose }) => {
   const [showThanks, setShowThanks] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form was ever submitted
   const [formData, setFormData] = useState({
@@ -14,11 +16,14 @@ const ContactModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
+      setTimeout(() => setIsAnimating(true), 10);
       // If user has already submitted, show thanks page immediately
       if (hasSubmitted) {
         setShowThanks(true);
       }
     } else {
+      setIsAnimating(false);
+      setIsClosing(false);
       setShowThanks(hasSubmitted); // Keep thanks state based on submission status
       setIsTransitioning(false);
     }
@@ -27,9 +32,12 @@ const ContactModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const handleClose = () => {
-    // Close immediately without animation
-    setIsTransitioning(false);
-    onClose();
+    setIsClosing(true);
+    setTimeout(() => {
+      // Don't reset showThanks or hasSubmitted - keep the submission state
+      setIsTransitioning(false);
+      onClose();
+    }, 800); // Match the duration-800
   };
 
   const handleChange = (e) => {
@@ -53,7 +61,9 @@ const ContactModal = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 flex items-center justify-center z-100 p-2 sm:p-4">
       <div className="absolute inset-0 bg-black/50" onClick={handleClose}></div>
       <div 
-        className={`relative w-[95%] sm:w-[90%] max-w-[380px] sm:max-w-[420px] max-h-[90vh] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl backdrop-blur-[30px] z-10 overflow-hidden box-border flex flex-col items-center`}
+        className={`relative w-[95%] sm:w-[90%] max-w-[380px] sm:max-w-[420px] max-h-[90vh] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl backdrop-blur-[30px] z-10 overflow-hidden box-border flex flex-col items-center transition-all duration-800 ease-out ${
+          isAnimating && !isClosing ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-8'
+        }`}
         style={{
           background: 'radial-gradient(112.62% 112.6% at 47.95% 3.5%, #090E65 0%, rgba(55, 102, 183, 0.96) 78.84%, rgba(25, 25, 25, 0.93) 100%)',
           border: '2px solid rgba(255, 255, 255, 0.46)'
@@ -68,13 +78,7 @@ const ContactModal = ({ isOpen, onClose }) => {
 
         {/* Logo - Always visible */}
         <div className="flex flex-col items-center justify-center text-center mb-3 sm:mb-4">
-          <img 
-            src={LOGO_PNG} 
-            alt="BaFT Logo" 
-            loading="eager"
-            decoding="sync"
-            className="block w-[80px] sm:w-[100px] h-auto mx-auto" 
-          />
+          <img src={LOGO_PNG} alt="BaFT Logo" className="w-[80px] sm:w-[100px] h-auto mx-auto" />
           <p className="mt-2 sm:mt-2 font-['Inter'] text-[12px] sm:text-[14px] text-white/70">Built for You, Powered by Tech</p>
         </div>
 
@@ -134,7 +138,7 @@ const ContactModal = ({ isOpen, onClose }) => {
           <div className={`absolute inset-0 w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
             showThanks && !isTransitioning ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
           }`}>
-            {showThanks && (
+            {showThanks && !isClosing && (
               <>
                 <div className="checkmark-wrapper">
                   <svg

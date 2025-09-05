@@ -488,7 +488,9 @@ const AboutMobile = () => {
   const preventEventListenersRef = useRef([]);
   const addEventPrevention = () => {
     const prevent = (evt) => { 
-      evt.preventDefault(); 
+      if (evt.cancelable) {
+        evt.preventDefault(); 
+      }
       evt.stopPropagation(); 
       return false; 
     };
@@ -687,7 +689,9 @@ const AboutMobile = () => {
 
       // Apply scroll momentum control
       if (isScrollControlledRef.current) {
-        e.preventDefault();
+        if (e.cancelable) {
+          e.preventDefault();
+        }
         e.stopPropagation();
         
         // Apply controlled scroll with momentum
@@ -798,7 +802,9 @@ const AboutMobile = () => {
       if (!inPinned) return;
 
       // Always suppress native scroll inside pinned zone so image never moves with finger
-      e.preventDefault();
+      if (e.cancelable) {
+        e.preventDefault();
+      }
       e.stopPropagation();
 
       if (isForceAnimatingRef.current) return false;
@@ -825,7 +831,9 @@ const AboutMobile = () => {
         }
       } catch {}
       const prevent = (evt) => { 
-        evt.preventDefault(); 
+        if (evt.cancelable) {
+          evt.preventDefault(); 
+        }
         evt.stopPropagation(); 
         return false; 
       };
@@ -909,10 +917,16 @@ const AboutMobile = () => {
       const windowHeight = window.innerHeight;
       const inPinned = rect.top <= 0 && rect.bottom > windowHeight;
       if (!inPinned) return;
+      
+      // Get the primary touch point - more robust handling for different hand positions
       const t = e.touches && e.touches[0] ? e.touches[0] : null;
-      touchStartY = t ? t.clientY : null;
-      touchStartXRef.current = t ? t.clientX : null;
-      touchStartYRef.current = t ? t.clientY : null;
+      if (!t) return;
+      
+      // Store touch coordinates with bounds checking
+      touchStartY = Math.max(0, Math.min(t.clientY, window.innerHeight));
+      touchStartXRef.current = Math.max(0, Math.min(t.clientX, window.innerWidth));
+      touchStartYRef.current = touchStartY;
+      
       // Allow taps on interactive elements (e.g., Read More button)
       startedOnInteractiveRef.current = !!(e.target && (e.target.closest && e.target.closest('.reveal-button')));
       // Do not prevent default immediately to allow clicks; prevention handled in touchmove if needed
@@ -925,14 +939,25 @@ const AboutMobile = () => {
       const inPinned = rect.top <= 0 && rect.bottom > windowHeight;
       if (!inPinned) return;
       if (startedOnInteractiveRef.current) return;
+      
       // Only prevent when there is an actual swipe move beyond a tiny threshold
       const t = e.touches && e.touches[0] ? e.touches[0] : null;
       if (!t) return;
-      const dx = Math.abs((t.clientX || 0) - (touchStartXRef.current || 0));
-      const dy = Math.abs((t.clientY || 0) - (touchStartYRef.current || 0));
+      
+      // More robust coordinate handling for different hand positions
+      const currentX = Math.max(0, Math.min(t.clientX, window.innerWidth));
+      const currentY = Math.max(0, Math.min(t.clientY, window.innerHeight));
+      const startX = touchStartXRef.current || 0;
+      const startY = touchStartYRef.current || 0;
+      
+      const dx = Math.abs(currentX - startX);
+      const dy = Math.abs(currentY - startY);
       const moved = dx > 4 || dy > 4;
+      
       if (moved) {
-        e.preventDefault();
+        if (e.cancelable) {
+          e.preventDefault();
+        }
         e.stopPropagation();
         return false;
       }
@@ -952,7 +977,10 @@ const AboutMobile = () => {
 
       // If interaction started on interactive element, allow click; otherwise prevent scroll flicks
       if (!startedOnInteractiveRef.current) {
-        e.preventDefault();
+        // Only prevent default if the event is cancelable
+        if (e.cancelable) {
+          e.preventDefault();
+        }
         e.stopPropagation();
       }
 
@@ -965,7 +993,9 @@ const AboutMobile = () => {
       setIsForceAnimating(true);
       
       const prevent = (evt) => { 
-        evt.preventDefault(); 
+        if (evt.cancelable) {
+          evt.preventDefault(); 
+        }
         evt.stopPropagation(); 
         return false; 
       };
@@ -1197,10 +1227,12 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
             
             // Calculate center positions with strict bounds to prevent flying off screen
             const baseRect = lockedStartRectRef.current || startRect;
-            const clampedStartLeft = Math.max(0, Math.min(baseRect.left, vw));
-            const clampedStartTop = Math.max(0, Math.min(baseRect.top, vh));
-            const clampedStartWidth = Math.max(0, Math.min(baseRect.width, vw));
-            const clampedStartHeight = Math.max(0, Math.min(baseRect.height, vh));
+            
+            // More robust bounds checking to prevent image flying off
+            const clampedStartLeft = Math.max(0, Math.min(baseRect.left, vw - baseRect.width));
+            const clampedStartTop = Math.max(0, Math.min(baseRect.top, vh - baseRect.height));
+            const clampedStartWidth = Math.max(100, Math.min(baseRect.width, vw)); // Ensure minimum width
+            const clampedStartHeight = Math.max(100, Math.min(baseRect.height, vh)); // Ensure minimum height
             
             const startCenterX = clampedStartLeft + clampedStartWidth / 2;
             const startCenterY = clampedStartTop + clampedStartHeight / 2;
@@ -1209,9 +1241,9 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
             const targetCenterX = vw / 2;
             const targetCenterY = vh / 2;
             
-            // Mobile-specific viewport centering adjustments
-            const mobileViewportCenterX = window.innerWidth / 2;
-            const mobileViewportCenterY = window.innerHeight / 2;
+            // Mobile-specific viewport centering adjustments - ensure we're using consistent values
+            const mobileViewportCenterX = vw / 2;
+            const mobileViewportCenterY = vh / 2;
             
             // Calculate expansion phase based on current animation progress
             const currentExpansionPhase = Math.min(1, forcedAnimT / 0.8); // Expansion completes at 80% of animation
@@ -1220,8 +1252,25 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
             // Linearly interpolate from the original top-left and size to full viewport
             const currentW = clampedStartWidth + (vw - clampedStartWidth) * imageExpansionProgress;
             const currentH = clampedStartHeight + (vh - clampedStartHeight) * imageExpansionProgress;
-            const currentLeft = clampedStartLeft + (0 - clampedStartLeft) * imageExpansionProgress;
-            const currentTop = clampedStartTop + (0 - clampedStartTop) * imageExpansionProgress;
+            
+            // Calculate position with better centering logic to prevent flying off
+            let currentLeft, currentTop;
+            
+            if (imageExpansionProgress >= 1) {
+              // When fully expanded, center the image
+              currentLeft = 0;
+              currentTop = 0;
+            } else {
+              // During expansion, interpolate from start position to center
+              const targetLeft = (vw - currentW) / 2;
+              const targetTop = (vh - currentH) / 2;
+              currentLeft = clampedStartLeft + (targetLeft - clampedStartLeft) * imageExpansionProgress;
+              currentTop = clampedStartTop + (targetTop - clampedStartTop) * imageExpansionProgress;
+            }
+            
+            // Final bounds checking to prevent image from flying off screen
+            const finalLeft = Math.max(0, Math.min(currentLeft, vw - currentW));
+            const finalTop = Math.max(0, Math.min(currentTop, vh - currentH));
             
             const currentRadius = imageExpansionProgress >= 1 ? 0 : Math.max(0, 16 * (1 - imageExpansionProgress));
             const boxShadowOpacity = 0.25 * (1 - imageExpansionProgress);
@@ -1231,8 +1280,8 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                 className="absolute floating-overlay-container"
             style={{
                   position: 'fixed', // Use fixed positioning to break out of container constraints
-                  left: `${imageExpansionProgress >= 1 ? 0 : Math.max(0, Math.min(vw - currentW, currentLeft))}px`,
-                  top: `${imageExpansionProgress >= 1 ? 0 : Math.max(0, Math.min(vh - currentH, currentTop))}px`,
+                  left: `${finalLeft}px`,
+                  top: `${finalTop}px`,
                   right: `${imageExpansionProgress >= 1 ? 0 : 'auto'}px`,
                   bottom: `${imageExpansionProgress >= 1 ? 0 : 'auto'}px`,
                   width: `${currentW}px`,

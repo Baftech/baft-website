@@ -104,14 +104,11 @@
   border-radius: 50%;
   overflow: hidden;
   /* prevent pseudo-element from affecting outside stacking */
-  isolation: isolate;
+  /* isolation: isolate; */
 }
 
 
 /* Enhanced metallic rim effect with smooth transitions */
-.security-logo-wrapper::after {
-  display: none;
-}
 
 /* metallic dotted rim effect */
 
@@ -134,33 +131,68 @@
 .security-logo-wrapper::before {
   content: '';
   position: absolute;
+  left: -5%;
+  right: -5%;
   top: -50%;
-  left: -50%;
-  width: 200%;
+  bottom: -50%;
+  width: 110%;
   height: 200%;
-  background: linear-gradient(
-    115deg,
-    rgba(255,255,255,0) 30%,
-    rgba(255,255,255,0.6) 50%,
-    rgba(255,255,255,0) 70%
-  );
-  transform: rotate(20deg);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 35%, #FFFFFF 50%, rgba(255, 255, 255, 0) 65%);
+  filter: blur(8px);
+  transform: rotate(45deg);
   animation: diagonalSweep 5s linear infinite;
   z-index: 2;
   pointer-events: none;
-  border-radius: 50%;
-  filter: blur(1.2px);
+  will-change: transform;
+  mix-blend-mode: screen;
+}
+
+.security-logo-wrapper::after {
+  content: '';
+  position: absolute;
+  left: -3%;
+  right: -3%;
+  top: -40%;
+  bottom: -40%;
+  width: 106%;
+  height: 180%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 40%, #FFFFFF 50%, rgba(255, 255, 255, 0) 60%);
+  filter: blur(6px);
+  transform: rotate(45deg);
+  animation: diagonalSweep 3s linear infinite;
+  z-index: 2;
+  pointer-events: none;
+  will-change: transform;
+  mix-blend-mode: screen;
+}
+
+/* Third line using additional pseudo-element on the SVG */
+.security-logo-svg::before {
+  content: '';
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  top: -30%;
+  bottom: -30%;
+  width: 104%;
+  height: 160%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 42%, #FFFFFF 50%, rgba(255, 255, 255, 0) 58%);
+  filter: blur(5px);
+  transform: rotate(45deg);
+  animation: diagonalSweep 4s linear infinite;
+  z-index: 3;
+  pointer-events: none;
   will-change: transform;
   mix-blend-mode: screen;
 }
 
 @keyframes diagonalSweep {
   0%   { 
-    transform: translate(-160%, -160%) rotate(20deg);
+    transform: translate(-160%, -160%) rotate(45deg);
     opacity: 1;
   }
   100% { 
-    transform: translate(160%, 160%) rotate(20deg);
+    transform: translate(160%, 160%) rotate(45deg);
     opacity: 1;
   }
 }
@@ -241,5 +273,9 @@
 
 /* Enhanced animation timing for ultra smooth feel */
 .security-logo-wrapper::before {
+  animation: diagonalSweep 6s linear infinite;
+}
+
+.security-logo-wrapper::after {
   animation: diagonalSweep 6s linear infinite;
 }
