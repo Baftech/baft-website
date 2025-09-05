@@ -12,7 +12,7 @@ const B_Fast_Desktop = () => {
   const contentRef = useRef(null);
   const videoRef = useRef(null);
   const sectionRef = useRef(null);
-  const overlayRef = useRef(null);
+  const overlayRef = useRef(null); // kept for ref safety, but overlay is not rendered/used
   const starsGroup2Ref = useRef(null);
   const starsGroup1Ref = useRef(null);
   const orbitingStarsRef = useRef(null);
@@ -102,8 +102,8 @@ const B_Fast_Desktop = () => {
     // Set initial heading state - start hidden and above position
     gsap.set(contentRef.current, { opacity: 0, y: -80 }); // Heading starts hidden and above position
     
-    // Always start with overlay hidden, we'll show it conditionally
-    gsap.set(overlayRef.current, { opacity: 0 });
+    // Remove overlay usage to preserve raw video quality
+    if (overlayRef.current) gsap.set(overlayRef.current, { opacity: 0 });
     if (starsGroup2Ref.current) gsap.set(starsGroup2Ref.current, { opacity: 0 });
     if (starsGroup1Ref.current) gsap.set(starsGroup1Ref.current, { opacity: 0 });
     if (orbitingStarsRef.current) gsap.set(orbitingStarsRef.current, { opacity: 0 });
@@ -126,20 +126,13 @@ const B_Fast_Desktop = () => {
             const tl = gsap.timeline();
             
             if (isFromBottom) {
-              // Coming from bottom → run page reveal
-              gsap.set(overlayRef.current, { opacity: 1 });
-              
-              tl.to(overlayRef.current, {
-                opacity: 0,
-                duration: 2.5,
-                ease: "power2.out"
-              })
-              .to(contentRef.current, {
+              // Coming from bottom → show content without overlay
+              tl.to(contentRef.current, {
                 opacity: 1,
                 y: 0,
                 duration: 1.2,
                 ease: "power1.inOut"
-              }, "+=2.0")
+              })
               .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
                 opacity: 1,
                 duration: 2.0,
@@ -187,15 +180,10 @@ const B_Fast_Desktop = () => {
 
   return (
     <section ref={sectionRef} className="relative w-full h-screen overflow-hidden" style={{ backgroundColor: '#ffffff' }} data-theme="light">
-      {/* Reveal Overlay - starts covering everything, then fades out */}
-      <div 
-        ref={overlayRef}
-        className="absolute inset-0 z-50 pointer-events-none"
-        style={{ backgroundColor: '#ffffff' }}
-      />
+      {/* Overlay removed to preserve original video quality */}
       
       {/* Content Container */}
-      <div className="relative z-10 w-full h-full flex flex-col items-center justify-start" style={{ backgroundColor: '#ffffff', textAlign: 'center' }}>
+      <div className="relative z-10 w-full h-full flex flex-col items-center justify-start" style={{ backgroundColor: '#ffffff', textAlign: 'center', marginTop: 'clamp(20px, 6vh, 160px)' }}>
         {/* Text Content */}
         <div
           ref={contentRef}
@@ -225,7 +213,7 @@ const B_Fast_Desktop = () => {
               lineHeight: '100%',
               letterSpacing: '0%',
                           textAlign: 'center',
-            width: 'clamp(280px, 90vw, 1600px)', // Responsive width for all small screens
+            width: 'clamp(280px, 100vw, 1600px)', // Responsive width for all small screens
             height: 'clamp(80px, 15vh, 200px)', // Responsive height for all small screens
             backgroundImage: 'linear-gradient(180deg, #B8C9E0 33.59%, #0A2A4A 77.13%)',
             backgroundRepeat: 'no-repeat',
@@ -279,53 +267,27 @@ const B_Fast_Desktop = () => {
 
 
                 {/* Video Section */}
-        <div className="relative w-full mx-auto mac-margin" style={{ 
+        <div className="relative w-full mx-auto mac-margin mac-gap" style={{ 
           backgroundColor: 'transparent',
           position: 'relative',
           flex: '1 1 auto', // Allow growing and shrinking, but maintain aspect ratio
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: 'clamp(500px, 70vh, 1000px)', // Much bigger video: 500px minimum, scales to 1000px
-          maxHeight: 'clamp(700px, 90vh, 1200px)', // Much bigger video: 700px minimum, scales to 1200px
-          marginTop: 'clamp(60px, 6vh, 100px)', // Move video a bit higher - reduced from 80px to 60px
+          minHeight: 'clamp(380px, 65vh, 1100px)', // Larger baseline height for bigger video
+          maxHeight: 'clamp(760px, 90vh, 1300px)', // Allow up to 90vh for larger render
+          marginTop: 'clamp(130px, 12vh, 240px)', // Increased gap under heading
           marginLeft: 'clamp(5px, 0.5vw, 5px)', // X-5 margin for bigger screens
           marginRight: 'clamp(5px, 0.5vw, 5px)' // X-5 margin for bigger screens
         }}>
-          {/* Centered Video Glow (deeper ellipse) */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-            zIndex: 11
-          }}>
-            <div style={{
-              width: 'min(62vw, 820px)',
-              height: 'min(58vh, 600px)',
-              background: 'radial-gradient(ellipse at center, rgba(55,102,183,0.28) 0%, rgba(55,102,183,0.14) 40%, rgba(55,102,183,0.06) 70%, rgba(55,102,183,0) 100%)',
-              filter: 'blur(70px)',
-              mixBlendMode: 'overlay',
-              borderRadius: '50%',
-              transform: 'translateZ(0)'
-            }} />
-          </div>
+          {/* Removed centered glow overlay for cleaner video */}
           {/* Responsive positioning container */}
           <div className="relative w-full h-full flex items-center justify-center" style={{ 
             backgroundColor: 'transparent',
             border: 'none',
             outline: 'none'
           }}>
-            {/* Subtle glow behind video - blends with background */}
-            <div 
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'transparent', // Remove glow for seamless blend
-                zIndex: 1
-              }}
-            />
+            {/* Removed additional glow layers */}
                       {videoError ? (
               <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center relative z-10 shadow-lg">
                 <div className="text-center text-gray-500">
@@ -356,10 +318,9 @@ const B_Fast_Desktop = () => {
                   // Blend into background for animation-like feel
                   mixBlendMode: 'normal',
                   // Subtle visual tuning
-                  filter: 'saturate(1.08) contrast(1.04) brightness(1.02)',
-                  // Feather edges to merge with background
-                  WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
-                  maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
+                  
+                  // removed Feather edges to merge with background
+                  
                   // Non-interactive feel
                   pointerEvents: 'none',
                   border: 'none',
@@ -385,19 +346,7 @@ const B_Fast_Desktop = () => {
           </div>
         </div>
 
-        {/* Global Glow Overlay (covers video + screen) */}
-        <div style={{
-          position: 'fixed',
-          width: 'clamp(480px, 90vw, 900px)',
-          height: 'clamp(520px, 90vh, 1100px)',
-          left: 'calc(50% - (clamp(480px, 90vw, 900px))/2)',
-          top: 'calc(50% - (clamp(520px, 90vh, 1100px))/2)',
-          background: 'radial-gradient(ellipse at center, rgba(55, 102, 183, 0.12) 0%, rgba(55, 102, 183, 0.08) 40%, rgba(55, 102, 183, 0.03) 75%, rgba(55, 102, 183, 0) 100%)',
-          filter: 'blur(40px)',
-          mixBlendMode: 'soft-light',
-          zIndex: 12,
-          pointerEvents: 'none'
-        }} />
+        {/* Removed global glow overlay */}
 
         {/* Group 2 - Stars Overlay - Spread across entire screen */}
         <div ref={starsGroup2Ref} style={{
@@ -589,6 +538,10 @@ const B_Fast_Desktop = () => {
           .mac-margin {
             margin-left: 5px !important;
             margin-right: 5px !important;
+          }
+          /* Smaller Mac displays: add extra gap between heading and video */
+          @media (max-height: 900px) {
+            .mac-gap { margin-top: clamp(160px, 14vh, 280px) !important; }
           }
         }
       `}</style>

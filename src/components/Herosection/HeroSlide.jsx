@@ -187,7 +187,7 @@ const Hero = () => {
         // Fade in grid darkening masks as scaling begins
         .to(["#hero-top-mask", "#hero-side-mask"], { opacity: 1, duration: 0.4, ease: "sine.out" }, "shrink")
         // Reveal the top dome ellipse only after scaling completes
-        .to("#hero-dome-mask", { opacity: 1, duration: 0.6, ease: "sine.out" }, ">")
+        .to("#hero-dome-mask", { opacity: 0.8, duration: 0.6, ease: "sine.out" }, ">")
         // Restore grid visibility after scaling completes so the design returns
         .to("#grid_container", { opacity: 1, duration: 0.4, ease: "sine.out" }, "<")
         .to(

@@ -8,10 +8,12 @@ import { SVG_SVG, PROPERTY_IMAGE_PNG, PROPERTY_VIBHA_PNG, PROPERTY_DION_PNG, PRO
 gsap.registerPlugin(ScrollTrigger);
 
 // Updated ReadMoreText with animation
-const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
+const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentRef = useRef(null);
   const [collapsedHeight, setCollapsedHeight] = useState(200);
+  const [isCompact, setIsCompact] = useState(false);
+  const [maxContentHeight, setMaxContentHeight] = useState(560);
 
   const isLong = content.length > maxLength;
 
@@ -27,19 +29,43 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
     if (onExpandChange) onExpandChange(newState);
   };
 
-  // Compute a collapsed height that aligns to full lines to avoid cut-offs
+  // Compute a collapsed height that aligns to full lines; track compact viewport and max content height
   useEffect(() => {
     const measure = () => {
-      if (!contentRef.current) return;
+      if (!contentRef.current || typeof window === 'undefined') return;
       try {
-        const firstP = contentRef.current.querySelector('p');
-        const cs = firstP ? window.getComputedStyle(firstP) : window.getComputedStyle(contentRef.current);
+        // Determine compact viewport (small width or height)
+        const vw = window.innerWidth || 0;
+        const vh = window.innerHeight || 0;
+        const compact = vw < 1280 || vh < 820;
+        setIsCompact(compact);
+
+        // Collapsed height logic: show full first paragraph plus first line of second paragraph (if present)
+        const paraNodes = contentRef.current.querySelectorAll('p');
+        const refElem = paraNodes && paraNodes[0] ? paraNodes[0] : contentRef.current;
+        const cs = window.getComputedStyle(refElem);
         const lineH = parseFloat(cs.lineHeight || '0') || 28;
-        const linesToShow = 7; // show 7 full lines when collapsed
-        const next = Math.max(3, linesToShow) * lineH;
-        setCollapsedHeight(next);
+
+        let collapsed = 200;
+        if (paraNodes && paraNodes.length > 0) {
+          const firstRect = paraNodes[0].getBoundingClientRect();
+          const firstParaHeight = firstRect ? firstRect.height : lineH * 3;
+          const previewLines = 1; // show first line of second paragraph
+          collapsed = Math.max(lineH * 3, firstParaHeight + previewLines * lineH);
+        } else {
+          // Fallback to a reasonable number of lines
+          const linesToShow = compact ? 5 : 7;
+          collapsed = Math.max(3, linesToShow) * lineH;
+        }
+        setCollapsedHeight(collapsed);
+
+        // Max content height so expanded text doesn't overflow viewport on compact screens
+        const verticalPaddingAllowance = 200; // tighter allowance so expansion reaches the visual baseline
+        const safeMax = Math.max(280, (vh || 800) - verticalPaddingAllowance);
+        setMaxContentHeight(safeMax);
       } catch {
         setCollapsedHeight(200);
+        setMaxContentHeight(560);
       }
     };
     measure();
@@ -47,7 +73,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
     return () => window.removeEventListener('resize', measure);
   }, []);
 
-  // GSAP height animation for smooth transitions - snap to measured collapsed height
+  // GSAP height animation for smooth transitions - snap to measured collapsed/max height
   useEffect(() => {
     if (contentRef.current) {
       // Kill any existing tweens to avoid conflicts
@@ -56,7 +82,9 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       if (isExpanded) {
         // Get the natural height of the content
         const contentHeight = contentRef.current.scrollHeight;
-        const targetHeight = Math.max(contentHeight, collapsedHeight);
+        // Respect the maxContentHeight cap so it expands only up to the baseline
+        const cappedMax = Math.max(collapsedHeight, maxContentHeight);
+        const targetHeight = Math.min(Math.max(contentHeight, collapsedHeight), cappedMax);
         
         gsap.to(contentRef.current, {
           height: targetHeight,
@@ -72,7 +100,18 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
         });
       }
     }
-  }, [isExpanded, collapsedHeight]);
+  }, [isExpanded, collapsedHeight, maxContentHeight]);
+
+  // Ensure content is scrolled to top when expanding so text appears at the top
+  useEffect(() => {
+    if (isExpanded && contentRef.current) {
+      try {
+        contentRef.current.scrollTo({ top: 0, behavior: 'auto' });
+      } catch {
+        try { contentRef.current.scrollTop = 0; } catch {}
+      }
+    }
+  }, [isExpanded]);
 
   return (
     <div className="leading-relaxed pr-2" style={{ maxWidth: 'clamp(520px, 42vw, 680px)' }}>
@@ -80,7 +119,11 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
         ref={contentRef}
         style={{
           height: `${collapsedHeight}px`,
-          overflow: "hidden",
+          // When expanded, cap to available height so it grows until the visual baseline
+          maxHeight: isExpanded ? `${maxContentHeight}px` : undefined,
+          overflowY: isExpanded ? 'auto' : 'hidden',
+          WebkitOverflowScrolling: isExpanded ? 'touch' : undefined,
+          paddingRight: isExpanded ? '4px' : 0,
           opacity: isExpanded ? 1 : 0.9,
           transition: "opacity 0.6s ease",
           position: 'relative',
@@ -89,12 +132,12 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
         {paragraphs.map((para, i) => (
           <p
             key={i}
-            className="mb-4 sm:mb-5 md:mb-6"
+            className="mt-[-10] mb-10 sm:mb-3 md:mb-4"
             style={{
               fontFamily: "Inter, sans-serif",
               color: '#909090',
-              fontSize: 'clamp(16px, 1.4vw, 24px)',
-              lineHeight: 'clamp(24px, 2.1vw, 35px)'
+              fontSize: compact ? 'clamp(14px, 1.2vw, 20px)' : 'clamp(16px, 1.4vw, 24px)',
+              lineHeight: compact ? 'clamp(22px, 1.9vw, 30px)' : 'clamp(24px, 2.1vw, 35px)'
             }}
           >
             {para}
@@ -119,7 +162,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       {isLong && (
         <button
           onClick={handleToggle}
-          className="mt-2 transition-all duration-500 ease-out"
+          className="mt-[-5] transition-all duration-500 ease-out"
           style={{
             fontFamily: "Inter, sans-serif",
             width: 'clamp(148px, calc(180px * var(--btn-scale, 1)), 220px)',
@@ -464,8 +507,11 @@ const InteractiveTeamImage = ({ disabled = false }) => {
 const AboutBaft = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const isForceAnimatingRef = useRef(false);
+  const scrollAccumulatorRef = useRef(0);
+  const lastScrollTimeRef = useRef(0);
   const originalBodyOverflowRef = useRef('');
   const originalBodyTouchActionRef = useRef('');
   const originalHtmlOverscrollRef = useRef('');
@@ -502,6 +548,9 @@ const AboutBaft = () => {
       if (isExpanded) leftScale *= 0.92;
       leftScale = Math.max(0.72, Math.min(leftScale, 1));
       document.documentElement.style.setProperty('--left-scale', String(leftScale));
+      // Track compact desktop viewport to allow internal slide scrolling
+      const compact = (window.innerWidth || 0) < 1280 || (window.innerHeight || 0) < 820;
+      setIsCompactViewport(compact);
     };
     updateVars();
     window.addEventListener('resize', updateVars, { passive: true });
@@ -576,8 +625,8 @@ const AboutBaft = () => {
             }
             hasDispatchedPinnedEndRef.current = false;
             // Reset scroll accumulator when leaving pinned zone
-            scrollAccumulator = 0;
-            lastScrollTime = 0;
+            scrollAccumulatorRef.current = 0;
+            lastScrollTimeRef.current = 0;
             setScrollProgressIndicator(0);
             hasAcknowledgedIntroRef.current = false;
           } else {
@@ -587,8 +636,8 @@ const AboutBaft = () => {
               window.__aboutPinnedActive = false;
             }
             // Reset scroll accumulator when leaving pinned zone
-            scrollAccumulator = 0;
-            lastScrollTime = 0;
+            scrollAccumulatorRef.current = 0;
+            lastScrollTimeRef.current = 0;
             setScrollProgressIndicator(0);
             hasAcknowledgedIntroRef.current = false;
 
@@ -632,9 +681,7 @@ const AboutBaft = () => {
     const minSwipeDistance = 40;
     let touchStartY = null;
     
-    // Add scroll accumulation for touchpad sensitivity
-    let scrollAccumulator = 0;
-    let lastScrollTime = 0;
+    // Add scroll accumulation for touchpad sensitivity (using refs for cross-effect access)
     const scrollThreshold = 150; // Minimum accumulated scroll before triggering
     const scrollDecayTime = 200; // Time in ms for scroll accumulation to decay
     const minScrollDelta = 10; // Minimum single scroll delta to accumulate
@@ -654,8 +701,8 @@ const AboutBaft = () => {
       // Gate: first deliberate wheel-down only acknowledges the intro; expansion requires second action
       if (!hasAcknowledgedIntroRef.current) {
         hasAcknowledgedIntroRef.current = true;
-        scrollAccumulator = 0;
-        lastScrollTime = 0;
+        scrollAccumulatorRef.current = 0;
+        lastScrollTimeRef.current = 0;
         setScrollProgressIndicator(0.2);
         e.preventDefault();
         e.stopPropagation();
@@ -665,28 +712,28 @@ const AboutBaft = () => {
       const currentTime = Date.now();
       
       // Decay scroll accumulator over time
-      if (currentTime - lastScrollTime > scrollDecayTime) {
-        scrollAccumulator = Math.max(0, scrollAccumulator - (currentTime - lastScrollTime) / scrollDecayTime * 50);
+      if (currentTime - lastScrollTimeRef.current > scrollDecayTime) {
+        scrollAccumulatorRef.current = Math.max(0, scrollAccumulatorRef.current - (currentTime - lastScrollTimeRef.current) / scrollDecayTime * 50);
       }
       
       // Only accumulate significant scroll movements
       if (e.deltaY >= minScrollDelta) {
-        scrollAccumulator += e.deltaY;
-        lastScrollTime = currentTime;
+        scrollAccumulatorRef.current += e.deltaY;
+        lastScrollTimeRef.current = currentTime;
         // Update progress indicator
-        setScrollProgressIndicator(Math.min(1, scrollAccumulator / scrollThreshold));
+        setScrollProgressIndicator(Math.min(1, scrollAccumulatorRef.current / scrollThreshold));
       }
       
       // Don't trigger expansion until sufficient scroll accumulation
-      if (scrollAccumulator < scrollThreshold) {
+      if (scrollAccumulatorRef.current < scrollThreshold) {
         e.preventDefault();
         e.stopPropagation();
         return;
       }
 
       // Reset accumulator after triggering
-      scrollAccumulator = 0;
-      lastScrollTime = 0;
+      scrollAccumulatorRef.current = 0;
+      lastScrollTimeRef.current = 0;
       setScrollProgressIndicator(0);
 
       e.preventDefault();
@@ -961,7 +1008,26 @@ const AboutBaft = () => {
             }}
           >
             {/* Static grid: text left, measuring placeholder right */}
-            <div className="w-full max-w-6xl mx-auto px-12 grid grid-cols-2 gap-20 items-center">
+            <div
+              className="w-full h-full"
+              style={{
+                marginTop: 'clamp(2vh, 4vh, 8vh)',
+                marginLeft: '1cm',
+                marginRight: '1cm',
+                // Enable internal vertical scrolling on compact desktop viewports
+                overflowY: isCompactViewport ? 'auto' : 'visible',
+                WebkitOverflowScrolling: isCompactViewport ? 'touch' : undefined,
+                height: '100%',
+                maxHeight: '100%',
+                paddingBottom: isCompactViewport ? '16px' : 0
+              }}
+            >
+              <div
+                className="w-full max-w-6xl mx-auto px-12 grid grid-cols-2 gap-20 items-center"
+                style={{
+                  columnGap: 'clamp(40px, 5vw, 96px)'
+                }}
+              >
               <div
                 ref={textContainerRef}
                 className="flex flex-col justify-center"
@@ -975,9 +1041,9 @@ const AboutBaft = () => {
                 <p
                   className="font-normal mb-2 flex items-center"
                   style={{
-                    fontFamily: "Inter, sans-serif",
-                    color: "#092646",
-                    fontSize: 'calc(clamp(12px, 1.1vw, 16px) * var(--left-scale, 1))',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 'clamp(14px, 3vw, 18px)',
+                    color: '#092646',
                     lineHeight: 1.1,
                     gap: 'clamp(6px, 0.6vw, 8px)',
                     flex: 'none',
@@ -989,22 +1055,23 @@ const AboutBaft = () => {
                   <img 
                     src={SVG_SVG} 
                     alt="Icon" 
-                    style={{ width: 'calc(clamp(14px, 1.0vw, 18px) * var(--left-scale, 1))', height: 'calc(clamp(14px, 1.0vw, 18px) * var(--left-scale, 1))' }}
+                    style={{ width: 'clamp(12px, 0.9vw, 16px)', height: 'clamp(12px, 0.9vw, 16px)' }}
                   />
                   Know our story
                 </p>
                 <h1
                   className="mb-8 font-bold text-[#1966BB]"
                   style={{
-                    fontFamily: "EB Garamond, serif",
-                    fontSize: 'calc(clamp(36px, 5.2vw, 64px) * var(--left-scale, 1))',
-                    lineHeight: 'calc(clamp(40px, 5.4vw, 64px) * var(--left-scale, 1))',
+                    fontFamily: 'EB Garamond, serif',
+                    fontSize: 'clamp(22px, 4.8vw, 72px)',
+                    lineHeight: 'clamp(26px, 5.2vw, 78px)',
                     letterSpacing: 'clamp(-0.18px, -0.02vw, -0.273006px)',
                     display: 'flex',
                     alignItems: 'center',
                     flex: 'none',
                     order: 0,
-                    flexGrow: 0
+                    flexGrow: 0,
+                    marginBottom: '1cm'
                   }}
                 >
                   <span className="block">About BaFT</span>
@@ -1017,6 +1084,7 @@ Somewhere between dodging endless forms and wondering if "technical glitch" was 
 
 At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
                   onExpandChange={setIsExpanded}
+                  compact={isCompactViewport}
                 />
               </div>
 
@@ -1026,10 +1094,11 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                   className="about-right-responsive relative rounded-3xl overflow-hidden"
                 >
                   <div className="w-full h-full" style={{ opacity: 1 - easedProgress, transition: 'opacity 120ms linear' }}>
-                    <InteractiveTeamImage disabled={easedProgress > 0.02} />
+                    <InteractiveTeamImage disabled={easedProgress > 0.1} />
                   </div>
                 </div>
               </div>
+            </div>
             </div>
 
             {/* Scroll progress indicator */}

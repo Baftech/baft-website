@@ -9,64 +9,50 @@ import BInstantMobile from "./BInstantMobile";
 
 function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 3.5 }) {
   const ref = useRef();
-  const hasReachedTargetRef = useRef(false);
-  const animationStartTimeRef = useRef(null);
-  const isVisibleRef = useRef(false);
-  const targetVector = useMemo(() => new THREE.Vector3(...target), [target]);
+  const [hasReachedTarget, setHasReachedTarget] = useState(false);
+  const [animationStartTime, setAnimationStartTime] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useFrame((state) => {
-    const mesh = ref.current;
-    if (!animate || !mesh || hasReachedTargetRef.current) {
-      return;
-    }
-
-    if (animationStartTimeRef.current == null) {
-      animationStartTimeRef.current = state.clock.elapsedTime;
-    }
-
-    const elapsed = state.clock.elapsedTime - animationStartTimeRef.current;
-
-    // Wait for curtain to fade out before showing coins
-    if (elapsed < 0.4) {
-      if (mesh.material) {
-        mesh.material.opacity = 0;
+    if (animate && ref.current && !hasReachedTarget) {
+      if (!animationStartTime) {
+        setAnimationStartTime(state.clock.elapsedTime);
       }
-      return;
-    }
 
-    // Make coins visible when curtain fades out
-    if (!isVisibleRef.current) {
-      isVisibleRef.current = true;
-      if (mesh.material) {
-        mesh.material.opacity = opacity;
-      }
-    }
+      const currentTime = state.clock.elapsedTime;
+      const elapsed = currentTime - animationStartTime;
 
-    // Start expanding immediately after becoming visible
-    if (elapsed >= 0.4) {
-      const currentPos = mesh.position;
-
-      // Check if we're close enough to target to consider it reached
-      const distance = currentPos.distanceTo(targetVector);
-      if (distance < 0.01) {
-        hasReachedTargetRef.current = true;
+      if (elapsed < 0.4) {
         return;
       }
 
-      // Smooth expansion with easing
-      const progress = (elapsed - 0.4) / (animationDuration - 0.4);
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      currentPos.lerp(targetVector, easedProgress * 0.02);
-    }
+      if (elapsed >= 0.4 && !isVisible) {
+        setIsVisible(true);
+      }
 
-    // Stop animation after duration
-    if (elapsed >= animationDuration) {
-      hasReachedTargetRef.current = true;
-      return;
+      if (elapsed >= 0.4) {
+        const currentPos = ref.current.position;
+        const targetPos = new THREE.Vector3(...target);
+
+        const distance = currentPos.distanceTo(targetPos);
+        if (distance < 0.01) {
+          setHasReachedTarget(true);
+          return;
+        }
+
+        const progress = (elapsed - 0.4) / (animationDuration - 0.4);
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        currentPos.lerp(targetPos, easedProgress * 0.02);
+      }
+
+      if (elapsed >= animationDuration) {
+        setHasReachedTarget(true);
+        return;
+      }
     }
   });
 
-  const scaleFactor = 1.9 - position[2] * 0.3;
+  const scaleFactor = 2.2 - position[2] * 0.3;
 
   return (
     <group>
@@ -76,13 +62,17 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
         position={position}
         scale={[scaleFactor, scaleFactor, 1]}
         rotation={[-0.02, 0, 0.0999]}
+        visible={isVisible}
       >
         <planeGeometry args={[2, 2]} />
         <meshBasicMaterial
           map={texture}
-          color="#b0b0b0"
           transparent
-          opacity={0}
+          opacity={opacity}
+          depthWrite={false}
+          depthTest
+          brightness={0.5}
+          color="#808080"
         />
       </mesh>
     </group>
@@ -92,6 +82,8 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
 const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
   const coinTexture = useTexture("/b-coin.svg");
   const curtainRef = useRef();
+  // Vertical offset to position the entire coin stack below the navbar
+  const stackYOffset = -0.5; // ~1cm below navbar
 
   // Add error handling for texture loading
   if (!coinTexture) {
@@ -99,14 +91,10 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
     return null;
   }
 
-  // Animate the curtain fade in and reveal anchored to start time
-  const curtainStartTimeRef = useRef(null);
+  // Animate the curtain fade in and reveal
   useFrame((state) => {
     if (startAnimation && curtainRef.current) {
-      if (curtainStartTimeRef.current == null) {
-        curtainStartTimeRef.current = state.clock.elapsedTime;
-      }
-      const elapsed = state.clock.elapsedTime - curtainStartTimeRef.current;
+      const elapsed = state.clock.elapsedTime;
 
       if (elapsed < 0.2) {
         const progress = elapsed / 0.2;
@@ -128,7 +116,7 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
         position={[0, 0, 5]}
         scale={[30, 3, 1]}
       >
-        <planeGeometry args={[1, 1]} />
+        <planeGeometry args={[1.8, 1.8]} />
         <meshBasicMaterial
           color="#000000"
           transparent
@@ -138,26 +126,26 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
       
       <Coin
         texture={coinTexture}
-        position={[0.4, -0.4, -0.4]}
+        position={[0.4, -0.4 + stackYOffset, -0.4]}
         animate={startAnimation}
-        target={[0.6 , -0.6, -0.6]}
+        target={[0.68, -0.68 + stackYOffset, -0.68]}
         opacity={1.0}
         animationDuration={animationDuration}
       />
       <Coin
         texture={coinTexture}
-        position={[0, 0, 0]}
+        position={[0, 0 + stackYOffset, 0]}
         animate={startAnimation}
-        target={[0, 0, 0]}
+        target={[0, 0 + stackYOffset, 0]}
         opacity={1.0}
         animationDuration={animationDuration}
       />
       <Coin
         texture={coinTexture}
-        position={[-0.3, 0.4, 0.4]}
+        position={[-0.3, 0.4 + stackYOffset, 0.4]}
         animate={startAnimation}
-        target={[-0.6, 0.6, 0.6]}
-        opacity={1}
+        target={[-0.7, 0.7 + stackYOffset, 0.7]}
+        opacity={0.97}
         animationDuration={animationDuration}
       />
     </>

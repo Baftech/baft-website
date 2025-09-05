@@ -61,21 +61,21 @@
 
 /* Equal button size utility across breakpoints */
 .nav-btn-size {
-  width: 80px !important;  /* 5rem */
-  height: 32px !important; /* 2rem */
+  width: 96px !important;  /* 6rem */
+  height: 40px !important; /* 2.5rem */
 }
 
 @media (min-width: 1024px) {
   .nav-btn-size {
-    width: 96px !important;  /* 6rem */
-    height: 40px !important; /* 2.5rem */
+    width: 112px !important;  /* 7rem */
+    height: 48px !important; /* 3rem */
   }
 }
 
 @media (min-width: 1280px) {
   .nav-btn-size {
-    width: 112px !important;  /* 7rem */
-    height: 48px !important;  /* 3rem */
+    width: 128px !important;  /* 8rem */
+    height: 56px !important;  /* 3.5rem */
   }
 }
 
@@ -181,21 +181,27 @@
 
 /* Ensure fancy button respects equal sizing when applied */
 .fancy button.nav-btn-size {
-  width: 80px !important;
-  height: 32px !important;
+  width: auto !important; /* Shrink to content */
+  min-width: 72px !important;
+  height: 30px !important;
+  padding: 0 12px !important; /* Small background around text */
 }
 
 @media (min-width: 1024px) {
   .fancy button.nav-btn-size {
-    width: 96px !important;
-    height: 40px !important;
+    width: auto !important;
+    min-width: 84px !important;
+    height: 36px !important;
+    padding: 0 14px !important;
   }
 }
 
 @media (min-width: 1280px) {
   .fancy button.nav-btn-size {
-    width: 112px !important;
-    height: 48px !important;
+    width: auto !important;
+    min-width: 96px !important;
+    height: 40px !important;
+    padding: 0 16px !important;
   }
 }
 
@@ -293,6 +299,7 @@
 }
 
 .dark-theme .fancy button {
+  background: #000000; /* Solid black for dark theme */
   color: white;
   font-family: 'SF Pro Display', sans-serif;
   font-style: normal;
@@ -424,8 +431,8 @@
 }
 
 .light-theme .fancy button {
+  background: #ffffff; /* Solid white for light theme */
   color: black;
-  background: rgba(255, 255, 255, 0.3);
   font-family: 'SF Pro Display', sans-serif;
   font-style: normal;
   font-weight: 500;

@@ -192,25 +192,32 @@ const CombinedFooter = () => {
             pointerEvents: 'none',
             zIndex: 0,
             // Mask top and bottom portions (fade out)
-            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 15%, rgba(0,0,0,1) 85%, rgba(0,0,0,0))',
-            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 15%, rgba(0,0,0,1) 85%, rgba(0,0,0,0))',
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 8%, rgba(0,0,0,1) 92%, rgba(0,0,0,0))',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 8%, rgba(0,0,0,1) 92%, rgba(0,0,0,0))',
+            // Blend softly into the background with subtle glow
+            mixBlendMode: 'screen',
+            filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.18)) drop-shadow(0 0 60px rgba(80,130,220,0.12))',
           }}
         >
-          {[0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => (
-            <div
-              key={i}
-              style={{
-                position: 'absolute',
-                left: `${(1 - ratio) * 50}%`,
-                top: `${(1 - ratio) * 50}%`,
-                width: `${ratio * 100}%`,
-                height: `${ratio * 100}%`,
-                borderRadius: '50%',
-                border: '1px solid rgba(255,255,255,0.35)',
-                boxSizing: 'border-box',
-              }}
-            />
-          ))}
+          {[0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => {
+            const t = (ratio - 0.4) / (1.0 - 0.4); // 0..1 across rings
+            const alpha = 0.18 + 0.16 * (1 - Math.abs(0.5 - t) * 2); // softer edges, brighter mid rings
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${(1 - ratio) * 50}%`,
+                  top: `${(1 - ratio) * 50}%`,
+                  width: `${ratio * 100}%`,
+                  height: `${ratio * 100}%`,
+                  borderRadius: '50%',
+                  border: `1px solid rgba(255,255,255,${alpha.toFixed(3)})`,
+                  boxSizing: 'border-box',
+                }}
+              />
+            );
+          })}
         </div>
         
         {/* Star Groups */}
