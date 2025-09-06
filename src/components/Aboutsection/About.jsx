@@ -1011,9 +1011,7 @@ const AboutBaft = () => {
             <div
               className="w-full h-full"
               style={{
-                marginTop: 'clamp(2vh, 4vh, 8vh)',
-                marginLeft: '1cm',
-                marginRight: '1cm',
+                marginTop: 'clamp(2vh, 2vh, 8vh)',
                 // Enable internal vertical scrolling on compact desktop viewports
                 overflowY: isCompactViewport ? 'auto' : 'visible',
                 WebkitOverflowScrolling: isCompactViewport ? 'touch' : undefined,
@@ -1023,9 +1021,9 @@ const AboutBaft = () => {
               }}
             >
               <div
-                className="w-full max-w-6xl mx-auto px-12 grid grid-cols-2 gap-20 items-center"
+                className="w-full max-w-7xl mx-auto px-8 grid grid-cols-2 gap-16 items-center"
                 style={{
-                  columnGap: 'clamp(40px, 5vw, 96px)'
+                  columnGap: 'clamp(60px, 6vw, 120px)'
                 }}
               >
               <div

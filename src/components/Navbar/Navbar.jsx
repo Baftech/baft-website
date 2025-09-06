@@ -151,11 +151,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
         <div className="fancy hidden lg:block">
           <button
             onClick={() => setIsSignUpModalOpen(true)}
-            className={`rounded-[200px] nav-btn-size ${
-              theme === 'dark'
-                ? 'bg-black text-white hover:bg-neutral-900'
-                : 'bg-white text-black hover:bg-gray-100'
-            }`}
+            className="rounded-[200px] nav-btn-size"
           >
             Sign Up
           </button>

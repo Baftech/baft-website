@@ -1,3 +1,86 @@
+/* ReadMore Component Styles */
+.readmore-container {
+  max-width: clamp(250px, 25vw, 500px);
+  width: 100%;
+  text-align: left;
+  margin: 0 auto;
+}
+
+.about-paragraph {
+  font-family: "Inter", sans-serif;
+  color: #909090;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 640px) {
+  .about-paragraph {
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .about-paragraph {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .about-paragraph {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .about-paragraph {
+    font-size: 1.125rem;
+  }
+}
+
+.readmore-button {
+  margin-top: 0.5rem;
+  transition: all 0.5s ease-out;
+  width: 7rem;
+  height: 2.5rem;
+  font-size: 0.75rem;
+  font-family: "Inter", sans-serif;
+  border-radius: 200px;
+  background-color: #E3EDFF;
+  color: #092646;
+  border: none;
+  cursor: pointer;
+}
+
+.readmore-button:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+@media (min-width: 640px) {
+  .readmore-button {
+    width: 8rem;
+    height: 3rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .readmore-button {
+    width: 9rem;
+    height: 3.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .readmore-button {
+    width: 10rem;
+    height: 3.5rem;
+  }
+}
+
 /* About Section Mobile/Tablet Styles */
 .about-section-mobile {
   min-height: 100vh;
@@ -451,6 +534,9 @@ img[src*="layer3_write"] {
   max-width: 92vw;
   border-radius: 24px;
   overflow: hidden;
+  margin-top: 0;
+  margin-right: 0;
+  align-self: flex-start;
 }
 
 @media (max-width: 1440px) {
@@ -484,5 +570,137 @@ img[src*="layer3_write"] {
 @media (min-width: 1920px) {
   .about-right-responsive {
     width: clamp(680px, 32vw, 1200px);
+  }
+}
+
+/* Responsive left column scaling */
+.about-text-container {
+  transform-origin: left center;
+  transition: transform 0.3s ease-out;
+}
+
+/* Fix alignment issues for screens greater than 975px */
+@media (min-width: 976px) {
+  .about-grid-container {
+    align-items: flex-start !important;
+    gap: clamp(60px, 6vw, 120px) !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+  
+  .about-text-container {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    justify-content: flex-start !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+  
+  .about-right-responsive {
+    margin-top: 0 !important;
+    margin-right: 0 !important;
+    align-self: flex-start !important;
+  }
+  
+  /* Ensure proper text content alignment */
+  .about-text-content {
+    padding-left: 0;
+    margin-left: 0;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  
+  /* Ensure first paragraph starts from the very top */
+  .about-text-content p:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Ensure collapsed state shows first paragraph */
+  .about-text-content > div {
+    min-height: 300px !important;
+  }
+  
+  /* Prevent content movement during animation */
+  .about-text-content {
+    position: relative;
+  }
+  
+  .about-text-content > div {
+    position: relative;
+  }
+  
+  /* Fix InteractiveTeamImage container alignment */
+  .about-right-responsive > div {
+    margin-top: 0 !important;
+    margin-right: 0 !important;
+    align-self: flex-start !important;
+  }
+  
+  /* Ensure proper grid item alignment */
+  .about-grid-container > div:first-child {
+    padding-left: 0;
+    margin-left: 0;
+  }
+  
+  .about-grid-container > div:last-child {
+    padding-right: 0;
+    margin-right: 0;
+    justify-content: flex-end;
+    align-items: flex-start;
+  }
+  
+  /* Optimize container width for better balance */
+  .about-grid-container {
+    max-width: 98vw !important;
+  }
+}
+
+/* Ensure button visibility on short screens */
+@media (max-height: 800px) {
+  .about-text-container {
+    padding-bottom: 1rem;
+  }
+  
+  .about-text-content {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Very short screens - make content more compact */
+@media (max-height: 700px) {
+  .about-text-container {
+    padding-bottom: 0.5rem;
+  }
+  
+  .about-text-content {
+    max-height: calc(100vh - 150px);
+  }
+}
+
+/* Tall screens - make content more readable */
+@media (min-height: 1200px) {
+  .about-text-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+/* Ultra-wide screens - push columns further apart */
+@media (min-width: 1920px) {
+  .about-grid-container {
+    max-width: 1800px;
+  }
+}
+
+/* Large wide screens */
+@media (min-width: 1600px) and (max-width: 1919px) {
+  .about-grid-container {
+    max-width: 1600px;
   }
 }

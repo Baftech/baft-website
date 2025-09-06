@@ -61,21 +61,21 @@
 
 /* Equal button size utility across breakpoints */
 .nav-btn-size {
-  width: 96px !important;  /* 6rem */
-  height: 40px !important; /* 2.5rem */
+  width: 80px !important;  /* 5rem */
+  height: 32px !important; /* 2rem */
 }
 
 @media (min-width: 1024px) {
   .nav-btn-size {
-    width: 112px !important;  /* 7rem */
-    height: 48px !important; /* 3rem */
+    width: 96px !important;  /* 6rem */
+    height: 40px !important; /* 2.5rem */
   }
 }
 
 @media (min-width: 1280px) {
   .nav-btn-size {
-    width: 128px !important;  /* 8rem */
-    height: 56px !important;  /* 3.5rem */
+    width: 112px !important;  /* 7rem */
+    height: 48px !important;  /* 3rem */
   }
 }
 
@@ -130,7 +130,7 @@
 
 /* Fancy signup container - responsive with 8-point spacing */
 .fancy {
-  --offset: 3px;
+  --offset: 2px;
   background: transparent;
   border-radius: 200px;
   position: relative;
@@ -157,7 +157,7 @@
   border-radius: inherit;
   position: absolute;
   inset: var(--offset);
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition: background 0.3s ease;
 }
 
 .fancy button {
@@ -171,8 +171,8 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 20px; /* Match nav-btn-size height */
-  min-width: 60px; /* Match nav-btn-size width */
+  min-height: 32px; /* Match nav-btn-size height */
+  min-width: 80px; /* Match nav-btn-size width */
   font-size: 10px; /* Uniform smaller font size for mobile */
   font-weight: 500; /* Slightly bolder for better readability */
   letter-spacing: 0.025em; /* Better text spacing */
@@ -181,27 +181,21 @@
 
 /* Ensure fancy button respects equal sizing when applied */
 .fancy button.nav-btn-size {
-  width: auto !important; /* Shrink to content */
-  min-width: 72px !important;
-  height: 30px !important;
-  padding: 0 12px !important; /* Small background around text */
+  width: 80px !important;
+  height: 32px !important;
 }
 
 @media (min-width: 1024px) {
   .fancy button.nav-btn-size {
-    width: auto !important;
-    min-width: 84px !important;
-    height: 36px !important;
-    padding: 0 14px !important;
+    width: 96px !important;
+    height: 40px !important;
   }
 }
 
 @media (min-width: 1280px) {
   .fancy button.nav-btn-size {
-    width: auto !important;
-    min-width: 96px !important;
-    height: 40px !important;
-    padding: 0 16px !important;
+    width: 112px !important;
+    height: 48px !important;
   }
 }
 
@@ -299,7 +293,6 @@
 }
 
 .dark-theme .fancy button {
-  background: #000000; /* Solid black for dark theme */
   color: white;
   font-family: 'SF Pro Display', sans-serif;
   font-style: normal;
@@ -354,7 +347,6 @@
 .light-theme .nav-btn {
   font-family: 'Inter', sans-serif;
   font-style: normal;
-  background: transparent;
   font-weight: 400;
   font-size: 10px; /* Uniform smaller base font size for mobile */
   line-height: 14px;
@@ -403,7 +395,7 @@
 }
 
 .light-theme .nav-btn:hover {
-  background: #000000 !important;
+  background: #0a2d52 !important;
   color: white !important;
   transition: all 1.0s ease;
 }
@@ -431,8 +423,8 @@
 }
 
 .light-theme .fancy button {
-  background: #ffffff; /* Solid white for light theme */
   color: black;
+  background: rgba(255, 255, 255, 0.3);
   font-family: 'SF Pro Display', sans-serif;
   font-style: normal;
   font-weight: 500;
