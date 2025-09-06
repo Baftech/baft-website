@@ -583,9 +583,9 @@ img[src*="layer3_write"] {
 @media (min-width: 976px) {
   .about-grid-container {
     align-items: flex-start !important;
-    gap: clamp(80px, 8vw, 200px) !important;
-    padding-left: clamp(1rem, 2vw, 2rem) !important;
-    padding-right: clamp(1rem, 2vw, 2rem) !important;
+    gap: clamp(60px, 10vw, 300px) !important;
+    padding-left: clamp(0.5rem, 1.5vw, 1.5rem) !important;
+    padding-right: clamp(0.5rem, 1.5vw, 1.5rem) !important;
     height: auto !important;
     min-height: auto !important;
   }
@@ -655,7 +655,7 @@ img[src*="layer3_write"] {
   
   /* Optimize container width for better balance */
   .about-grid-container {
-    max-width: clamp(1400px, 95vw, 2000px) !important;
+    max-width: clamp(1200px, 96vw, 2200px) !important;
   }
 }
 
@@ -669,6 +669,23 @@ img[src*="layer3_write"] {
     max-height: calc(100vh - 200px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ensure ReadMore button stays visible */
+  .readmore-container {
+    max-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .readmore-container > div:first-child {
+    flex: 1 1 auto;
+    overflow-y: visible;
+  }
+  
+  .readmore-container button {
+    flex: 0 0 auto;
+    margin-top: 0.5rem;
   }
 }
 
@@ -694,22 +711,33 @@ img[src*="layer3_write"] {
 /* Ultra-wide screens - push columns further apart */
 @media (min-width: 1920px) {
   .about-grid-container {
-    max-width: 1900px;
+    max-width: 2000px;
   }
   
   .about-right-responsive {
-    width: clamp(800px, 35vw, 1200px);
+    width: clamp(900px, 38vw, 1300px);
   }
 }
 
 /* Very wide screens (2560px+) */
 @media (min-width: 2560px) {
   .about-grid-container {
-    max-width: 2400px;
+    max-width: 2500px;
   }
   
   .about-right-responsive {
-    width: clamp(1000px, 40vw, 1400px);
+    width: clamp(1100px, 42vw, 1500px);
+  }
+}
+
+/* Ultra-wide screens (3440px+) */
+@media (min-width: 3440px) {
+  .about-grid-container {
+    max-width: 3000px;
+  }
+  
+  .about-right-responsive {
+    width: clamp(1300px, 45vw, 1800px);
   }
 }
 

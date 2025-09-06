@@ -188,20 +188,20 @@ const CombinedFooter = () => {
             left: '50%',
             top: '50%',
             transform: 'translate(-50%, -50%)',
-            opacity: 0.55,
+            opacity: 0.8,
             pointerEvents: 'none',
             zIndex: 0,
-            // Mask top and bottom portions (fade out)
-            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 8%, rgba(0,0,0,1) 92%, rgba(0,0,0,0))',
-            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 8%, rgba(0,0,0,1) 92%, rgba(0,0,0,0))',
-            // Blend softly into the background with subtle glow
+            // Vertical fade mask to match the image
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            // Soft blending for ethereal effect
             mixBlendMode: 'screen',
-            filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.18)) drop-shadow(0 0 60px rgba(80,130,220,0.12))',
+            filter: 'blur(0.8px) drop-shadow(0 0 25px rgba(255,255,255,0.35))',
           }}
         >
-          {[0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => {
-            const t = (ratio - 0.4) / (1.0 - 0.4); // 0..1 across rings
-            const alpha = 0.18 + 0.16 * (1 - Math.abs(0.5 - t) * 2); // softer edges, brighter mid rings
+          {[0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => {
+            const t = (ratio - 0.3) / (1.0 - 0.3); // 0..1 across rings
+            const alpha = 0.18 + 0.25 * (1 - Math.abs(0.5 - t) * 2); // even brighter
             return (
               <div
                 key={i}
@@ -214,6 +214,8 @@ const CombinedFooter = () => {
                   borderRadius: '50%',
                   border: `1px solid rgba(255,255,255,${alpha.toFixed(3)})`,
                   boxSizing: 'border-box',
+                  // Soft inner glow for ethereal effect
+                  boxShadow: `inset 0 0 15px rgba(255,255,255,${(alpha * 0.7).toFixed(3)})`,
                 }}
               />
             );

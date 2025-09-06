@@ -8,12 +8,40 @@ import { SVG_SVG, PROPERTY_IMAGE_PNG, PROPERTY_VIBHA_PNG, PROPERTY_DION_PNG, PRO
 gsap.registerPlugin(ScrollTrigger);
 
 // Updated ReadMoreText with animation
-const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = false }) => {
+const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = false, screenSize = 'medium' }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentRef = useRef(null);
   const [collapsedHeight, setCollapsedHeight] = useState(200);
   const [isCompact, setIsCompact] = useState(false);
   const [maxContentHeight, setMaxContentHeight] = useState(560);
+
+  // Dynamic spacing functions based on screen size
+  const getSpacing = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
+
+  const getFontSize = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
+
+  const getDimensions = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
 
   const isLong = content.length > maxLength;
 
@@ -39,38 +67,66 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
         const vh = window.innerHeight || 0;
         const compact = vw < 1280 || vh < 820;
         setIsCompact(compact);
+        
+        // Screen size is now passed as a prop from parent component
 
-        // Collapsed height logic: show full first paragraph plus first line of second paragraph (if present)
+        // Collapsed height logic: show full first paragraph plus first 2 lines of second paragraph (if present)
         const paraNodes = contentRef.current.querySelectorAll('p');
         const refElem = paraNodes && paraNodes[0] ? paraNodes[0] : contentRef.current;
         const cs = window.getComputedStyle(refElem);
         const lineH = parseFloat(cs.lineHeight || '0') || 28;
 
         let collapsed = 200;
-        if (paraNodes && paraNodes.length > 0) {
+        if (paraNodes && paraNodes.length >= 2) {
+          // Get actual height of first paragraph
           const firstRect = paraNodes[0].getBoundingClientRect();
           const firstParaHeight = firstRect ? firstRect.height : lineH * 3;
-          const previewLines = 1; // show first line of second paragraph
-          collapsed = Math.max(lineH * 3, firstParaHeight + previewLines * lineH);
+          
+          // Get actual height of second paragraph
+          const secondRect = paraNodes[1].getBoundingClientRect();
+          const secondParaHeight = secondRect ? secondRect.height : lineH * 3;
+          
+          // Calculate how many lines the second paragraph has
+          const secondParaLines = Math.ceil(secondParaHeight / lineH);
+          
+          // Show first paragraph + first 2 lines of second paragraph
+          const lineHeight = secondParaLines > 0 ? (secondParaHeight / secondParaLines) : lineH;
+          const linesToShow = Math.min(2, secondParaLines); // Show up to 2 lines
+          collapsed = firstParaHeight + (lineHeight * linesToShow);
+          
+          // Add some buffer for better visual spacing
+          collapsed += 12;
+        } else if (paraNodes && paraNodes.length === 1) {
+          // Only one paragraph, show it fully
+          const firstRect = paraNodes[0].getBoundingClientRect();
+          const firstParaHeight = firstRect ? firstRect.height : lineH * 3;
+          collapsed = firstParaHeight + 12;
         } else {
           // Fallback to a reasonable number of lines
           const linesToShow = compact ? 5 : 7;
-          collapsed = Math.max(3, linesToShow) * lineH;
+          collapsed = Math.max(4, linesToShow) * lineH;
         }
         setCollapsedHeight(collapsed);
 
         // Max content height so expanded text doesn't overflow viewport on compact screens
-        const verticalPaddingAllowance = 200; // tighter allowance so expansion reaches the visual baseline
-        const safeMax = Math.max(280, (vh || 800) - verticalPaddingAllowance);
+        // More generous padding for smaller screens to prevent text cutoff
+        const verticalPaddingAllowance = screenSize === 'small' ? 100 :
+                                        screenSize === 'medium' ? 60 : 
+                                        screenSize === 'large' ? Math.max(120, vh * 0.15) : 20;
+        const safeMax = Math.max(600, (vh || 800) - verticalPaddingAllowance);
         setMaxContentHeight(safeMax);
       } catch {
         setCollapsedHeight(200);
-        setMaxContentHeight(560);
+        setMaxContentHeight(800);
       }
     };
-    measure();
+    // Initial measurement with a small delay to ensure content is rendered
+    const timeoutId = setTimeout(measure, 100);
     window.addEventListener('resize', measure, { passive: true });
-    return () => window.removeEventListener('resize', measure);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', measure);
+    };
   }, []);
 
   // GSAP height animation for smooth transitions - snap to measured collapsed/max height
@@ -86,18 +142,29 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
         const cappedMax = Math.max(collapsedHeight, maxContentHeight);
         const targetHeight = Math.min(Math.max(contentHeight, collapsedHeight), cappedMax);
         
-        gsap.to(contentRef.current, {
-          height: targetHeight,
-          duration: 0.8,
-          ease: "power2.out"
-        });
+        // Only animate in desktop mode, otherwise use instant transition
+        if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+          gsap.to(contentRef.current, {
+            height: targetHeight,
+            duration: 0.8,
+            ease: "power2.out"
+          });
+        } else {
+          // Mobile/tablet: instant transition
+          contentRef.current.style.height = `${targetHeight}px`;
+        }
       } else {
         // Collapse back to base height
-        gsap.to(contentRef.current, {
-          height: collapsedHeight,
-          duration: 0.8,
-          ease: "power2.out"
-        });
+        if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+          gsap.to(contentRef.current, {
+            height: collapsedHeight,
+            duration: 0.8,
+            ease: "power2.out"
+          });
+        } else {
+          // Mobile/tablet: instant transition
+          contentRef.current.style.height = `${collapsedHeight}px`;
+        }
       }
     }
   }, [isExpanded, collapsedHeight, maxContentHeight]);
@@ -114,7 +181,18 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
   }, [isExpanded]);
 
   return (
-    <div className="leading-relaxed pr-2" style={{ maxWidth: 'clamp(520px, 42vw, 680px)' }}>
+    <div className="leading-relaxed pr-2" style={{ 
+      maxWidth: getDimensions('520px', '600px', '750px'),
+      maxHeight: compact ? 'calc(100vh - 180px)' : 
+                (screenSize === 'small' ? 'calc(100vh - 140px)' :
+                 screenSize === 'medium' ? 'calc(100vh - 130px)' :
+                 screenSize === 'large' ? 'calc(100vh - 25vh)' :
+                 'calc(100vh - 120px)'),
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: isExpanded ? 'auto' : '200px',
+      transition: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'all 0.8s ease-out' : 'none'
+    }}>
       <div
         ref={contentRef}
         style={{
@@ -125,19 +203,27 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
           WebkitOverflowScrolling: isExpanded ? 'touch' : undefined,
           paddingRight: isExpanded ? '4px' : 0,
           opacity: isExpanded ? 1 : 0.9,
-          transition: "opacity 0.6s ease",
+          transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
+            ? "opacity 0.8s ease-out, padding 0.8s ease-out" 
+            : "opacity 0.3s ease",
           position: 'relative',
+          flex: isExpanded ? '1 1 auto' : '0 0 auto'
         }}
       >
         {paragraphs.map((para, i) => (
           <p
             key={i}
-            className="mt-[-10] mb-10 sm:mb-3 md:mb-4"
+            className="mt-[-10] mb-6 sm:mb-2 md:mb-3"
             style={{
               fontFamily: "Inter, sans-serif",
               color: '#909090',
-              fontSize: compact ? 'clamp(14px, 1.2vw, 20px)' : 'clamp(16px, 1.4vw, 24px)',
-              lineHeight: compact ? 'clamp(22px, 1.9vw, 30px)' : 'clamp(24px, 2.1vw, 35px)'
+              fontSize: screenSize === 'large' ? '10px' : 
+                (compact ? getFontSize('14px', '18px', '21px') : getFontSize('16px', '20px', '3px')),
+              lineHeight: screenSize === 'large' ? '16px' : 
+                (compact ? getFontSize('22px', '26px', '30px') : getFontSize('24px', '28px', '100px')),
+              marginBottom: i === 0 ? 
+                getSpacing('10px', '14px', '8px') : 
+                getSpacing('8px', '12px', '6px')
             }}
           >
             {para}
@@ -162,12 +248,12 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
       {isLong && (
         <button
           onClick={handleToggle}
-          className="mt-[-5] transition-all duration-500 ease-out"
+          className="mt-2"
           style={{
             fontFamily: "Inter, sans-serif",
-            width: 'clamp(148px, calc(180px * var(--btn-scale, 1)), 220px)',
-            height: 'calc(64px * var(--btn-scale, 1))',
-            fontSize: 'clamp(13px, calc(16px * var(--btn-scale, 1)), 18px)',
+            width: getDimensions('160px', '200px', '180px'),
+            height: getDimensions('60px', '72px', '60px'),
+            fontSize: getFontSize('14px', '18px', '16px'),
             lineHeight: 1.1,
             borderRadius: "200px",
             backgroundColor: "#E3EDFF",
@@ -177,17 +263,38 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flex: 'none',
+            flex: '0 0 auto',
             order: 2,
-            flexGrow: 0
+            flexGrow: 0,
+            alignSelf: 'flex-start',
+            marginTop: isExpanded ? getSpacing('10px', '12px', '8px') : getSpacing('6px', '8px', '12px'),
+            zIndex: 10,
+            position: 'relative',
+            transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
+              ? 'all 0.6s ease-out, margin-top 0.8s ease-out, transform 0.3s ease-out' 
+              : 'all 0.3s ease-out',
+            transform: isExpanded ? 'translateY(0)' : 'translateY(0)',
+            opacity: 1
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "#000000";
-            e.target.style.color = "#ffffff";
+            if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+              e.target.style.backgroundColor = "#000000";
+              e.target.style.color = "#ffffff";
+              e.target.style.transform = "translateY(-2px) scale(1.02)";
+            } else {
+              e.target.style.backgroundColor = "#000000";
+              e.target.style.color = "#ffffff";
+            }
           }}
           onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "#E3EDFF";
-            e.target.style.color = "#092646";
+            if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+              e.target.style.backgroundColor = "#E3EDFF";
+              e.target.style.color = "#092646";
+              e.target.style.transform = "translateY(0) scale(1)";
+            } else {
+              e.target.style.backgroundColor = "#E3EDFF";
+              e.target.style.color = "#092646";
+            }
           }}
         >
           {isExpanded ? "Read Less" : "Read More"}
@@ -509,6 +616,35 @@ const AboutBaft = () => {
   const [isDesktop, setIsDesktop] = useState(false);
   const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [screenSize, setScreenSize] = useState('medium');
+
+  // Dynamic spacing functions based on screen size
+  const getSpacing = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
+
+  const getFontSize = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
+
+  const getDimensions = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
   const isForceAnimatingRef = useRef(false);
   const scrollAccumulatorRef = useRef(0);
   const lastScrollTimeRef = useRef(0);
@@ -572,11 +708,17 @@ const AboutBaft = () => {
   const hasDispatchedPinnedEndRef = useRef(false);
   const hasAcknowledgedIntroRef = useRef(false);
 
-  // Check if screen is desktop size
+  // Check if screen is desktop size and detect screen height categories
   useEffect(() => {
     const checkScreenSize = () => {
       const newIsDesktop = window.innerWidth >= 1024; // lg breakpoint and above
       setIsDesktop(newIsDesktop);
+      
+      // Determine screen size categories for responsive spacing
+      const vh = window.innerHeight || 0;
+      if (vh >= 900) setScreenSize('large'); // MacBook Pro and larger laptops
+      else if (vh >= 768) setScreenSize('medium'); // Standard laptops
+      else setScreenSize('small'); // Smaller screens
     };
 
     checkScreenSize();
@@ -1011,7 +1153,7 @@ const AboutBaft = () => {
             <div
               className="w-full h-full"
               style={{
-                marginTop: 'clamp(2vh, 2vh, 8vh)',
+                marginTop: getSpacing('2vh', '4vh', '20vh'),
                 // Enable internal vertical scrolling on compact desktop viewports
                 overflowY: isCompactViewport ? 'auto' : 'visible',
                 WebkitOverflowScrolling: isCompactViewport ? 'touch' : undefined,
@@ -1023,60 +1165,80 @@ const AboutBaft = () => {
               <div
                 className="w-full mx-auto grid grid-cols-2 items-center"
                 style={{
-                  columnGap: 'clamp(80px, 8vw, 200px)',
-                  maxWidth: 'clamp(1400px, 95vw, 2000px)',
-                  paddingLeft: 'clamp(1rem, 2vw, 2rem)',
-                  paddingRight: 'clamp(1rem, 2vw, 2rem)'
+                  columnGap: getDimensions('60px', '120px', '150px'),
+                  maxWidth: getDimensions('1200px', '1600px', '2000px'),
+                  paddingLeft: getSpacing('1rem', '2rem', '3rem'),
+                  paddingRight: getSpacing('1rem', '2rem', '3rem')
                 }}
               >
               <div
                 ref={textContainerRef}
                 className="flex flex-col justify-center"
                 style={{
-                  transform: `translateX(${textShiftX}px)`,
+                  transform: `translateX(${textShiftX}px) translateY(${isExpanded ? '-50px' : '0px'})`,
                   opacity: textOpacity,
-                  transition: 'none',
+                  transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
+                    ? 'transform 0.8s ease-out, opacity 0.8s ease-out' 
+                    : 'none',
                   pointerEvents: textOpacity < 0.05 ? 'none' : 'auto',
+        maxHeight: isExpanded ?
+          (screenSize === 'small' ? 'calc(100vh - 160px)' :
+           screenSize === 'medium' ? 'calc(100vh - 140px)' :
+           screenSize === 'large' ? 'calc(100vh - 20vh)' :
+           'calc(100vh - 120px)') :
+          'calc(100vh - 150px)',
+                  overflow: 'visible',
+                  minHeight: isExpanded ? 'auto' : 
+                    (screenSize === 'large' ? 'calc(100vh - 35vh)' : 'calc(100vh - 200px)')
                 }}
               >
-                <p
-                  className="font-normal mb-2 flex items-center"
+                <div
                   style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: 'clamp(14px, 3vw, 18px)',
-                    color: '#092646',
-                    lineHeight: 1.1,
-                    gap: 'clamp(6px, 0.6vw, 8px)',
-                    flex: 'none',
-                    order: 0,
-                    flexGrow: 0,
-                    whiteSpace: 'nowrap'
+                    marginTop: isExpanded ? getSpacing('-10px', '-15px', '30px') : '0px',
+                    transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
+                      ? 'margin-top 0.8s ease-out' 
+                      : 'none'
                   }}
                 >
-                  <img 
-                    src={SVG_SVG} 
-                    alt="Icon" 
-                    style={{ width: 'clamp(12px, 0.9vw, 16px)', height: 'clamp(12px, 0.9vw, 16px)' }}
-                  />
-                  Know our story
-                </p>
-                <h1
-                  className="mb-8 font-bold text-[#1966BB]"
-                  style={{
-                    fontFamily: 'EB Garamond, serif',
-                    fontSize: 'clamp(22px, 4.8vw, 72px)',
-                    lineHeight: 'clamp(26px, 5.2vw, 78px)',
-                    letterSpacing: 'clamp(-0.18px, -0.02vw, -0.273006px)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    flex: 'none',
-                    order: 0,
-                    flexGrow: 0,
-                    marginBottom: '1cm'
-                  }}
-                >
-                  <span className="block">About BaFT</span>
-                </h1>
+                  <p
+                    className="font-normal mb-2 flex items-center"
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: getFontSize('12px', '15px', '16px'),
+                      color: '#092646',
+                      lineHeight: 1.1,
+                      gap: getSpacing('5px', '6px', '7px'),
+                      flex: 'none',
+                      order: 0,
+                      flexGrow: 0,
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    <img 
+                      src={SVG_SVG} 
+                      alt="Icon" 
+                      style={{ width: getDimensions('10px', '13px', '16px'), height: getDimensions('10px', '13px', '16px') }}
+                    />
+                    Know our story
+                  </p>
+                  <h1
+                    className="mb-4 font-bold text-[#1966BB]"
+                    style={{
+                      fontFamily: 'EB Garamond, serif',
+                      fontSize: getFontSize('40px', '56px', '50px'),
+                      lineHeight: getFontSize('40px', '60px', '56px'),
+                      letterSpacing: getSpacing('-0.18px', '-0.2px', '0px'),
+                      display: 'flex',
+                      alignItems: 'center',
+                      flex: 'none',
+                      order: 0,
+                      flexGrow: 0,
+                      marginBottom: isExpanded ? getSpacing('14px', '18px', '16px') : getSpacing('18px', '24px', '40px')
+                    }}
+                  >
+                    <span className="block">About BaFT</span>
+                  </h1>
+                </div>
 
                 <ReadMoreText
                   content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
@@ -1086,6 +1248,7 @@ Somewhere between dodging endless forms and wondering if "technical glitch" was 
 At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
                   onExpandChange={setIsExpanded}
                   compact={isCompactViewport}
+                  screenSize={screenSize}
                 />
               </div>
 
