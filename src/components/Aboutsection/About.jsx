@@ -1021,9 +1021,12 @@ const AboutBaft = () => {
               }}
             >
               <div
-                className="w-full max-w-7xl mx-auto px-8 grid grid-cols-2 gap-16 items-center"
+                className="w-full mx-auto grid grid-cols-2 items-center"
                 style={{
-                  columnGap: 'clamp(60px, 6vw, 120px)'
+                  columnGap: 'clamp(80px, 8vw, 200px)',
+                  maxWidth: 'clamp(1400px, 95vw, 2000px)',
+                  paddingLeft: 'clamp(1rem, 2vw, 2rem)',
+                  paddingRight: 'clamp(1rem, 2vw, 2rem)'
                 }}
               >
               <div
