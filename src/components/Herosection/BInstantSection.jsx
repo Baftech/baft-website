@@ -7,16 +7,20 @@ import { gsap } from "gsap";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
 import BInstantMobile from "./BInstantMobile";
 
-function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 3.5 }) {
-  const ref = useRef();
+function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 5.0 }) {
+  const groupRef = useRef();
+  const meshRef = useRef();
   const [hasReachedTarget, setHasReachedTarget] = useState(false);
   const [animationStartTime, setAnimationStartTime] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [initialPosition] = useState(new THREE.Vector3(...position));
 
   useFrame((state) => {
-    if (animate && ref.current && !hasReachedTarget) {
+    if (animate && groupRef.current && !hasReachedTarget) {
       if (!animationStartTime) {
         setAnimationStartTime(state.clock.elapsedTime);
+        // Set initial position immediately
+        groupRef.current.position.copy(initialPosition);
       }
 
       const currentTime = state.clock.elapsedTime;
@@ -31,7 +35,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
       }
 
       if (elapsed >= 0.4) {
-        const currentPos = ref.current.position;
+        const currentPos = groupRef.current.position;
         const targetPos = new THREE.Vector3(...target);
 
         const distance = currentPos.distanceTo(targetPos);
@@ -42,11 +46,14 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
 
         const progress = (elapsed - 0.4) / (animationDuration - 0.4);
         const easedProgress = 1 - Math.pow(1 - progress, 3);
-        currentPos.lerp(targetPos, easedProgress * 0.02);
+        // Use a slower lerp factor for more controlled expansion
+        currentPos.lerp(targetPos, easedProgress * 0.03);
       }
 
       if (elapsed >= animationDuration) {
         setHasReachedTarget(true);
+        // Ensure final position is exact
+        groupRef.current.position.copy(new THREE.Vector3(...target));
         return;
       }
     }
@@ -55,11 +62,11 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
   const scaleFactor = 2.2 - position[2] * 0.3;
 
   return (
-    <group>
+    <group ref={groupRef} position={position}>
       {/* Main coin face */}
       <mesh
-        ref={ref}
-        position={position}
+        ref={meshRef}
+        position={[0, 0, 0]}
         scale={[scaleFactor, scaleFactor, 1]}
         rotation={[-0.02, 0, 0.0999]}
         visible={isVisible}
@@ -307,7 +314,7 @@ const BInstantSection = () => {
             
             {/* Environment reflections - using local preset instead of external HDR */}
             <Environment preset="city" />
-            <CoinStack startAnimation={startCoinAnimation} animationDuration={3.0} />
+            <CoinStack startAnimation={startCoinAnimation} animationDuration={5.0} />
           </Suspense>
         </Canvas>
       </ThreeJSErrorBoundary>
