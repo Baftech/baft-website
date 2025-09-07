@@ -20,6 +20,7 @@ const B_Fast_Desktop = () => {
   const [videoSize, setVideoSize] = useState({ width: '100%', height: '100%' });
   const [optimalSpacing, setOptimalSpacing] = useState('2cm');
   const [navbarSafeSpacing, setNavbarSafeSpacing] = useState('80px');
+  const videoStartedRef = useRef(false);
 
   // Dynamic video sizing and spacing calculation
   useEffect(() => {
@@ -97,13 +98,11 @@ const B_Fast_Desktop = () => {
 
   useGSAP(() => {
     // Check if refs exist before animating
-    if (!contentRef.current || !videoRef.current || !sectionRef.current || !overlayRef.current) return;
+    if (!contentRef.current || !videoRef.current || !sectionRef.current) return;
     
     // Set initial heading state - start hidden and above position
-    gsap.set(contentRef.current, { opacity: 0, y: -80 }); // Heading starts hidden and above position
-    
-    // Remove overlay usage to preserve raw video quality
-    if (overlayRef.current) gsap.set(overlayRef.current, { opacity: 0 });
+    gsap.set(contentRef.current, { opacity: 0, y: -80 });
+    // Overlay not used on desktop; keep stars hidden initially
     if (starsGroup2Ref.current) gsap.set(starsGroup2Ref.current, { opacity: 0 });
     if (starsGroup1Ref.current) gsap.set(starsGroup1Ref.current, { opacity: 0 });
     if (orbitingStarsRef.current) gsap.set(orbitingStarsRef.current, { opacity: 0 });
@@ -111,6 +110,8 @@ const B_Fast_Desktop = () => {
     // Track scroll direction to determine if coming from bottom
     let lastScrollY = window.scrollY;
     let isFromBottom = false;
+
+    const hasRevealedRef = { current: false };
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -120,41 +121,46 @@ const B_Fast_Desktop = () => {
             const currentScrollY = window.scrollY;
             isFromBottom = currentScrollY < lastScrollY; // scrolling up
             
-            // Reset heading for animation but ensure it becomes visible
-            gsap.set(contentRef.current, { opacity: 0, y: -80 });
-            
-            const tl = gsap.timeline();
-            
-            if (isFromBottom) {
-              // Coming from bottom → show content without overlay
-              tl.to(contentRef.current, {
-                opacity: 1,
-                y: 0,
-                duration: 1.2,
-                ease: "power1.inOut"
-              })
-              .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
-                opacity: 1,
-                duration: 2.0,
-                ease: "power1.out"
-              }, "<");
-            } else {
-              // Normal scroll from top → just animate heading
-              tl.to(contentRef.current, {
-                opacity: 1,
-                y: 0,
-                duration: 1.2,
-                ease: "power1.inOut",
-                delay: 1.5
-              })
-              .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
-                opacity: 1,
-                duration: 2.0,
-                ease: "power1.out"
-              }, "<");
+            // Prevent duplicate triggers/flicker similar to mobile
+            if (hasRevealedRef.current && !isFromBottom) {
+              lastScrollY = currentScrollY;
+              return;
             }
-            
-            lastScrollY = currentScrollY; // ✅ update scroll position
+
+            // Reset heading for animation
+            gsap.set(contentRef.current, { opacity: 0, y: -80 });
+
+            const startReveal = () => {
+              const tl = gsap.timeline({ onComplete: () => {
+                hasRevealedRef.current = true;
+              }});
+              if (isFromBottom) {
+                // Coming from bottom → show content smoothly (no overlay on desktop)
+                tl.to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut" })
+                  .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), { opacity: 1, duration: 1.2, ease: "power1.out" }, "<");
+              } else {
+                // Normal scroll from top → match mobile timings
+                tl.to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut", delay: 0.4 })
+                  .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), { opacity: 1, duration: 1.2, ease: "power1.out" }, "<");
+              }
+            };
+
+            // Wait until video starts, then 800ms, then reveal (like mobile)
+            const triggerAfterVideo = () => gsap.delayedCall(0.8, startReveal);
+            if (videoStartedRef.current) {
+              triggerAfterVideo();
+            } else if (videoRef.current) {
+              const onPlay = () => {
+                videoStartedRef.current = true;
+                triggerAfterVideo();
+                videoRef.current && videoRef.current.removeEventListener('play', onPlay);
+              };
+              videoRef.current.addEventListener('play', onPlay, { once: true });
+            } else {
+              triggerAfterVideo();
+            }
+
+            lastScrollY = currentScrollY; // update scroll position
           } else {
             // Don't reset content when leaving - let the animation handle it
             lastScrollY = window.scrollY;
@@ -174,7 +180,7 @@ const B_Fast_Desktop = () => {
     // Cleanup function
     return () => {
       observer.disconnect();
-      gsap.killTweensOf([contentRef.current, overlayRef.current, starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current]);
+      gsap.killTweensOf([contentRef.current, starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current]);
     };
   }, []);
 
