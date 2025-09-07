@@ -202,39 +202,47 @@ const CombinedFooterMobile = () => {
           }}
         />
 
-        {/* Concentric circles - centered with dynamic sizing */}
+        {/* Concentric circles - centered */}
         <div
           aria-hidden
-            style={{
-              position: 'absolute',
-            width: 'clamp(300px, 80vw, 600px)',
-            aspectRatio: '1 / 1',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-            opacity: 0.45,
+          style={{
+            position: 'absolute',
+            width: '507.43px',
+            height: '508px',
+            left: 'calc(50% - 507.43px/2 - 0.3px)',
+            top: 'calc(50% - 508px/2)',
+            opacity: 0.6,
             pointerEvents: 'none',
             zIndex: 0,
-            // Mask top and bottom portions (fade out)
-            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 15%, rgba(0,0,0,1) 85%, rgba(0,0,0,0))',
-            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 15%, rgba(0,0,0,1) 85%, rgba(0,0,0,0))',
+            // Vertical fade mask to match the image
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            // Soft blending for ethereal effect
+            mixBlendMode: 'screen',
+            filter: 'blur(0.8px) drop-shadow(0 0 25px rgba(255,255,255,0.35))',
           }}
         >
-          {[0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => (
-            <div
-              key={i}
-            style={{
-              position: 'absolute',
-                left: `${(1 - ratio) * 50}%`,
-                top: `${(1 - ratio) * 50}%`,
-                width: `${ratio * 100}%`,
-                height: `${ratio * 100}%`,
-              borderRadius: '50%',
-                border: '1px solid rgba(255,255,255,0.3)',
-                boxSizing: 'border-box',
-              }}
-            />
-          ))}
+          {[0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => {
+            const t = (ratio - 0.3) / (1.0 - 0.3); // 0..1 across rings
+            const alpha = 0.12 + 0.18 * (1 - Math.abs(0.5 - t) * 2); // lighter
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${(1 - ratio) * 50}%`,
+                  top: `${(1 - ratio) * 50}%`,
+                  width: `${ratio * 100}%`,
+                  height: `${ratio * 100}%`,
+                  borderRadius: '50%',
+                  border: `1px solid rgba(255,255,255,${alpha.toFixed(3)})`,
+                  boxSizing: 'border-box',
+                  // Soft inner glow for ethereal effect
+                  boxShadow: `inset 0 0 15px rgba(255,255,255,${(alpha * 0.7).toFixed(3)})`,
+                }}
+              />
+            );
+          })}
         </div>
         
         {/* Star Groups */}
