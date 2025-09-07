@@ -47,12 +47,20 @@ const BaFTCoin = () => {
       return;
     }
 
-    // Kill any existing floating or exit animations to avoid overlap
+    // Prevent overlapping exit animations
+    if (exitTlRef.current && exitTlRef.current.isActive && exitTlRef.current.isActive()) {
+      return;
+    }
+
+    // Kill ALL existing animations first - this is crucial
+    gsap.killTweensOf(coinRef.current);
+    gsap.killTweensOf(".intro-text");
+    gsap.killTweensOf(".coin-text");
+    
     if (animationRef.current) {
       if (typeof animationRef.current.kill === 'function') {
         animationRef.current.kill();
       }
-      gsap.killTweensOf(coinRef.current);
       animationRef.current = null;
     }
     if (exitTlRef.current) {
@@ -60,52 +68,45 @@ const BaFTCoin = () => {
       exitTlRef.current = null;
     }
 
-    // Scope to this section to avoid global selector issues
-    const ctx = gsap.context(() => {
-      // Make sure we're starting from the live state
-      const rawOpacity = gsap.getProperty(coinRef.current, "opacity");
-      const parsedOpacity = typeof rawOpacity === 'string' ? parseFloat(rawOpacity) : Number(rawOpacity);
-      const currentCoinOpacity = Number.isFinite(parsedOpacity) ? parsedOpacity : 0.3;
-
-      gsap.killTweensOf([coinRef.current, ".intro-text", ".coin-text"], "opacity,y,scale");
-
-      exitTlRef.current = gsap.timeline({
-        defaults: { overwrite: "auto" },
-        onComplete: () => {
-          // Ensure coin ends hidden even if user scrolled extremely fast
-          gsap.set(coinRef.current, { opacity: 0 });
-          window.dispatchEvent(new CustomEvent('baftCoinExitComplete'));
-        }
-      });
-
-      exitTlRef.current
-        .fromTo(coinRef.current,
-          { opacity: currentCoinOpacity, scale: 1, y: 0 },
-          {
-            opacity: 0,
-            scale: 0.95,
-            y: -10,
-            duration: 0.6,
-            ease: "power2.inOut"
-          }
-        )
-        .to([".intro-text", ".coin-text"], {
-          y: -100,
-          duration: 1.0,
-          ease: "power1.out"
-        }, "<")
-        .to([".intro-text", ".coin-text"], {
-          opacity: 0,
-          duration: 1.0,
-          ease: "power1.out"
-        }, "<");
-    }, introRef);
-
-    // Revert context after completion
-    exitTlRef.current?.eventCallback("onComplete", () => {
-      ctx.revert();
-      window.dispatchEvent(new CustomEvent('baftCoinExitComplete'));
+    // Kill any ScrollTrigger instances on this element
+    ScrollTrigger.getAll().forEach(trigger => {
+      if (trigger.trigger === introRef.current) {
+        trigger.kill();
+      }
     });
+
+    // Get current state without creating new tweens
+    const currentCoinOpacity = gsap.getProperty(coinRef.current, "opacity") || 0.3;
+    const currentCoinY = gsap.getProperty(coinRef.current, "y") || 0;
+    const currentCoinScale = gsap.getProperty(coinRef.current, "scale") || 1;
+
+    // Create exit timeline without context to avoid conflicts
+    exitTlRef.current = gsap.timeline({
+      defaults: { overwrite: "auto" },
+      onComplete: () => {
+        // Ensure final state
+        if (coinRef.current) {
+          gsap.set(coinRef.current, { opacity: 0, scale: 0.95, y: -10 });
+        }
+        gsap.set([".intro-text", ".coin-text"], { opacity: 0, y: -100 });
+        window.dispatchEvent(new CustomEvent('baftCoinExitComplete'));
+      }
+    });
+
+    exitTlRef.current
+      .to(coinRef.current, {
+        opacity: 0,
+        scale: 0.95,
+        y: currentCoinY - 10,
+        duration: 0.6,
+        ease: "power2.inOut"
+      })
+      .to([".intro-text", ".coin-text"], {
+        y: -100,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power1.out"
+      }, "<0.2"); // Start slightly after coin animation
   }, []);
 
   // Expose the method to SlideContainer
@@ -242,12 +243,20 @@ const BaFTCoin = () => {
       if (coinRef.current) {
         gsap.killTweensOf(coinRef.current);
       }
+      gsap.killTweensOf(".intro-text");
+      gsap.killTweensOf(".coin-text");
+      
       if (animationRef.current) {
         if (typeof animationRef.current.kill === 'function') {
           animationRef.current.kill();
         }
         animationRef.current = null;
       }
+      if (exitTlRef.current) {
+        exitTlRef.current.kill();
+        exitTlRef.current = null;
+      }
+      
       hasAnimatedRef.current = false;
       
       // Safely revert context

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { gsap } from "gsap";
 import { VIDEO_COM_PNG, SVG_SVG, VIDEOPLAYBACK_MP4 } from "../../assets/assets";
 
@@ -8,12 +8,30 @@ const VideoComponentMobile = ({ slide = false }) => {
   const videoRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(() => (typeof window !== 'undefined' ? window.innerWidth > window.innerHeight : false));
+  const [showRotateTip, setShowRotateTip] = useState(false);
+  const [isInline, setIsInline] = useState(false);
+  const autoFSRef = useRef(false);
 
-  const expandAndPlay = async () => {
+  const expandInline = () => {
+    if (isInline || isExpanded || isAnimating) return;
+    setIsInline(true);
+    // Autoplay inline (muted, playsInline)
+    requestAnimationFrame(() => {
+      if (videoRef.current) {
+        try { videoRef.current.play().catch(() => {}); } catch (_) {}
+      }
+    });
+  };
+
+  const enterFullscreen = async () => {
     if (isExpanded || isAnimating) return;
-    
     setIsAnimating(true);
     setIsExpanded(true);
+    try {
+      const landscapeNow = window.innerWidth > window.innerHeight;
+      setShowRotateTip(!landscapeNow);
+    } catch (_) {}
 
     // Lock scroll
     document.body.style.overflow = "hidden";
@@ -33,13 +51,13 @@ const VideoComponentMobile = ({ slide = false }) => {
 
     // Play video
     if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
+      try { await videoRef.current.play(); } catch (_) {}
     }
 
     gsap.to(cardRef.current, {
       opacity: 0,
-      scale: 0.8,
-      duration: 0.3,
+      scale: 0.98,
+      duration: 0.2,
       ease: "power2.out",
       onComplete: () => {
         setIsAnimating(false);
@@ -52,6 +70,7 @@ const VideoComponentMobile = ({ slide = false }) => {
 
     setIsAnimating(true);
     setIsExpanded(false);
+    setIsInline(false);
 
     // Exit fullscreen and unlock orientation
     if (document.fullscreenElement) {
@@ -83,6 +102,38 @@ const VideoComponentMobile = ({ slide = false }) => {
       }
     });
   };
+
+  const handleOrientationUpdate = useCallback(() => {
+    const landscape = window.innerWidth > window.innerHeight;
+    setIsLandscape(landscape);
+    setShowRotateTip(!landscape);
+  }, []);
+
+  useEffect(() => {
+    // If inline and user rotates to landscape, auto enter fullscreen once
+    if (isInline && !isExpanded && isLandscape && !autoFSRef.current) {
+      autoFSRef.current = true;
+      // small delay to allow layout to settle
+      setTimeout(() => enterFullscreen(), 50);
+    }
+    if (!isExpanded) return;
+    const onResize = () => handleOrientationUpdate();
+    const onOrientationChange = () => handleOrientationUpdate();
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onOrientationChange);
+    handleOrientationUpdate();
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onOrientationChange);
+    };
+  }, [isExpanded, handleOrientationUpdate]);
+
+  // Auto-hide the rotate tip after a short delay
+  useEffect(() => {
+    if (!isExpanded || !showRotateTip) return;
+    const t = setTimeout(() => setShowRotateTip(false), 3500);
+    return () => clearTimeout(t);
+  }, [isExpanded, showRotateTip]);
 
   return (
     <>
@@ -126,10 +177,10 @@ const VideoComponentMobile = ({ slide = false }) => {
                 transformOrigin: 'center center',
                 backfaceVisibility: 'hidden'
               }}
-          onClick={expandAndPlay}
+          onClick={expandInline}
             >
           {/* Thumbnail Image - Only show when not expanded */}
-          {!isExpanded && (
+          {!isInline && !isExpanded && (
               <img
                 src={VIDEO_COM_PNG}
                 alt="Video Preview"
@@ -137,10 +188,39 @@ const VideoComponentMobile = ({ slide = false }) => {
             />
           )}
 
-          
+          {/* Inline video (step 2) */}
+          {isInline && !isExpanded && (
+            <>
+              <video
+                ref={videoRef}
+                src={VIDEOPLAYBACK_MP4}
+                playsInline
+                muted
+                autoPlay
+                preload="auto"
+                poster={VIDEO_COM_PNG}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ backgroundColor: 'black' }}
+              />
+              {/* Floating fullscreen icon (bottom-right) */}
+              <button
+                onClick={(e) => { e.stopPropagation(); enterFullscreen(); }}
+                className="absolute bottom-2 right-2 z-20 bg-black/50 hover:bg-black/60 text-white rounded-md p-2"
+                style={{ border: '1px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(4px)' }}
+                aria-label="Enter fullscreen"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 9V4h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 15v5h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M15 4h5v5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 20H4v-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </>
+          )}
 
           {/* Play Button Overlay - Only show when not expanded */}
-          {!isExpanded && !isAnimating && (
+          {!isInline && !isExpanded && !isAnimating && (
             <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-10">
               <div className="text-center text-white">
                 <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-2 backdrop-blur-sm">
@@ -156,6 +236,22 @@ const VideoComponentMobile = ({ slide = false }) => {
               )}
           </div>
           
+        {/* Full screen button (step 2 -> step 3) */}
+        {isInline && !isExpanded && (
+          <div className="w-[85vw] max-w-[400px] flex justify-end mt-3">
+            <button
+              onClick={enterFullscreen}
+              className="px-4 py-2 rounded-full text-white"
+              style={{
+                backgroundColor: '#092646',
+                boxShadow: '0 8px 18px rgba(9,38,70,0.25)'
+              }}
+            >
+              Full screen
+            </button>
+          </div>
+        )}
+
         {/* Fullscreen Video Overlay - Only show when expanded */}
         {isExpanded && (
           <div
@@ -174,6 +270,21 @@ const VideoComponentMobile = ({ slide = false }) => {
               }
             }}
           >
+            {/* Rotate tip when in portrait */}
+            {showRotateTip && (
+              <div
+                className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded-full text-white text-xs sm:text-sm"
+                style={{
+                  top: 'calc(64px + env(safe-area-inset-top, 0px))',
+                  backgroundColor: 'rgba(0,0,0,0.6)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  backdropFilter: 'blur(4px)',
+                  zIndex: 50
+                }}
+              >
+                Rotate your phone for the best viewing experience
+              </div>
+            )}
             <div
               style={{
                 width: "100vw",
@@ -195,10 +306,12 @@ const VideoComponentMobile = ({ slide = false }) => {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%) rotate(90deg)",
-                  minWidth: "100vh",   // ensure it always fills horizontally
-                  minHeight: "100vw",  // ensure it always fills vertically
-                  objectFit: "cover",  // fill like YouTube
+                  transform: isLandscape ? "translate(-50%, -50%)" : "translate(-50%, -50%) rotate(90deg)",
+                  minWidth: isLandscape ? "100vw" : "100vh",
+                  minHeight: isLandscape ? "100vh" : "100vw",
+                  width: isLandscape ? "100vw" : "auto",
+                  height: isLandscape ? "100vh" : "auto",
+                  objectFit: "cover",
                   backgroundColor: "black"
                 }}
               />
