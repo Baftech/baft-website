@@ -1,3 +1,4 @@
+/* Removed fancy playbtn glow/theme styles */
 /* ===== Common Navbar Base ===== */
 .navbar-container {
   position: fixed;
@@ -128,127 +129,7 @@
   }
 }
 
-/* Fancy signup container - responsive with 8-point spacing */
-.fancy {
-  --offset: 2px;
-  background: transparent;
-  border-radius: 200px;
-  position: relative;
-  height: auto;
-  width: auto;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.fancy::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  aspect-ratio: 1;
-  width: 250%;
-  animation: rotate 5s linear infinite;
-  filter: blur(0.5px);
-}
-
-.fancy::after {
-  content: '';
-  border-radius: inherit;
-  position: absolute;
-  inset: var(--offset);
-  transition: background 0.3s ease;
-}
-
-.fancy button {
-  background: transparent;
-  border: none;
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  border-radius: inherit;
-  transition: color 0.3s ease;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  min-height: 32px; /* Match nav-btn-size height */
-  min-width: 80px; /* Match nav-btn-size width */
-  font-size: 10px; /* Uniform smaller font size for mobile */
-  font-weight: 500; /* Slightly bolder for better readability */
-  letter-spacing: 0.025em; /* Better text spacing */
-  white-space: nowrap; /* Prevent text wrapping */
-}
-
-/* Ensure fancy button respects equal sizing when applied */
-.fancy button.nav-btn-size {
-  width: 80px !important;
-  height: 32px !important;
-}
-
-@media (min-width: 1024px) {
-  .fancy button.nav-btn-size {
-    width: 96px !important;
-    height: 40px !important;
-  }
-}
-
-@media (min-width: 1280px) {
-  .fancy button.nav-btn-size {
-    width: 112px !important;
-    height: 48px !important;
-  }
-}
-
-/* Responsive fancy button sizing using 8-point spacing */
-@media (min-width: 640px) {
-  .fancy button { 
-    min-height: 32px; /* Match nav-btn-size height */
-    min-width: 80px; /* Match nav-btn-size width */
-    font-size: 11px;
-  }
-}
-
-@media (min-width: 768px) {
-  .fancy button { 
-    min-height: 36px; /* Match nav-btn-size height */
-    min-width: 80px; /* Match nav-btn-size width */
-    font-size: 12px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .fancy button { 
-    min-height: 40px; /* Match nav-btn-size height */
-    min-width: 96px; /* Match nav-btn-size width */
-    font-size: 13px; /* Uniform medium font size for desktop */
-  }
-}
-
-@media (min-width: 1280px) {
-  .fancy button {
-    min-height: 48px; /* Match nav-btn-size height */
-    min-width: 112px; /* Match nav-btn-size width */
-    font-size: 14px; /* Uniform larger font size for large screens */
-  }
-}
-
-@media (min-width: 1536px) {
-  .fancy button {
-    min-height: 48px; /* Match nav-btn-size height */
-    min-width: 112px; /* Match nav-btn-size width */
-    font-size: 15px; /* Uniform largest font size for extra large screens */
-  }
-}
-
-/* Animation */
-@keyframes rotate {
-  from {
-    transform: translate(-50%, -50%) scale(8) rotate(0turn);
-  }
-  to {
-    transform: translate(-50%, -50%) scale(8) rotate(1turn);
-  }
-}
+/* Removed fancy container/button styles and animations */
 
 /* ===== DARK THEME ===== */
 .dark-theme {
@@ -267,75 +148,7 @@
   transition: all 1.0s ease;
 }
 
-.dark-theme .fancy::before {
-  background: conic-gradient(transparent 0deg,
-  transparent 250deg, 
-  rgba(255,255,255,0.1) 270deg,
-  rgba(255,255,255,0.5) 285deg,
-  white 300deg,
-  rgba(255,255,255,0.5) 315deg,
-  rgba(255,255,255,0.1) 330deg,
-  transparent 350deg,
-  transparent 360deg);
-}
-
-.dark-theme .fancy::after {
-  background: rgba(255, 255, 255, 0.04);
-  border: 0.5px solid rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.06);
-}
-
-.dark-theme .fancy:hover::after {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.04);
-}
-
-.dark-theme .fancy button {
-  color: white;
-  font-family: 'SF Pro Display', sans-serif;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 10px; /* Uniform smaller base font size for mobile */
-  line-height: 14px;
-  text-align: center;
-}
-
-@media (min-width: 640px) {
-  .dark-theme .fancy button {
-    font-size: 11px; /* Uniform medium font size for small tablets */
-    line-height: 15px;
-  }
-}
-
-@media (min-width: 768px) {
-  .dark-theme .fancy button {
-    font-size: 12px; /* Uniform medium font size for tablets */
-    line-height: 16px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .dark-theme .fancy button {
-    font-size: 13px; /* Uniform medium font size for desktop */
-    line-height: 17px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .dark-theme .fancy button {
-    font-size: 14px; /* Uniform larger font size for large screens */
-    line-height: 18px;
-  }
-}
-
-@media (min-width: 1536px) {
-  .dark-theme .fancy button {
-    font-size: 15px; /* Uniform largest font size for extra large screens */
-    line-height: 19px;
-  }
-}
+/* Removed dark-theme fancy overrides */
 
 /* ===== LIGHT THEME ===== */
 .light-theme {
@@ -400,70 +213,131 @@
   transition: all 1.0s ease;
 }
 
+/* === Themed sign up button (fancy) === */
+/* Dark theme sign up button */
+.dark-theme .fancy {
+  --offset: 3px;
+  background: #000000;
+  border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dark-theme .fancy::before {
+  content: '';
+  background: conic-gradient(transparent 270deg, white, transparent);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 1;
+  width: 100%;
+  animation: rotate 6s linear infinite;
+  filter: blur(2px);
+  opacity: 0.8;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.dark-theme .fancy::after {
+  content: '';
+  background: inherit;
+  border-radius: inherit;
+  position: absolute;
+  inset: var(--offset);
+  height: calc(100% - 2 * var(--offset));
+  width: calc(100% - 2 * var(--offset));
+  z-index: 0;
+  pointer-events: none;
+}
+
+.dark-theme .fancy button {
+  background: transparent;
+  color: white;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+/* Light theme sign up button */
+.light-theme .fancy {
+  --offset: 3px;
+  background: #ffffff;
+  border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+}
+
 .light-theme .fancy::before {
-  background: conic-gradient(
-    transparent 0deg,
-    transparent 200deg, 
-    rgba(9, 38, 70, 0.2) 220deg,
-    rgba(9, 38, 70, 0.6) 240deg,
-    #092646 260deg,
-    rgba(9, 38, 70, 0.8) 280deg,
-    rgba(9, 38, 70, 0.6) 300deg,
-    rgba(9, 38, 70, 0.2) 320deg,
-    transparent 340deg,
-    transparent 360deg
-  );
+  content: '';
+  background: radial-gradient(circle at 100% 50%, #092646 0%, rgba(9, 38, 70, 0.5) 18%, rgba(9, 38, 70, 0.0) 36%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 1;
+  width: 100%;
+  animation: rotate 2s linear infinite;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .light-theme .fancy::after {
-  background: rgba(255, 255, 255, 0.1);
-  border: 0.5px solid transparent;
-  backdrop-filter: blur(8px) saturate(120%);
-  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  content: '';
+  background: inherit;
+  border-radius: inherit;
+  position: absolute;
+  inset: var(--offset);
+  height: calc(100% - 2 * var(--offset));
+  width: calc(100% - 2 * var(--offset));
+  z-index: 0;
+  pointer-events: none;
 }
 
 .light-theme .fancy button {
-  color: black;
-  background: rgba(255, 255, 255, 0.3);
-  font-family: 'SF Pro Display', sans-serif;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 10px; /* Uniform smaller base font size for mobile */
-  line-height: 14px;
-  text-align: center;
+  background: transparent;
+  color: #092646;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+  cursor: pointer;
 }
 
-@media (min-width: 640px) {
-  .light-theme .fancy button {
-    font-size: 11px; /* Uniform medium font size for small tablets */
-    line-height: 15px;
+@keyframes rotate {
+  from {
+    transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
   }
 }
 
-@media (min-width: 768px) {
+/* === Responsive typography for fancy signup button === */
+@media (max-width: 1023.98px) {
+  .dark-theme .fancy button,
   .light-theme .fancy button {
-    font-size: 12px; /* Uniform medium font size for tablets */
-    line-height: 16px;
   }
 }
 
-@media (min-width: 1024px) {
+@media (max-width: 767.98px) {
+  .dark-theme .fancy button,
   .light-theme .fancy button {
-    font-size: 13px; /* Uniform medium font size for desktop */
-    line-height: 17px;
   }
 }
 
-@media (min-width: 1280px) {
+@media (max-width: 639.98px) {
+  .dark-theme .fancy button,
   .light-theme .fancy button {
-    font-size: 14px; /* Uniform larger font size for large screens */
-    line-height: 18px;
-  }
-}
-
-@media (min-width: 1536px) {
-  .light-theme .fancy button {
-    font-size: 15px; /* Uniform largest font size for extra large screens */
-    line-height: 19px;
   }
 }

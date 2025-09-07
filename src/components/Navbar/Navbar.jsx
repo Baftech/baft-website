@@ -148,10 +148,10 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
         </div>
 
         {/* Right signup - Hidden on mobile, visible on lg+ */}
-        <div className="fancy hidden lg:block">
+        <div className="fancy nav-btn-size hidden lg:block">
           <button
             onClick={() => setIsSignUpModalOpen(true)}
-            className="rounded-[200px] nav-btn-size"
+            className="rounded-[200px] nav-btn"
           >
             Sign Up
           </button>

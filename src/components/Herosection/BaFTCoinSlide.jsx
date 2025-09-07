@@ -14,6 +14,7 @@ const BaFTCoin = () => {
   const coinRef = useRef(null);
   const animationRef = useRef(null);
   const hasAnimatedRef = useRef(false);
+  const exitTlRef = useRef(null);
 
   // Mobile and MacBook detection
   useEffect(() => {
@@ -45,53 +46,66 @@ const BaFTCoin = () => {
     if (!introRef.current || !coinRef.current) {
       return;
     }
-    
-    // Kill any existing floating animation
+
+    // Kill any existing floating or exit animations to avoid overlap
     if (animationRef.current) {
-      // Kill the stored tween instance if present
       if (typeof animationRef.current.kill === 'function') {
         animationRef.current.kill();
       }
       gsap.killTweensOf(coinRef.current);
       animationRef.current = null;
     }
-    
-    // Create exit animation timeline
-    const exitTl = gsap.timeline({
-      onComplete: () => {
-        // Fire exit complete event when exit animations finish
-        // This will trigger automatic transition to BInstant section
-        window.dispatchEvent(new CustomEvent('baftCoinExitComplete'));
-      }
-    });
+    if (exitTlRef.current) {
+      exitTlRef.current.kill();
+      exitTlRef.current = null;
+    }
 
-    // Amazing exit animations in reverse order
-    // Coin fades from current opacity to 0 - starts immediately on scroll
-    const rawOpacity = gsap.getProperty(coinRef.current, "opacity");
-    const parsedOpacity = typeof rawOpacity === 'string' ? parseFloat(rawOpacity) : Number(rawOpacity);
-    const currentCoinOpacity = Number.isFinite(parsedOpacity) ? parsedOpacity : 0.3;
-    exitTl.fromTo(coinRef.current, 
-      { opacity: currentCoinOpacity }, // Start from actual current opacity
-      { 
-        opacity: 0, // Fade to completely transparent
-        scale: 0.95, // Very gentle shrink
-        y: -10, // Very gentle upward movement
-        duration: 0.5, // Smooth fast exit
-        ease: "power2.inOut" // Smooth easing to eliminate glitch
-      }
-    )
-    .to([".intro-text", ".coin-text"], { 
-      y: -100, // Move texts upwards
-      duration: 2.2, // Slower text movement
-      ease: "power1.out" // Very smooth easing
-    }, "<") // Start at the SAME time as coin animation
-    .fromTo([".intro-text", ".coin-text"], 
-      { opacity: 1 }, // Start from full opacity (text is always visible)
-      { 
-        opacity: 0, // Fade to completely transparent
-        duration: 2.2, // Same duration as text movement
-        ease: "power1.out" // Same smooth easing as movement
-      }, "<"); // Start fading at the SAME time as text movement
+    // Scope to this section to avoid global selector issues
+    const ctx = gsap.context(() => {
+      // Make sure we're starting from the live state
+      const rawOpacity = gsap.getProperty(coinRef.current, "opacity");
+      const parsedOpacity = typeof rawOpacity === 'string' ? parseFloat(rawOpacity) : Number(rawOpacity);
+      const currentCoinOpacity = Number.isFinite(parsedOpacity) ? parsedOpacity : 0.3;
+
+      gsap.killTweensOf([coinRef.current, ".intro-text", ".coin-text"], "opacity,y,scale");
+
+      exitTlRef.current = gsap.timeline({
+        defaults: { overwrite: "auto" },
+        onComplete: () => {
+          // Ensure coin ends hidden even if user scrolled extremely fast
+          gsap.set(coinRef.current, { opacity: 0 });
+          window.dispatchEvent(new CustomEvent('baftCoinExitComplete'));
+        }
+      });
+
+      exitTlRef.current
+        .fromTo(coinRef.current,
+          { opacity: currentCoinOpacity, scale: 1, y: 0 },
+          {
+            opacity: 0,
+            scale: 0.95,
+            y: -10,
+            duration: 0.6,
+            ease: "power2.inOut"
+          }
+        )
+        .to([".intro-text", ".coin-text"], {
+          y: -100,
+          duration: 1.0,
+          ease: "power1.out"
+        }, "<")
+        .to([".intro-text", ".coin-text"], {
+          opacity: 0,
+          duration: 1.0,
+          ease: "power1.out"
+        }, "<");
+    }, introRef);
+
+    // Revert context after completion
+    exitTlRef.current?.eventCallback("onComplete", () => {
+      ctx.revert();
+      window.dispatchEvent(new CustomEvent('baftCoinExitComplete'));
+    });
   }, []);
 
   // Expose the method to SlideContainer
