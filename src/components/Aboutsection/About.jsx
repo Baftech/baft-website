@@ -146,8 +146,8 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
         if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
           gsap.to(contentRef.current, {
             height: targetHeight,
-            duration: 0.8,
-            ease: "power2.out"
+            duration: 1.2,
+            ease: "power3.out"
           });
         } else {
           // Mobile/tablet: instant transition
@@ -158,8 +158,8 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
         if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
           gsap.to(contentRef.current, {
             height: collapsedHeight,
-            duration: 0.8,
-            ease: "power2.out"
+            duration: 1.0,
+            ease: "power3.out"
           });
         } else {
           // Mobile/tablet: instant transition
@@ -191,7 +191,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
       display: 'flex',
       flexDirection: 'column',
       minHeight: isExpanded ? 'auto' : '200px',
-      transition: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'all 0.8s ease-out' : 'none'
+      transition: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
     }}>
       <div
         ref={contentRef}
@@ -204,7 +204,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
           paddingRight: isExpanded ? '4px' : 0,
           opacity: isExpanded ? 1 : 0.9,
           transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
-            ? "opacity 0.8s ease-out, padding 0.8s ease-out" 
+            ? "opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), padding 1.2s cubic-bezier(0.4, 0, 0.2, 1)" 
             : "opacity 0.3s ease",
           position: 'relative',
           flex: isExpanded ? '1 1 auto' : '0 0 auto'
@@ -217,13 +217,13 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
             style={{
               fontFamily: "Inter, sans-serif",
               color: '#909090',
-              fontSize: screenSize === 'large' ? '10px' : 
-                (compact ? getFontSize('14px', '18px', '21px') : getFontSize('16px', '20px', '3px')),
-              lineHeight: screenSize === 'large' ? '16px' : 
-                (compact ? getFontSize('22px', '26px', '30px') : getFontSize('24px', '28px', '100px')),
+              fontSize: screenSize === 'large' ? '18px' : 
+                (compact ? getFontSize('16px', '20px', '21px') : getFontSize('18px', '22px', '18px')),
+              lineHeight: screenSize === 'large' ? '28px' : 
+                (compact ? getFontSize('24px', '28px', '30px') : getFontSize('26px', '30px', '28px')),
               marginBottom: i === 0 ? 
-                getSpacing('10px', '14px', '8px') : 
-                getSpacing('8px', '12px', '6px')
+                getSpacing('20px', '24px', '28px') : 
+                getSpacing('18px', '22px', '26px')
             }}
           >
             {para}
@@ -251,8 +251,8 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
           className="mt-2"
           style={{
             fontFamily: "Inter, sans-serif",
-            width: getDimensions('160px', '200px', '180px'),
-            height: getDimensions('60px', '72px', '60px'),
+            width: getDimensions('140px', '160px', '180px'),
+            height: getDimensions('50px', '60px', '60px'),
             fontSize: getFontSize('14px', '18px', '16px'),
             lineHeight: 1.1,
             borderRadius: "200px",
@@ -267,11 +267,13 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
             order: 2,
             flexGrow: 0,
             alignSelf: 'flex-start',
-            marginTop: isExpanded ? getSpacing('10px', '12px', '8px') : getSpacing('6px', '8px', '12px'),
+            marginTop: isExpanded ? 
+              (screenSize === 'large' ? '4px' : getSpacing('10px', '12px', '8px')) : 
+              (screenSize === 'large' ? '2px' : getSpacing('6px', '8px', '12px')),
             zIndex: 10,
             position: 'relative',
             transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
-              ? 'all 0.6s ease-out, margin-top 0.8s ease-out, transform 0.3s ease-out' 
+              ? 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1), margin-top 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease-out' 
               : 'all 0.3s ease-out',
             transform: isExpanded ? 'translateY(0)' : 'translateY(0)',
             opacity: 1
@@ -716,7 +718,9 @@ const AboutBaft = () => {
       
       // Determine screen size categories for responsive spacing
       const vh = window.innerHeight || 0;
-      if (vh >= 900) setScreenSize('large'); // MacBook Pro and larger laptops
+      const vw = window.innerWidth || 0;
+      // MacBook Pro 16 has 1112px height, so we need to account for that
+      if (vh >= 1000 || (vh >= 900 && vw >= 1400)) setScreenSize('large'); // MacBook Pro 16 and larger laptops
       else if (vh >= 768) setScreenSize('medium'); // Standard laptops
       else setScreenSize('small'); // Smaller screens
     };
@@ -1146,7 +1150,9 @@ const AboutBaft = () => {
               height: '100vh',
               width: '100vw',
               overflow: 'hidden',
-              paddingTop: 'calc(var(--nav-h, 64px) + calc(var(--gap, 16px) * 2))'
+              paddingTop: screenSize === 'large' ? 
+                'calc(var(--nav-h, 64px) + calc(var(--gap, 8px) * 1))' : 
+                'calc(var(--nav-h, 64px) + calc(var(--gap, 16px) * 2))'
             }}
           >
             {/* Static grid: text left, measuring placeholder right */}
@@ -1175,7 +1181,7 @@ const AboutBaft = () => {
                 ref={textContainerRef}
                 className="flex flex-col justify-center"
                 style={{
-                  transform: `translateX(${textShiftX}px) translateY(${isExpanded ? '-50px' : '0px'})`,
+                  transform: `translateX(${textShiftX}px) translateY(0px)`,
                   opacity: textOpacity,
                   transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
                     ? 'transform 0.8s ease-out, opacity 0.8s ease-out' 
@@ -1194,7 +1200,9 @@ const AboutBaft = () => {
               >
                 <div
                   style={{
-                    marginTop: isExpanded ? getSpacing('-10px', '-15px', '30px') : '0px',
+                    marginTop: isExpanded ? 
+                      (screenSize === 'large' ? '0px' : getSpacing('-10px', '-15px', '30px')) : 
+                      '0px',
                     transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
                       ? 'margin-top 0.8s ease-out' 
                       : 'none'

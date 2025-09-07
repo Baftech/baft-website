@@ -6,12 +6,13 @@ import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
 import BInstantMobile from "./BInstantMobile";
+import { B_COIN_SVG } from "../../assets/assets";
 
 function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 3.5 }) {
   const ref = useRef();
   const [hasReachedTarget, setHasReachedTarget] = useState(false);
   const [animationStartTime, setAnimationStartTime] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true); // Start visible
 
   useFrame((state) => {
     if (animate && ref.current && !hasReachedTarget) {
@@ -22,15 +23,8 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
       const currentTime = state.clock.elapsedTime;
       const elapsed = currentTime - animationStartTime;
 
-      if (elapsed < 0.4) {
-        return;
-      }
-
-      if (elapsed >= 0.4 && !isVisible) {
-        setIsVisible(true);
-      }
-
-      if (elapsed >= 0.4) {
+      // Start animation immediately, no delay
+      if (elapsed >= 0) {
         const currentPos = ref.current.position;
         const targetPos = new THREE.Vector3(...target);
 
@@ -40,7 +34,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
           return;
         }
 
-        const progress = (elapsed - 0.4) / (animationDuration - 0.4);
+        const progress = elapsed / animationDuration;
         const easedProgress = 1 - Math.pow(1 - progress, 3);
         currentPos.lerp(targetPos, easedProgress * 0.02);
       }
@@ -70,9 +64,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
           transparent
           opacity={opacity}
           depthWrite={false}
-          depthTest
-          brightness={0.5}
-          color="#808080"
+          depthTest={true}
         />
       </mesh>
     </group>
@@ -80,7 +72,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
 }
 
 const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
-  const coinTexture = useTexture("/b-coin.svg");
+  const coinTexture = useTexture(B_COIN_SVG);
   const curtainRef = useRef();
   // Vertical offset to position the entire coin stack below the navbar
   const stackYOffset = -0.5; // ~1cm below navbar
@@ -284,13 +276,13 @@ const BInstantSection = () => {
           dpr={Math.min(window.devicePixelRatio, 2)}
         >
           <Suspense fallback={null}>
-            {/* No ambient light */}
-            <ambientLight intensity={0} color="#fff8dc" /> 
+            {/* Ambient light for overall brightness */}
+            <ambientLight intensity={0.3} color="#fff8dc" /> 
 
             {/* Key light with warm golden tint */}
             <directionalLight
               position={[-6, 7, 4]}
-              intensity={0.45}
+              intensity={1.2}
               color="#ffd27f"
               castShadow
             />
@@ -300,7 +292,7 @@ const BInstantSection = () => {
               position={[-2, 8, 3]}
               angle={0.5}
               penumbra={0.5}
-              intensity={0.12}
+              intensity={0.4}
               distance={40}
               color="#ffebc2"
             />
