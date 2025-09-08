@@ -14,7 +14,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
   useEffect(() => {
     // Define which slides should have light theme (white backgrounds)
     const lightThemeSlides = [3, 4, 5, 6]; // B-Fast (3), Features (4), Safe & Secure (5), About (6)
-    
+    const isMobile = window.innerWidth <= 768;
     if (currentSlide === 5) {
       // SafeSecure slide: light on desktop, dark on mobile
       setTheme(isMobile ? "dark" : "light");
