@@ -78,8 +78,8 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
           opacity={opacity}
           depthWrite={false}
           depthTest
-          brightness={0.5}
-          color="#808080"
+          brightness={0.9}
+          color="#9e9e9e"
         />
       </mesh>
     </group>
