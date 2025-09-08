@@ -144,62 +144,57 @@ const handleSubmit = async (e) => {
 
         {/* Content Container - Flexible Height */}
         <div className="w-full min-h-[360px] sm:min-h-[400px] relative">
-          
-          <div className="w-full min-h-[320px] sm:min-h-[360px] relative overflow-hidden">
-            {/* Form Content */}
-            <div className={`w-full transition-all duration-800 ease-out ${
-              showThanks || isTransitioning ? 'opacity-0 scale-95 pointer-events-none absolute inset-0' : 'opacity-100 scale-100'
-            }`}>
-              <div
-                className={`absolute inset-0 w-full transition-all duration-800 ease-out ${
-                  showThanks || isTransitioning
-                    ? "opacity-0 scale-95 pointer-events-none"
-                    : "opacity-100 scale-100"
-                }`}
-              >
-                <div className="w-full bg-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-3 sm:gap-3 mb-0">
-                  <div>
-                    <h3 className="font-semibold text-base sm:text-lg text-white mb-1 sm:mb-1">
-                      Contact Us
-                    </h3>
-                    <p className="text-xs sm:text-xs text-white/60 m-0 mb-2 sm:mb-2">
-                      Have any Query feel free to reach out
-                    </p>
-                  </div>
+          {/* Form Content */}
+          <div
+            className={`w-full transition-all duration-800 ease-out ${
+              showThanks || isTransitioning
+                ? "opacity-0 scale-95 pointer-events-none absolute inset-0"
+                : "opacity-100 scale-100"
+            }`}
+          >
+            <div className="w-full bg-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-3 sm:gap-3 mb-0">
+              <div>
+                <h3 className="font-semibold text-base sm:text-lg text-white mb-1 sm:mb-1">
+                  Contact Us
+                </h3>
+                <p className="text-xs sm:text-xs text-white/60 m-0 mb-2 sm:mb-2">
+                  Have any Query feel free to reach out
+                </p>
+              </div>
 
-                  <form
-                    className="flex flex-col gap-2.5 sm:gap-3"
-                    onSubmit={handleSubmit}
-                  >
-                    <input
-                      type="text"
-                      name="name"
-                      placeholder="Name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70"
-                    />
-                    <input
-                      type="text"
-                      name="email"
-                      placeholder="Email Id"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70"
-                    />
-                    {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
-                    
-                    <textarea
-                      name="message"
-                      placeholder="Your Message"
-                      rows="3"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70 resize-none"
-                    ></textarea>
+              <form
+                className="flex flex-col gap-2.5 sm:gap-3"
+                onSubmit={handleSubmit}
+              >
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Id"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70"
+                />
+                {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
+                
+                <textarea
+                  name="message"
+                  placeholder="Your Message"
+                  rows="3"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                  className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70 resize-none"
+                ></textarea>
 
                     <button
                       type="submit"
@@ -210,54 +205,48 @@ const handleSubmit = async (e) => {
               </div>
             </div>
 
-            {/* Thanks Content */}
-            <div className={`w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
-              showThanks && !isTransitioning ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'
-            }`}>
-              <div
-                className={`absolute inset-0 w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
-                  showThanks && !isTransitioning
-                    ? "opacity-100 scale-100"
-                    : "opacity-0 scale-95 pointer-events-none"
-                }`}
-              >
-                {showThanks && !isClosing && (
-                  <>
-                    <div className="checkmark-wrapper">
-                      <svg
-                        className="checkmark-svg"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 52 52"
-                        key={`checkmark-${showThanks}`} // Only re-render when showThanks becomes true
-                      >
-                        <circle
-                          className="checkmark-circle"
-                          cx="26"
-                          cy="26"
-                          r="25"
-                          fill="none"
-                        />
-                        <path
-                          className="checkmark-path"
-                          fill="none"
-                          d="M14 27l7 7 17-17"
-                        />
-                      </svg>
-                    </div>
-                    <div className="thanks-text">
-                      <h2 className="thanks-title">Thanks for reaching out!</h2>
-                      <p className="thanks-message font-light text-white opacity-85">
-                        We've received your inquiry and will be in touch shortly.
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
+          {/* Thanks Content */}
+          <div
+            className={`w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
+              showThanks && !isTransitioning
+                ? "opacity-100 scale-100"
+                : "opacity-0 scale-95 pointer-events-none absolute inset-0"
+            }`}
+          >
+            {showThanks && !isClosing && (
+              <>
+                <div className="checkmark-wrapper">
+                  <svg
+                    className="checkmark-svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 52 52"
+                    key={`checkmark-${showThanks}`} // Only re-render when showThanks becomes true
+                  >
+                    <circle
+                      className="checkmark-circle"
+                      cx="26"
+                      cy="26"
+                      r="25"
+                      fill="none"
+                    />
+                    <path
+                      className="checkmark-path"
+                      fill="none"
+                      d="M14 27l7 7 17-17"
+                    />
+                  </svg>
+                </div>
+                <div className="thanks-text">
+                  <h2 className="thanks-title">Thanks for reaching out!</h2>
+                  <p className="thanks-message font-light text-white opacity-85">
+                    We've received your inquiry and will be in touch shortly.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
