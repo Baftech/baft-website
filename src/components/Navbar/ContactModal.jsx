@@ -20,9 +20,8 @@ const ContactModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      // Fade in backdrop first
+      // Fade in backdrop first, then modal content
       setBackdropVisible(true);
-      // Then animate modal content
       setTimeout(() => setIsAnimating(true), 50);
       // If user has already submitted, show thanks page immediately
       if (hasSubmitted) {
@@ -52,12 +51,12 @@ const ContactModal = ({ isOpen, onClose }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
     // Real-time email validation - clear error if email becomes valid
     if (name === "email") {
       const cleanedEmail = value.trim().toLowerCase();
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedEmail)) {
-        setErrMsg(""); // clear error if valid
+        setErrMsg("");
       }
     }
   };
@@ -72,22 +71,19 @@ const handleSubmit = async (e) => {
     setErrMsg("Please enter a valid email address.");
     return;
   }
-
-  console.log("Form submitted:", formData);
-
-  setIsTransitioning(true);
-  setHasSubmitted(true); // Mark that form has been submitted
-
-  try {
-    const { data, error } = await supabase
-      .from("messages")
-      .insert([
-        {
-          name: formData.name,
-          email: cleanedEmail,
-          message: formData.message,
-        },
-      ]);
+    console.log("Form submitted:", formData);
+    setIsTransitioning(true);
+    try {
+      // Insert into Supabase
+      const { data, error } = await supabase
+        .from("messages")
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            message: formData.message,
+          },
+        ]);
 
     if (error) {
       console.error("Error inserting data:", error);
@@ -97,16 +93,17 @@ const handleSubmit = async (e) => {
 
     console.log("Inserted contact row:", data);
 
-    setShowThanks(true);
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 200);
-  } catch (error) {
-    console.error("Error inserting data:", error);
-    alert("An unexpected error occurred. Please try again.");
-  }
-};
-
+      setHasSubmitted(true);
+      setTimeout(() => {
+        setShowThanks(true);
+        setIsTransitioning(false);
+      }, 200);
+    } catch (error) {
+      console.error("Error inserting data:", error);
+      alert("An unexpected error occurred. Please try again.");
+      return;
+    }
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-100 p-2 sm:p-4">

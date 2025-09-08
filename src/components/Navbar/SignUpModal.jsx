@@ -16,14 +16,12 @@ const SignUpModal = ({ isOpen, onClose }) => {
     name: "",
     email: "",
     contactNumber: "",
-    autoFill: false,
   });
 
   useEffect(() => {
     if (isOpen) {
-      // Fade in backdrop first
+      // Fade in backdrop first, then animate modal
       setBackdropVisible(true);
-      // Then animate modal content
       setTimeout(() => setIsAnimating(true), 50);
       // If user has already submitted, show thanks page immediately
       if (hasSubmitted) {
@@ -89,9 +87,13 @@ const handleSubmit = async (e) => {
 
     console.log("Inserted row:", data);
 
-    // Show thank-you screen safely
+    // Show thank-you screen with transition
     setHasSubmitted(true);
-    setShowThanks(true);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setShowThanks(true);
+      setIsTransitioning(false);
+    }, 200);
   } catch (err) {
     console.error("Unexpected error:", err);
     alert("An unexpected error occurred. Please try again.");
@@ -106,16 +108,11 @@ const handleSubmit = async (e) => {
       // Don't reset showThanks or hasSubmitted - keep the submission state
       setIsTransitioning(false);
       onClose();
-    }, 600); // Slightly faster close animation
+    }, 600);
   };
 
   return (
-    <div 
-      data-theme="dark" 
-      className={`signup-modal-backdrop transition-opacity duration-500 ease-out ${
-        backdropVisible ? 'opacity-100' : 'opacity-0'
-      }`}
-    >
+    <div data-theme="dark" className={`signup-modal-backdrop transition-opacity duration-500 ease-out ${backdropVisible ? 'opacity-100' : 'opacity-0'}`}>
       <div
         className={`signup-modal-container transition-all duration-800 ease-out ${
           isAnimating && !isClosing
@@ -237,7 +234,6 @@ const handleSubmit = async (e) => {
                     required
                   />
                 </div>
-
 
                 <button type="submit" className="signup-send-button"></button>
               </form>
