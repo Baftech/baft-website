@@ -146,9 +146,9 @@ const handleSubmit = async (e) => {
         <div className="w-full min-h-[360px] sm:min-h-[400px] relative">
           {/* Form Content */}
           <div
-            className={`w-full transition-all duration-800 ease-out ${
+            className={`absolute inset-0 w-full transition-all duration-800 ease-out ${
               showThanks || isTransitioning
-                ? "opacity-0 scale-95 pointer-events-none absolute inset-0"
+                ? "opacity-0 scale-95 pointer-events-none"
                 : "opacity-100 scale-100"
             }`}
           >
@@ -207,10 +207,10 @@ const handleSubmit = async (e) => {
 
           {/* Thanks Content */}
           <div
-            className={`w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
+            className={`absolute inset-0 w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
               showThanks && !isTransitioning
                 ? "opacity-100 scale-100"
-                : "opacity-0 scale-95 pointer-events-none absolute inset-0"
+                : "opacity-0 scale-95 pointer-events-none"
             }`}
           >
             {showThanks && !isClosing && (
