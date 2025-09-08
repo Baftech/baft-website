@@ -60,6 +60,7 @@ const handleSubmit = async (e) => {
   const cleanedEmail = formData.email.trim().toLowerCase();
   setErrMsg("");
   if (!isValidEmail(cleanedEmail)) {
+    setErrMsg("Please enter a valid email address.");
     return;
   }
 
