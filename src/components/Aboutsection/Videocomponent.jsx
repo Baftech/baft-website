@@ -475,29 +475,6 @@ const Videocomponent = ({ slide = false }) => {
                 />
               )}
               
-              {/* Scroll hint - only show when not expanded */}
-              {!isExpanded && !isAnimating && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: isSmallDesktop ? '18px' : '20px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  backgroundColor: 'rgba(25, 102, 187, 0.9)',
-                  color: 'white',
-                  padding: isSmallDesktop ? '10px 20px' : '12px 24px',
-                  borderRadius: isSmallDesktop ? '22px' : '25px',
-                  fontSize: isSmallDesktop ? '13px' : '14px',
-                  fontFamily: 'Inter, sans-serif',
-                  fontWeight: '500',
-                  animation: 'gentlePulse 3s infinite',
-                  zIndex: 10,
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  whiteSpace: 'nowrap'
-                }}>
-                  Scroll to expand video
-                </div>
-              )}
             </div>
 
             {/* Text Container */}
@@ -547,7 +524,7 @@ const Videocomponent = ({ slide = false }) => {
               <p style={{
                 fontFamily: 'Inter, sans-serif',
                 fontSize: bodyTextSize,
-                color: '#666666',
+                color: '#909090',
                 lineHeight: '1.7',
                 fontWeight: 400,
                 maxWidth: isSmallDesktop ? '95%' : '90%',
