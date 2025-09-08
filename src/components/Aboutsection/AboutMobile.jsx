@@ -9,6 +9,15 @@ const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2
 const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentRef = useRef(null);
+  const [animatedHeightPx, setAnimatedHeightPx] = useState(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const EXPAND_DURATION_MS = 1200; // expand: slower and graceful
+  const COLLAPSE_DURATION_MS = 1500; // collapse: even slower
+  const EASE_EXPAND = 'cubic-bezier(0.25, 0.8, 0.25, 1)'; // ease-in-out
+  const EASE_COLLAPSE = 'cubic-bezier(0.33, 1, 0.68, 1)'; // ease-out
+  const [animDurationMs, setAnimDurationMs] = useState(EXPAND_DURATION_MS);
+  const [animEase, setAnimEase] = useState(EASE_EXPAND);
+  const prevExpandedRef = useRef(isExpanded);
 
   const isLong = content.length > maxLength;
 
@@ -26,16 +35,84 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
     if (onExpandChange) onExpandChange(newState);
   };
 
+  // Compute collapsed target height (mimics clamp(140px, 28vw, 220px))
+  const getCollapsedHeight = () => {
+    try {
+      if (typeof window === 'undefined' || typeof document === 'undefined') {
+        return 180; // safe fallback during SSR/initial render
+      }
+      const vw = Math.max(document.documentElement?.clientWidth || 0, window.innerWidth || 0);
+      const collapsed = Math.max(140, Math.min(0.28 * vw, 220));
+      return Math.round(collapsed);
+    } catch {
+      return 180;
+    }
+  };
+
+  // Initialize height on mount
+  useEffect(() => {
+    if (!contentRef.current) return;
+    setAnimatedHeightPx(getCollapsedHeight());
+  }, []);
+
+  // Animate on expand/collapse toggles
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+
+    const startRect = el.getBoundingClientRect?.();
+    const start = startRect && typeof startRect.height === 'number' ? startRect.height : el.offsetHeight || 0;
+    const end = isExpanded ? (el.scrollHeight || start) : getCollapsedHeight();
+
+    // Choose duration/ease based on direction
+    if (isExpanded) {
+      setAnimDurationMs(EXPAND_DURATION_MS);
+      setAnimEase(EASE_EXPAND);
+    } else {
+      setAnimDurationMs(COLLAPSE_DURATION_MS);
+      setAnimEase(EASE_COLLAPSE);
+    }
+
+    // Set explicit start height before animating
+    setIsAnimating(true);
+    setAnimatedHeightPx(Math.round(start));
+
+    // Next frame, transition to end height
+    const id = requestAnimationFrame(() => {
+      setAnimatedHeightPx(Math.round(end));
+    });
+
+    // Cleanup after duration
+    const timeout = setTimeout(() => {
+      setIsAnimating(false);
+      if (isExpanded) {
+        // Allow natural height after expansion completes
+        setAnimatedHeightPx(null);
+      }
+    }, (isExpanded ? EXPAND_DURATION_MS : COLLAPSE_DURATION_MS) + 50);
+
+    return () => {
+      cancelAnimationFrame(id);
+      clearTimeout(timeout);
+    };
+  }, [isExpanded]);
+
+  // Track previous state
+  useEffect(() => {
+    prevExpandedRef.current = isExpanded;
+  }, [isExpanded]);
+
   return (
     <div className="leading-relaxed">
-                     <div
-          ref={contentRef}
-          style={{
-            height: isExpanded ? "auto" : "clamp(140px, 28vw, 220px)",
-            overflow: "hidden",
-            transition: "height 8s cubic-bezier(0.1, 0.0, 0.1, 1)",
-          }}
-        >
+      <div
+        ref={contentRef}
+        style={{
+          height: animatedHeightPx == null ? (isExpanded ? 'auto' : `${getCollapsedHeight()}px`) : `${animatedHeightPx}px`,
+          overflow: 'hidden',
+          transition: isAnimating ? `height ${animDurationMs}ms ${animEase}` : 'none',
+          willChange: isAnimating ? 'height' : 'auto'
+        }}
+      >
                  {paragraphs.map((para, i) => (
            <p
              key={i}
@@ -63,7 +140,7 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
             className="button-container"
             style={{
               transform: isExpanded ? "translateY(0)" : "translateY(0)",
-              transition: "all 8s cubic-bezier(0.1, 0.0, 0.1, 1)",
+              transition: `transform ${animDurationMs}ms ${animEase}`,
             }}
           >
             <button
@@ -1210,8 +1287,8 @@ At BaFT, we build smart, seamless solutions that cut through the clutter of trad
           style={{
                 width: "clamp(280px, 75vw, 380px)",
                 height: isIPhone14Pro
-                  ? (isExpanded ? "clamp(600px, 100vh, 820px)" : "clamp(420px, 65vh, 520px)")
-                  : (isExpanded ? "clamp(520px, 100vh, 720px)" : "clamp(360px, 60vh, 480px)"),
+                  ? "clamp(600px, 100vh, 820px)"
+                  : "clamp(520px, 100vh, 720px)",
                 opacity: (easedProgress > 0.08 || forcedAnimT >= 0.8 || isTransitioning || transitionTriggeredRef.current || forcedAnimT > 0 || hasAnimationTriggered || hasAnimationTriggeredRef.current) ? 0 : 1, // Hide original image during animation and permanently after
                 // Debug: Add a visual indicator
                 border: hasAnimationTriggered ? '2px solid red' : 'none',
