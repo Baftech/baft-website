@@ -158,18 +158,72 @@ const CombinedFooter = () => {
 
   return (
     <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
-      <div className="pre-footer-container">
+      {/* Pre-footer Section with Animation */}
+      <div className="pre-footer-container" style={{ position: 'relative' }}>
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            width: '887px',
+            height: '888px',
+            left: '0px',
+            top: '0px',
+            pointerEvents: 'none',
+            zIndex: 0,
+            background: 'radial-gradient(closest-side at 0 0, rgba(255,255,255,0.4), rgba(255,255,255,0))',
+            backgroundRepeat: 'no-repeat',
+            mixBlendMode: 'screen',
+            filter: 'none',
+            transform: 'translateZ(0)'
+          }}
+        />
 
-        <div className="concentric-wrapper">
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
+        {/* Concentric circles - centered */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            width: 'clamp(820px, 95vmin, 2600px)',
+            aspectRatio: '887 / 888',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity: 0.8,
+            pointerEvents: 'none',
+            zIndex: 0,
+            // Vertical fade mask to match the image
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            // Soft blending for ethereal effect
+            mixBlendMode: 'screen',
+            filter: 'blur(0.8px) drop-shadow(0 0 25px rgba(255,255,255,0.35))',
+          }}
+        >
+          {[0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => {
+            const t = (ratio - 0.3) / (1.0 - 0.3); // 0..1 across rings
+            const alpha = 0.18 + 0.25 * (1 - Math.abs(0.5 - t) * 2); // even brighter
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${(1 - ratio) * 50}%`,
+                  top: `${(1 - ratio) * 50}%`,
+                  width: `${ratio * 100}%`,
+                  height: `${ratio * 100}%`,
+                  borderRadius: '50%',
+                  border: `1px solid rgba(255,255,255,${alpha.toFixed(3)})`,
+                  boxSizing: 'border-box',
+                  // Soft inner glow for ethereal effect
+                  boxShadow: `inset 0 0 15px rgba(255,255,255,${(alpha * 0.7).toFixed(3)})`,
+                }}
+              />
+            );
+          })}
         </div>
-
+        
         {/* Star Groups */}
-        <div className="star-groups">
+        <div className="star-groups" style={{ position: 'relative', zIndex: 1 }}>
           <svg width="100%" height="100%" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Group 1 - Central stars (spread across screen) */}
             <g className="star-group-1">

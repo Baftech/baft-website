@@ -591,25 +591,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         />
       )}
 
-          {/* BaFT Coin pinned indicator */}
-    {baftCoinPinned && slideIndex === 1 && (
-      <div className="absolute top-8 right-8 z-50 pointer-events-none">
-        <div className="bg-blue-500/80 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-sm font-medium shadow-lg">
-          BaFT Coin Exit Animations
-        </div>
-      </div>
-    )}
-
-    {/* BInstant pinned indicator */}
-    {binstantPinned && slideIndex === 2 && (
-      <div className="absolute top-8 right-8 z-50 pointer-events-none">
-        <div className="bg-green-500/80 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-sm font-medium shadow-lg">
-          BInstant Exit Animations
-        </div>
-      </div>
-    )}
-
-
     </div>
   );
 };

@@ -9,6 +9,7 @@ const ContactModal = ({ isOpen, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form was ever submitted
+  const [backdropVisible, setBackdropVisible] = useState(false);
   const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
   const [errMsg, setErrMsg] = useState(""); // for displaying email errors
   const [formData, setFormData] = useState({
@@ -19,7 +20,9 @@ const ContactModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => setIsAnimating(true), 10);
+      // Fade in backdrop first, then modal content
+      setBackdropVisible(true);
+      setTimeout(() => setIsAnimating(true), 50);
       // If user has already submitted, show thanks page immediately
       if (hasSubmitted) {
         setShowThanks(true);
@@ -27,6 +30,7 @@ const ContactModal = ({ isOpen, onClose }) => {
     } else {
       setIsAnimating(false);
       setIsClosing(false);
+      setBackdropVisible(false);
       setShowThanks(hasSubmitted); // Keep thanks state based on submission status
       setIsTransitioning(false);
     }
@@ -36,28 +40,39 @@ const ContactModal = ({ isOpen, onClose }) => {
 
   const handleClose = () => {
     setIsClosing(true);
+    setBackdropVisible(false);
     setTimeout(() => {
       // Don't reset showThanks or hasSubmitted - keep the submission state
       setIsTransitioning(false);
       onClose();
-    }, 800); // Match the duration-800
+    }, 600); // Slightly faster close animation
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Real-time email validation - clear error if email becomes valid
+    if (name === "email") {
+      const cleanedEmail = value.trim().toLowerCase();
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedEmail)) {
+        setErrMsg("");
+      }
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const cleanedEmail = formData.email.trim().toLowerCase();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    setErrMsg("");
+  const cleanedEmail = formData.email.trim().toLowerCase();
+  setErrMsg("");
+
   if (!isValidEmail(cleanedEmail)) {
     setErrMsg("Please enter a valid email address.");
     return;
   }
     console.log("Form submitted:", formData);
+    setIsTransitioning(true);
     try {
       // Insert into Supabase
       const { data, error } = await supabase
@@ -70,17 +85,15 @@ const ContactModal = ({ isOpen, onClose }) => {
           },
         ]);
 
-      if (error) {
-        console.error("Error inserting data:", error);
-        alert("Something went wrong. Please try again.");
-        return;
-      }
+    if (error) {
+      console.error("Error inserting data:", error);
+      alert("Something went wrong. Please try again.");
+      return;
+    }
 
-      console.log("Inserted contact row:", data);
+    console.log("Inserted contact row:", data);
 
       setHasSubmitted(true);
-      setShowThanks(true);
-
       setTimeout(() => {
         setShowThanks(true);
         setIsTransitioning(false);
@@ -94,7 +107,16 @@ const ContactModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-100 p-2 sm:p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={handleClose}></div>
+      <div 
+        className={`absolute inset-0 transition-opacity duration-500 ease-out ${
+          backdropVisible ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{
+          background: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(4px)'
+        }}
+        onClick={handleClose}
+      ></div>
       <div
         className={`relative w-[95%] sm:w-[90%] max-w-[380px] sm:max-w-[420px] max-h-[90vh] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl backdrop-blur-[30px] z-10 overflow-hidden box-border flex flex-col items-center transition-all duration-800 ease-out ${
           isAnimating && !isClosing
@@ -121,12 +143,12 @@ const ContactModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Content Container - Flexible Height */}
-        <div className="w-full min-h-[320px] sm:min-h-[360px] relative overflow-hidden">
+        <div className="w-full min-h-[360px] sm:min-h-[400px] relative">
           {/* Form Content */}
           <div
-            className={`absolute inset-0 w-full transition-all duration-800 ease-out ${
+            className={`w-full transition-all duration-800 ease-out ${
               showThanks || isTransitioning
-                ? "opacity-0 scale-95 pointer-events-none"
+                ? "opacity-0 scale-95 pointer-events-none absolute inset-0"
                 : "opacity-100 scale-100"
             }`}
           >
@@ -162,6 +184,7 @@ const ContactModal = ({ isOpen, onClose }) => {
                   required
                   className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70"
                 />
+                {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
                 
                 <textarea
                   name="message"
@@ -173,20 +196,21 @@ const ContactModal = ({ isOpen, onClose }) => {
                   className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70 resize-none"
                 ></textarea>
 
-                <button
-                  type="submit"
-                  className="contact-send-button w-full h-9 sm:h-10 bg-[#4A90E2] border-none rounded-[18px] sm:rounded-[20px] text-white font-semibold text-sm sm:text-sm cursor-pointer transition-all duration-300 flex items-center justify-center gap-1 mt-2"
-                ></button>
-              </form>
+                    <button
+                      type="submit"
+                      className="contact-send-button w-full h-9 sm:h-10 bg-[#4A90E2] border-none rounded-[18px] sm:rounded-[20px] text-white font-semibold text-sm sm:text-sm cursor-pointer transition-all duration-300 flex items-center justify-center gap-1 mt-2"
+                    ></button>
+                  </form>
+                </div>
+              </div>
             </div>
-          </div>
 
           {/* Thanks Content */}
           <div
-            className={`absolute inset-0 w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
+            className={`w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
               showThanks && !isTransitioning
                 ? "opacity-100 scale-100"
-                : "opacity-0 scale-95 pointer-events-none"
+                : "opacity-0 scale-95 pointer-events-none absolute inset-0"
             }`}
           >
             {showThanks && !isClosing && (
@@ -223,7 +247,6 @@ const ContactModal = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

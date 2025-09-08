@@ -11,6 +11,26 @@ const Hero = () => {
   const animationCompletedRef = useRef(false);
   const lastUpdateAtRef = useRef(0);
   const lastTransform = useRef({});
+  // Responsive dome mask sizing (mirrors Gridbackground gentle arc params)
+  const [viewportWidth, setViewportWidth] = useState(() => {
+    try { return window.innerWidth; } catch (_) { return 0; }
+  });
+
+  useEffect(() => {
+    const onResize = () => {
+      try { setViewportWidth(window.innerWidth); } catch (_) {}
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, []);
+
+  const domeWidth = viewportWidth * 1.2;   // Wider than screen width for gentle curve
+  const domeHeight = 150;                   // Much shallower for gentle arc
+  const domeY = -50;                        // Closer to screen for subtle effect
 
   // Detect mobile devices by viewport width
   useEffect(() => {
@@ -53,8 +73,12 @@ const Hero = () => {
         zIndex: 50,
       });
 
-      gsap.set("#grid_container", { opacity: 1 });
+      // While video plays fullscreen, hide the grid to prevent bleed-through on tab switches
+      gsap.set("#grid_container", { opacity: 0 });
       gsap.set("#dynamic-overlay", { opacity: 0 });
+      gsap.set("#hero-top-mask", { opacity: 0 });
+      gsap.set("#hero-side-mask", { opacity: 0 });
+      gsap.set("#hero-dome-mask", { opacity: 0 });
       gsap.set("#text", { opacity: 0, y: "50vh", scale: 0.9 });
 
       // Responsive target based on placeholder metrics
@@ -160,6 +184,12 @@ const Hero = () => {
           }
         }}, ">")
         .to("#dynamic-overlay", { opacity: 1, duration: 0.4, ease: "sine.out" }, "<")
+        // Fade in grid darkening masks as scaling begins
+        .to(["#hero-top-mask", "#hero-side-mask"], { opacity: 1, duration: 0.4, ease: "sine.out" }, "shrink")
+        // Reveal the top dome ellipse only after scaling completes
+        .to("#hero-dome-mask", { opacity: 0.8, duration: 0.6, ease: "sine.out" }, ">")
+        // Restore grid visibility after scaling completes so the design returns
+        .to("#grid_container", { opacity: 1, duration: 0.4, ease: "sine.out" }, "<")
         .to(
           "#text",
           {
@@ -336,18 +366,36 @@ const Hero = () => {
     gsap.ticker.add(updateTransformState);
     
     document.addEventListener("visibilitychange", () => {
-      // When user comes back to tab, restore the last known transform state
+      // When user comes back to tab, restore the correct visual state
       if (animationCompletedRef.current && wrapperRef.current && lastTransform.current) {
         gsap.set(wrapperRef.current, lastTransform.current);
+        // Ensure post-scale overlays are visible
+        gsap.set("#dynamic-overlay", { opacity: 1 });
+        gsap.set("#hero-dome-mask", { opacity: 1 });
+        gsap.set("#grid_container", { opacity: 1 });
       } else {
+        // During pre-scale playback, keep fullscreen overlays active to hide grid
+        gsap.set("#fullscreen-spotlight", { opacity: 1 });
+        gsap.set("#dynamic-overlay", { opacity: 1 });
+        gsap.set("#hero-top-mask", { opacity: 0 });
+        gsap.set("#hero-side-mask", { opacity: 0 });
+        gsap.set("#grid_container", { opacity: 0 });
         resyncLockedVideo();
       }
     });
     window.addEventListener("pageshow", () => {
-      // When page is shown, also restore transform state
+      // When page is shown, also restore visual state
       if (animationCompletedRef.current && wrapperRef.current && lastTransform.current) {
         gsap.set(wrapperRef.current, lastTransform.current);
+        gsap.set("#dynamic-overlay", { opacity: 1 });
+        gsap.set("#hero-dome-mask", { opacity: 1 });
+        gsap.set("#grid_container", { opacity: 1 });
       } else {
+        gsap.set("#fullscreen-spotlight", { opacity: 1 });
+        gsap.set("#dynamic-overlay", { opacity: 1 });
+        gsap.set("#hero-top-mask", { opacity: 0 });
+        gsap.set("#hero-side-mask", { opacity: 0 });
+        gsap.set("#grid_container", { opacity: 0 });
         resyncLockedVideo();
       }
     });
@@ -595,6 +643,47 @@ const Hero = () => {
         <GridBackground />
       </div>
 
+      {/* Top and side black mask to darken hero edges */}
+      <div
+        id="hero-top-mask"
+        className="absolute inset-x-0 top-0 pointer-events-none z-[30]"
+        style={{
+          height: '40vh',
+          background:
+            'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.2) 80%, rgba(0,0,0,0) 100%)',
+          opacity: 0
+        }}
+      />
+      <div
+        id="hero-side-mask"
+        className="absolute inset-y-0 left-0 right-0 pointer-events-none z-[30]"
+        style={{
+          background:
+            'radial-gradient(60% 80% at 0% 50%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 22%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.0) 58%) , radial-gradient(60% 80% at 100% 50%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 22%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.0) 58%)',
+          opacity: 0
+        }}
+      />
+
+      {/* Gentle dome-shaped mask at the very top */}
+      <div
+        id="hero-dome-mask"
+        className="absolute pointer-events-none z-[40]"
+        style={{
+          position: 'absolute',
+          width: 'clamp(1024px, 94vw, 1600px)',
+          height: '360px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          top: '-160px',
+          background: '#272727',
+          filter: 'blur(162px)',
+          mixBlendMode: 'normal',
+          maskImage: 'linear-gradient(to bottom, black 0%, black 48%, rgba(0,0,0,0) 80%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 48%, rgba(0,0,0,0) 80%)',
+          opacity: 0
+        }}
+      />
+
       {/* Text appears later */}
       <div id="text" className="relative z-[70] text-center px-4 mt-40 opacity-0" style={{ marginTop: "calc(10rem + 0.5cm)" }}>
         <p
@@ -621,7 +710,7 @@ const Hero = () => {
     textAlign: "center",
     width: "100%",
     // Removed height constraint to prevent text cropping
-            backgroundImage: "linear-gradient(175deg, #999999 32.7%, #161616 70.89%)",
+            backgroundImage: "linear-gradient(178deg, #999999 32.7%, #161616 70.89%)",
     backgroundClip: "text",
     WebkitBackgroundClip: "text",
     color: "transparent",

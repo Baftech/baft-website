@@ -24,7 +24,8 @@ const B_Fast_Mobile = () => {
     const onResize = () => {
       const estimatedNavbarHeight = 80;
       const currentScreenHeight = window.innerHeight;
-      const safeSpacing = Math.max(estimatedNavbarHeight + 20, currentScreenHeight * 0.08);
+      // Reduce top spacing so heading sits closer to the navbar without overlap
+      const safeSpacing = Math.max(estimatedNavbarHeight, currentScreenHeight * 0.03);
       setNavbarSafeSpacing(`${safeSpacing}px`);
 
       // Compute a responsive scale factor based on viewport width
@@ -127,7 +128,7 @@ const B_Fast_Mobile = () => {
           ref={contentRef}
           className="absolute"
           style={{
-            top: navbarSafeSpacing,
+            top: `calc(${navbarSafeSpacing} - 12px)`,
             left: "50%",
             width: "1045.386px",
             height: "148.822px",
@@ -154,7 +155,7 @@ const B_Fast_Mobile = () => {
               width: "1045.386474609375px",
               height: "124px",
               opacity: 1,
-              backgroundImage: "linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%)",
+              backgroundImage: "linear-gradient(180deg, #B8C9E0 33.59%, #0A2A4A 77.13%)",
               backgroundRepeat: "no-repeat",
               backgroundSize: "100% 100%",
               backgroundPosition: "center",
@@ -306,20 +307,20 @@ const B_Fast_Mobile = () => {
         }} />
 
         {/* Orbiting stars overlay - revolve around center */}
-        <div ref={orbitingStarsRef} style={{ position: 'absolute', inset: 0, zIndex: 21, pointerEvents: 'none' }}>
+        <div ref={orbitingStarsRef} style={{ position: 'absolute', inset: 0, zIndex: 21, pointerEvents: 'none', opacity: 0.5 }}>
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0 }}>
             {/* Ring 1 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitSlow 24s linear infinite' }}>
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'translateX(140px)' }} />
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(120deg) translateX(140px)' }} />
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(240deg) translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.35, transform: 'translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.35, transform: 'rotate(120deg) translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.35, transform: 'rotate(240deg) translateX(140px)' }} />
             </div>
             {/* Ring 2 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitMed 18s linear infinite reverse' }}>
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'translateX(190px)' }} />
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(90deg) translateX(190px)' }} />
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(180deg) translateX(190px)' }} />
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(270deg) translateX(190px)' }} />
+              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.3, transform: 'translateX(190px)' }} />
+              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.3, transform: 'rotate(90deg) translateX(190px)' }} />
+              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.3, transform: 'rotate(180deg) translateX(190px)' }} />
+              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.3, transform: 'rotate(270deg) translateX(190px)' }} />
             </div>
           </div>
         </div>

@@ -40,6 +40,9 @@ import BAFT_VID_MP4 from "./BAFT Vid 2_1.mp4";
 import BFAST_VIDEO_MP4 from "./bfast_video.mp4";
 import BAFT_VIDEO_GIF from "./baft_video.gif";
 
+// Public folder videos
+export const VIDEOPLAYBACK_MP4 = "/videoplayback (1).mp4";
+
 // Re-export imported media as named exports
 export { BAFT_VID_MP4, BFAST_VIDEO_MP4, BAFT_VIDEO_GIF, BAFT_PIC_PNG, HAND_IPHONE_IMAGE_SVG, SAFE_SEC_SVG, BAFT_CARD1_SVG, BAFT_CARD2_SVG, BAFT_CARD3_SVG, BAFT_CARD4_SVG, PAY_BILLS_SVG, MANAGE_ACCOUNT_SVG, REWARDS_SVG, SEAMLESS_PAYMENTS_SVG, SVG_SVG, B_COIN_SVG, B_COIN_IMAGE_PNG, VIDEO_COM_PNG, LOGO_PNG, LOGO1_PNG };
 
@@ -75,6 +78,7 @@ export const Assets = {
   BAFT_VID_MP4,
   BFAST_VIDEO_MP4,
   BAFT_VIDEO_GIF,
+  VIDEOPLAYBACK_MP4,
 };
 
 export default Assets;
