@@ -6,7 +6,7 @@ import BaFTCoinSlide from "../components/Herosection/BaFTCoinSlide";
 import BInstantSection from "../components/Herosection/BInstantSection";
 import B_Fast from "../components/Mainsection/B_Fast";
 import Cards from "../components/Mainsection/Features";
-import Videocomponent from "../components/Aboutsection/Videocomponent";
+// import Videocomponent from "../components/Aboutsection/Videocomponent";
 import SafeSecure from "../components/Mainsection/SafeSecure";
 import Pre_footer from "../components/Footer/Pre_footer";
 import Footer from "../components/Footer/Footer";
@@ -85,8 +85,8 @@ const Home = () => {
         <B_Fast />
         {/* Slide 5: Features/Cards Section */}
         <Cards />
-        {/* Slide 6: Video Component */}
-        <Videocomponent slide />
+        {/* Slide 6: Video Component
+        <Videocomponent slide /> */}
         {/* Slide 8: Safe & Secure Section */}
         <SafeSecure />
         {/* Slide 9: Pre-footer */}
