@@ -14,17 +14,14 @@ const SignupFormMobile = ({ onOpenThanks }) => {
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState("");
 
-  const isValidEmail = (val) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
-  
-const isEmailValid = isValidEmail(email);
+  const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  const isEmailValid = isValidEmail(email);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrMsg(""); // clear previous errors
+    setErrMsg("");
 
     const cleaned = email.trim().toLowerCase();
-
     if (!isValidEmail(cleaned)) {
       setErrMsg("Please enter a valid email address.");
       return;
@@ -42,8 +39,8 @@ const isEmailValid = isValidEmail(email);
         return;
       }
 
-      setEmail("");         // Reset input
-      onOpenThanks();       // Open Thanks modal
+      setEmail("");
+      onOpenThanks();
     } catch (err) {
       console.error("Unexpected error:", err);
       setErrMsg("Something went wrong. Please try again.");
@@ -136,6 +133,9 @@ const isEmailValid = isValidEmail(email);
                 color: '#FFFFFF'
               }}
             />
+            {errMsg && (
+              <span className="text-red-500 text-sm">{errMsg}</span>
+            )}
                         <button
               type="submit"
               disabled={loading || !isEmailValid}
@@ -168,7 +168,7 @@ const isEmailValid = isValidEmail(email);
                 boxSizing: 'border-box'
               }}
             >
-              Subscribe
+              {loading ? 'Submitting…' : 'Subscribe'}
             </button>
           </form>
         </div>
