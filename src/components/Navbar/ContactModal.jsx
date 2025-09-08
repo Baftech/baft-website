@@ -142,12 +142,12 @@ const ContactModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Content Container - Flexible Height */}
-        <div className="w-full min-h-[320px] sm:min-h-[360px] relative overflow-hidden">
+        <div className="w-full min-h-[360px] sm:min-h-[400px] relative">
           {/* Form Content */}
           <div
-            className={`absolute inset-0 w-full transition-all duration-800 ease-out ${
+            className={`w-full transition-all duration-800 ease-out ${
               showThanks || isTransitioning
-                ? "opacity-0 scale-95 pointer-events-none"
+                ? "opacity-0 scale-95 pointer-events-none absolute inset-0"
                 : "opacity-100 scale-100"
             }`}
           >
@@ -183,6 +183,7 @@ const ContactModal = ({ isOpen, onClose }) => {
                   required
                   className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70"
                 />
+                {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
                 
                 <textarea
                   name="message"
@@ -204,10 +205,10 @@ const ContactModal = ({ isOpen, onClose }) => {
 
           {/* Thanks Content */}
           <div
-            className={`absolute inset-0 w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
+            className={`w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
               showThanks && !isTransitioning
                 ? "opacity-100 scale-100"
-                : "opacity-0 scale-95 pointer-events-none"
+                : "opacity-0 scale-95 pointer-events-none absolute inset-0"
             }`}
           >
             {showThanks && !isClosing && (

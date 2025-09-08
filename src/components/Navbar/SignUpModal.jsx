@@ -143,7 +143,7 @@ const handleSubmit = async (e) => {
                 <p className="signup-subtitle">Don't miss the chance!</p>
               </div>
 
-              <form className="signup-form" onSubmit={handleSubmit}>
+              <form className="signup-form" onSubmit={handleSubmit} noValidate>
                 <div className="signup-input-group">
                   <input
                     type="text"
