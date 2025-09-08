@@ -43,7 +43,7 @@ const Home = () => {
         currentSlide={currentSlide}
         onNavigate={(target, opts = {}) => {
           // Map named targets to slide indices
-          // 0: Hero, 1: BaFTCoin, 2: BInstant, 3: B_Fast, 4: Features, 5: Video, 6: SafeSecure, 7: About, 8: Footer
+          // 0: Hero, 1: BaFTCoin, 2: BInstant, 3: B_Fast, 4: Features, 5: SafeSecure, 6: About, 7: Footer
           const slow = Boolean(opts.slow);
           const instant = Boolean(opts.instant);
           
@@ -67,7 +67,7 @@ const Home = () => {
             return;
           }
           if (target === 'about') {
-            dispatchNav(7);
+            dispatchNav(6);
             return;
           }
         }}

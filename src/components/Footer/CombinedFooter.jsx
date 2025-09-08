@@ -10,6 +10,7 @@ import Thanks from "./Thanks";
 import CombinedFooterMobile from "./CombinedFooterMobile";
 import "./CombinedFooter.css";
 import { HAND_IPHONE_IMAGE_SVG, BAFT_PIC_PNG } from "../../assets/assets";
+// ...
 
 const SignupForm = ({ onOpenThanks }) => {
   const [email, setEmail] = useState("");

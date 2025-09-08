@@ -13,10 +13,12 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
   // Determine theme based on current slide and device type
   useEffect(() => {
     // Define which slides should have light theme (white backgrounds)
-    // After removing the previous slide 6, subsequent slides shift down by 1
-    const lightThemeSlides = [3, 4, 5, 6]; // B-Fast (3), Features (4), Video (5), Footer (now 6)
-
-    if (lightThemeSlides.includes(currentSlide)) {
+    const lightThemeSlides = [3, 4, 5]; // B-Fast (3), Features (4), Safe & Secure (5)
+    
+    if (currentSlide === 6) {
+      // SafeSecure slide: light theme on desktop, dark theme on mobile
+      setTheme(isMobile ? "dark" : "light");
+    } else if (lightThemeSlides.includes(currentSlide)) {
       setTheme("light");
     } else {
       setTheme("dark");
@@ -68,9 +70,13 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
   useEffect(() => {
     const handleResize = () => {
       // Re-evaluate theme when window is resized
-      const lightThemeSlides = [3, 4, 5, 6];
-
-      if (lightThemeSlides.includes(currentSlide)) {
+      const isMobile = window.innerWidth <= 768;
+      const lightThemeSlides = [3, 4, 5]; // B-Fast (3), Features (4), Safe & Secure (5)
+      
+      if (currentSlide === 6) {
+        // SafeSecure slide: light theme on desktop, dark theme on mobile
+        setTheme(isMobile ? "dark" : "light");
+      } else if (lightThemeSlides.includes(currentSlide)) {
         setTheme("light");
       } else {
         setTheme("dark");
