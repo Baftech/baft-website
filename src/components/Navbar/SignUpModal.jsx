@@ -213,19 +213,6 @@ const SignUpModal = ({ isOpen, onClose }) => {
                   />
                 </div>
 
-                <div className="signup-checkbox-container">
-                  <input
-                    type="checkbox"
-                    id="autofill"
-                    name="autoFill"
-                    className="signup-checkbox"
-                    checked={formData.autoFill}
-                    onChange={handleInputChange}
-                  />
-                  <label htmlFor="autofill" className="signup-checkbox-label">
-                    Auto fill my details
-                  </label>
-                </div>
 
                 <button type="submit" className="signup-send-button"></button>
               </form>
