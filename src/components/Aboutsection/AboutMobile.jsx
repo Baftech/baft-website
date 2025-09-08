@@ -68,7 +68,7 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
           >
             <button
               onClick={handleToggle}
-              className="mt-3 reveal-button"
+              className="mt-1 reveal-button"
               style={{
                 fontFamily: "Inter, sans-serif",
                 fontWeight: "400",
@@ -435,6 +435,7 @@ const AboutMobile = () => {
   const [isForceAnimating, setIsForceAnimating] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasAnimationTriggered, setHasAnimationTriggered] = useState(false);
+  const [isIPhone14Pro, setIsIPhone14Pro] = useState(false);
   const sectionRef = useRef(null);
   
   const imageRef = useRef(null);
@@ -528,7 +529,7 @@ const AboutMobile = () => {
     // Method 1: Use slide navigation system (most reliable)
     try {
       const evt = new CustomEvent('navigateToSlide', { 
-        detail: { index: 8, slow: false, instant: false } // Navigate to slide 8 (CombinedFooter)
+        detail: { index: 7, slow: false, instant: false } // Navigate to slide 7 (CombinedFooter / Mobile pre-footer)
       });
       window.dispatchEvent(evt);
       
@@ -660,6 +661,17 @@ const AboutMobile = () => {
 
   // Measure starting position/size of the image
   useEffect(() => {
+    // Detect iPhone 14 Pro (approx. 393x852 CSS px viewport)
+    try {
+      const ua = navigator.userAgent || "";
+      const isiPhone = /iPhone/i.test(ua);
+      const vw = Math.min(window.innerWidth || 0, window.innerHeight || 0);
+      const vh = Math.max(window.innerWidth || 0, window.innerHeight || 0);
+      const approxWidth = vw >= 380 && vw <= 400; // around 393
+      const approxHeight = vh >= 840 && vh <= 870; // around 852
+      setIsIPhone14Pro(isiPhone && approxWidth && approxHeight);
+    } catch {}
+
     const measure = () => {
       if (imageStartRef.current) {
         const rect = imageStartRef.current.getBoundingClientRect();
@@ -1121,7 +1133,7 @@ const AboutMobile = () => {
                   <div
             className="flex flex-col justify-center flex-1"
             style={{
-              padding: "clamp(12px, 3vw, 28px)",
+              padding: "clamp(8px, 2vw, 20px)",
               opacity: 1 - easedProgress,
               transition: 'none',
               pointerEvents: (1 - easedProgress) < 0.05 ? 'none' : 'auto',
@@ -1197,7 +1209,9 @@ At BaFT, we build smart, seamless solutions that cut through the clutter of trad
               className="relative rounded-2xl overflow-hidden"
           style={{
                 width: "clamp(280px, 75vw, 380px)",
-                height: isExpanded ? "clamp(462px, 100vh, 600px)" : "clamp(320px, 50vh, 400px)",
+                height: isIPhone14Pro
+                  ? (isExpanded ? "clamp(600px, 100vh, 820px)" : "clamp(420px, 65vh, 520px)")
+                  : (isExpanded ? "clamp(520px, 100vh, 720px)" : "clamp(360px, 60vh, 480px)"),
                 opacity: (easedProgress > 0.08 || forcedAnimT >= 0.8 || isTransitioning || transitionTriggeredRef.current || forcedAnimT > 0 || hasAnimationTriggered || hasAnimationTriggeredRef.current) ? 0 : 1, // Hide original image during animation and permanently after
                 // Debug: Add a visual indicator
                 border: hasAnimationTriggered ? '2px solid red' : 'none',
