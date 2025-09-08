@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { GridBackground } from "../Themes/Grid_coins";
+// import { GridBackground } from "../Themes/Grid_coins";
 import { B_COIN_IMAGE_PNG } from "../../assets/assets";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -18,7 +18,10 @@ const BaftCoinMobile = () => {
 
     // Kill any existing animations first
     if (animationRef.current) {
-      gsap.killTweensOf(animationRef.current);
+      if (typeof animationRef.current.kill === 'function') {
+        animationRef.current.kill();
+      }
+      gsap.killTweensOf(coinRef.current);
       animationRef.current = null;
     }
 
@@ -116,15 +119,17 @@ const BaftCoinMobile = () => {
           top: "50vh",
           left: "50%",
           xPercent: -50,
-          duration: 2.5,
+          duration: 3.2,
           ease: "power2.out",
           onComplete: () => {
             // Gentle floating animation for mobile
             if (coinRef.current) {
               animationRef.current = gsap.to(coinRef.current, {
                 y: -20,
-                duration: 3,
-                ease: "power2.out",
+                repeat: -1,
+                yoyo: true,
+                ease: "power1.inOut",
+                duration: 6,
               });
             }
           }
@@ -157,7 +162,9 @@ const BaftCoinMobile = () => {
         gsap.killTweensOf(coinRef.current);
       }
       if (animationRef.current) {
-        gsap.killTweensOf(animationRef.current);
+        if (typeof animationRef.current.kill === 'function') {
+          animationRef.current.kill();
+        }
         animationRef.current = null;
       }
       hasAnimatedRef.current = false;
@@ -178,9 +185,7 @@ const BaftCoinMobile = () => {
       ref={introRef}
       className="relative w-full h-screen flex flex-col items-center justify-center bg-black text-center overflow-hidden px-4"
     >
-      <div id="grid_container" className="absolute inset-0 opacity-100 z-0">
-        <GridBackground />
-      </div>
+      {/* Background grid removed for production */}
       
       {/* Coin Image - Positioned by GSAP */}
       <div className="absolute inset-0 z-10">

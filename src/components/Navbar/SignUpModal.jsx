@@ -44,6 +44,8 @@ const SignUpModal = ({ isOpen, onClose }) => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    
+    // Real-time email validation - clear error if email becomes valid
     if (name === "email") {
       const cleanedEmail = value.trim().toLowerCase();
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedEmail)) {
@@ -52,6 +54,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
     }
   };
 
+  
 const handleSubmit = async (e) => {
   e.preventDefault();
   const cleanedEmail = formData.email.trim().toLowerCase();
@@ -158,7 +161,7 @@ const handleSubmit = async (e) => {
 
                 <div className="signup-input-group">
                   <input
-                    type="email"
+                    type="text"
                     name="email"
                     placeholder="Email Id"
                     className="signup-input"

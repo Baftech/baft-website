@@ -1,4 +1,4 @@
-import React, { Suspense, useRef, useState, useEffect, useCallback } from "react";
+import React, { Suspense, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -7,67 +7,66 @@ import { gsap } from "gsap";
 import ThreeJSErrorBoundary from "./ThreeJSErrorBoundary";
 import BInstantMobile from "./BInstantMobile";
 
-function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 3.5 }) {
-  const ref = useRef();
+function Coin({ texture, position, animate, target, opacity = 0.97, animationDuration = 5.0 }) {
+  const groupRef = useRef();
+  const meshRef = useRef();
   const [hasReachedTarget, setHasReachedTarget] = useState(false);
   const [animationStartTime, setAnimationStartTime] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [initialPosition] = useState(new THREE.Vector3(...position));
 
   useFrame((state) => {
-    if (animate && ref.current && !hasReachedTarget) {
-      // Set start time on first frame
+    if (animate && groupRef.current && !hasReachedTarget) {
       if (!animationStartTime) {
         setAnimationStartTime(state.clock.elapsedTime);
+        // Set initial position immediately
+        groupRef.current.position.copy(initialPosition);
       }
 
       const currentTime = state.clock.elapsedTime;
       const elapsed = currentTime - animationStartTime;
-      
-      // Wait for curtain to fade out before showing coins
+
       if (elapsed < 0.4) {
-        return; // Wait for curtain fade out to complete
+        return;
       }
-      
-      // Make coins visible when curtain fades out
+
       if (elapsed >= 0.4 && !isVisible) {
         setIsVisible(true);
       }
-      
-      // Start expanding immediately after becoming visible
+
       if (elapsed >= 0.4) {
-        // Coins are now visible, start expanding
-        const currentPos = ref.current.position;
+        const currentPos = groupRef.current.position;
         const targetPos = new THREE.Vector3(...target);
-        
-        // Check if we're close enough to target to consider it reached
+
         const distance = currentPos.distanceTo(targetPos);
         if (distance < 0.01) {
           setHasReachedTarget(true);
           return;
         }
-        
-        // Smooth expansion with easing
+
         const progress = (elapsed - 0.4) / (animationDuration - 0.4);
-        const easedProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
-        currentPos.lerp(targetPos, easedProgress * 0.02);
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        // Use a slower lerp factor for more controlled expansion
+        currentPos.lerp(targetPos, easedProgress * 0.03);
       }
-      
-      // Stop animation after duration
+
       if (elapsed >= animationDuration) {
         setHasReachedTarget(true);
+        // Ensure final position is exact
+        groupRef.current.position.copy(new THREE.Vector3(...target));
         return;
       }
     }
   });
 
-  const scaleFactor = 1.9 - position[2] * 0.3;
+  const scaleFactor = 2.2 - position[2] * 0.3;
 
   return (
-    <group>
+    <group ref={groupRef} position={position}>
       {/* Main coin face */}
       <mesh
-        ref={ref}
-        position={position}
+        ref={meshRef}
+        position={[0, 0, 0]}
         scale={[scaleFactor, scaleFactor, 1]}
         rotation={[-0.02, 0, 0.0999]}
         visible={isVisible}
@@ -90,6 +89,8 @@ function Coin({ texture, position, animate, target, opacity = 0.97, animationDur
 const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
   const coinTexture = useTexture("/b-coin.svg");
   const curtainRef = useRef();
+  // Vertical offset to position the entire coin stack below the navbar
+  const stackYOffset = -0.5; // ~1cm below navbar
 
   // Add error handling for texture loading
   if (!coinTexture) {
@@ -101,18 +102,14 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
   useFrame((state) => {
     if (startAnimation && curtainRef.current) {
       const elapsed = state.clock.elapsedTime;
-      
-      // First 0.2 seconds: quickly fade in the curtain
+
       if (elapsed < 0.2) {
         const progress = elapsed / 0.2;
         curtainRef.current.material.opacity = progress * 0.9;
-      }
-      // Next 0.2 seconds: quickly fade out the curtain to reveal coins
-      else if (elapsed < 0.4) {
+      } else if (elapsed < 0.4) {
         const progress = (elapsed - 0.2) / 0.2;
         curtainRef.current.material.opacity = 0.9 - (progress * 0.9);
       } else {
-        // Hide curtain after reveal
         curtainRef.current.visible = false;
       }
     }
@@ -126,7 +123,7 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
         position={[0, 0, 5]}
         scale={[30, 3, 1]}
       >
-        <planeGeometry args={[1, 1]} />
+        <planeGeometry args={[1.8, 1.8]} />
         <meshBasicMaterial
           color="#000000"
           transparent
@@ -136,25 +133,25 @@ const CoinStack = ({ startAnimation, animationDuration = 3.5 }) => {
       
       <Coin
         texture={coinTexture}
-        position={[0.4, -0.4, -0.4]}
+        position={[0.4, -0.4 + stackYOffset, -0.4]}
         animate={startAnimation}
-        target={[0.68, -0.68, -0.68]}
+        target={[0.68, -0.68 + stackYOffset, -0.68]}
         opacity={1.0}
         animationDuration={animationDuration}
       />
       <Coin
         texture={coinTexture}
-        position={[0, 0, 0]}
+        position={[0, 0 + stackYOffset, 0]}
         animate={startAnimation}
-        target={[0, 0, 0]}
+        target={[0, 0 + stackYOffset, 0]}
         opacity={1.0}
         animationDuration={animationDuration}
       />
       <Coin
         texture={coinTexture}
-        position={[-0.3, 0.4, 0.4]}
+        position={[-0.3, 0.4 + stackYOffset, 0.4]}
         animate={startAnimation}
-        target={[-0.7, 0.7, 0.7]}
+        target={[-0.7, 0.7 + stackYOffset, 0.7]}
         opacity={0.97}
         animationDuration={animationDuration}
       />
@@ -187,9 +184,8 @@ const BInstantSection = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    // Start both text and coin animations at the same time
-    // Text animation duration is 3.8s, coins reveal over 0.8s then expand for 3.0s
-    const timer = setTimeout(() => setStartCoinAnimation(true), 100);
+    // Defer slightly to allow canvas to mount to reduce context-loss risk
+    const timer = setTimeout(() => setStartCoinAnimation(true), 200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -229,14 +225,16 @@ const BInstantSection = () => {
 
   // Expose the method to SlideContainer
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !window.__binstantExitHooked) {
       console.log('🎯 BInstant: Exposing triggerBinstantExit to window');
       window.triggerBinstantExit = triggerExitAnimation;
+      window.__binstantExitHooked = true;
     }
     return () => {
       if (typeof window !== 'undefined') {
         console.log('🎯 BInstant: Cleaning up triggerBinstantExit from window');
         delete window.triggerBinstantExit;
+        delete window.__binstantExitHooked;
       }
     };
   }, [triggerExitAnimation]);
@@ -277,6 +275,18 @@ const BInstantSection = () => {
           gl={{
             antialias: true,
             alpha: false,
+            powerPreference: 'high-performance',
+          }}
+          frameloop="always"
+          onCreated={({ gl }) => {
+            try {
+              const canvas = gl.domElement;
+              const handleContextLost = (e) => {
+                e.preventDefault();
+                console.warn('WebGL context lost, preventing default to allow restoration.');
+              };
+              canvas.addEventListener('webglcontextlost', handleContextLost, { passive: false });
+            } catch (_) {}
           }}
           dpr={Math.min(window.devicePixelRatio, 2)}
         >
@@ -304,7 +314,7 @@ const BInstantSection = () => {
             
             {/* Environment reflections - using local preset instead of external HDR */}
             <Environment preset="city" />
-            <CoinStack startAnimation={startCoinAnimation} animationDuration={3.0} />
+            <CoinStack startAnimation={startCoinAnimation} animationDuration={5.0} />
           </Suspense>
         </Canvas>
       </ThreeJSErrorBoundary>

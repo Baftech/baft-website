@@ -61,11 +61,12 @@ const ContactModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const cleanedEmail = formData.email.trim().toLowerCase();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    setErrMsg("");
+  const cleanedEmail = formData.email.trim().toLowerCase();
+  setErrMsg("");
+
   if (!isValidEmail(cleanedEmail)) {
     setErrMsg("Please enter a valid email address.");
     return;
@@ -84,13 +85,13 @@ const ContactModal = ({ isOpen, onClose }) => {
           },
         ]);
 
-      if (error) {
-        console.error("Error inserting data:", error);
-        alert("Something went wrong. Please try again.");
-        return;
-      }
+    if (error) {
+      console.error("Error inserting data:", error);
+      alert("Something went wrong. Please try again.");
+      return;
+    }
 
-      console.log("Inserted contact row:", data);
+    console.log("Inserted contact row:", data);
 
       setHasSubmitted(true);
       setTimeout(() => {
@@ -195,13 +196,14 @@ const ContactModal = ({ isOpen, onClose }) => {
                   className="p-2 sm:p-2.5 w-full bg-white/15 rounded-[6px] sm:rounded-[8px] border-none text-white text-sm sm:text-sm outline-none placeholder-white/70 resize-none"
                 ></textarea>
 
-                <button
-                  type="submit"
-                  className="contact-send-button w-full h-9 sm:h-10 bg-[#4A90E2] border-none rounded-[18px] sm:rounded-[20px] text-white font-semibold text-sm sm:text-sm cursor-pointer transition-all duration-300 flex items-center justify-center gap-1 mt-2"
-                ></button>
-              </form>
+                    <button
+                      type="submit"
+                      className="contact-send-button w-full h-9 sm:h-10 bg-[#4A90E2] border-none rounded-[18px] sm:rounded-[20px] text-white font-semibold text-sm sm:text-sm cursor-pointer transition-all duration-300 flex items-center justify-center gap-1 mt-2"
+                    ></button>
+                  </form>
+                </div>
+              </div>
             </div>
-          </div>
 
           {/* Thanks Content */}
           <div
@@ -245,7 +247,6 @@ const ContactModal = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

@@ -74,8 +74,15 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
     const handleResize = () => {
       // Re-evaluate theme when window is resized
       const isMobile = window.innerWidth <= 768;
+      const lightThemeSlides = [3, 4, 5, 7]; // B-Fast (3), Features (4), Video (5), Footer (7)
+      
       if (currentSlide === 6) {
+        // SafeSecure slide: light theme on desktop, dark theme on mobile
         setTheme(isMobile ? "dark" : "light");
+      } else if (lightThemeSlides.includes(currentSlide)) {
+        setTheme("light");
+      } else {
+        setTheme("dark");
       }
     };
     
@@ -141,10 +148,10 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
         </div>
 
         {/* Right signup - Hidden on mobile, visible on lg+ */}
-        <div className="fancy hidden lg:block">
+        <div className="fancy nav-btn-size hidden lg:block">
           <button
             onClick={() => setIsSignUpModalOpen(true)}
-            className="rounded-[200px] nav-btn-size"
+            className="rounded-[200px] nav-btn"
           >
             Sign Up
           </button>
