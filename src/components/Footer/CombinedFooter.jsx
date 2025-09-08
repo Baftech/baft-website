@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { supabase } from "../../supabasedb/supabaseClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faInstagram,
@@ -12,11 +13,42 @@ import { HAND_IPHONE_IMAGE_SVG, BAFT_PIC_PNG } from "../../assets/assets";
 
 const SignupForm = ({ onOpenThanks }) => {
   const [email, setEmail] = useState("");
+  const [errMsg, setErrMsg] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Signal parent to open the thank-you modal
-    onOpenThanks();
+    const cleanedEmail = email.trim().toLowerCase();
+    setErrMsg("");
+    if (!isValidEmail(cleanedEmail)) {
+      setErrMsg("Please enter a valid email address.");
+      return;
+    }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("signups")
+        .insert([{ email: cleanedEmail }]);
+
+      if (error) {
+        console.error("Footer signup insert error:", error);
+        setErrMsg("Something went wrong. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      onOpenThanks();
+      setEmail("");
+    } catch (err) {
+      console.error("Unexpected footer signup error:", err);
+      setErrMsg("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -66,13 +98,19 @@ const SignupForm = ({ onOpenThanks }) => {
               type="email"
               placeholder="Enter Your Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errMsg && isValidEmail(e.target.value)) setErrMsg("");
+              }}
               className="w-full sm:flex-1 px-4 py-2.5 rounded-full bg-white/10 backdrop-blur-sm text-white placeholder-white/60 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/30"
               style={{ borderRadius: "17.15px" }}
             />
+            {errMsg && (
+              <span className="text-red-500 text-sm w-full sm:w-auto">{errMsg}</span>
+            )}
             <button
               type="submit"
-              onClick={onOpenThanks}
+              disabled={isSubmitting}
               className="cursor-pointer w-full sm:w-auto px-5 py-2.5 rounded-full font-medium transition bg-white text-black hover:bg-gray-100"
               style={{ minWidth: "110px" }}
             >
@@ -84,7 +122,7 @@ const SignupForm = ({ onOpenThanks }) => {
                   lineHeight: "16px",
                 }}
               >
-                Subscribe
+                {isSubmitting ? "Submitting..." : "Subscribe"}
               </span>
             </button>
           </form>
