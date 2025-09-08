@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+2import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faInstagram,
