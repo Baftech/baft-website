@@ -170,7 +170,6 @@ const handleSubmit = async (e) => {
                     required
                   />
                   {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
-                  {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
                 </div>
 
                 <div className="signup-input-group">
