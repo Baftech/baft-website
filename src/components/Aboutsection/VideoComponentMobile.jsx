@@ -162,15 +162,17 @@ const VideoComponentMobile = ({ slide = false }) => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '1.25rem'
+          padding: '1.25rem',
+          marginTop: '-6mm'
         }}
         data-theme="light"
       >
                 {/* Video Card Container */}
         <div
           ref={cardRef}
-          className="relative w-[85vw] h-[30vh] rounded-xl overflow-hidden shadow-lg cursor-pointer video-card-responsive"
+          className="relative w-[85vw] rounded-xl overflow-hidden shadow-lg cursor-pointer video-card-responsive"
               style={{
+                aspectRatio: '16/9',
                 background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                 boxShadow: '0 15px 35px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1)',
                 transform: 'rotateX(3deg) rotateY(-1deg) scale(0.998)',
@@ -195,12 +197,14 @@ const VideoComponentMobile = ({ slide = false }) => {
                 ref={videoRef}
                 src={VIDEOPLAYBACK_MP4}
                 playsInline
-                muted
                 autoPlay
                 preload="auto"
                 poster={VIDEO_COM_PNG}
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{ backgroundColor: 'black' }}
+                style={{ 
+                  backgroundColor: 'black',
+                  aspectRatio: '16/9'
+                }}
               />
               {/* Floating fullscreen icon (bottom-right) */}
               <button
@@ -221,19 +225,17 @@ const VideoComponentMobile = ({ slide = false }) => {
 
           {/* Play Button Overlay - Only show when not expanded */}
           {!isInline && !isExpanded && !isAnimating && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-10">
-              <div className="text-center text-white">
-                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-2 backdrop-blur-sm">
-                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    </div>
-                <p className="text-sm opacity-90">
-                  Tap to play in landscape
-                </p>
-                  </div>
-                </div>
-              )}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <button
+                onClick={(e) => { e.stopPropagation(); expandInline(); }}
+                className="w-16 h-16 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-all duration-300 shadow-lg"
+              >
+                <svg className="w-8 h-8" fill="#1966BB" viewBox="0 0 24 24">
+                  <path d="M8 5.5C8 4.7 8.7 4.2 9.4 4.5L19.4 9.5C20.1 9.8 20.1 10.7 19.4 11L9.4 16C8.7 16.3 8 15.8 8 15V5.5Z" stroke="#1966BB" strokeWidth="0.5" fill="#1966BB"/>
+                </svg>
+              </button>
+            </div>
+          )}
           </div>
           
         {/* Full screen button (step 2 -> step 3) */}
@@ -298,7 +300,6 @@ const VideoComponentMobile = ({ slide = false }) => {
                 ref={videoRef}
                 src={VIDEOPLAYBACK_MP4}
                 playsInline
-                muted
                 autoPlay
                 preload="auto"
                 poster={VIDEO_COM_PNG}
@@ -309,8 +310,8 @@ const VideoComponentMobile = ({ slide = false }) => {
                   transform: isLandscape ? "translate(-50%, -50%)" : "translate(-50%, -50%) rotate(90deg)",
                   minWidth: isLandscape ? "100vw" : "100vh",
                   minHeight: isLandscape ? "100vh" : "100vw",
-                  width: isLandscape ? "100vw" : "auto",
-                  height: isLandscape ? "100vh" : "auto",
+                  width: isLandscape ? "100vw" : "100vh",
+                  height: isLandscape ? "100vh" : "100vw",
                   objectFit: "cover",
                   backgroundColor: "black"
                 }}
@@ -323,10 +324,19 @@ const VideoComponentMobile = ({ slide = false }) => {
                 e.stopPropagation();
                 collapse();
               }}
-              className="absolute top-4 right-4 z-50 bg-black bg-opacity-70 text-white px-4 py-2 rounded-full text-lg font-bold"
+              className="absolute top-4 right-4 z-50 bg-black bg-opacity-70 text-white rounded-full text-lg font-bold hover:bg-opacity-80 active:bg-opacity-90 transition-all duration-200"
               style={{ 
                 backdropFilter: 'blur(8px)',
-                border: '2px solid rgba(255,255,255,0.3)'
+                border: '2px solid rgba(255,255,255,0.3)',
+                width: '48px',
+                height: '48px',
+                minWidth: '48px',
+                minHeight: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                touchAction: 'manipulation'
               }}
             >
               ✕
@@ -365,8 +375,8 @@ const VideoComponentMobile = ({ slide = false }) => {
                   fontFamily: 'EB Garamond, serif',
                   fontStyle: 'normal',
                   fontWeight: 700,
-                  fontSize: 'clamp(28px, 8vw, 43.7867px)',
-                  lineHeight: 'clamp(34px, 10vw, 54px)',
+                  fontSize: 'clamp(36px, 10vw, 55px)',
+                  lineHeight: 'clamp(42px, 12vw, 68px)',
                   letterSpacing: '-0.153595px',
                   display: 'flex',
                   alignItems: 'center',

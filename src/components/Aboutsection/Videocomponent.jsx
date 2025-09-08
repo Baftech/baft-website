@@ -55,9 +55,11 @@ const Videocomponent = ({ slide = false }) => {
   const inViewRef = useRef(false);
   const expansionArmedRef = useRef(false); // true after first scroll once in view
   const lastArmAtRef = useRef(0);
-  const armCooldownMsRef = useRef(400); // delay to separate trackpad gesture from second step
+  const armCooldownMsRef = useRef(200); // Reduced delay for faster response
   const touchStartYRef = useRef(null);
   const autoplayRetryRef = useRef(null);
+  const scrollVelocityRef = useRef(0);
+  const lastScrollTimeRef = useRef(0);
 
   // Enhanced responsive hook for desktop
   useEffect(() => {
@@ -105,7 +107,7 @@ const Videocomponent = ({ slide = false }) => {
       observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.target === videoSectionRef.current) {
-            if (entry.isIntersecting && entry.intersectionRatio > 0.4) {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.2) {
               // Section is visible enough: allow the first scroll to just settle/show content
               inViewRef.current = true;
               expansionArmedRef.current = false;
@@ -116,7 +118,7 @@ const Videocomponent = ({ slide = false }) => {
             }
           }
         });
-      }, { threshold: [0, 0.4, 0.75, 1] });
+      }, { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] });
       try { observer.observe(videoSectionRef.current); } catch {}
     }
 
@@ -128,10 +130,19 @@ const Videocomponent = ({ slide = false }) => {
       // Normalize input and direction
       let directionDown = true;
       let magnitude = 0;
+      const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+      
       if (e.type === 'wheel') {
         const dy = typeof e.deltaY === 'number' ? e.deltaY : 0;
         directionDown = dy > 0;
         magnitude = Math.abs(dy);
+        
+        // Calculate scroll velocity for fast scroll detection
+        if (lastScrollTimeRef.current > 0) {
+          const timeDelta = now - lastScrollTimeRef.current;
+          scrollVelocityRef.current = magnitude / Math.max(timeDelta, 1);
+        }
+        lastScrollTimeRef.current = now;
       } else if (e.type === 'touchstart') {
         try { touchStartYRef.current = e.touches && e.touches[0] ? e.touches[0].clientY : null; } catch {}
         return; // don't act on touchstart alone
@@ -148,20 +159,36 @@ const Videocomponent = ({ slide = false }) => {
       }
 
       // Require downward intent and a small threshold to avoid micro scrolls
-      const threshold = 10; // px or delta units
+      // Use different thresholds based on whether we're armed or not
+      const threshold = expansionArmedRef.current ? 8 : 5; // Moderately sensitive after arming
       if (magnitude < threshold || !directionDown) return;
 
+      // Fast scroll detection - if velocity is high, trigger immediately
+      const isFastScroll = scrollVelocityRef.current > 2; // High velocity threshold
+      
       // Two-step behavior: first qualifying scroll arms expansion (let it pass)
       if (!expansionArmedRef.current) {
         expansionArmedRef.current = true;
-        lastArmAtRef.current = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-        return; // allow the first scroll to settle content
+        lastArmAtRef.current = now;
+        
+        // If it's a fast scroll, skip the first step and trigger immediately
+        if (isFastScroll) {
+          // Skip the debounce for fast scrolling
+        } else {
+          return; // allow the first scroll to settle content for normal scrolling
+        }
       }
 
-      // Debounce: ignore additional events from the same gesture for a short window
-      const nowTs = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-      if (nowTs - lastArmAtRef.current < armCooldownMsRef.current) {
-        return;
+      // After first step is completed, be moderately sensitive to scroll
+      const nowTs = now;
+      const timeSinceArm = nowTs - lastArmAtRef.current;
+      
+      // If armed and enough time has passed, be moderately sensitive to scroll
+      if (expansionArmedRef.current && timeSinceArm > 200) { // Slightly longer delay after arming
+        // Scroll after arming should trigger expansion
+        // Skip debounce for better responsiveness
+      } else if (!isFastScroll && timeSinceArm < 200) {
+        return; // Apply moderate delay for normal scrolling
       }
       
       e.preventDefault();
@@ -208,6 +235,12 @@ const Videocomponent = ({ slide = false }) => {
       // Start the synchronized animation
       setTimeout(() => {
         setIsExpanded(true);
+        
+        // Hide navbar when video expands
+        const navbar = document.querySelector('nav') || document.querySelector('[role="navigation"]') || document.querySelector('.navbar') || document.querySelector('#navbar');
+        if (navbar) {
+          navbar.style.display = 'none';
+        }
       }, 50);
 
       // Ensure the section is in view
@@ -274,15 +307,23 @@ const Videocomponent = ({ slide = false }) => {
     transform: isExpanded ? 'scale(1)' : 'scale(1)',
   };
 
-  // Autoplay MP4 when expanded
+  // Autoplay MP4 when expanded and handle navbar visibility
   useEffect(() => {
-    if (!isExpanded) return;
+    if (!isExpanded) {
+      // Show navbar when video is not expanded
+      const navbar = document.querySelector('nav') || document.querySelector('[role="navigation"]') || document.querySelector('.navbar') || document.querySelector('#navbar');
+      if (navbar) {
+        navbar.style.display = '';
+      }
+      return;
+    }
+    
     const el = videoRef.current;
     if (!el) return;
 
     // Ensure ideal attributes for autoplay
     try {
-      el.muted = true;
+      el.muted = false;
       el.playsInline = true;
       el.autoplay = true;
     } catch {}
@@ -419,7 +460,6 @@ const Videocomponent = ({ slide = false }) => {
                   src={BAFT_VID_MP4}
                   style={videoStyle}
                   playsInline
-                  muted
                   autoPlay
                   preload="auto"
                   poster={VIDEO_COM_PNG}

@@ -216,6 +216,15 @@ const HeroMobileComponent = () => {
 
         const textTop = viewMode === 'tablet-portrait' ? 40 * scale : 134 * scale; // Much higher for tablet portrait
         gsap.to("#text-mobile", { opacity: 1, top: textTop, yPercent: 0, duration: 0.8, ease: "sine.out" });
+        
+        // Show dome mask after scaling completes with smooth animation
+        gsap.to("#hero-dome-mask-mobile", { 
+          opacity: 1, 
+          duration: 0.8, 
+          ease: "power2.out", 
+          delay: 1.6,
+          force3D: true
+        });
       };
 
       videoRef.current.addEventListener("timeupdate", handleTimeUpdate);
@@ -382,6 +391,13 @@ const HeroMobileComponent = () => {
             will-change: transform;
             backface-visibility: hidden;
           }
+          
+          /* Dome mask smooth animation */
+          #hero-dome-mask-mobile {
+            will-change: opacity;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+          }
         `}
       </style>
       
@@ -401,6 +417,26 @@ const HeroMobileComponent = () => {
         {/* <div id="grid_container" className="absolute inset-0 z-10">
           <GridBackground forceMobile={true} key="mobile-grid" />
         </div> */}
+
+        {/* Gentle dome-shaped mask at the very top */}
+        <div
+          id="hero-dome-mask-mobile"
+          className="absolute pointer-events-none z-[40]"
+          style={{
+            position: 'absolute',
+            width: 'clamp(1024px, 94vw, 1600px)',
+            height: '360px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            top: '-160px',
+            background: '#272727',
+            filter: 'blur(162px)',
+            mixBlendMode: 'normal',
+            opacity: 0,
+            willChange: 'opacity',
+            backfaceVisibility: 'hidden'
+          }}
+        />
 
         
 
