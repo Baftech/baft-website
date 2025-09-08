@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState, useEffect, useCallback } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { GridBackground } from "../Themes/Grid_coins";
+// import { GridBackground } from "../Themes/Grid_coins";
 import BaftCoinMobile from "./BaftCoinMobile";
 import { B_COIN_IMAGE_PNG } from "../../assets/assets";
 
@@ -9,83 +9,118 @@ gsap.registerPlugin(ScrollTrigger);
 
 const BaFTCoin = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [isMacBook, setIsMacBook] = useState(false);
   const introRef = useRef(null);
   const coinRef = useRef(null);
   const animationRef = useRef(null);
   const hasAnimatedRef = useRef(false);
+  const exitTlRef = useRef(null);
 
-  // Mobile detection
+  // Mobile and MacBook detection
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+    const checkDevice = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      
+      setIsMobile(width <= 768);
+      
+      // Simplified MacBook detection: Check for Mac user agent and desktop size
+      const isMacUserAgent = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+      const isDesktopSize = width >= 1024 && height >= 640;
+      const isNotWindows = !/Windows/.test(navigator.userAgent);
+      
+      // Detect as MacBook if it's a Mac device with desktop size
+      const isMacBook = isMacUserAgent && isDesktopSize && isNotWindows;
+      setIsMacBook(isMacBook);
+      
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
 
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkDevice);
   }, []);
 
   // Method to trigger exit animations (called by SlideContainer)
   const triggerExitAnimation = useCallback(() => {
-    console.log('🎯 BaFT Coin: triggerExitAnimation called!');
     if (!introRef.current || !coinRef.current) {
-      console.log('❌ BaFT Coin: Refs not ready for exit animation');
       return;
     }
+
+    // Prevent overlapping exit animations
+    if (exitTlRef.current && exitTlRef.current.isActive && exitTlRef.current.isActive()) {
+      return;
+    }
+
+    // Kill ALL existing animations first - this is crucial
+    gsap.killTweensOf(coinRef.current);
+    gsap.killTweensOf(".intro-text");
+    gsap.killTweensOf(".coin-text");
     
-    console.log('🎯 BaFT Coin: Starting exit animations...');
-    
-    // Kill any existing floating animation
     if (animationRef.current) {
-      gsap.killTweensOf(coinRef.current);
+      if (typeof animationRef.current.kill === 'function') {
+        animationRef.current.kill();
+      }
       animationRef.current = null;
     }
-    
-    // Create exit animation timeline
-    const exitTl = gsap.timeline({
+    if (exitTlRef.current) {
+      exitTlRef.current.kill();
+      exitTlRef.current = null;
+    }
+
+    // Kill any ScrollTrigger instances on this element
+    ScrollTrigger.getAll().forEach(trigger => {
+      if (trigger.trigger === introRef.current) {
+        trigger.kill();
+      }
+    });
+
+    // Get current state without creating new tweens
+    const currentCoinOpacity = gsap.getProperty(coinRef.current, "opacity") || 0.3;
+    const currentCoinY = gsap.getProperty(coinRef.current, "y") || 0;
+    const currentCoinScale = gsap.getProperty(coinRef.current, "scale") || 1;
+
+    // Create exit timeline without context to avoid conflicts
+    exitTlRef.current = gsap.timeline({
+      defaults: { overwrite: "auto" },
       onComplete: () => {
-        console.log('🎯 BaFT Coin: Exit animations complete, dispatching event...');
-        // Fire exit complete event when exit animations finish
-        // This will trigger automatic transition to BInstant section
+        // Ensure final state
+        if (coinRef.current) {
+          gsap.set(coinRef.current, { opacity: 0, scale: 0.95, y: -10 });
+        }
+        gsap.set([".intro-text", ".coin-text"], { opacity: 0, y: -100 });
         window.dispatchEvent(new CustomEvent('baftCoinExitComplete'));
       }
     });
 
-    // Amazing exit animations in reverse order
-    // Coin fades from current opacity (0.3) to 0 - starts immediately on scroll
-    exitTl.fromTo(coinRef.current, 
-      { opacity: 0.3 }, // Start from current opacity
-      { 
-        opacity: 0, // Fade to completely transparent
-        scale: 0.8, // Come closer (shrink)
-        y: -20, // Move up slightly
-        duration: 1.5, 
-        ease: "power2.in" 
-      }
-    )
-    .to([".intro-text", ".coin-text"], { 
-      y: -120, // Move texts upwards
-      duration: 1.2, 
-      ease: "power2.in" 
-    }, "-=0.3") // Start 0.3s before coin animation ends (smaller gap)
-    .to([".intro-text", ".coin-text"], { 
-      opacity: 0, // Then fade out the texts
-      duration: 1.2, 
-      ease: "power2.out" 
-    }, "-=1.2"); // Start fading at the same time as moving up
+    exitTlRef.current
+      .to(coinRef.current, {
+        opacity: 0,
+        scale: 0.95,
+        y: currentCoinY - 10,
+        duration: 0.6,
+        ease: "power2.inOut"
+      })
+      .to([".intro-text", ".coin-text"], {
+        y: -100,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power1.out"
+      }, "<0.2"); // Start slightly after coin animation
   }, []);
 
   // Expose the method to SlideContainer
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !window.__baftCoinExitHooked) {
       console.log('🎯 BaFT Coin: Exposing triggerBaftCoinExit to window');
       window.triggerBaftCoinExit = triggerExitAnimation;
+      window.__baftCoinExitHooked = true;
     }
     return () => {
       if (typeof window !== 'undefined') {
         console.log('🎯 BaFT Coin: Cleaning up triggerBaftCoinExit from window');
         delete window.triggerBaftCoinExit;
+        delete window.__baftCoinExitHooked;
       }
     };
   }, [triggerExitAnimation]);
@@ -170,7 +205,7 @@ const BaFTCoin = () => {
           rotation: -5,
         },
         {
-          opacity: 0.3,
+          opacity: 0.25,
           scale: 1,
           rotation: 0,
           duration: 3.2,
@@ -208,10 +243,20 @@ const BaFTCoin = () => {
       if (coinRef.current) {
         gsap.killTweensOf(coinRef.current);
       }
+      gsap.killTweensOf(".intro-text");
+      gsap.killTweensOf(".coin-text");
+      
       if (animationRef.current) {
-        gsap.killTweensOf(animationRef.current);
+        if (typeof animationRef.current.kill === 'function') {
+          animationRef.current.kill();
+        }
         animationRef.current = null;
       }
+      if (exitTlRef.current) {
+        exitTlRef.current.kill();
+        exitTlRef.current = null;
+      }
+      
       hasAnimatedRef.current = false;
       
       // Safely revert context
@@ -231,16 +276,24 @@ const BaFTCoin = () => {
       ref={introRef}
       className="relative w-full h-screen flex items-center justify-center bg-black text-center overflow-hidden"
     >
-         <div id="grid_container" className="absolute inset-0 opacity-100 z-0">
-                <GridBackground />
-              </div>
       {/* Background Coin Image - Centered independently */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <img
           ref={coinRef}
           src={B_COIN_IMAGE_PNG}
           alt="BaFT Coin"
-          className="absolute md:relative h-auto w-[60vw] sm:w-[54vw] md:w-[40vw] lg:w-[34vw] xl:w-[46vw] 2xl:w-[48vw] 3xl:w-[45vw] max-w-[1000px] left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
+          className="absolute md:relative h-auto left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
+          style={{
+            width: isMacBook 
+              ? `min(95vw, 95vh)`
+              : `min(80vw, 75vh)`,
+            height: isMacBook 
+              ? `min(95vw, 95vh)`
+              : `min(80vw, 75vh)`,
+            maxWidth: isMacBook ? '95vw' : '80vw',
+            maxHeight: isMacBook ? '95vh' : '75vh',
+            objectFit: 'contain'
+          }}
         />
       </div>
 

@@ -8,13 +8,40 @@ import { SVG_SVG, PROPERTY_IMAGE_PNG, PROPERTY_VIBHA_PNG, PROPERTY_DION_PNG, PRO
 gsap.registerPlugin(ScrollTrigger);
 
 // Updated ReadMoreText with animation
-const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
+const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = false, screenSize = 'medium' }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentRef = useRef(null);
-  const paragraphRefs = useRef([]);
   const [collapsedHeight, setCollapsedHeight] = useState(200);
-  const [maxExpandedHeight, setMaxExpandedHeight] = useState(520);
-  const touchStartRef = useRef(null);
+  const [isCompact, setIsCompact] = useState(false);
+  const [maxContentHeight, setMaxContentHeight] = useState(560);
+
+  // Dynamic spacing functions based on screen size
+  const getSpacing = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
+
+  const getFontSize = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
+
+  const getDimensions = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
 
   const isLong = content.length > maxLength;
 
@@ -30,32 +57,79 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
     if (onExpandChange) onExpandChange(newState);
   };
 
-  // Measure the first paragraph to set an exact collapsed height
+  // Compute a collapsed height that aligns to full lines; track compact viewport and max content height
   useEffect(() => {
     const measure = () => {
+      if (!contentRef.current || typeof window === 'undefined') return;
       try {
-        const firstP = paragraphRefs.current && paragraphRefs.current[0];
-        if (firstP) {
-          const rect = firstP.getBoundingClientRect();
-          const styles = window.getComputedStyle(firstP);
-          const marginBottom = parseFloat(styles.marginBottom || '0');
-          const h = rect.height + marginBottom;
-          // Reasonable bounds to avoid 0 heights during layout thrash
-          setCollapsedHeight(Math.max(120, Math.min(h, 600)));
-        }
-        // Set safe maximum expansion to avoid overlapping navbar on small laptops
-        const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
-        // Allow up to ~80% of viewport height and enable inner scroll if more content
-        const safeMax = Math.max(380, Math.min(Math.floor(vh * 0.8), 840));
-        setMaxExpandedHeight(safeMax);
-      } catch {}
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [content]);
+        // Determine compact viewport (small width or height)
+        const vw = window.innerWidth || 0;
+        const vh = window.innerHeight || 0;
+        const compact = vw < 1280 || vh < 820;
+        setIsCompact(compact);
+        
+        // Screen size is now passed as a prop from parent component
 
-  // GSAP height animation for smooth transitions - no auto snapping
+        // Collapsed height logic: show full first paragraph plus first 2 lines of second paragraph (if present)
+        const paraNodes = contentRef.current.querySelectorAll('p');
+        const refElem = paraNodes && paraNodes[0] ? paraNodes[0] : contentRef.current;
+        const cs = window.getComputedStyle(refElem);
+        const lineH = parseFloat(cs.lineHeight || '0') || 28;
+
+        let collapsed = 200;
+        if (paraNodes && paraNodes.length >= 2) {
+          // Get actual height of first paragraph
+          const firstRect = paraNodes[0].getBoundingClientRect();
+          const firstParaHeight = firstRect ? firstRect.height : lineH * 3;
+          
+          // Get actual height of second paragraph
+          const secondRect = paraNodes[1].getBoundingClientRect();
+          const secondParaHeight = secondRect ? secondRect.height : lineH * 3;
+          
+          // Calculate how many lines the second paragraph has
+          const secondParaLines = Math.ceil(secondParaHeight / lineH);
+          
+          // Show first paragraph + first 2 lines of second paragraph
+          const lineHeight = secondParaLines > 0 ? (secondParaHeight / secondParaLines) : lineH;
+          const linesToShow = Math.min(2, secondParaLines); // Show up to 2 lines
+          collapsed = firstParaHeight + (lineHeight * linesToShow);
+          
+          // Add some buffer for better visual spacing
+          collapsed += 12;
+        } else if (paraNodes && paraNodes.length === 1) {
+          // Only one paragraph, show it fully
+          const firstRect = paraNodes[0].getBoundingClientRect();
+          const firstParaHeight = firstRect ? firstRect.height : lineH * 3;
+          collapsed = firstParaHeight + 12;
+        } else {
+          // Fallback to a reasonable number of lines
+          const linesToShow = compact ? 5 : 7;
+          collapsed = Math.max(4, linesToShow) * lineH;
+        }
+        setCollapsedHeight(collapsed);
+
+        // Max content height so expanded text doesn't overflow viewport on compact screens
+        // More generous padding for smaller screens to prevent text cutoff
+        const verticalPaddingAllowance = screenSize === 'small' ? 100 :
+                                        screenSize === 'medium' ? 60 : 
+                                        screenSize === 'large' ? Math.max(120, vh * 0.15) : 20;
+        const safeMax = Math.max(600, (vh || 800) - verticalPaddingAllowance);
+        setMaxContentHeight(safeMax);
+      } catch {
+        setCollapsedHeight(200);
+        setMaxContentHeight(800);
+      }
+    };
+    // Initial measurement with a small delay to ensure content is rendered
+    const timeoutId = setTimeout(measure, 100);
+    window.addEventListener('resize', measure, { passive: true });
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+
+  // GSAP height animation for smooth transitions - snap to measured collapsed/max height
   useEffect(() => {
     if (contentRef.current) {
       // Kill any existing tweens to avoid conflicts
@@ -64,103 +138,123 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
       if (isExpanded) {
         // Get the natural height of the content
         const contentHeight = contentRef.current.scrollHeight;
-        const targetHeight = Math.min(Math.max(contentHeight, collapsedHeight), maxExpandedHeight); // Clamp to safe maximum
+        // Respect the maxContentHeight cap so it expands only up to the baseline
+        const cappedMax = Math.max(collapsedHeight, maxContentHeight);
+        const targetHeight = Math.min(Math.max(contentHeight, collapsedHeight), cappedMax);
         
-        gsap.to(contentRef.current, {
-          height: targetHeight,
-          duration: 0.8,
-          ease: "power2.out"
-        });
+        // Only animate in desktop mode, otherwise use instant transition
+        if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+          gsap.to(contentRef.current, {
+            height: targetHeight,
+            duration: 1.2,
+            ease: "power3.out"
+          });
+        } else {
+          // Mobile/tablet: instant transition
+          contentRef.current.style.height = `${targetHeight}px`;
+        }
       } else {
         // Collapse back to base height
-        gsap.to(contentRef.current, {
-          height: collapsedHeight,
-          duration: 0.8,
-          ease: "power2.out"
-        });
+        if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+          gsap.to(contentRef.current, {
+            height: collapsedHeight,
+            duration: 1.0,
+            ease: "power3.out"
+          });
+        } else {
+          // Mobile/tablet: instant transition
+          contentRef.current.style.height = `${collapsedHeight}px`;
+        }
       }
     }
-  }, [isExpanded, collapsedHeight, maxExpandedHeight]);
+  }, [isExpanded, collapsedHeight, maxContentHeight]);
 
-  // Ensure inner scrolling works even in pinned section: capture wheel/touch on content
+  // Ensure content is scrolled to top when expanding so text appears at the top
   useEffect(() => {
-    const el = contentRef.current;
-    if (!el) return;
-
-    const onWheel = (e) => {
-      if (!isExpanded) return;
-      const canScroll = el.scrollHeight > el.clientHeight;
-      if (!canScroll) return;
-      e.preventDefault();
-      e.stopPropagation();
-      try { el.scrollTop += e.deltaY; } catch {}
-    };
-
-    const onTouchStart = (e) => {
-      if (!isExpanded) return;
-      try { touchStartRef.current = e.touches && e.touches[0] ? e.touches[0].clientY : null; } catch { touchStartRef.current = null; }
-    };
-    const onTouchMove = (e) => {
-      if (!isExpanded) return;
-      if (touchStartRef.current == null) return;
-      const y = (e.touches && e.touches[0]) ? e.touches[0].clientY : touchStartRef.current;
-      const dy = touchStartRef.current - y;
-      const canScroll = el.scrollHeight > el.clientHeight;
-      if (!canScroll) return;
-      e.preventDefault();
-      e.stopPropagation();
-      try { el.scrollTop += dy; } catch {}
-      touchStartRef.current = y;
-    };
-
-    el.addEventListener('wheel', onWheel, { passive: false });
-    el.addEventListener('touchstart', onTouchStart, { passive: false });
-    el.addEventListener('touchmove', onTouchMove, { passive: false });
-    return () => {
-      el.removeEventListener('wheel', onWheel);
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchmove', onTouchMove);
-    };
+    if (isExpanded && contentRef.current) {
+      try {
+        contentRef.current.scrollTo({ top: 0, behavior: 'auto' });
+      } catch {
+        try { contentRef.current.scrollTop = 0; } catch {}
+      }
+    }
   }, [isExpanded]);
 
   return (
-    <div className="leading-relaxed pr-2">
+    <div className="leading-relaxed pr-2" style={{ 
+      maxWidth: getDimensions('520px', '600px', '750px'),
+      maxHeight: compact ? 'calc(100vh - 180px)' : 
+                (screenSize === 'small' ? 'calc(100vh - 140px)' :
+                 screenSize === 'medium' ? 'calc(100vh - 130px)' :
+                 screenSize === 'large' ? 'calc(100vh - 25vh)' :
+                 'calc(100vh - 120px)'),
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: isExpanded ? 'auto' : '200px',
+      transition: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
+    }}>
       <div
         ref={contentRef}
         style={{
-          height: `${collapsedHeight}px`, // Collapsed height equals first paragraph
-          overflow: isExpanded ? "auto" : "hidden",
+          height: `${collapsedHeight}px`,
+          // When expanded, cap to available height so it grows until the visual baseline
+          maxHeight: isExpanded ? `${maxContentHeight}px` : undefined,
+          overflowY: isExpanded ? 'auto' : 'hidden',
+          WebkitOverflowScrolling: isExpanded ? 'touch' : undefined,
+          paddingRight: isExpanded ? '4px' : 0,
           opacity: isExpanded ? 1 : 0.9,
-          transition: "opacity 0.6s ease",
-          maxWidth: 'clamp(520px, 42vw, 680px)',
-          maxHeight: isExpanded ? `${maxExpandedHeight}px` : `${collapsedHeight}px`,
-          WebkitOverflowScrolling: isExpanded ? 'touch' : 'auto',
-          willChange: 'height'
+          transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
+            ? "opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), padding 1.2s cubic-bezier(0.4, 0, 0.2, 1)" 
+            : "opacity 0.3s ease",
+          position: 'relative',
+          flex: isExpanded ? '1 1 auto' : '0 0 auto'
         }}
       >
         {paragraphs.map((para, i) => (
           <p
             key={i}
-            ref={(el) => (paragraphRefs.current[i] = el)}
-            className="mb-4 sm:mb-5 md:mb-6"
+            className="mt-[-10] mb-6 sm:mb-2 md:mb-3"
             style={{
               fontFamily: "Inter, sans-serif",
-              color: "#909090",
-              fontSize: 'clamp(14px, 1.3vw, 26px)',
-              lineHeight: 'clamp(22px, 1.85vw, 36px)'
+              color: '#909090',
+              fontSize: screenSize === 'large' ? '18px' : 
+                (compact ? getFontSize('16px', '20px', '21px') : getFontSize('18px', '22px', '18px')),
+              lineHeight: screenSize === 'large' ? '28px' : 
+                (compact ? getFontSize('24px', '28px', '30px') : getFontSize('26px', '30px', '28px')),
+              marginBottom: i === 0 ? 
+                getSpacing('20px', '24px', '28px') : 
+                getSpacing('18px', '22px', '26px')
             }}
           >
             {para}
           </p>
         ))}
+        {!isExpanded && (
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: Math.max(24, Math.min(collapsedHeight * 0.25, 72)),
+              background: 'linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1))',
+              pointerEvents: 'none'
+            }}
+          />
+        )}
       </div>
 
       {isLong && (
         <button
           onClick={handleToggle}
-          className="mt-2 transition-all duration-500 ease-out"
+          className="mt-2"
           style={{
             fontFamily: "Inter, sans-serif",
+            width: getDimensions('140px', '160px', '180px'),
+            height: getDimensions('50px', '60px', '60px'),
+            fontSize: getFontSize('14px', '18px', '16px'),
+            lineHeight: 1.1,
             borderRadius: "200px",
             backgroundColor: "#E3EDFF",
             color: "#092646",
@@ -169,20 +263,40 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: 'clamp(104px, 10vw, 177px)',
-            height: 'clamp(32px, 3.6vw, 64px)',
-            fontSize: 'clamp(11px, 0.9vw, 18px)',
-            paddingInline: 'clamp(10px, 1.6vw, 24px)',
-            paddingBlock: 'clamp(6px, 0.8vw, 12px)',
-            marginTop: 'clamp(0px, min(0.4vw, 0.4vh), 10px)'
+            flex: '0 0 auto',
+            order: 2,
+            flexGrow: 0,
+            alignSelf: 'flex-start',
+            marginTop: isExpanded ? 
+              (screenSize === 'large' ? '4px' : getSpacing('10px', '12px', '8px')) : 
+              (screenSize === 'large' ? '2px' : getSpacing('6px', '8px', '12px')),
+            zIndex: 10,
+            position: 'relative',
+            transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
+              ? 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1), margin-top 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease-out' 
+              : 'all 0.3s ease-out',
+            transform: isExpanded ? 'translateY(0)' : 'translateY(0)',
+            opacity: 1
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "#000000";
-            e.target.style.color = "#ffffff";
+            if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+              e.target.style.backgroundColor = "#000000";
+              e.target.style.color = "#ffffff";
+              e.target.style.transform = "translateY(-2px) scale(1.02)";
+            } else {
+              e.target.style.backgroundColor = "#000000";
+              e.target.style.color = "#ffffff";
+            }
           }}
           onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "#E3EDFF";
-            e.target.style.color = "#092646";
+            if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+              e.target.style.backgroundColor = "#E3EDFF";
+              e.target.style.color = "#092646";
+              e.target.style.transform = "translateY(0) scale(1)";
+            } else {
+              e.target.style.backgroundColor = "#E3EDFF";
+              e.target.style.color = "#092646";
+            }
           }}
         >
           {isExpanded ? "Read Less" : "Read More"}
@@ -200,12 +314,6 @@ const InteractiveTeamImage = ({ disabled = false }) => {
   const [loadedImages, setLoadedImages] = useState(
     new Set([PROPERTY_IMAGE_PNG])
   );
-  const hoverRafRef = useRef(null);
-  const hoverElRef = useRef(null);
-  const hoverAnimIdRef = useRef(null);
-  const hoverTargetRef = useRef({ x: 0, y: 0, scale: 1 });
-  const hoverCurrentRef = useRef({ x: 0, y: 0, scale: 1 });
-  const parallaxRef = useRef(null);
 
   // Add debugging for component dimensions
   useEffect(() => {
@@ -305,22 +413,6 @@ const InteractiveTeamImage = ({ disabled = false }) => {
   const handleMouseEnterImage = () => {
     if (disabled) return;
     setIsUserInteracting(true);
-    // Start smoothing loop
-    if (!hoverAnimIdRef.current) {
-      const animate = () => {
-        const el = parallaxRef.current;
-        if (!el) { hoverAnimIdRef.current = null; return; }
-        const curr = hoverCurrentRef.current;
-        const tgt = hoverTargetRef.current;
-        // Damped spring/lerp
-        curr.x += (tgt.x - curr.x) * 0.15;
-        curr.y += (tgt.y - curr.y) * 0.15;
-        curr.scale += (tgt.scale - curr.scale) * 0.12;
-        el.style.transform = `translate3d(${curr.x.toFixed(2)}px, ${curr.y.toFixed(2)}px, 0) scale(${curr.scale.toFixed(3)})`;
-        hoverAnimIdRef.current = requestAnimationFrame(animate);
-      };
-      hoverAnimIdRef.current = requestAnimationFrame(animate);
-    }
   };
 
   const handleMouseLeaveImage = () => {
@@ -328,54 +420,12 @@ const InteractiveTeamImage = ({ disabled = false }) => {
     setHoveredMember(null);
     setIsUserInteracting(false);
     setAutoHighlight("full");
-    // Ease back to rest and stop loop when settled
-    hoverTargetRef.current = { x: 0, y: 0, scale: 1 };
-    const stopWhenSettled = () => {
-      const curr = hoverCurrentRef.current;
-      if (Math.abs(curr.x) < 0.2 && Math.abs(curr.y) < 0.2 && Math.abs(curr.scale - 1) < 0.002) {
-        if (hoverAnimIdRef.current) {
-          cancelAnimationFrame(hoverAnimIdRef.current);
-          hoverAnimIdRef.current = null;
-        }
-        const el = parallaxRef.current;
-        if (el) el.style.transform = 'translate3d(0,0,0) scale(1)';
-        return;
-      }
-      requestAnimationFrame(stopWhenSettled);
-    };
-    requestAnimationFrame(stopWhenSettled);
-  };
-
-  const handleMouseMoveImage = (e) => {
-    if (disabled) return;
-    const target = e.currentTarget;
-    if (!target) return;
-    const rect = target.getBoundingClientRect();
-    const nx = ((e.clientX - rect.left) / Math.max(rect.width, 1)) - 0.5;
-    const ny = ((e.clientY - rect.top) / Math.max(rect.height, 1)) - 0.5;
-    const maxShiftPx = 10; // subtle parallax
-    const dx = Math.max(-1, Math.min(1, nx)) * maxShiftPx;
-    const dy = Math.max(-1, Math.min(1, ny)) * maxShiftPx;
-    hoverTargetRef.current = { x: dx, y: dy, scale: 1.03 };
   };
 
   const handleMouseEnterMember = (memberId) => {
     if (disabled) return;
     setHoveredMember(memberId);
   };
-
-  // Keep base image visible until the target member image has loaded to avoid white flashes
-  const activeMember = React.useMemo(
-    () => teamMembers.find((m) => m.id === activeImageId),
-    [teamMembers, activeImageId]
-  );
-  const isActiveLoaded = React.useMemo(
-    () => {
-      if (!activeMember) return activeImageId === 'full';
-      return loadedImages.has(activeMember.image);
-    },
-    [activeMember, loadedImages, activeImageId]
-  );
 
   const getAnimationStyles = (member) => {
     if (!member) return {};
@@ -444,49 +494,26 @@ const InteractiveTeamImage = ({ disabled = false }) => {
 
   return (
     <div 
-      className="relative w-full h-full" 
+      className="relative bg-gray-100 w-full h-full" 
       style={{
         borderRadius: '24px',
         flex: 'none',
         order: 1,
         flexGrow: 0,
         minHeight: '400px',
-        minWidth: '300px',
-        backgroundColor: 'transparent'
+        minWidth: '300px'
       }}
     >
       {/* Main Image Container */}
       <div
-        ref={hoverElRef}
-        className="relative w-full h-full overflow-hidden"
+        className="relative w-full h-full overflow-hidden bg-gray-100"
         style={{
           borderRadius: '24px',
-          pointerEvents: disabled ? 'none' : 'auto',
-          transition: 'transform 0ms',
-          willChange: 'transform',
-          backfaceVisibility: 'hidden',
-          transformStyle: 'preserve-3d',
-          backgroundColor: 'transparent'
+          pointerEvents: disabled ? 'none' : 'auto'
         }}
         onMouseEnter={disabled ? undefined : handleMouseEnterImage}
         onMouseLeave={disabled ? undefined : handleMouseLeaveImage}
-        onMouseMove={disabled ? undefined : handleMouseMoveImage}
       >
-        {/* Parallax content wrapper with bleed to avoid edge reveal */}
-        <div
-          ref={parallaxRef}
-          className="absolute"
-          style={{
-            left: '-32px',
-            top: '-32px',
-            right: '-32px',
-            bottom: '-32px',
-            willChange: 'transform',
-            backfaceVisibility: 'hidden',
-            transform: 'translate3d(0,0,0) scale(1)',
-            backgroundColor: '#000'
-          }}
-        >
         {/* Base Image - Full Team */}
         <img
           src={PROPERTY_IMAGE_PNG}
@@ -494,14 +521,10 @@ const InteractiveTeamImage = ({ disabled = false }) => {
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{
             objectPosition: "center center",
-            opacity: activeImageId === "full" || !isActiveLoaded ? 1 : 0,
-            transition: "opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)",
+            opacity: activeImageId === "full" ? 1 : 0.999,
+            transition: "opacity 1200ms ease-in-out",
             zIndex: 1,
-            backfaceVisibility: 'hidden',
-            willChange: 'opacity',
           }}
-          loading="eager"
-          decoding="async"
           onLoad={() => {}}
         />
 
@@ -519,11 +542,9 @@ const InteractiveTeamImage = ({ disabled = false }) => {
               style={{
                 objectPosition: "center center",
                 opacity: isActive && isLoaded ? 1 : 0,
-                transition: "opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)",
+                transition: "opacity 1200ms ease-in-out",
                 zIndex: isActive ? 2 : 1,
-                visibility: isLoaded ? 'visible' : 'hidden',
-                backfaceVisibility: 'hidden',
-                willChange: 'opacity',
+                display: isLoaded ? "block" : "none",
               }}
               onLoad={() => {
                 setLoadedImages((prev) => new Set([...prev, member.image]));
@@ -531,20 +552,6 @@ const InteractiveTeamImage = ({ disabled = false }) => {
             />
           );
         })}
-
-        {/* Constant dark overlay above images, below text overlays */}
-        <div
-          className="absolute"
-          style={{
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.35)',
-            zIndex: 9,
-            pointerEvents: 'none'
-          }}
-        />
 
         {/* Text Overlays for all members */}
         {teamMembers.map((member) => {
@@ -600,7 +607,6 @@ const InteractiveTeamImage = ({ disabled = false }) => {
             onMouseEnter={() => handleMouseEnterMember(member.id)}
           />
         ))}
-        </div>
       </div>
     </div>
   );
@@ -610,16 +616,84 @@ const InteractiveTeamImage = ({ disabled = false }) => {
 const AboutBaft = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [textScale, setTextScale] = useState(1);
-  const [topGap, setTopGap] = useState(0);
-  const [imageBox, setImageBox] = useState({ width: 553, height: 782 });
+  const [screenSize, setScreenSize] = useState('medium');
+
+  // Dynamic spacing functions based on screen size
+  const getSpacing = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
+
+  const getFontSize = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
+
+  const getDimensions = (small, medium, large) => {
+    switch (screenSize) {
+      case 'small': return small;
+      case 'medium': return medium;
+      case 'large': return large;
+      default: return medium;
+    }
+  };
   const isForceAnimatingRef = useRef(false);
+  const scrollAccumulatorRef = useRef(0);
+  const lastScrollTimeRef = useRef(0);
   const originalBodyOverflowRef = useRef('');
   const originalBodyTouchActionRef = useRef('');
   const originalHtmlOverscrollRef = useRef('');
   const [forcedAnimT, setForcedAnimT] = useState(0); // 0..1 during forced expansion
+  const [scrollProgressIndicator, setScrollProgressIndicator] = useState(0); // 0..1 for scroll accumulation progress
   const FORCED_DURATION_MS = 5500; // slow expansion
+  
+  // Measure navbar height and expose CSS variables for gap/spacing on desktop
+  useEffect(() => {
+    if (!isDesktop) return;
+    const navEl = document.querySelector('nav') || document.getElementById('navbar') || document.querySelector('.site-navbar');
+    const updateVars = () => {
+      const navH = navEl ? navEl.getBoundingClientRect().height : 64;
+      document.documentElement.style.setProperty('--nav-h', `${navH}px`);
+      const gap = Math.max(12, Math.min(window.innerHeight * 0.02, 28));
+      document.documentElement.style.setProperty('--gap', `${gap}px`);
+      // Button scale derived from viewport's smaller dimension
+      const vmin = Math.min(window.innerWidth || 0, window.innerHeight || 0);
+      const btnScale = Math.max(0.65, Math.min(vmin / 1100, 1.05));
+      document.documentElement.style.setProperty('--btn-scale', String(btnScale));
+      // Left column scale for compact desktops
+      const vw = window.innerWidth || 0;
+      let leftScale = 1;
+      if (vw <= 1366) leftScale = 0.94;
+      if (vw <= 1280) leftScale = 0.9;
+      if (vw <= 1180) leftScale = 0.86;
+      if (vw <= 1100) leftScale = 0.84;
+      if (vw <= 1024) leftScale = 0.82;
+      if (vw <= 980) leftScale = 0.8;
+      if (vw <= 940) leftScale = 0.78;
+      // Further reduce when height is compact or paragraph is expanded
+      if ((window.innerHeight || 0) <= 820) leftScale *= 0.94;
+      if ((window.innerHeight || 0) <= 760) leftScale *= 0.92;
+      if (isExpanded) leftScale *= 0.92;
+      leftScale = Math.max(0.72, Math.min(leftScale, 1));
+      document.documentElement.style.setProperty('--left-scale', String(leftScale));
+      // Track compact desktop viewport to allow internal slide scrolling
+      const compact = (window.innerWidth || 0) < 1280 || (window.innerHeight || 0) < 820;
+      setIsCompactViewport(compact);
+    };
+    updateVars();
+    window.addEventListener('resize', updateVars, { passive: true });
+    return () => window.removeEventListener('resize', updateVars);
+  }, [isDesktop, isExpanded]);
   
   // Ensure stable initial state
   useEffect(() => {
@@ -634,68 +708,26 @@ const AboutBaft = () => {
   const triggerRef = useRef(null);
   const [startRect, setStartRect] = useState(null);
   const hasDispatchedPinnedEndRef = useRef(false);
+  const hasAcknowledgedIntroRef = useRef(false);
 
-  // Check if screen is desktop size
+  // Check if screen is desktop size and detect screen height categories
   useEffect(() => {
     const checkScreenSize = () => {
       const newIsDesktop = window.innerWidth >= 1024; // lg breakpoint and above
       setIsDesktop(newIsDesktop);
-      // Scale down left content slightly on smaller desktop widths
-      if (newIsDesktop) {
-        const w = window.innerWidth || 1440;
-        const h = window.innerHeight || 800;
-        let scale = 1;
-        if (w <= 1024) {
-          scale = 0.82;
-        } else if (w >= 1440) {
-          scale = 1;
-        } else {
-          const t = (w - 1024) / (1440 - 1024);
-          scale = 0.82 + 0.18 * Math.max(0, Math.min(1, t));
-        }
-        setTextScale(scale);
-
-        // Add a small top gap on short-height laptops to clear the navbar
-        if (h < 1000) {
-          const gap = Math.max(40, Math.min(96, Math.round(h * 0.12))); // ~12vh, clamped
-          setTopGap(gap);
-        } else {
-          setTopGap(0);
-        }
-      } else {
-        setTextScale(1);
-        setTopGap(0);
-      }
+      
+      // Determine screen size categories for responsive spacing
+      const vh = window.innerHeight || 0;
+      const vw = window.innerWidth || 0;
+      // MacBook Pro 16 has 1112px height, so we need to account for that
+      if (vh >= 1000 || (vh >= 900 && vw >= 1400)) setScreenSize('large'); // MacBook Pro 16 and larger laptops
+      else if (vh >= 768) setScreenSize('medium'); // Standard laptops
+      else setScreenSize('small'); // Smaller screens
     };
 
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
-
-  // Dynamic right image container sizing based on viewport height (desktop)
-  useEffect(() => {
-    const ASPECT_RATIO = 553 / 782; // width / height
-    const computeImageBox = () => {
-      if (typeof window === 'undefined') return;
-      const vh = window.innerHeight || 900;
-      const vw = window.innerWidth || 1440;
-      // On smaller laptops, allow a smaller minimum; aim for ~85% of viewport height
-      const minH = Math.min(520, Math.max(380, Math.floor(vh * 0.72)));
-      const maxH = Math.floor(vh * 0.85);
-      let targetH = Math.max(minH, Math.min(782, maxH));
-      let targetW = Math.round(targetH * ASPECT_RATIO);
-      // Ensure the width never exceeds 90% of viewport width
-      const maxW = Math.floor(vw * 0.9);
-      if (targetW > maxW) {
-        targetW = maxW;
-        targetH = Math.round(targetW / ASPECT_RATIO);
-      }
-      setImageBox({ width: targetW, height: targetH });
-    };
-    computeImageBox();
-    window.addEventListener('resize', computeImageBox);
-    return () => window.removeEventListener('resize', computeImageBox);
   }, []);
 
   // Removed unnecessary logging effects that were causing performance issues
@@ -738,12 +770,22 @@ const AboutBaft = () => {
               window.__aboutPinnedActive = false;
             }
             hasDispatchedPinnedEndRef.current = false;
+            // Reset scroll accumulator when leaving pinned zone
+            scrollAccumulatorRef.current = 0;
+            lastScrollTimeRef.current = 0;
+            setScrollProgressIndicator(0);
+            hasAcknowledgedIntroRef.current = false;
           } else {
             // After the trigger
             setScrollProgress(1);
             if (typeof window !== 'undefined') {
               window.__aboutPinnedActive = false;
             }
+            // Reset scroll accumulator when leaving pinned zone
+            scrollAccumulatorRef.current = 0;
+            lastScrollTimeRef.current = 0;
+            setScrollProgressIndicator(0);
+            hasAcknowledgedIntroRef.current = false;
 
             // Fire a one-time event to request advancing to the next slide (pre-footer)
             if (!hasDispatchedPinnedEndRef.current && typeof window !== 'undefined') {
@@ -784,6 +826,11 @@ const AboutBaft = () => {
     const addOpts = { passive: false, capture: true };
     const minSwipeDistance = 40;
     let touchStartY = null;
+    
+    // Add scroll accumulation for touchpad sensitivity (using refs for cross-effect access)
+    const scrollThreshold = 150; // Minimum accumulated scroll before triggering
+    const scrollDecayTime = 200; // Time in ms for scroll accumulation to decay
+    const minScrollDelta = 10; // Minimum single scroll delta to accumulate
 
     const handleWheel = (e) => {
       if (isForceAnimatingRef.current) return;
@@ -796,6 +843,44 @@ const AboutBaft = () => {
 
       // Only trigger on scroll down (positive deltaY) as user moves to bottom section
       if (typeof e.deltaY !== 'number' || e.deltaY <= 0) return;
+
+      // Gate: first deliberate wheel-down only acknowledges the intro; expansion requires second action
+      if (!hasAcknowledgedIntroRef.current) {
+        hasAcknowledgedIntroRef.current = true;
+        scrollAccumulatorRef.current = 0;
+        lastScrollTimeRef.current = 0;
+        setScrollProgressIndicator(0.2);
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      const currentTime = Date.now();
+      
+      // Decay scroll accumulator over time
+      if (currentTime - lastScrollTimeRef.current > scrollDecayTime) {
+        scrollAccumulatorRef.current = Math.max(0, scrollAccumulatorRef.current - (currentTime - lastScrollTimeRef.current) / scrollDecayTime * 50);
+      }
+      
+      // Only accumulate significant scroll movements
+      if (e.deltaY >= minScrollDelta) {
+        scrollAccumulatorRef.current += e.deltaY;
+        lastScrollTimeRef.current = currentTime;
+        // Update progress indicator
+        setScrollProgressIndicator(Math.min(1, scrollAccumulatorRef.current / scrollThreshold));
+      }
+      
+      // Don't trigger expansion until sufficient scroll accumulation
+      if (scrollAccumulatorRef.current < scrollThreshold) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      // Reset accumulator after triggering
+      scrollAccumulatorRef.current = 0;
+      lastScrollTimeRef.current = 0;
+      setScrollProgressIndicator(0);
 
       e.preventDefault();
       e.stopPropagation();
@@ -885,6 +970,7 @@ const AboutBaft = () => {
 
           isForceAnimatingRef.current = false;
           setForcedAnimT(0);
+          hasAcknowledgedIntroRef.current = false;
         }
       };
 
@@ -912,6 +998,14 @@ const AboutBaft = () => {
       const endY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
       const distance = touchStartY - endY; // swipe up -> positive distance
       if (distance < minSwipeDistance) return;
+
+      // Gate: first qualifying swipe only acknowledges the intro; expansion requires next swipe
+      if (!hasAcknowledgedIntroRef.current) {
+        hasAcknowledgedIntroRef.current = true;
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
 
       e.preventDefault();
       e.stopPropagation();
@@ -989,6 +1083,7 @@ const AboutBaft = () => {
           try { hasDispatchedPinnedEndRef.current = true; } catch {}
           isForceAnimatingRef.current = false;
           setForcedAnimT(0);
+          hasAcknowledgedIntroRef.current = false;
         }
       };
       requestAnimationFrame(step);
@@ -1009,32 +1104,20 @@ const AboutBaft = () => {
       setStartRect(null);
       return;
     }
-    let rafId = null;
     const measure = () => {
-      if (!imageStartRef.current) return;
-      const rect = imageStartRef.current.getBoundingClientRect();
-      setStartRect({
-        left: rect.left,
-        top: rect.top,
-        width: rect.width,
-        height: rect.height,
-      });
-    };
-    const scheduleMeasure = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = null;
-        measure();
-      });
+      if (imageStartRef.current) {
+        const rect = imageStartRef.current.getBoundingClientRect();
+        setStartRect({
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        });
+      }
     };
     measure();
-    window.addEventListener('resize', scheduleMeasure, { passive: true });
-    window.addEventListener('scroll', scheduleMeasure, { passive: true });
-    return () => {
-      window.removeEventListener('resize', scheduleMeasure);
-      window.removeEventListener('scroll', scheduleMeasure);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
   }, [isDesktop]);
 
   // Animation values - only for image expansion, not text movement
@@ -1066,58 +1149,104 @@ const AboutBaft = () => {
             style={{ 
               height: '100vh',
               width: '100vw',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              paddingTop: screenSize === 'large' ? 
+                'calc(var(--nav-h, 64px) + calc(var(--gap, 8px) * 1))' : 
+                'calc(var(--nav-h, 64px) + calc(var(--gap, 16px) * 2))'
             }}
           >
             {/* Static grid: text left, measuring placeholder right */}
-            <div className="w-full max-w-6xl mx-auto px-12 grid grid-cols-2 gap-20 items-center">
+            <div
+              className="w-full h-full"
+              style={{
+                marginTop: getSpacing('2vh', '4vh', '20vh'),
+                // Enable internal vertical scrolling on compact desktop viewports
+                overflowY: isCompactViewport ? 'auto' : 'visible',
+                WebkitOverflowScrolling: isCompactViewport ? 'touch' : undefined,
+                height: '100%',
+                maxHeight: '100%',
+                paddingBottom: isCompactViewport ? '16px' : 0
+              }}
+            >
+              <div
+                className="w-full mx-auto grid grid-cols-2 items-center"
+                style={{
+                  columnGap: getDimensions('60px', '120px', '150px'),
+                  maxWidth: getDimensions('1200px', '1600px', '2000px'),
+                  paddingLeft: getSpacing('1rem', '2rem', '3rem'),
+                  paddingRight: getSpacing('1rem', '2rem', '3rem')
+                }}
+              >
               <div
                 ref={textContainerRef}
                 className="flex flex-col justify-center"
                 style={{
-                  transform: `translateX(${textShiftX}px) scale(${textScale})`,
-                  transformOrigin: 'left top',
+                  transform: `translateX(${textShiftX}px) translateY(0px)`,
                   opacity: textOpacity,
-                  transition: 'none',
+                  transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
+                    ? 'transform 0.8s ease-out, opacity 0.8s ease-out' 
+                    : 'none',
                   pointerEvents: textOpacity < 0.05 ? 'none' : 'auto',
-                  marginTop: topGap
+        maxHeight: isExpanded ?
+          (screenSize === 'small' ? 'calc(100vh - 160px)' :
+           screenSize === 'medium' ? 'calc(100vh - 140px)' :
+           screenSize === 'large' ? 'calc(100vh - 20vh)' :
+           'calc(100vh - 120px)') :
+          'calc(100vh - 150px)',
+                  overflow: 'visible',
+                  minHeight: isExpanded ? 'auto' : 
+                    (screenSize === 'large' ? 'calc(100vh - 35vh)' : 'calc(100vh - 200px)')
                 }}
               >
-                <p
-                  className="font-normal mb-2 flex items-center"
+                <div
                   style={{
-                    fontFamily: "Inter, sans-serif",
-                    color: "#092646",
-                    fontSize: 'clamp(16px, 1.15vw, 20px)',
-                    lineHeight: '20px',
-                    letterSpacing: '-0.273006px',
-                    gap: 'clamp(6px, 0.6vw, 8px)',
-                    marginTop: 'clamp(10px, min(2.2vh, 1.8vw), 28px)',
-                    marginBottom: 'clamp(6px, min(1.2vw, 1.2vh), 16px)'
+                    marginTop: isExpanded ? 
+                      (screenSize === 'large' ? '0px' : getSpacing('-10px', '-15px', '30px')) : 
+                      '0px',
+                    transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
+                      ? 'margin-top 0.8s ease-out' 
+                      : 'none'
                   }}
                 >
-                  <img
-                    src={SVG_SVG}
-                    alt="Icon"
+                  <p
+                    className="font-normal mb-2 flex items-center"
                     style={{
-                      width: 'clamp(16px, 1.1vw, 20px)',
-                      height: 'clamp(16px, 1.1vw, 20px)'
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: getFontSize('12px', '15px', '16px'),
+                      color: '#092646',
+                      lineHeight: 1.1,
+                      gap: getSpacing('5px', '6px', '7px'),
+                      flex: 'none',
+                      order: 0,
+                      flexGrow: 0,
+                      whiteSpace: 'nowrap'
                     }}
-                  />
-                  Know our story
-                </p>
-                <h1
-                  className="leading-tight font-bold text-[#1966BB]"
-                  style={{
-                    fontFamily: "EB Garamond, serif",
-                    fontSize: 'clamp(44px, 4.6vw, 72px)',
-                    lineHeight: 'clamp(48px, 4.8vw, 76px)',
-                    letterSpacing: '-0.273006px',
-                    marginBottom: 'clamp(8px, min(2vh, 1.8vw), 28px)'
-                  }}
-                >
-                  <span className="block">About BaFT</span>
-                </h1>
+                  >
+                    <img 
+                      src={SVG_SVG} 
+                      alt="Icon" 
+                      style={{ width: getDimensions('10px', '13px', '16px'), height: getDimensions('10px', '13px', '16px') }}
+                    />
+                    Know our story
+                  </p>
+                  <h1
+                    className="mb-4 font-bold text-[#1966BB]"
+                    style={{
+                      fontFamily: 'EB Garamond, serif',
+                      fontSize: getFontSize('40px', '56px', '50px'),
+                      lineHeight: getFontSize('40px', '60px', '56px'),
+                      letterSpacing: getSpacing('-0.18px', '-0.2px', '0px'),
+                      display: 'flex',
+                      alignItems: 'center',
+                      flex: 'none',
+                      order: 0,
+                      flexGrow: 0,
+                      marginBottom: isExpanded ? getSpacing('14px', '18px', '16px') : getSpacing('18px', '24px', '40px')
+                    }}
+                  >
+                    <span className="block">About BaFT</span>
+                  </h1>
+                </div>
 
                 <ReadMoreText
                   content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
@@ -1126,24 +1255,44 @@ Somewhere between dodging endless forms and wondering if "technical glitch" was 
 
 At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
                   onExpandChange={setIsExpanded}
+                  compact={isCompactViewport}
+                  screenSize={screenSize}
                 />
               </div>
 
-              <div className="flex justify-center items-center">
+              <div className="flex justify-end">
                 <div
                   ref={imageStartRef}
-                  style={{ width: `${imageBox.width}px`, height: `${imageBox.height}px`, borderRadius: '24px', overflow: 'hidden', margin: '0 auto' }}
+                  className="about-right-responsive relative rounded-3xl overflow-hidden"
                 >
                   <div className="w-full h-full" style={{ opacity: 1 - easedProgress, transition: 'opacity 120ms linear' }}>
-                    <InteractiveTeamImage disabled={easedProgress > 0.02} />
+                    <InteractiveTeamImage disabled={easedProgress > 0.1} />
                   </div>
                 </div>
               </div>
             </div>
+            </div>
+
+            {/* Scroll progress indicator */}
+            {scrollProgressIndicator > 0 && (
+              <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 pointer-events-none z-50">
+                <div className="bg-black/20 backdrop-blur-sm rounded-full px-4 py-2">
+                  <div className="flex items-center gap-2 text-white text-sm">
+                    <div className="w-16 h-1 bg-white/30 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-white rounded-full transition-all duration-200 ease-out"
+                        style={{ width: `${scrollProgressIndicator * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs opacity-80">Scroll to expand</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Floating overlay image that enlarges from right to full screen */}
             <div className="fixed inset-0 pointer-events-none">
-              {startRect && easedProgress > 0.02 && (() => {
+              {startRect && (() => {
                 const vw = typeof window !== 'undefined' ? window.innerWidth : 0;
                 const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
                 const targetW = vw; // fill screen width
@@ -1161,20 +1310,17 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
                   <div
                     className="absolute"
                     style={{
-                      left: `${Math.round(currentLeft)}px`,
-                      top: `${Math.round(currentTop)}px`,
-                      width: `${Math.round(currentW)}px`,
-                      height: `${Math.round(currentH)}px`,
+                      left: `${currentLeft}px`,
+                      top: `${currentTop}px`,
+                      width: `${currentW}px`,
+                      height: `${currentH}px`,
                       borderRadius: `${currentRadius}px`,
                       overflow: 'hidden',
                       boxShadow: `0 40px 120px rgba(0,0,0,${boxShadowOpacity})`,
                       pointerEvents: 'none',
-                      transform: `translateZ(0) scale(${zoomScale})`,
+                      transform: `scale(${zoomScale})`,
                       transformOrigin: 'center center',
                       transition: 'transform 120ms linear',
-                      willChange: 'transform, left, top, width, height',
-                      backfaceVisibility: 'hidden',
-                      contain: 'layout paint size'
                     }}
                   >
                     <div className="relative w-full h-full" style={{ opacity: disperseOpacity }}>

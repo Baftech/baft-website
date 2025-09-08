@@ -3,12 +3,34 @@ import { gsap } from "gsap";
 import { FaCreditCard, FaUser, FaGift, FaShieldAlt } from "react-icons/fa";
 import { BAFT_CARD1_SVG, BAFT_CARD2_SVG, BAFT_CARD3_SVG, BAFT_CARD4_SVG, PAY_BILLS_SVG, MANAGE_ACCOUNT_SVG, REWARDS_SVG, SEAMLESS_PAYMENTS_SVG, SVG_SVG } from "../../assets/assets";
 
+// Prewarm feature images as soon as this module is loaded (before user reaches section)
+const FEATURE_IMAGES = [BAFT_CARD1_SVG, BAFT_CARD2_SVG, BAFT_CARD3_SVG, BAFT_CARD4_SVG];
+(() => {
+  if (typeof window === 'undefined') return;
+  if (window.__baftFeaturesPreloaded) return;
+  window.__baftFeaturesPreloaded = true;
+  try {
+    FEATURE_IMAGES.forEach((src) => {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.as = 'image';
+      link.href = src;
+      document.head.appendChild(link);
+      const img = new Image();
+      img.src = src;
+    });
+  } catch (_) {
+    // no-op
+  }
+})();
+
 const Cards = () => {
   const cardsRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentIndexRef = useRef(0);
   const prevIndexRef = useRef(null);
   const rotateIntervalRef = useRef(null);
+  const resumeTimeoutRef = useRef(null);
    
   const featuresData = [
     {
@@ -142,8 +164,6 @@ const Cards = () => {
 
   const startAutoRotate = () => {
     if (rotateIntervalRef.current) return;
-    // Ensure we start from index 0 to match the initial list item
-    setCurrentIndex(0);
     rotateIntervalRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % featuresData.length);
     }, 3000);
@@ -166,9 +186,15 @@ const Cards = () => {
 
     return () => {
       stopAutoRotate();
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current);
+        resumeTimeoutRef.current = null;
+      }
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  // Module-level prefetch handles warming; no need for in-component effect
 
   // Keep positions in sync when index changes (hover/auto-rotate)
   useEffect(() => {
@@ -283,6 +309,22 @@ const Cards = () => {
                         startAutoRotate(); // Resume auto-rotation when leaving
                       }, 500);
                     }}
+                    onClick={() => {
+                      // Pause rotation and focus on clicked card
+                      stopAutoRotate();
+                      // Cancel any pending resume timers
+                      if (resumeTimeoutRef.current) {
+                        clearTimeout(resumeTimeoutRef.current);
+                        resumeTimeoutRef.current = null;
+                      }
+                      setCurrentIndex(index);
+                      updateCardPositions(index, false);
+                      // Resume after 3 seconds from current index
+                      resumeTimeoutRef.current = setTimeout(() => {
+                        startAutoRotate();
+                        resumeTimeoutRef.current = null;
+                      }, 3000);
+                    }}
                     style={{
                       boxSizing: "border-box",
                       display: "flex",
@@ -392,6 +434,7 @@ const Cards = () => {
                   loading="eager"
                   decoding="async"
                   fetchPriority="high"
+                  draggable={false}
                 />
               </div>
             ))}

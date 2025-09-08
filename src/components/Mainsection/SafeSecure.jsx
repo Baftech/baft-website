@@ -15,23 +15,40 @@ const SafeSecureDesktop = () => {
               <div className="safe-secure-text">
                 <h2 className="safe-secure-title">Safe & Secure</h2>
                 <p className="safe-secure-description">
-                  At BAFT, we know trust isn't built in a day. That's why every
+                  At BaFT, we know trust isn't built in a day. That's why every
                   payment, every detail, and every account is protected with care. No
                   hidden risks. Just the security you deserve while managing your
                   money.
                 </p>
               </div>
 
-              {/* Right Logo Section */}
-              <div className="safe-secure-logo">
-                <div className="security-logo-wrapper">
-                  <img
-                    src={SAFE_SEC_SVG}
-                    alt="Security Badge"
-                    className="security-logo-svg"
-                  />
-                </div>
+              {/* Logo */}
+            <div className="safe-secure-logo">
+              <div className="security-logo-wrapper " style = {{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                transform: "scale(1.5)",
+                transformOrigin: "center center"
+              }}>
+                <img
+  src={SAFE_SEC_SVG}
+  alt="Security Badge"
+  className="security-logo-svg"
+  style={{
+    width: "100%",       // base size
+    height: "auto",
+    position : "relative",
+    display: "block",
+    transform: "scale(1.10004)", // scale 5x
+    transformOrigin: "center"
+  }}
+/>
+
               </div>
+            </div>
             </div>
           </div>
         </div>

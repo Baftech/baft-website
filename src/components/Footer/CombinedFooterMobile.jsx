@@ -219,115 +219,100 @@ const CombinedFooterMobile = () => {
     <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
       {/* Mobile-optimized pre-footer section */}
       <div className="pre-footer-container relative bg-black w-screen min-h-screen flex items-center justify-center overflow-hidden py-8 sm:py-12 lg:py-16 xl:py-20">
-        {/* Concentric circles background */}
-        <div className="concentric-wrapper absolute inset-0 flex items-center justify-center">
-          {/* Smallest circle */}
+        {/* Radial gradient background */}
           <div 
-            className="concentric-circle absolute rounded-full"
+          aria-hidden
             style={{
               position: 'absolute',
-              width: '200px',
-              height: '200px',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.25,
-              border: '0.5px solid #272731',
-              borderRadius: '50%',
-              willChange: 'auto',
-              backfaceVisibility: 'hidden'
-            }}
-          />
-          
-          {/* Medium circle */}
-          <div 
-            className="concentric-circle absolute rounded-full"
-            style={{
-              position: 'absolute',
-              width: '250px',
-              height: '250px',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.25,
-              border: '0.5px solid #272731',
-              borderRadius: '50%',
-              willChange: 'auto',
-              backfaceVisibility: 'hidden'
-            }}
-          />
-          
-          {/* Large circle */}
-          <div 
-            className="concentric-circle absolute rounded-full"
-            style={{
-              position: 'absolute',
-              width: '300px',
-              height: '300px',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.25,
-              border: '0.5px solid #272731',
-              borderRadius: '50%',
-              willChange: 'auto',
-              backfaceVisibility: 'hidden'
-            }}
-          />
-          
-          {/* Extra large circle */}
-          <div 
-            className="concentric-circle absolute rounded-full"
-            style={{
-              position: 'absolute',
-              width: '350px',
-              height: '350px',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.25,
-              border: '0.5px solid #272731',
-              borderRadius: '50%',
-              willChange: 'auto',
-              backfaceVisibility: 'hidden'
-            }}
-          />
-          
-          {/* Largest circle */}
-          <div 
-            className="concentric-circle absolute rounded-full"
-            style={{
-              position: 'absolute',
-              width: '400px',
-              height: '400px',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.25,
-              border: '0.5px solid #272731',
-              borderRadius: '50%',
-              willChange: 'auto',
-              backfaceVisibility: 'hidden'
-            }}
-          />
-          
-          {/* Outermost circle */}
-          <div 
-            className="concentric-circle absolute rounded-full"
-            style={{
-              position: 'absolute',
-              width: '450px',
-              height: '450px',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.25,
-              border: '0.5px solid #272731',
-              borderRadius: '50%',
-              willChange: 'auto',
-              backfaceVisibility: 'hidden'
-            }}
-          />
+            width: 'clamp(300px, 80vw, 600px)',
+            height: 'clamp(300px, 80vw, 600px)',
+            left: '0px',
+            top: '0px',
+            pointerEvents: 'none',
+            zIndex: 0,
+            background: 'radial-gradient(closest-side at 0 0, rgba(255,255,255,0.3), rgba(255,255,255,0))',
+            backgroundRepeat: 'no-repeat',
+            mixBlendMode: 'screen',
+            filter: 'none',
+            transform: 'translateZ(0)'
+          }}
+        />
+
+        {/* Concentric circles - centered */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            width: '507.43px',
+            height: '508px',
+            left: 'calc(50% - 507.43px/2 - 0.3px)',
+            top: 'calc(50% - 508px/2)',
+            opacity: 0.6,
+            pointerEvents: 'none',
+            zIndex: 0,
+            // Vertical fade mask to match the image
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            // Soft blending for ethereal effect
+            mixBlendMode: 'screen',
+            filter: 'blur(0.8px) drop-shadow(0 0 25px rgba(255,255,255,0.35))',
+          }}
+        >
+          {[0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => {
+            const t = (ratio - 0.3) / (1.0 - 0.3); // 0..1 across rings
+            const alpha = 0.12 + 0.18 * (1 - Math.abs(0.5 - t) * 2); // lighter
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${(1 - ratio) * 50}%`,
+                  top: `${(1 - ratio) * 50}%`,
+                  width: `${ratio * 100}%`,
+                  height: `${ratio * 100}%`,
+                  borderRadius: '50%',
+                  border: `1px solid rgba(255,255,255,${alpha.toFixed(3)})`,
+                  boxSizing: 'border-box',
+                  // Soft inner glow for ethereal effect
+                  boxShadow: `inset 0 0 15px rgba(255,255,255,${(alpha * 0.7).toFixed(3)})`,
+                }}
+              />
+            );
+          })}
+        </div>
+        
+        {/* Star Groups */}
+        <div className="star-groups" style={{ position: 'relative', zIndex: 1 }}>
+          <svg width="100%" height="100%" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Group 1 - Central stars (spread across screen) */}
+            <g className="star-group-1">
+              <circle cx="200" cy="200" r="2" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="150" cy="150" r="1.5" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="250" cy="150" r="1.5" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="150" cy="250" r="1.5" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="250" cy="250" r="1.5" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="200" cy="100" r="1" fill="rgba(255,255,255,0.35)"/>
+              <circle cx="200" cy="300" r="1" fill="rgba(255,255,255,0.35)"/>
+              <circle cx="100" cy="200" r="1" fill="rgba(255,255,255,0.35)"/>
+              <circle cx="300" cy="200" r="1" fill="rgba(255,255,255,0.35)"/>
+            </g>
+            
+            {/* Group 2 - Revolving stars around the entire screen */}
+            <g className="star-group-2">
+              <circle cx="50" cy="50" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="350" cy="50" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="50" cy="350" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="350" cy="350" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="50" cy="150" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="350" cy="150" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="50" cy="250" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="350" cy="250" r="1.5" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="100" cy="100" r="1" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="300" cy="100" r="1" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="100" cy="300" r="1" fill="rgba(255,255,255,0.4)"/>
+              <circle cx="300" cy="300" r="1" fill="rgba(255,255,255,0.4)"/>
+            </g>
+          </svg>
         </div>
 
                 {/* Text content */}

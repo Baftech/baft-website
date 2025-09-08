@@ -9,6 +9,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form was ever submitted
+  const [backdropVisible, setBackdropVisible] = useState(false);
   const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
   const [errMsg, setErrMsg] = useState(""); // for displaying email errors
   const [formData, setFormData] = useState({
@@ -20,7 +21,10 @@ const SignUpModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => setIsAnimating(true), 10);
+      // Fade in backdrop first
+      setBackdropVisible(true);
+      // Then animate modal content
+      setTimeout(() => setIsAnimating(true), 50);
       // If user has already submitted, show thanks page immediately
       if (hasSubmitted) {
         setShowThanks(true);
@@ -28,6 +32,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
     } else {
       setIsAnimating(false);
       setIsClosing(false);
+      setBackdropVisible(false);
       setShowThanks(hasSubmitted); // Keep thanks state based on submission status
       setIsTransitioning(false);
     }
@@ -41,14 +46,17 @@ const SignUpModal = ({ isOpen, onClose }) => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    
+    // Real-time email validation - clear error if email becomes valid
     if (name === "email") {
-    const cleanedEmail = value.trim().toLowerCase();
-    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedEmail)) {
-      setErrMsg(""); // clear error if valid
+      const cleanedEmail = value.trim().toLowerCase();
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedEmail)) {
+        setErrMsg(""); // clear error if valid
+      }
     }
-  }
   };
 
+  
 const handleSubmit = async (e) => {
   e.preventDefault(); // stop page reload
   const cleanedEmail = formData.email.trim().toLowerCase();
@@ -93,17 +101,23 @@ const handleSubmit = async (e) => {
 
   const handleClose = () => {
     setIsClosing(true);
+    setBackdropVisible(false);
     setTimeout(() => {
       // Don't reset showThanks or hasSubmitted - keep the submission state
       setIsTransitioning(false);
       onClose();
-    }, 800);
+    }, 600); // Slightly faster close animation
   };
 
   return (
-    <div data-theme="dark" className="signup-modal-backdrop">
+    <div 
+      data-theme="dark" 
+      className={`signup-modal-backdrop transition-opacity duration-500 ease-out ${
+        backdropVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
       <div
-        className={`signup-modal-container transition-all duration-1200 ease-in-out ${
+        className={`signup-modal-container transition-all duration-800 ease-out ${
           isAnimating && !isClosing
             ? "opacity-100 scale-100 translate-y-0"
             : "opacity-0 scale-90 translate-y-8"
@@ -123,7 +137,7 @@ const handleSubmit = async (e) => {
         <div className="signup-content-container">
           {/* Form Content */}
           <div
-            className={`absolute inset-0 w-full transition-all duration-1200 ease-in-out ${
+            className={`absolute inset-0 w-full transition-all duration-800 ease-out ${
               showThanks || isTransitioning
                 ? "opacity-0 scale-95 pointer-events-none"
                 : "opacity-100 scale-100"
@@ -150,7 +164,7 @@ const handleSubmit = async (e) => {
 
                 <div className="signup-input-group">
                   <input
-                    type="email"
+                    type="text"
                     name="email"
                     placeholder="Email Id"
                     className="signup-input"
@@ -158,6 +172,7 @@ const handleSubmit = async (e) => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
                   {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
                 </div>
 
@@ -223,19 +238,6 @@ const handleSubmit = async (e) => {
                   />
                 </div>
 
-                <div className="signup-checkbox-container">
-                  <input
-                    type="checkbox"
-                    id="autofill"
-                    name="autoFill"
-                    className="signup-checkbox"
-                    checked={formData.autoFill}
-                    onChange={handleInputChange}
-                  />
-                  <label htmlFor="autofill" className="signup-checkbox-label">
-                    Auto fill my details
-                  </label>
-                </div>
 
                 <button type="submit" className="signup-send-button"></button>
               </form>
@@ -244,7 +246,7 @@ const handleSubmit = async (e) => {
 
           {/* Thanks Content */}
           <div
-            className={`absolute inset-0 w-full transition-all duration-1200 ease-in-out flex flex-col items-center justify-center ${
+            className={`absolute inset-0 w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
               showThanks && !isTransitioning
                 ? "opacity-100 scale-100"
                 : "opacity-0 scale-95 pointer-events-none"
