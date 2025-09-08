@@ -11,7 +11,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form was ever submitted
   const [backdropVisible, setBackdropVisible] = useState(false);
   const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
-  const [errMsg, setErrMsg] = useState(""); // for displaying email errors
+  const [errMsg, setErrMsg] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -49,33 +49,18 @@ const SignUpModal = ({ isOpen, onClose }) => {
     if (name === "email") {
       const cleanedEmail = value.trim().toLowerCase();
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedEmail)) {
-        setErrMsg(""); // clear error if valid
+        setErrMsg("");
       }
     }
   };
 
   
 const handleSubmit = async (e) => {
-  e.preventDefault(); // stop page reload
+  e.preventDefault();
   const cleanedEmail = formData.email.trim().toLowerCase();
-  const trimmedName = formData.name.trim();
-  const contactValue = formData.contactNumber.trim();
-
-  // Generic required-fields check
-  if (!trimmedName || !cleanedEmail || contactValue.length < 13) {
-    setErrMsg("Please fill these details first.");
-    return;
-  }
-
   setErrMsg("");
   if (!isValidEmail(cleanedEmail)) {
     setErrMsg("Please enter a valid email address.");
-    return;
-  }
-
-  // Validate Indian phone format +91XXXXXXXXXX
-  const isValidPhone = /^\+91[0-9]{10}$/.test(formData.contactNumber);
-  if (!isValidPhone) {
     return;
   }
 
@@ -161,7 +146,7 @@ const handleSubmit = async (e) => {
                 <p className="signup-subtitle">Don't miss the chance!</p>
               </div>
 
-              <form className="signup-form" onSubmit={handleSubmit} noValidate>
+              <form className="signup-form" onSubmit={handleSubmit}>
                 <div className="signup-input-group">
                   <input
                     type="text"
@@ -185,6 +170,7 @@ const handleSubmit = async (e) => {
                     required
                   />
                   {errMsg && <p className="mt-2 text-red-500 text-sm">{errMsg}</p>}
+                  
                 </div>
 
                 <div className="signup-input-group">
