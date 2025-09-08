@@ -1,4 +1,5 @@
-2import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { supabase } from "../../supabasedb/supabaseClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faInstagram,
@@ -12,11 +13,42 @@ import { HAND_IPHONE_IMAGE_SVG, BAFT_PIC_PNG } from "../../assets/assets";
 
 const SignupForm = ({ onOpenThanks }) => {
   const [email, setEmail] = useState("");
+  const [errMsg, setErrMsg] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Signal parent to open the thank-you modal
-    onOpenThanks();
+    const cleanedEmail = email.trim().toLowerCase();
+    setErrMsg("");
+    if (!isValidEmail(cleanedEmail)) {
+      setErrMsg("Please enter a valid email address.");
+      return;
+    }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("signups")
+        .insert([{ email: cleanedEmail }]);
+
+      if (error) {
+        console.error("Footer signup insert error:", error);
+        setErrMsg("Something went wrong. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      onOpenThanks();
+      setEmail("");
+    } catch (err) {
+      console.error("Unexpected footer signup error:", err);
+      setErrMsg("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -66,13 +98,19 @@ const SignupForm = ({ onOpenThanks }) => {
               type="email"
               placeholder="Enter Your Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errMsg && isValidEmail(e.target.value)) setErrMsg("");
+              }}
               className="w-full sm:flex-1 px-4 py-2.5 rounded-full bg-white/10 backdrop-blur-sm text-white placeholder-white/60 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/30"
               style={{ borderRadius: "17.15px" }}
             />
+            {errMsg && (
+              <span className="text-red-500 text-sm w-full sm:w-auto">{errMsg}</span>
+            )}
             <button
               type="submit"
-              onClick={onOpenThanks}
+              disabled={isSubmitting}
               className="cursor-pointer w-full sm:w-auto px-5 py-2.5 rounded-full font-medium transition bg-white text-black hover:bg-gray-100"
               style={{ minWidth: "110px" }}
             >
@@ -84,7 +122,7 @@ const SignupForm = ({ onOpenThanks }) => {
                   lineHeight: "16px",
                 }}
               >
-                Subscribe
+                {isSubmitting ? "Submitting..." : "Subscribe"}
               </span>
             </button>
           </form>
@@ -159,18 +197,71 @@ const CombinedFooter = () => {
   return (
     <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
       {/* Pre-footer Section with Animation */}
-      <div className="pre-footer-container">
+      <div className="pre-footer-container" style={{ position: 'relative' }}>
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            width: '887px',
+            height: '888px',
+            left: '0px',
+            top: '0px',
+            pointerEvents: 'none',
+            zIndex: 0,
+            background: 'radial-gradient(closest-side at 0 0, rgba(255,255,255,0.4), rgba(255,255,255,0))',
+            backgroundRepeat: 'no-repeat',
+            mixBlendMode: 'screen',
+            filter: 'none',
+            transform: 'translateZ(0)'
+          }}
+        />
 
-        <div className="concentric-wrapper">
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
-          <div className="concentric-circle" />
+        {/* Concentric circles - centered */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            width: 'clamp(820px, 95vmin, 2600px)',
+            aspectRatio: '887 / 888',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity: 0.8,
+            pointerEvents: 'none',
+            zIndex: 0,
+            // Vertical fade mask to match the image
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
+            // Soft blending for ethereal effect
+            mixBlendMode: 'screen',
+            filter: 'blur(0.8px) drop-shadow(0 0 25px rgba(255,255,255,0.35))',
+          }}
+        >
+          {[0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => {
+            const t = (ratio - 0.3) / (1.0 - 0.3); // 0..1 across rings
+            const alpha = 0.18 + 0.25 * (1 - Math.abs(0.5 - t) * 2); // even brighter
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${(1 - ratio) * 50}%`,
+                  top: `${(1 - ratio) * 50}%`,
+                  width: `${ratio * 100}%`,
+                  height: `${ratio * 100}%`,
+                  borderRadius: '50%',
+                  border: `1px solid rgba(255,255,255,${alpha.toFixed(3)})`,
+                  boxSizing: 'border-box',
+                  // Soft inner glow for ethereal effect
+                  boxShadow: `inset 0 0 15px rgba(255,255,255,${(alpha * 0.7).toFixed(3)})`,
+                }}
+              />
+            );
+          })}
         </div>
-
+        
         {/* Star Groups */}
-        <div className="star-groups">
+        <div className="star-groups" style={{ position: 'relative', zIndex: 1 }}>
           <svg width="100%" height="100%" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Group 1 - Central stars (spread across screen) */}
             <g className="star-group-1">
