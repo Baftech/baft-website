@@ -1,0 +1,533 @@
+/* About Section Mobile/Tablet Styles */
+.about-section-mobile {
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    overflow: hidden;
+    padding-bottom: 1rem;
+    padding-top: 0;
+    /* Ensure smooth scrolling for the image expansion effect */
+    scroll-behavior: smooth;
+  }
+  
+  .about-grid-mobile {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    min-height: 100vh;
+    align-items: stretch;
+    justify-content: space-between;
+  }
+  
+  .about-image-container-mobile {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    width: 100%;
+    min-height: 400px;
+    aspect-ratio: 553/782;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 24px;
+    position: relative;
+    margin-bottom: 0;
+    margin-top: auto;
+    padding-bottom: 2rem;
+  }
+  
+  .about-image-mobile {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 24px;
+  }
+  
+  /* Tablet specific styles */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .about-grid-mobile {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      padding: 2rem;
+    }
+    
+    .about-image-container-mobile {
+      min-height: 500px;
+    }
+  }
+  
+  /* Mobile specific styles */
+  @media (max-width: 767px) {
+    .about-grid-mobile {
+      gap: 0.25rem;
+      padding: 0.5rem;
+    }
+    
+    .about-image-container-mobile {
+      min-height: 350px;
+    }
+  }
+  
+  /* Ensure images are visible */
+  .about-image-container-mobile img {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Force visibility for all images in the container */
+  .about-image-container-mobile * {
+    visibility: visible !important;
+  }
+  
+  /* Additional mobile fixes */
+  @media (max-width: 1023px) {
+    .about-section-mobile {
+      padding: 1rem;
+    }
+    
+    .about-grid-mobile {
+      min-height: auto;
+    }
+    
+    /* Ensure the image container takes up proper space */
+    .about-image-container-mobile {
+      flex-shrink: 0;
+      flex-grow: 1;
+    }
+  }
+  
+  /* Force image display on mobile */
+  @media (max-width: 1023px) {
+    img[src*="Property 1=Image.png"] {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+    }
+  }
+  
+  /* Responsive Image Wrapper - Mobile First Approach */
+  .responsive-image-wrapper {
+    /* Base mobile styles */
+    width: clamp(327px, 80vw, 400px);
+    height: clamp(462px, 100vh, 600px);
+    border-radius: clamp(10px, 3vw, 14.19px);
+    opacity: 1;
+    transform: rotate(0deg);
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto 0 auto;
+    align-self: flex-end;
+    margin-top: auto;
+    margin-bottom: 1rem;
+  }
+  
+  /* Small mobile devices (320px - 480px) */
+  @media (max-width: 480px) {
+    .responsive-image-wrapper {
+      width: clamp(327px, 90vw, 380px);
+      height: clamp(462px, 95vh, 550px);
+      border-radius: clamp(8px, 2.5vw, 12px);
+    }
+  }
+  
+  /* Medium mobile devices (481px - 767px) */
+  @media (min-width: 481px) and (max-width: 767px) {
+    .responsive-image-wrapper {
+      width: clamp(327px, 85vw, 400px);
+      height: clamp(462px, 100vh, 600px);
+      border-radius: clamp(10px, 3vw, 14.19px);
+    }
+  }
+  
+  /* Large mobile devices (768px - 1023px) */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .responsive-image-wrapper {
+      width: clamp(327px, 80vw, 400px);
+      height: clamp(462px, 100vh, 600px);
+      border-radius: clamp(12px, 3.5vw, 14.19px);
+    }
+  }
+  
+  /* Portrait tablets (768px - 1024px) */
+  @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    .responsive-image-wrapper {
+      width: clamp(327px, 75vw, 400px);
+      height: clamp(462px, 100vh, 600px);
+      border-radius: clamp(13px, 4vw, 14.19px);
+    }
+  }
+  
+  /* Ensure the InteractiveTeamImage fills the wrapper properly */
+  .responsive-image-wrapper > div {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: inherit;
+  }
+  
+  /* Scroll-based image expansion styles */
+  .responsive-image-wrapper {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    transform-origin: center center;
+  }
+  
+  /* When image is expanding, ensure it's above everything */
+  .responsive-image-wrapper[style*="position: fixed"] {
+    z-index: 1000 !important;
+    pointer-events: none;
+  }
+  
+  /* Smooth transition to next section */
+  .about-section-mobile {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Ensure image stays at bottom */
+  .about-image-container-mobile {
+    margin-top: auto;
+    padding-bottom: 0;
+    align-self: flex-end;
+    transition: margin-top 0.5s ease-in-out;
+  }
+  
+  /* Sticky content behavior */
+  .about-section-mobile .content-column {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: white;
+    transition: all 0.5s ease-in-out;
+  }
+  
+  /* Text reveal animation container */
+  .text-reveal-container {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Text reveal paragraph animations */
+  .text-reveal-paragraph {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* First paragraph is always visible */
+  .text-reveal-paragraph:first-child {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* When expanded, reveal all paragraphs with staggered animation */
+  .about-section-mobile.expanded .text-reveal-paragraph {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Staggered animation delays for each paragraph */
+  .about-section-mobile.expanded .text-reveal-paragraph:nth-child(1) { transition-delay: 0s; }
+  .about-section-mobile.expanded .text-reveal-paragraph:nth-child(2) { transition-delay: 0.2s; }
+  .about-section-mobile.expanded .text-reveal-paragraph:nth-child(3) { transition-delay: 0.4s; }
+  .about-section-mobile.expanded .text-reveal-paragraph:nth-child(4) { transition-delay: 0.6s; }
+  
+  /* Enhanced button animations */
+  .reveal-button {
+    transform: scale(1) translateY(0);
+    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .reveal-button:hover {
+    transform: scale(1.05) translateY(0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .reveal-button:active {
+    transform: scale(0.95) translateY(0);
+  }
+  
+  /* Synchronized button movement with paragraph reveal */
+  .about-section-mobile.expanded .reveal-button {
+    transform: scale(1) translateY(0);
+    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 1rem;
+  }
+  
+  /* Button movement animation */
+  .reveal-button {
+    margin-top: 0.75rem;
+    transition: all 3.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Smooth button positioning during expansion */
+  .about-section-mobile .reveal-button {
+    transition: all 3.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Button container for synchronized movement */
+  .button-container {
+    transition: all 3.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+  }
+  
+  /* When expanded, move button down smoothly */
+  .about-section-mobile.expanded .button-container {
+    transform: translateY(20px);
+    transition: all 3.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Dynamic image positioning when expanded */
+  .about-section-mobile.expanded .about-image-container-mobile {
+    margin-top: auto;
+    overflow: hidden;
+  }
+  
+  /* Image cropping behavior when expanded */
+  .about-section-mobile.expanded .responsive-image-wrapper {
+    overflow: hidden;
+  }
+  
+  /* Ensure proper spacing from navbar */
+  .about-section-mobile {
+    margin-top: 2rem;
+  }
+  
+  .responsive-image-wrapper img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: inherit;
+    transition: object-position 0.5s ease-in-out, transform 0.5s ease-in-out;
+  }
+  
+  /* When expanded, crop image from top */
+  .about-section-mobile.expanded .responsive-image-wrapper img {
+    object-position: top center !important;
+    transform: none;
+  }
+  
+  /* Additional responsive adjustments for very small screens */
+  @media (max-width: 360px) {
+    .responsive-image-wrapper {
+      width: clamp(330px, 100vw, 370px);
+      height: clamp(520px, 140vw, 570px);
+      border-radius: clamp(6px, 2vw, 10px);
+    }
+  }
+  
+  /* Landscape mobile adjustments */
+  @media (max-width: 767px) and (orientation: landscape) {
+    .responsive-image-wrapper {
+      width: clamp(370px, 70vw, 430px);
+      height: clamp(550px, 95vw, 620px);
+    }
+  }
+  
+  /* High DPI displays */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .responsive-image-wrapper img {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+  }
+  
+  /* Dynamically scale write layers inside any container */
+  img[src*="layer1_write"],
+  img[src*="layer2_write"],
+  img[src*="layer3_write"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important; /* keep full layer visible */
+    object-position: center center !important;
+    pointer-events: none;
+    transform-origin: center center;
+    will-change: transform;
+    /* Proportional scaling based on container height */
+    padding: 1.5%;
+    box-sizing: border-box;
+    /* Base scale that adapts to container size - scaled down by 20% */
+    transform: scale(calc(0.77 * (100vh / 800px)));
+    /* Smooth transition for responsive scaling */
+    transition: transform 8s cubic-bezier(0.1, 0.0, 0.1, 1), padding 8s cubic-bezier(0.1, 0.0, 0.1, 1);
+  }
+  
+  /* Slightly shrink layers on smaller desktops so they don't feel oversized */
+  @media (max-width: 1440px), (max-height: 900px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 2.5%;
+      right: 2.5%;
+      top: 2.5%;
+      bottom: 2.5%;
+    }
+  }
+  
+  /* More reduction for compact laptops */
+  @media (max-width: 1280px), (max-height: 800px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 10%;
+      right: 10%;
+      top: 10%;
+      bottom: 10%;
+      transform: scale(0.86);
+    }
+  }
+  
+  /* Very small height screens */
+  @media (max-height: 720px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 9.5%;
+      right: 9.5%;
+      top: 9.5%;
+      bottom: 9.5%;
+    }
+  }
+  
+  /* Narrow width laptops */
+  @media (max-width: 1152px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 14%;
+      right: 14%;
+      top: 14%;
+      bottom: 14%;
+      transform: scale(0.82);
+    }
+  }
+  
+  /* Aggressive downscale for very compact viewports */
+  @media (max-width: 1024px), (max-height: 680px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 16%;
+      right: 16%;
+      top: 16%;
+      bottom: 16%;
+      transform: scale(0.78);
+    }
+  }
+  
+  @media (max-width: 900px), (max-height: 620px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 18%;
+      right: 18%;
+      top: 18%;
+      bottom: 18%;
+      transform: scale(0.74);
+    }
+  }
+
+  /* Mobile-specific responsive scaling for layer images */
+  @media (max-width: 768px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 20%;
+      right: 20%;
+      top: 20%;
+      bottom: 20%;
+      transform: scale(calc(0.52 * (100vh / 600px)));
+      padding: 2%;
+    }
+  }
+
+  /* Small mobile devices */
+  @media (max-width: 480px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 22%;
+      right: 22%;
+      top: 22%;
+      bottom: 22%;
+      transform: scale(calc(0.46 * (100vh / 500px)));
+      padding: 2.5%;
+    }
+  }
+
+  /* Very small mobile devices */
+  @media (max-width: 360px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 25%;
+      right: 25%;
+      top: 25%;
+      bottom: 25%;
+      transform: scale(calc(0.42 * (100vh / 400px)));
+      padding: 3%;
+    }
+  }
+  
+  /* Desktop right-column responsive container */
+  .about-right-responsive {
+    width: clamp(560px, 34vw, 980px);
+    aspect-ratio: 553 / 782;
+    max-height: 96vh;
+    max-width: 92vw;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  
+  @media (max-width: 1440px) {
+    .about-right-responsive {
+      width: clamp(500px, 36vw, 900px);
+      max-height: 96vh;
+    }
+  }
+  
+  @media (max-width: 1366px) {
+    .about-right-responsive {
+      width: clamp(460px, 38vw, 840px);
+      max-height: 96vh;
+    }
+  }
+  
+  @media (max-width: 1280px) {
+    .about-right-responsive {
+      width: clamp(420px, 40vw, 800px);
+      max-height: 96vh;
+    }
+  }
+  
+  @media (min-width: 1600px) {
+    .about-right-responsive {
+      width: clamp(620px, 32vw, 1100px);
+      max-height: 98vh;
+    }
+  }
+  
+  @media (min-width: 1920px) {
+    .about-right-responsive {
+      width: clamp(680px, 32vw, 1200px);
+    }
+  }

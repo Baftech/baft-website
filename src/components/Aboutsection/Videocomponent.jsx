@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import VideoComponentMobile from "./VideoComponentMobile";
-import { VIDEO_COM_PNG, SVG_SVG } from "../../assets/assets";
+import { VIDEO_COM_PNG, SVG_SVG, BAFT_VID_MP4 } from "../../assets/assets";
 
 // Custom hook to detect mobile devices
 const useIsMobile = () => {
@@ -52,6 +52,14 @@ const Videocomponent = ({ slide = false }) => {
   const originalBodyOverflowRef = useRef('');
   const originalBodyTouchActionRef = useRef('');
   const originalHtmlOverscrollRef = useRef('');
+  const inViewRef = useRef(false);
+  const expansionArmedRef = useRef(false); // true after first scroll once in view
+  const lastArmAtRef = useRef(0);
+  const armCooldownMsRef = useRef(200); // Reduced delay for faster response
+  const touchStartYRef = useRef(null);
+  const autoplayRetryRef = useRef(null);
+  const scrollVelocityRef = useRef(0);
+  const lastScrollTimeRef = useRef(0);
 
   // Enhanced responsive hook for desktop
   useEffect(() => {
@@ -93,9 +101,95 @@ const Videocomponent = ({ slide = false }) => {
 
     const addOpts = { passive: false, capture: true };
 
+    // Observe when the section is actually in view so we can arm expansion only then
+    let observer;
+    if (videoSectionRef.current && typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === videoSectionRef.current) {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.2) {
+              // Section is visible enough: allow the first scroll to just settle/show content
+              inViewRef.current = true;
+              expansionArmedRef.current = false;
+            } else if (!entry.isIntersecting) {
+              // Leaving view resets the arming logic
+              inViewRef.current = false;
+              expansionArmedRef.current = false;
+            }
+          }
+        });
+      }, { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] });
+      try { observer.observe(videoSectionRef.current); } catch {}
+    }
+
     const handleScroll = (e) => {
       // Only trigger if not already animating/expanded
       if (isAnimating || isExpanded) return;
+      // If section isn't in view yet, let the scroll proceed to bring it into view
+      if (!inViewRef.current) return;
+      // Normalize input and direction
+      let directionDown = true;
+      let magnitude = 0;
+      const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+      
+      if (e.type === 'wheel') {
+        const dy = typeof e.deltaY === 'number' ? e.deltaY : 0;
+        directionDown = dy > 0;
+        magnitude = Math.abs(dy);
+        
+        // Calculate scroll velocity for fast scroll detection
+        if (lastScrollTimeRef.current > 0) {
+          const timeDelta = now - lastScrollTimeRef.current;
+          scrollVelocityRef.current = magnitude / Math.max(timeDelta, 1);
+        }
+        lastScrollTimeRef.current = now;
+      } else if (e.type === 'touchstart') {
+        try { touchStartYRef.current = e.touches && e.touches[0] ? e.touches[0].clientY : null; } catch {}
+        return; // don't act on touchstart alone
+      } else if (e.type === 'touchmove') {
+        if (touchStartYRef.current != null) {
+          const y = (e.touches && e.touches[0]) ? e.touches[0].clientY : touchStartYRef.current;
+          const dy = touchStartYRef.current - y;
+          directionDown = dy > 0;
+          magnitude = Math.abs(dy);
+        }
+      } else if (e.type === 'touchend') {
+        touchStartYRef.current = null;
+        return;
+      }
+
+      // Require downward intent and a small threshold to avoid micro scrolls
+      // Use different thresholds based on whether we're armed or not
+      const threshold = expansionArmedRef.current ? 8 : 5; // Moderately sensitive after arming
+      if (magnitude < threshold || !directionDown) return;
+
+      // Fast scroll detection - if velocity is high, trigger immediately
+      const isFastScroll = scrollVelocityRef.current > 2; // High velocity threshold
+      
+      // Two-step behavior: first qualifying scroll arms expansion (let it pass)
+      if (!expansionArmedRef.current) {
+        expansionArmedRef.current = true;
+        lastArmAtRef.current = now;
+        
+        // If it's a fast scroll, skip the first step and trigger immediately
+        if (isFastScroll) {
+          // Skip the debounce for fast scrolling
+        } else {
+          return; // allow the first scroll to settle content for normal scrolling
+        }
+      }
+
+      // After first step is completed, be moderately sensitive to scroll
+      const nowTs = now;
+      const timeSinceArm = nowTs - lastArmAtRef.current;
+      
+      // If armed and enough time has passed, be moderately sensitive to scroll
+      if (expansionArmedRef.current && timeSinceArm > 200) { // Slightly longer delay after arming
+        // Scroll after arming should trigger expansion
+        // Skip debounce for better responsiveness
+      } else if (!isFastScroll && timeSinceArm < 200) {
+        return; // Apply moderate delay for normal scrolling
+      }
       
       e.preventDefault();
       e.stopPropagation();
@@ -141,6 +235,12 @@ const Videocomponent = ({ slide = false }) => {
       // Start the synchronized animation
       setTimeout(() => {
         setIsExpanded(true);
+        
+        // Hide navbar when video expands
+        const navbar = document.querySelector('nav') || document.querySelector('[role="navigation"]') || document.querySelector('.navbar') || document.querySelector('#navbar');
+        if (navbar) {
+          navbar.style.display = 'none';
+        }
       }, 50);
 
       // Ensure the section is in view
@@ -191,6 +291,9 @@ const Videocomponent = ({ slide = false }) => {
         container.removeEventListener('touchstart', handleScroll, addOpts);
         container.removeEventListener('touchend', handleScroll, addOpts);
       }
+      if (observer) {
+        try { observer.disconnect(); } catch {}
+      }
       // Clean up global handoff
       if (typeof window !== 'undefined') {
         window.__videoHandoffActive = false;
@@ -203,6 +306,43 @@ const Videocomponent = ({ slide = false }) => {
     transition: isExpanded ? 'all 3s linear' : 'none',
     transform: isExpanded ? 'scale(1)' : 'scale(1)',
   };
+
+  // Autoplay MP4 when expanded and handle navbar visibility
+  useEffect(() => {
+    if (!isExpanded) {
+      // Show navbar when video is not expanded
+      const navbar = document.querySelector('nav') || document.querySelector('[role="navigation"]') || document.querySelector('.navbar') || document.querySelector('#navbar');
+      if (navbar) {
+        navbar.style.display = '';
+      }
+      return;
+    }
+    
+    const el = videoRef.current;
+    if (!el) return;
+
+    // Ensure ideal attributes for autoplay
+    try {
+      el.muted = false;
+      el.playsInline = true;
+      el.autoplay = true;
+    } catch {}
+
+    const tryPlay = () => {
+      if (!el || typeof el.play !== 'function') return;
+      try { el.play().catch(() => {}); } catch {}
+    };
+
+    // Attempt immediately, then on next frame, then after a short delay
+    tryPlay();
+    const raf = requestAnimationFrame(tryPlay);
+    autoplayRetryRef.current = setTimeout(tryPlay, 300);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      if (autoplayRetryRef.current) clearTimeout(autoplayRetryRef.current);
+    };
+  }, [isExpanded]);
 
   const videoContainerStyle = {
     transition: isExpanded
@@ -314,36 +454,27 @@ const Videocomponent = ({ slide = false }) => {
               ...videoContainerStyle
             }}>
               {/* Video/Image */}
-              <img
-                ref={videoRef}
-                src={VIDEO_COM_PNG}
-                alt="Video Preview"
-                style={videoStyle}
-              />
-              
-              {/* Scroll hint - only show when not expanded */}
-              {!isExpanded && !isAnimating && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: isSmallDesktop ? '18px' : '20px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  backgroundColor: 'rgba(25, 102, 187, 0.9)',
-                  color: 'white',
-                  padding: isSmallDesktop ? '10px 20px' : '12px 24px',
-                  borderRadius: isSmallDesktop ? '22px' : '25px',
-                  fontSize: isSmallDesktop ? '13px' : '14px',
-                  fontFamily: 'Inter, sans-serif',
-                  fontWeight: '500',
-                  animation: 'gentlePulse 3s infinite',
-                  zIndex: 10,
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  whiteSpace: 'nowrap'
-                }}>
-                  Scroll to expand video
-                </div>
+              {isExpanded ? (
+                <video
+                  ref={videoRef}
+                  src={BAFT_VID_MP4}
+                  style={videoStyle}
+                  playsInline
+                  autoPlay
+                  preload="auto"
+                  poster={VIDEO_COM_PNG}
+                  onLoadedMetadata={() => { try { videoRef.current && videoRef.current.play && videoRef.current.play(); } catch {} }}
+                  onCanPlay={() => { try { videoRef.current && videoRef.current.play && videoRef.current.play(); } catch {} }}
+                />
+              ) : (
+                <img
+                  ref={videoRef}
+                  src={VIDEO_COM_PNG}
+                  alt="Video Preview"
+                  style={videoStyle}
+                />
               )}
+              
             </div>
 
             {/* Text Container */}
@@ -393,7 +524,7 @@ const Videocomponent = ({ slide = false }) => {
               <p style={{
                 fontFamily: 'Inter, sans-serif',
                 fontSize: bodyTextSize,
-                color: '#666666',
+                color: '#909090',
                 lineHeight: '1.7',
                 fontWeight: 400,
                 maxWidth: isSmallDesktop ? '95%' : '90%',

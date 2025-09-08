@@ -12,7 +12,7 @@ const B_Fast_Desktop = () => {
   const contentRef = useRef(null);
   const videoRef = useRef(null);
   const sectionRef = useRef(null);
-  const overlayRef = useRef(null);
+  const overlayRef = useRef(null); // kept for ref safety, but overlay is not rendered/used
   const starsGroup2Ref = useRef(null);
   const starsGroup1Ref = useRef(null);
   const orbitingStarsRef = useRef(null);
@@ -20,6 +20,7 @@ const B_Fast_Desktop = () => {
   const [videoSize, setVideoSize] = useState({ width: '100%', height: '100%' });
   const [optimalSpacing, setOptimalSpacing] = useState('2cm');
   const [navbarSafeSpacing, setNavbarSafeSpacing] = useState('80px');
+  const videoStartedRef = useRef(false);
 
   // Dynamic video sizing and spacing calculation
   useEffect(() => {
@@ -97,13 +98,11 @@ const B_Fast_Desktop = () => {
 
   useGSAP(() => {
     // Check if refs exist before animating
-    if (!contentRef.current || !videoRef.current || !sectionRef.current || !overlayRef.current) return;
+    if (!contentRef.current || !videoRef.current || !sectionRef.current) return;
     
     // Set initial heading state - start hidden and above position
-    gsap.set(contentRef.current, { opacity: 0, y: -80 }); // Heading starts hidden and above position
-    
-    // Always start with overlay hidden, we'll show it conditionally
-    gsap.set(overlayRef.current, { opacity: 0 });
+    gsap.set(contentRef.current, { opacity: 0, y: -80 });
+    // Overlay not used on desktop; keep stars hidden initially
     if (starsGroup2Ref.current) gsap.set(starsGroup2Ref.current, { opacity: 0 });
     if (starsGroup1Ref.current) gsap.set(starsGroup1Ref.current, { opacity: 0 });
     if (orbitingStarsRef.current) gsap.set(orbitingStarsRef.current, { opacity: 0 });
@@ -111,6 +110,8 @@ const B_Fast_Desktop = () => {
     // Track scroll direction to determine if coming from bottom
     let lastScrollY = window.scrollY;
     let isFromBottom = false;
+
+    const hasRevealedRef = { current: false };
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -120,48 +121,46 @@ const B_Fast_Desktop = () => {
             const currentScrollY = window.scrollY;
             isFromBottom = currentScrollY < lastScrollY; // scrolling up
             
-            // Reset heading for animation but ensure it becomes visible
-            gsap.set(contentRef.current, { opacity: 0, y: -80 });
-            
-            const tl = gsap.timeline();
-            
-            if (isFromBottom) {
-              // Coming from bottom → run page reveal
-              gsap.set(overlayRef.current, { opacity: 1 });
-              
-              tl.to(overlayRef.current, {
-                opacity: 0,
-                duration: 2.5,
-                ease: "power2.out"
-              })
-              .to(contentRef.current, {
-                opacity: 1,
-                y: 0,
-                duration: 1.2,
-                ease: "power1.inOut"
-              }, "+=2.0")
-              .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
-                opacity: 1,
-                duration: 2.0,
-                ease: "power1.out"
-              }, "<");
-            } else {
-              // Normal scroll from top → just animate heading
-              tl.to(contentRef.current, {
-                opacity: 1,
-                y: 0,
-                duration: 1.2,
-                ease: "power1.inOut",
-                delay: 1.5
-              })
-              .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), {
-                opacity: 1,
-                duration: 2.0,
-                ease: "power1.out"
-              }, "<");
+            // Prevent duplicate triggers/flicker similar to mobile
+            if (hasRevealedRef.current && !isFromBottom) {
+              lastScrollY = currentScrollY;
+              return;
             }
-            
-            lastScrollY = currentScrollY; // ✅ update scroll position
+
+            // Reset heading for animation
+            gsap.set(contentRef.current, { opacity: 0, y: -80 });
+
+            const startReveal = () => {
+              const tl = gsap.timeline({ onComplete: () => {
+                hasRevealedRef.current = true;
+              }});
+              if (isFromBottom) {
+                // Coming from bottom → show content smoothly (no overlay on desktop)
+                tl.to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut" })
+                  .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), { opacity: 1, duration: 1.2, ease: "power1.out" }, "<");
+              } else {
+                // Normal scroll from top → match mobile timings
+                tl.to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut", delay: 0.4 })
+                  .to([starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current].filter(Boolean), { opacity: 1, duration: 1.2, ease: "power1.out" }, "<");
+              }
+            };
+
+            // Wait until video starts, then 800ms, then reveal (like mobile)
+            const triggerAfterVideo = () => gsap.delayedCall(0.8, startReveal);
+            if (videoStartedRef.current) {
+              triggerAfterVideo();
+            } else if (videoRef.current) {
+              const onPlay = () => {
+                videoStartedRef.current = true;
+                triggerAfterVideo();
+                videoRef.current && videoRef.current.removeEventListener('play', onPlay);
+              };
+              videoRef.current.addEventListener('play', onPlay, { once: true });
+            } else {
+              triggerAfterVideo();
+            }
+
+            lastScrollY = currentScrollY; // update scroll position
           } else {
             // Don't reset content when leaving - let the animation handle it
             lastScrollY = window.scrollY;
@@ -181,21 +180,16 @@ const B_Fast_Desktop = () => {
     // Cleanup function
     return () => {
       observer.disconnect();
-      gsap.killTweensOf([contentRef.current, overlayRef.current, starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current]);
+      gsap.killTweensOf([contentRef.current, starsGroup2Ref.current, starsGroup1Ref.current, orbitingStarsRef.current]);
     };
   }, []);
 
   return (
     <section ref={sectionRef} className="relative w-full h-screen overflow-hidden" style={{ backgroundColor: '#ffffff' }} data-theme="light">
-      {/* Reveal Overlay - starts covering everything, then fades out */}
-      <div 
-        ref={overlayRef}
-        className="absolute inset-0 z-50 pointer-events-none"
-        style={{ backgroundColor: '#ffffff' }}
-      />
+      {/* Overlay removed to preserve original video quality */}
       
       {/* Content Container */}
-      <div className="relative z-10 w-full h-full flex flex-col items-center justify-start" style={{ backgroundColor: '#ffffff', textAlign: 'center' }}>
+      <div className="relative z-10 w-full h-full flex flex-col items-center justify-start" style={{ backgroundColor: '#ffffff', textAlign: 'center', marginTop: 'clamp(20px, 6vh, 160px)' }}>
         {/* Text Content */}
         <div
           ref={contentRef}
@@ -225,7 +219,7 @@ const B_Fast_Desktop = () => {
               lineHeight: '100%',
               letterSpacing: '0%',
                           textAlign: 'center',
-            width: 'clamp(280px, 90vw, 1600px)', // Responsive width for all small screens
+            width: 'clamp(280px, 100vw, 1600px)', // Responsive width for all small screens
             height: 'clamp(80px, 15vh, 200px)', // Responsive height for all small screens
             backgroundImage: 'linear-gradient(180deg, #B8C9E0 33.59%, #0A2A4A 77.13%)',
             backgroundRepeat: 'no-repeat',
@@ -279,53 +273,27 @@ const B_Fast_Desktop = () => {
 
 
                 {/* Video Section */}
-        <div className="relative w-full mx-auto mac-margin" style={{ 
+        <div className="relative w-full mx-auto mac-margin mac-gap" style={{ 
           backgroundColor: 'transparent',
           position: 'relative',
           flex: '1 1 auto', // Allow growing and shrinking, but maintain aspect ratio
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: 'clamp(500px, 70vh, 1000px)', // Much bigger video: 500px minimum, scales to 1000px
-          maxHeight: 'clamp(700px, 90vh, 1200px)', // Much bigger video: 700px minimum, scales to 1200px
-          marginTop: 'clamp(60px, 6vh, 100px)', // Move video a bit higher - reduced from 80px to 60px
+          minHeight: 'clamp(380px, 65vh, 1100px)', // Larger baseline height for bigger video
+          maxHeight: 'clamp(760px, 90vh, 1300px)', // Allow up to 90vh for larger render
+          marginTop: 'clamp(130px, 12vh, 240px)', // Increased gap under heading
           marginLeft: 'clamp(5px, 0.5vw, 5px)', // X-5 margin for bigger screens
           marginRight: 'clamp(5px, 0.5vw, 5px)' // X-5 margin for bigger screens
         }}>
-          {/* Centered Video Glow (deeper ellipse) */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-            zIndex: 11
-          }}>
-            <div style={{
-              width: 'min(62vw, 820px)',
-              height: 'min(58vh, 600px)',
-              background: 'radial-gradient(ellipse at center, rgba(55,102,183,0.28) 0%, rgba(55,102,183,0.14) 40%, rgba(55,102,183,0.06) 70%, rgba(55,102,183,0) 100%)',
-              filter: 'blur(70px)',
-              mixBlendMode: 'overlay',
-              borderRadius: '50%',
-              transform: 'translateZ(0)'
-            }} />
-          </div>
+          {/* Removed centered glow overlay for cleaner video */}
           {/* Responsive positioning container */}
           <div className="relative w-full h-full flex items-center justify-center" style={{ 
             backgroundColor: 'transparent',
             border: 'none',
             outline: 'none'
           }}>
-            {/* Subtle glow behind video - blends with background */}
-            <div 
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'transparent', // Remove glow for seamless blend
-                zIndex: 1
-              }}
-            />
+            {/* Removed additional glow layers */}
                       {videoError ? (
               <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center relative z-10 shadow-lg">
                 <div className="text-center text-gray-500">
@@ -356,10 +324,9 @@ const B_Fast_Desktop = () => {
                   // Blend into background for animation-like feel
                   mixBlendMode: 'normal',
                   // Subtle visual tuning
-                  filter: 'saturate(1.08) contrast(1.04) brightness(1.02)',
-                  // Feather edges to merge with background
-                  WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
-                  maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
+                  
+                  // removed Feather edges to merge with background
+                  
                   // Non-interactive feel
                   pointerEvents: 'none',
                   border: 'none',
@@ -385,19 +352,7 @@ const B_Fast_Desktop = () => {
           </div>
         </div>
 
-        {/* Global Glow Overlay (covers video + screen) */}
-        <div style={{
-          position: 'fixed',
-          width: 'clamp(480px, 90vw, 900px)',
-          height: 'clamp(520px, 90vh, 1100px)',
-          left: 'calc(50% - (clamp(480px, 90vw, 900px))/2)',
-          top: 'calc(50% - (clamp(520px, 90vh, 1100px))/2)',
-          background: 'radial-gradient(ellipse at center, rgba(55, 102, 183, 0.12) 0%, rgba(55, 102, 183, 0.08) 40%, rgba(55, 102, 183, 0.03) 75%, rgba(55, 102, 183, 0) 100%)',
-          filter: 'blur(40px)',
-          mixBlendMode: 'soft-light',
-          zIndex: 12,
-          pointerEvents: 'none'
-        }} />
+        {/* Removed global glow overlay */}
 
         {/* Group 2 - Stars Overlay - Spread across entire screen */}
         <div ref={starsGroup2Ref} style={{
@@ -418,7 +373,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '15%',
             top: '20%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinDriftA 18s linear infinite, twinkle 3.8s ease-in-out infinite'
@@ -430,7 +385,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '65%',
             top: '15%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinDriftB 22s linear infinite, twinkle 4.6s ease-in-out infinite'
@@ -442,7 +397,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '35%',
             top: '60%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinDriftC 20s linear infinite, twinkle 4.2s ease-in-out infinite'
@@ -454,7 +409,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '85%',
             top: '70%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinDriftB 24s linear infinite, twinkle 5s ease-in-out infinite'
@@ -466,7 +421,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '80%',
             top: '85%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinStar 10s linear infinite'
@@ -478,7 +433,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(8px, 0.5vw, 16px)', // Much smaller: 8px minimum, scales with viewport
             left: '5%',
             top: '45%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.8,
             animation: 'spinStar 10s linear infinite'
@@ -503,7 +458,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(6px, 0.35vw, 12px)',
             left: '12%',
             top: '18%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.85,
             animation: 'spinDriftA 26s linear infinite, twinkle 3.6s ease-in-out infinite'
@@ -514,7 +469,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(6px, 0.35vw, 12px)',
             left: '42%',
             top: '35%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.85,
             animation: 'spinDriftB 21s linear infinite, twinkle 4.3s ease-in-out infinite'
@@ -525,7 +480,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(6px, 0.35vw, 12px)',
             left: '72%',
             top: '28%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.85,
             animation: 'spinDriftC 28s linear infinite, twinkle 5.1s ease-in-out infinite'
@@ -536,7 +491,7 @@ const B_Fast_Desktop = () => {
             height: 'clamp(6px, 0.35vw, 12px)',
             left: '88%',
             top: '68%',
-            background: '#000000',
+            background: '#222222',
             clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
             opacity: 0.85,
             animation: 'spinDriftA 24s linear infinite, twinkle 4.8s ease-in-out infinite'
@@ -548,16 +503,16 @@ const B_Fast_Desktop = () => {
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0 }}>
             {/* Ring 1 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitSlow 24s linear infinite' }}>
-              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'translateX(clamp(280px, 22vw, 420px))' }} />
-              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(120deg) translateX(clamp(280px, 22vw, 420px))' }} />
-              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(240deg) translateX(clamp(280px, 22vw, 420px))' }} />
+              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'translateX(clamp(280px, 22vw, 420px))' }} />
+              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(120deg) translateX(clamp(280px, 22vw, 420px))' }} />
+              <div style={{ width: 'clamp(8px, 0.5vw, 16px)', height: 'clamp(8px, 0.5vw, 16px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(240deg) translateX(clamp(280px, 22vw, 420px))' }} />
             </div>
             {/* Ring 2 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitMed 18s linear infinite reverse' }}>
-              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'translateX(clamp(380px, 30vw, 580px))' }} />
-              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(90deg) translateX(clamp(380px, 30vw, 580px))' }} />
-              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(180deg) translateX(clamp(380px, 30vw, 580px))' }} />
-              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(270deg) translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(90deg) translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(180deg) translateX(clamp(380px, 30vw, 580px))' }} />
+              <div style={{ width: 'clamp(6px, 0.35vw, 12px)', height: 'clamp(6px, 0.35vw, 12px)', background: '#222', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(270deg) translateX(clamp(380px, 30vw, 580px))' }} />
             </div>
           </div>
         </div>
@@ -589,6 +544,10 @@ const B_Fast_Desktop = () => {
           .mac-margin {
             margin-left: 5px !important;
             margin-right: 5px !important;
+          }
+          /* Smaller Mac displays: add extra gap between heading and video */
+          @media (max-height: 900px) {
+            .mac-gap { margin-top: clamp(160px, 14vh, 280px) !important; }
           }
         }
       `}</style>
