@@ -1166,7 +1166,7 @@ const AboutBaft = () => {
               <div
                 className="w-full mx-auto grid grid-cols-2 items-center"
                 style={{
-                  columnGap: getDimensions('60px', '120px', '150px'),
+                  columnGap: getDimensions('60px', '120px', '130px'),
                   maxWidth: getDimensions('1200px', '1600px', '2000px'),
                   paddingLeft: getSpacing('1rem', '2rem', '3rem'),
                   paddingRight: getSpacing('1rem', '2rem', '3rem')
