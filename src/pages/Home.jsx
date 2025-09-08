@@ -85,8 +85,8 @@ const Home = () => {
         <B_Fast />
         {/* Slide 5: Features/Cards Section */}
         <Cards />
-        {/* Slide 6: Video Component */}
-        <Videocomponent slide />
+        {/* Slide 6: Video Component
+        <Videocomponent slide /> */}
         {/* Slide 8: Safe & Secure Section */}
         <SafeSecure />
         {/* Slide 9: Pre-footer */}
