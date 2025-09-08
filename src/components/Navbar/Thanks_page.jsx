@@ -1,5 +1,6 @@
 import React from "react";
 import "./Thanks_Page.css";
+import { LOGO_PNG } from "../../assets/assets";
 
 const ThanksPage = () => {
   return (
@@ -13,7 +14,7 @@ const ThanksPage = () => {
           ✕
         </button> */}
         <div className="signup-header">
-          <img src="/logo.png" alt="BaFT Logo" className="signup-logo" />
+          <img src={LOGO_PNG} alt="BaFT Logo" className="signup-logo" />
           <p className="signup-tagline">Build for You, Powered by Tech</p>
         </div>
 

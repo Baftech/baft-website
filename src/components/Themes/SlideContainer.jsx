@@ -6,7 +6,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [previousSlideIndex, setPreviousSlideIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionDirection, setTransitionDirection] = useState('none');
-  const [isMobile, setIsMobile] = useState(false);
+
   const [canScrollToNext, setCanScrollToNext] = useState(true);
   const [canScrollToPrev, setCanScrollToPrev] = useState(true);
   const totalSlides = React.Children.count(children);
@@ -17,6 +17,12 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const lastNavTime = useRef(0);
   const navCooldownMs = 300;
   const momentumGuardUntilRef = useRef(0);
+  
+  // BaFT Coin section control
+  const [baftCoinPinned, setBaftCoinPinned] = useState(false);
+  
+  // BInstant section control
+  const [binstantPinned, setBinstantPinned] = useState(false);
   
   // Touch gesture handling
   const touchStartY = useRef(0);
@@ -31,21 +37,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     inline: 'nearest'
   };
 
-  // Responsive detection
-  useEffect(() => {
-    const checkDeviceType = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
 
-    checkDeviceType();
-    window.addEventListener('resize', checkDeviceType);
-    window.addEventListener('orientationchange', checkDeviceType);
-
-    return () => {
-      window.removeEventListener('resize', checkDeviceType);
-      window.removeEventListener('orientationchange', checkDeviceType);
-    };
-  }, []);
 
   // Check if current slide can scroll and update scroll permissions
   useEffect(() => {
@@ -208,6 +200,54 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       if (e && e.cancelable) e.preventDefault();
       if (now - lastNavTime.current >= navCooldownMs) {
         lastNavTime.current = now;
+        
+        // Special handling for BaFT Coin slide (slide 2, index 1)
+        if (slideIndex === 1 && !baftCoinPinned) {
+          console.log('🎯 BaFT Coin: Scroll triggered, starting exit animations immediately...');
+          // Pin the BaFT Coin section and trigger exit animations immediately on scroll
+          setBaftCoinPinned(true);
+          
+          // Trigger exit animations immediately on scroll (no 3-second wait)
+          if (typeof window !== 'undefined' && window.triggerBaftCoinExit) {
+            console.log('🎯 BaFT Coin: Calling triggerBaftCoinExit immediately...');
+            window.triggerBaftCoinExit();
+          } else {
+            console.log('❌ BaFT Coin: triggerBaftCoinExit not found on window!');
+          }
+          
+          // Reset pin state after a short delay
+          setTimeout(() => {
+            setBaftCoinPinned(false);
+          }, 100);
+          
+          return; // Don't change slide yet
+        }
+        
+        // Special handling for BInstant slide (slide 3, index 2)
+        if (slideIndex === 2 && !binstantPinned) {
+          console.log('🎯 BInstant: Scroll triggered, starting exit animations immediately...');
+          // Pin the BInstant section and trigger exit animations immediately on scroll
+          setBinstantPinned(true);
+          
+          // Trigger exit animations immediately on scroll
+          if (typeof window !== 'undefined' && window.triggerBinstantExit) {
+            console.log('🎯 BInstant: Calling triggerBinstantExit immediately...');
+            window.triggerBinstantExit();
+          } else {
+            console.log('❌ BInstant: triggerBinstantExit not found on window!');
+          }
+          
+          // Reset pin state after a short delay
+          setTimeout(() => {
+            setBinstantPinned(false);
+          }, 100);
+          
+          return; // Don't change slide yet
+        }
+        
+
+        
+        // Normal slide change
         handleSlideChange(slideIndex + 1);
       }
     } else if (e.deltaY < 0 && atTop && slideIndex > 0) {
@@ -273,6 +313,100 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     window.addEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
     return () => window.removeEventListener('aboutPinnedEnded', handleAboutPinnedEnd);
   }, [slideIndex, totalSlides, isTransitioning, handleSlideChange]);
+
+  // Listen for BaFT Coin exit complete event - automatic transition to BInstant
+  useEffect(() => {
+    const handleBaftCoinExitComplete = () => {
+      console.log('🎯 BaFT Coin: Exit complete event received!');
+      if (slideIndex === 1 && !isTransitioning) { // BaFT Coin is slide 2 (index 1)
+        console.log('🎯 BaFT Coin: Starting smooth transition to BInstant...');
+        
+        const nextIndex = 2; // BInstant section
+        if (nextIndex !== slideIndex) {
+          // Prepare a black crossfade overlay to cover the handoff (same as About section)
+          setShowAboutCrossfade(true);
+          setAboutCrossfadeOpaque(false); // start transparent
+          setAboutCrossfadeFadeOut(false);
+          
+          // Fade to black quickly
+          setTimeout(() => {
+            setAboutCrossfadeOpaque(true);
+          }, 10);
+          
+          // Once fully black, change slide under cover
+          setTimeout(() => {
+            // Ensure current slide is at top without animation
+            const element = currentSlideRef.current;
+            if (element) {
+              try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
+            }
+            handleSlideChange(nextIndex);
+            
+            // After a short hold, fade the cover out smoothly
+            setTimeout(() => {
+              setAboutCrossfadeFadeOut(true);
+              // Remove overlay after fade completes
+              setTimeout(() => {
+                setShowAboutCrossfade(false);
+                setAboutCrossfadeFadeOut(false);
+                setAboutCrossfadeOpaque(false);
+              }, 720);
+            }, 150);
+          }, 220); // allow ~220ms for fade-in to black
+        }
+      }
+    };
+
+    window.addEventListener('baftCoinExitComplete', handleBaftCoinExitComplete);
+    return () => window.removeEventListener('baftCoinExitComplete', handleBaftCoinExitComplete);
+  }, [slideIndex, isTransitioning, handleSlideChange]);
+
+  // Listen for BInstant exit complete event - automatic transition to B_Fast
+  useEffect(() => {
+    const handleBinstantExitComplete = () => {
+      console.log('🎯 BInstant: Exit complete event received!');
+      if (slideIndex === 2 && !isTransitioning) { // BInstant is slide 3 (index 2)
+        console.log('🎯 BInstant: Starting smooth transition to B_Fast...');
+        
+        const nextIndex = 3; // B_Fast section (slide 4, index 3)
+        if (nextIndex !== slideIndex) {
+          // Prepare a black crossfade overlay to cover the handoff (same as About section)
+          setShowAboutCrossfade(true);
+          setAboutCrossfadeOpaque(false); // start transparent
+          setAboutCrossfadeFadeOut(false);
+          
+          // Fade to black quickly
+          setTimeout(() => {
+            setAboutCrossfadeOpaque(true);
+          }, 10);
+          
+          // Once fully black, change slide under cover
+          setTimeout(() => {
+            // Ensure current slide is at top without animation
+            const element = currentSlideRef.current;
+            if (element) {
+              try { element.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch {}
+            }
+            handleSlideChange(nextIndex);
+            
+            // After a short hold, fade the cover out smoothly
+            setTimeout(() => {
+              setAboutCrossfadeFadeOut(true);
+              // Remove overlay after fade completes
+              setTimeout(() => {
+                setShowAboutCrossfade(false);
+                setAboutCrossfadeFadeOut(false);
+                setAboutCrossfadeOpaque(false);
+              }, 720);
+            }, 150);
+          }, 220); // allow ~220ms for fade-in to black
+        }
+      }
+    };
+
+    window.addEventListener('binstantExitComplete', handleBinstantExitComplete);
+    return () => window.removeEventListener('binstantExitComplete', handleBinstantExitComplete);
+  }, [slideIndex, isTransitioning, handleSlideChange]);
 
   // Listen for programmatic navigation requests (e.g., slow smooth transition to a target slide)
   useEffect(() => {
@@ -360,8 +494,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       if (currentSlide >= 0 && currentSlide < totalSlides) {
         setSlideIndex(currentSlide);
         setPreviousSlideIndex(slideIndex);
-      } else {
-        console.error("Invalid slide index:", currentSlide, "Total slides:", totalSlides);
       }
     }
   }, [currentSlide, slideIndex, totalSlides]);
@@ -381,12 +513,10 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
 
   // Validate slide indices
   if (slideIndex < 0 || slideIndex >= totalSlides) {
-    console.error("Invalid slide index:", slideIndex, "Total slides:", totalSlides);
     return null;
   }
 
   if (!currentChild) {
-    console.error("No content found for slide:", slideIndex);
     return null;
   }
 
@@ -435,11 +565,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
             }
           }}
         >
-          {currentChild || (
-            <div className="w-full h-full bg-yellow-500 flex items-center justify-center text-black text-2xl">
-              No slide content found for index {slideIndex}
-            </div>
-          )}
+          {currentChild}
         </div>
       )}
       {showAboutCrossfade && (
@@ -465,15 +591,25 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         />
       )}
 
-      {/* Progress bar for mobile */}
-      {isMobile && (
-        <div className="fixed top-0 left-0 w-full h-1 bg-black/20 z-50">
-          <div 
-            className="h-full bg-white transition-all duration-300 ease-out"
-            style={{ width: `${((slideIndex + 1) / totalSlides) * 100}%` }}
-          />
+          {/* BaFT Coin pinned indicator */}
+    {baftCoinPinned && slideIndex === 1 && (
+      <div className="absolute top-8 right-8 z-50 pointer-events-none">
+        <div className="bg-blue-500/80 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-sm font-medium shadow-lg">
+          BaFT Coin Exit Animations
         </div>
-      )}
+      </div>
+    )}
+
+    {/* BInstant pinned indicator */}
+    {binstantPinned && slideIndex === 2 && (
+      <div className="absolute top-8 right-8 z-50 pointer-events-none">
+        <div className="bg-green-500/80 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-sm font-medium shadow-lg">
+          BInstant Exit Animations
+        </div>
+      </div>
+    )}
+
+
     </div>
   );
 };

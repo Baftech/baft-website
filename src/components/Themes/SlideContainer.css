@@ -1,16 +1,22 @@
 .slide-container {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  /* Disable forced snap to avoid jank; allow natural scrolling */
+  /* Enhanced smooth scrolling */
   scroll-snap-type: none;
   overscroll-behavior: none;
-  /* Enhanced hardware acceleration for buttery smoothness */
-  will-change: transform;
+  /* Premium hardware acceleration */
+  will-change: transform, scroll-position;
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
-  /* Ensure vertical panning gestures work on mobile */
+  /* Touch handling for mobile */
   touch-action: pan-y;
+  /* Enhanced performance */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  /* Smooth momentum scrolling */
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
 }
 
 .slide {
@@ -61,18 +67,26 @@
   scroll-snap-type: none;
 }
 
-/* Buttery smooth scroll enhancements */
+/* Premium buttery smooth scroll enhancements */
 .buttery-smooth-scroll {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
   will-change: scroll-position, transform;
-  /* Advanced momentum and inertia */
+  /* Enhanced momentum and inertia */
   scroll-padding: 20px;
   overscroll-behavior: contain;
-  /* Allow vertical touch scrolling and swipes */
+  /* Touch handling */
   touch-action: pan-y;
+  /* Enhanced performance */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Smooth acceleration */
+  transition: scroll-behavior 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Premium momentum scrolling */
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
 }
 
 .buttery-smooth-scroll::-webkit-scrollbar {
@@ -282,12 +296,15 @@
   }
 }
 
-/* Seamless slide-up between slide 4 -> 5 */
+/* Enhanced smooth seamless transitions */
 .seamless-up-prev {
   animation: seamlessPrevUp 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
+  /* Enhanced smoothness */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .seamless-up-next {
@@ -295,6 +312,9 @@
   will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
+  /* Enhanced smoothness */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 @keyframes seamlessPrevUp {

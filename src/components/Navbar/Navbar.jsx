@@ -10,19 +10,25 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
   const [showNavbar, setShowNavbar] = useState(true);
   const [theme, setTheme] = useState("dark"); // default
 
-  // Determine theme based on current slide
+  // Determine theme based on current slide and device type
   useEffect(() => {
-    // Define which slides should have light theme (white backgrounds)
-    const lightThemeSlides = [3, 4, 5, 6, 7]; // B-Fast (3), Features (4), Video (5), SafeSecure (6), Footer (7)
+    // Check if it's mobile device
+    const isMobile = window.innerWidth <= 768;
     
-    if (lightThemeSlides.includes(currentSlide)) {
+    // Define which slides should have light theme (white backgrounds)
+    const lightThemeSlides = [3, 4, 5, 7]; // B-Fast (3), Features (4), Video (5), Footer (7)
+    
+    if (currentSlide === 6) {
+      // SafeSecure slide: light theme on desktop, dark theme on mobile
+      setTheme(isMobile ? "dark" : "light");
+    } else if (lightThemeSlides.includes(currentSlide)) {
       setTheme("light");
     } else {
       setTheme("dark");
     }
   }, [currentSlide]);
 
-  // Hide/show on scroll
+  // Hide/show on scroll and when video is expanded
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
@@ -33,9 +39,49 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
       }
       lastScrollY = window.scrollY;
     };
+    
+    // Check for navbar-hidden attribute from video expansion
+    const checkNavbarHidden = () => {
+      const isNavbarHidden = document.documentElement.hasAttribute('data-navbar-hidden');
+      if (isNavbarHidden) {
+        setShowNavbar(false);
+      } else {
+        // Only show navbar if not scrolling down
+        if (window.scrollY <= lastScrollY || window.scrollY <= 50) {
+          setShowNavbar(true);
+        }
+      }
+    };
+    
+    // Initial check
+    checkNavbarHidden();
+    
+    // Listen for scroll events
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Listen for attribute changes
+    const observer = new MutationObserver(checkNavbarHidden);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-navbar-hidden'] });
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      observer.disconnect();
+    };
   }, []);
+
+  // Handle window resize for responsive theme switching
+  useEffect(() => {
+    const handleResize = () => {
+      // Re-evaluate theme when window is resized
+      const isMobile = window.innerWidth <= 768;
+      if (currentSlide === 6) {
+        setTheme(isMobile ? "dark" : "light");
+      }
+    };
+    
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [currentSlide]);
 
   return (
     <>
@@ -80,7 +126,7 @@ export const Navbar = ({ onNavigate, currentSlide }) => {
           <img
             src={theme === "dark" ? "logo.png" : "logo1.png"}
             alt="Logo"
-            className="w-12 h-auto sm:w-14 md:w-16 lg:w-18 xl:w-20 cursor-pointer"
+            className="w-16 h-auto sm:w-18 md:w-20 lg:w-22 xl:w-24 cursor-pointer"
             onClick={() => {
               if (typeof onNavigate === 'function') {
                 onNavigate('hero');

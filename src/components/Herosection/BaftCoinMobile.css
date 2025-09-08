@@ -1,0 +1,87 @@
+/* BaftCoinMobile Responsive Styles */
+
+/* Base styles for larger mobile devices */
+.baft-coin-mobile .coin-image {
+  width: 314px;
+  height: 314px;
+  top: 49px;
+  left: 49px;
+}
+
+.baft-coin-mobile .intro-text {
+  width: 113px;
+  height: 28px;
+  font-size: 24.22px;
+}
+
+.baft-coin-mobile .baft-text {
+  width: 291px;
+  height: 76px;
+  font-size: 65.51px;
+}
+
+/* Small mobile devices (max-width: 640px) */
+@media (max-width: 640px) {
+  .baft-coin-mobile .coin-image {
+    width: 280px;
+    height: 280px;
+    top: 40px;
+    left: 40px;
+  }
+
+  .baft-coin-mobile .intro-text {
+    width: 100px;
+    height: 25px;
+    font-size: 22px;
+  }
+
+  .baft-coin-mobile .baft-text {
+    width: 260px;
+    height: 68px;
+    font-size: 58px;
+  }
+}
+
+/* Extra small mobile devices (max-width: 480px) */
+@media (max-width: 480px) {
+  .baft-coin-mobile .coin-image {
+    width: 250px;
+    height: 250px;
+    top: 35px;
+    left: 35px;
+  }
+
+  .baft-coin-mobile .intro-text {
+    width: 90px;
+    height: 22px;
+    font-size: 20px;
+  }
+
+  .baft-coin-mobile .baft-text {
+    width: 230px;
+    height: 60px;
+    font-size: 50px;
+  }
+}
+
+/* Ultra small mobile devices (max-width: 360px) */
+@media (max-width: 360px) {
+  .baft-coin-mobile .coin-image {
+    width: 220px;
+    height: 220px;
+    top: 30px;
+    left: 30px;
+  }
+
+  .baft-coin-mobile .intro-text {
+    width: 80px;
+    height: 20px;
+    font-size: 18px;
+  }
+
+  .baft-coin-mobile .baft-text {
+    width: 200px;
+    height: 52px;
+    font-size: 44px;
+  }
+}

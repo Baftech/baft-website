@@ -160,7 +160,7 @@ const Hero = () => {
     });
 
     // Start all animations simultaneously for smooth motion
-    tl.to("#videoElement", {
+    tl    .to("#videoElement", {
       scale: targetScale,
       x: 0,
       y: targetY,
@@ -169,6 +169,7 @@ const Hero = () => {
       filter: "brightness(1.0) contrast(1.25) saturate(1.15)",
       duration: 0.8,
       ease: "power3.out",
+      transformOrigin: "center center",
       // Ensure video continues playing during animation
       onUpdate: () => {
         const video = document.getElementById("videoElement");
@@ -234,6 +235,7 @@ const Hero = () => {
       opacity: 1,
       borderRadius: "0px",
       filter: "brightness(1.1) contrast(1.2) saturate(1.1)",
+      transformOrigin: "center center",
     });
 
     const video = document.getElementById("videoElement");
@@ -305,6 +307,7 @@ const Hero = () => {
       filter: "brightness(1.1) contrast(1.2) saturate(1.1)",
       duration: 0.8,
       ease: "power3.out",
+      transformOrigin: "center center",
     }, 0.1);
   };
 
@@ -350,6 +353,9 @@ const Hero = () => {
   };
 
   const setupScrollTimeline = () => {
+    // Ensure video has correct transform origin before scroll animations
+    gsap.set("#videoElement", { transformOrigin: "center center" });
+    
     const scrollTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: "#hero_container",
@@ -364,7 +370,11 @@ const Hero = () => {
       .to("#grid_container", { opacity: 0, duration: 1 }, "+=3")
       .to("#text", { opacity: 0, duration: 1 }, "<")
       .to("#scroll_button", { opacity: 0, y: 20, visibility: "hidden", duration: 0.5 }, "<") // Hide scroll button when leaving hero
-      .to("#videoElement", { opacity: 0, duration: 1 }, "<") // Hide video background
+      .to("#videoElement", { 
+        opacity: 0, 
+        duration: 1,
+        transformOrigin: "center center"
+      }, "<") // Hide video background
       .to("#baft_coin_section", { opacity: 1, y: 0, duration: 1 }, "<")
       .from(["#introduction", "#baft_coin_text", "#B_coin"], {
         opacity: 0,
