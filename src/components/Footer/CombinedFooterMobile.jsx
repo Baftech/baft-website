@@ -6,14 +6,47 @@ import {
   faFacebook,
 } from "@fortawesome/free-brands-svg-icons";
 import Thanks from "./Thanks";
+import { supabase } from "../../supabasedb/supabaseClient";
 import "./CombinedFooter.css";
 
 const SignupFormMobile = ({ onOpenThanks }) => {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
 
-  const handleSubmit = (e) => {
+  const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  const isEmailValid = isValidEmail(email);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onOpenThanks();
+    setErrMsg("");
+
+    const cleaned = email.trim().toLowerCase();
+    if (!isValidEmail(cleaned)) {
+      setErrMsg("Please enter a valid email address.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("subscribers")
+        .insert([{ email: cleaned }]);
+
+      if (error) {
+        console.error("Supabase insert error:", error);
+        setErrMsg("Something went wrong. Please try again.");
+        return;
+      }
+
+      setEmail("");
+      onOpenThanks();
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      setErrMsg("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -100,9 +133,12 @@ const SignupFormMobile = ({ onOpenThanks }) => {
                 color: '#FFFFFF'
               }}
             />
+            {errMsg && (
+              <span className="text-red-500 text-sm">{errMsg}</span>
+            )}
                         <button
               type="submit"
-              disabled={!email.trim()}
+              disabled={loading || !isEmailValid}
               className={`font-medium transition ${
                 email.trim() 
                   ? 'cursor-pointer hover:bg-gray-100' 
@@ -132,7 +168,7 @@ const SignupFormMobile = ({ onOpenThanks }) => {
                 boxSizing: 'border-box'
               }}
             >
-              Subscribe
+              {loading ? 'Submitting…' : 'Subscribe'}
             </button>
           </form>
         </div>
