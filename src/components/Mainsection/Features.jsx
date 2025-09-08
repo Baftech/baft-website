@@ -109,51 +109,51 @@ const Cards = () => {
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else {
-          setOrAnimate(card, { x: 0, y: index < activeIndex ? CARD_Y_OFFSET - 20 : CARD_Y_OFFSET + 20, z: -20, scale: 0.9, opacity: 0.7, rotateY: 0, zIndex: 5 }, immediate);
+          setOrAnimate(card, { x: 0, y: index < activeIndex ? CARD_Y_OFFSET - 20 : CARD_Y_OFFSET + 20, z: -20, scale: 0.9, opacity: 1, rotateY: 0, zIndex: 5 }, immediate);
         }
       } else if (isTablet) {
         // Tablet: Reduced horizontal spacing
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -40, y: CARD_Y_OFFSET, z: -40, scale: 0.9, opacity: 0.8, rotateY: 15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: -40, y: CARD_Y_OFFSET, z: -40, scale: 0.9, opacity: 1, rotateY: 15, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 40, y: CARD_Y_OFFSET, z: -40, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: 40, y: CARD_Y_OFFSET, z: -40, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -80 : 80, y: CARD_Y_OFFSET, z: -60, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 20 : -20, zIndex: 7 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -80 : 80, y: CARD_Y_OFFSET, z: -60, scale: 0.75, opacity: 1, rotateY: index < activeIndex ? 20 : -20, zIndex: 7 }, immediate);
         }
       } else if (isSmallDesktop) {
         // Small Desktop (1024px - 1279px): Moderate 3D carousel
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -60, y: CARD_Y_OFFSET, z: -60, scale: 0.9, opacity: 0.8, rotateY: 15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: -60, y: CARD_Y_OFFSET, z: -60, scale: 0.9, opacity: 1, rotateY: 15, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 60, y: CARD_Y_OFFSET, z: -60, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: 60, y: CARD_Y_OFFSET, z: -60, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -120 : 120, y: CARD_Y_OFFSET, z: -90, scale: 0.8, opacity: 0.6, rotateY: index < activeIndex ? 25 : -25, zIndex: 7 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -120 : 120, y: CARD_Y_OFFSET, z: -90, scale: 0.8, opacity: 1, rotateY: index < activeIndex ? 25 : -25, zIndex: 7 }, immediate);
         }
       } else if (isMediumDesktop) {
         // Medium Desktop (1280px - 1535px): Enhanced 3D carousel
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -80, y: CARD_Y_OFFSET, z: -80, scale: 0.85, opacity: 0.8, rotateY: 20, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: -80, y: CARD_Y_OFFSET, z: -80, scale: 0.85, opacity: 1, rotateY: 20, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 80, y: CARD_Y_OFFSET, z: -80, scale: 0.9, opacity: 0.8, rotateY: -15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: 80, y: CARD_Y_OFFSET, z: -80, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -160 : 160, y: CARD_Y_OFFSET, z: -120, scale: 0.75, opacity: 0.6, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -160 : 160, y: CARD_Y_OFFSET, z: -120, scale: 0.75, opacity: 1, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
         }
       } else {
         // Large Desktop (1536px+): Full 3D carousel effect
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -100, y: CARD_Y_OFFSET, z: -100, scale: 0.8, opacity: 0.8, rotateY: 25, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: -100, y: CARD_Y_OFFSET, z: -100, scale: 0.8, opacity: 1, rotateY: 25, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 100, y: CARD_Y_OFFSET, z: -100, scale: 0.85, opacity: 0.8, rotateY: -20, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: 100, y: CARD_Y_OFFSET, z: -100, scale: 0.85, opacity: 1, rotateY: -20, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -200 : 200, y: CARD_Y_OFFSET, z: -150, scale: 0.7, opacity: 0.5, rotateY: index < activeIndex ? 35 : -35, zIndex: 7 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -200 : 200, y: CARD_Y_OFFSET, z: -150, scale: 0.7, opacity: 1, rotateY: index < activeIndex ? 35 : -35, zIndex: 7 }, immediate);
         }
       }
     });

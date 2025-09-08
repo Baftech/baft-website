@@ -315,10 +315,6 @@ const InteractiveTeamImage = ({ disabled = false }) => {
     new Set([PROPERTY_IMAGE_PNG])
   );
 
-  // Add debugging for component dimensions
-  useEffect(() => {
-    return () => {};
-  }, []);
 
   const teamMembers = React.useMemo(
     () => [
@@ -797,7 +793,6 @@ const AboutBaft = () => {
             }
           }
         } catch (error) {
-          console.warn('Scroll calculation error:', error);
           setScrollProgress(0);
         } finally {
           rafId = null;
@@ -969,7 +964,7 @@ const AboutBaft = () => {
           try { hasDispatchedPinnedEndRef.current = true; } catch {}
 
           isForceAnimatingRef.current = false;
-          setForcedAnimT(0);
+          setForcedAnimT(1); // Keep at 1 to maintain expanded state
           hasAcknowledgedIntroRef.current = false;
         }
       };
@@ -1082,7 +1077,7 @@ const AboutBaft = () => {
           } catch {}
           try { hasDispatchedPinnedEndRef.current = true; } catch {}
           isForceAnimatingRef.current = false;
-          setForcedAnimT(0);
+          setForcedAnimT(1); // Keep at 1 to maintain expanded state
           hasAcknowledgedIntroRef.current = false;
         }
       };
@@ -1273,22 +1268,6 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
             </div>
             </div>
 
-            {/* Scroll progress indicator */}
-            {scrollProgressIndicator > 0 && (
-              <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 pointer-events-none z-50">
-                <div className="bg-black/20 backdrop-blur-sm rounded-full px-4 py-2">
-                  <div className="flex items-center gap-2 text-white text-sm">
-                    <div className="w-16 h-1 bg-white/30 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-white rounded-full transition-all duration-200 ease-out"
-                        style={{ width: `${scrollProgressIndicator * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-xs opacity-80">Scroll to expand</span>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Floating overlay image that enlarges from right to full screen */}
             <div className="fixed inset-0 pointer-events-none">
