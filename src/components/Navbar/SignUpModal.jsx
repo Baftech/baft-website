@@ -55,6 +55,15 @@ const SignUpModal = ({ isOpen, onClose }) => {
 const handleSubmit = async (e) => {
   e.preventDefault(); // stop page reload
   const cleanedEmail = formData.email.trim().toLowerCase();
+  const trimmedName = formData.name.trim();
+  const contactValue = formData.contactNumber.trim();
+
+  // Generic required-fields check
+  if (!trimmedName || !cleanedEmail || contactValue.length < 13) {
+    setErrMsg("Please fill these details first.");
+    return;
+  }
+
   setErrMsg("");
   if (!isValidEmail(cleanedEmail)) {
     setErrMsg("Please enter a valid email address.");
