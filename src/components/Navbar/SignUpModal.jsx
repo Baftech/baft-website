@@ -73,7 +73,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
     setTimeout(() => {
       setShowThanks(true);
       setIsTransitioning(false);
-    }, 200); // Half of transition duration (slower animation)
+    }, 200); // Half of transition duration
   };
 
   const handleClose = () => {
@@ -94,7 +94,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
       }`}
     >
       <div
-        className={`signup-modal-container transition-all duration-1200 ease-in-out ${
+        className={`signup-modal-container transition-all duration-800 ease-out ${
           isAnimating && !isClosing
             ? "opacity-100 scale-100 translate-y-0"
             : "opacity-0 scale-90 translate-y-8"
@@ -114,7 +114,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
         <div className="signup-content-container">
           {/* Form Content */}
           <div
-            className={`absolute inset-0 w-full transition-all duration-1200 ease-in-out ${
+            className={`absolute inset-0 w-full transition-all duration-800 ease-out ${
               showThanks || isTransitioning
                 ? "opacity-0 scale-95 pointer-events-none"
                 : "opacity-100 scale-100"
@@ -234,7 +234,7 @@ const SignUpModal = ({ isOpen, onClose }) => {
 
           {/* Thanks Content */}
           <div
-            className={`absolute inset-0 w-full transition-all duration-1200 ease-in-out flex flex-col items-center justify-center ${
+            className={`absolute inset-0 w-full transition-all duration-800 ease-out flex flex-col items-center justify-center ${
               showThanks && !isTransitioning
                 ? "opacity-100 scale-100"
                 : "opacity-0 scale-95 pointer-events-none"

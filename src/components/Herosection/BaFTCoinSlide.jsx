@@ -205,7 +205,7 @@ const BaFTCoin = () => {
           rotation: -5,
         },
         {
-          opacity: 0.3,
+          opacity: 0.25,
           scale: 1,
           rotation: 0,
           duration: 3.2,

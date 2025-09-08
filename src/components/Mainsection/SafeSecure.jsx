@@ -15,7 +15,7 @@ const SafeSecureDesktop = () => {
               <div className="safe-secure-text">
                 <h2 className="safe-secure-title">Safe & Secure</h2>
                 <p className="safe-secure-description">
-                  At BAFT, we know trust isn't built in a day. That's why every
+                  At BaFT, we know trust isn't built in a day. That's why every
                   payment, every detail, and every account is protected with care. No
                   hidden risks. Just the security you deserve while managing your
                   money.

@@ -33,7 +33,7 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
           style={{
             height: isExpanded ? "auto" : "clamp(140px, 28vw, 220px)",
             overflow: "hidden",
-            transition: "height 3.2s cubic-bezier(0.4, 0, 0.2, 1)",
+            transition: "height 8s cubic-bezier(0.1, 0.0, 0.1, 1)",
           }}
         >
                  {paragraphs.map((para, i) => (
@@ -63,7 +63,7 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
             className="button-container"
             style={{
               transform: isExpanded ? "translateY(0)" : "translateY(0)",
-              transition: "all 3.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              transition: "all 8s cubic-bezier(0.1, 0.0, 0.1, 1)",
             }}
           >
             <button
@@ -88,7 +88,7 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                transition: "all 3.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                transition: "all 8s cubic-bezier(0.1, 0.0, 0.1, 1)",
               }}
               onTouchStart={(e) => {
                 e.target.style.backgroundColor = "#000000";
@@ -1181,11 +1181,11 @@ const AboutMobile = () => {
           </h1>
 
           <ReadMoreText
-            content={`We're Vibha, Dion and Saket, the trio behind BAFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
+            content={`We're Vibha, Dion and Saket, the trio behind BaFT Technology. We started this company with a simple goal: to make banking in India less of a headache and more of a smooth, dare we say... enjoyable experience.
 
-Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BAFT Technology was born.
+Somewhere between dodging endless forms and wondering if "technical glitch" was just a lifestyle, we figured there had to be a better way to do things. So, armed with ambition, caffeine, and a shared love for solving messy problems, we got to work and BaFT Technology was born.
 
-At BAFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
+At BaFT, we build smart, seamless solutions that cut through the clutter of traditional banking. No more confusing interfaces, endless queues, or mysterious errors. Just clean, user-friendly tools designed for real people.`}
             onExpandChange={setIsExpanded}
           />
         </div>
@@ -1196,12 +1196,12 @@ At BAFT, we build smart, seamless solutions that cut through the clutter of trad
               ref={imageStartRef}
               className="relative rounded-2xl overflow-hidden"
           style={{
-                width: "clamp(327px, 80vw, 400px)",
-                height: "clamp(462px, 100vh, 600px)",
+                width: "clamp(280px, 75vw, 380px)",
+                height: isExpanded ? "clamp(462px, 100vh, 600px)" : "clamp(320px, 50vh, 400px)",
                 opacity: (easedProgress > 0.08 || forcedAnimT >= 0.8 || isTransitioning || transitionTriggeredRef.current || forcedAnimT > 0 || hasAnimationTriggered || hasAnimationTriggeredRef.current) ? 0 : 1, // Hide original image during animation and permanently after
                 // Debug: Add a visual indicator
                 border: hasAnimationTriggered ? '2px solid red' : 'none',
-                transition: 'opacity 200ms ease-out',
+                transition: 'opacity 200ms ease-out, height 8s cubic-bezier(0.1, 0.0, 0.1, 1)',
                 // Ensure no movement or jumping
                 transform: 'none',
                 position: 'relative',

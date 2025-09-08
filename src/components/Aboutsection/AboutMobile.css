@@ -362,10 +362,13 @@
     pointer-events: none;
     transform-origin: center center;
     will-change: transform;
-    /* slight downscale globally so layers don't touch edges */
+    /* Proportional scaling based on container height */
     padding: 1.5%;
     box-sizing: border-box;
-    transform: scale(0.97);
+    /* Base scale that adapts to container size - scaled down by 20% */
+    transform: scale(calc(0.77 * (100vh / 800px)));
+    /* Smooth transition for responsive scaling */
+    transition: transform 8s cubic-bezier(0.1, 0.0, 0.1, 1), padding 8s cubic-bezier(0.1, 0.0, 0.1, 1);
   }
   
   /* Slightly shrink layers on smaller desktops so they don't feel oversized */
@@ -440,6 +443,48 @@
       top: 18%;
       bottom: 18%;
       transform: scale(0.74);
+    }
+  }
+
+  /* Mobile-specific responsive scaling for layer images */
+  @media (max-width: 768px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 20%;
+      right: 20%;
+      top: 20%;
+      bottom: 20%;
+      transform: scale(calc(0.52 * (100vh / 600px)));
+      padding: 2%;
+    }
+  }
+
+  /* Small mobile devices */
+  @media (max-width: 480px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 22%;
+      right: 22%;
+      top: 22%;
+      bottom: 22%;
+      transform: scale(calc(0.46 * (100vh / 500px)));
+      padding: 2.5%;
+    }
+  }
+
+  /* Very small mobile devices */
+  @media (max-width: 360px) {
+    img[src*="layer1_write"],
+    img[src*="layer2_write"],
+    img[src*="layer3_write"] {
+      left: 25%;
+      right: 25%;
+      top: 25%;
+      bottom: 25%;
+      transform: scale(calc(0.42 * (100vh / 400px)));
+      padding: 3%;
     }
   }
   
