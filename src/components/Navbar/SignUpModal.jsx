@@ -64,6 +64,12 @@ const handleSubmit = async (e) => {
     return;
   }
 
+  // Validate Indian phone format +91XXXXXXXXXX
+  const isValidPhone = /^\+91[0-9]{10}$/.test(formData.contactNumber);
+  if (!isValidPhone) {
+    return;
+  }
+
   console.log("Form submitted:", formData);
   
   try {
