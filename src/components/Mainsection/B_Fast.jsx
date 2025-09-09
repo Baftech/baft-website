@@ -20,6 +20,7 @@ const B_Fast_Desktop = () => {
   const [videoSize, setVideoSize] = useState({ width: '100%', height: '100%' });
   const [optimalSpacing, setOptimalSpacing] = useState('2cm');
   const [navbarSafeSpacing, setNavbarSafeSpacing] = useState('80px');
+  const [dynamicGap, setDynamicGap] = useState('clamp(130px, 12vh, 240px)');
   const videoStartedRef = useRef(false);
 
   // Dynamic video sizing and spacing calculation
@@ -85,10 +86,62 @@ const B_Fast_Desktop = () => {
       const currentScreenHeight = window.innerHeight;
       const safeSpacing = Math.max(estimatedNavbarHeight + 20, currentScreenHeight * 0.08); // At least 8% of screen height
       setNavbarSafeSpacing(`${safeSpacing}px`);
+      
+      // Calculate dynamic gap between heading and video based on screen height
+      const baseGap = 130; // Base gap in pixels
+      const heightRatio = currentScreenHeight / 1080; // 1080p as reference height
+      const minGap = 80; // Minimum gap for very short screens
+      const maxGap = 300; // Maximum gap for very tall screens
+      
+      // Calculate dynamic gap with smooth scaling
+      let calculatedGap;
+      if (currentScreenHeight <= 600) {
+        // Very short screens - use minimum gap
+        calculatedGap = minGap;
+      } else if (currentScreenHeight <= 900) {
+        // Short screens - scale from min to base
+        const ratio = (currentScreenHeight - 600) / (900 - 600);
+        calculatedGap = minGap + (baseGap - minGap) * ratio;
+      } else if (currentScreenHeight <= 1200) {
+        // Medium screens - use base gap
+        calculatedGap = baseGap;
+      } else if (currentScreenHeight <= 1600) {
+        // Tall screens - scale from base to max
+        const ratio = (currentScreenHeight - 1200) / (1600 - 1200);
+        calculatedGap = baseGap + (maxGap - baseGap) * ratio;
+      } else {
+        // Very tall screens - use maximum gap
+        calculatedGap = maxGap;
+      }
+      
+      // Apply viewport height percentage for additional responsiveness
+      const vhGap = Math.max(calculatedGap * 0.3, currentScreenHeight * 0.08); // At least 8% of screen height
+      const finalGap = Math.max(calculatedGap, vhGap);
+      
+      setDynamicGap(`${Math.round(finalGap)}px`);
     };
     
     // Calculate initial size and spacing
     calculateVideoSizeAndSpacing();
+    
+    // Fallback calculation in case of any errors
+    const fallbackGap = () => {
+      const screenHeight = window.innerHeight;
+      if (screenHeight <= 600) {
+        setDynamicGap('80px');
+      } else if (screenHeight <= 900) {
+        setDynamicGap('110px');
+      } else if (screenHeight <= 1200) {
+        setDynamicGap('130px');
+      } else if (screenHeight <= 1600) {
+        setDynamicGap('180px');
+      } else {
+        setDynamicGap('240px');
+      }
+    };
+    
+    // Set fallback gap as backup
+    setTimeout(fallbackGap, 100);
     
     // Recalculate on window resize
     window.addEventListener('resize', calculateVideoSizeAndSpacing);
@@ -282,7 +335,7 @@ const B_Fast_Desktop = () => {
           justifyContent: 'center',
           minHeight: 'clamp(380px, 65vh, 1100px)', // Larger baseline height for bigger video
           maxHeight: 'clamp(760px, 90vh, 1300px)', // Allow up to 90vh for larger render
-          marginTop: 'clamp(130px, 12vh, 240px)', // Increased gap under heading
+          marginTop: dynamicGap, // Dynamic gap based on screen height
           marginLeft: 'clamp(5px, 0.5vw, 5px)', // X-5 margin for bigger screens
           marginRight: 'clamp(5px, 0.5vw, 5px)' // X-5 margin for bigger screens
         }}>
@@ -309,7 +362,7 @@ const B_Fast_Desktop = () => {
                 style={{ 
                   // Dynamic scaling using calculated dimensions with fallback
                   width: videoSize.width || 'clamp(600px, 90vw, 1400px)',
-                  height: videoSize.height || 'clamp(338px, 54vw, 788px)',
+                  height: videoSize.height || 'clamp(320px, 40vw, 728px)',
                   objectFit: 'contain',
                   objectPosition: 'center center',
                   // Remove conflicting transforms and positioning
