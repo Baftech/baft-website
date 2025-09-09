@@ -200,14 +200,14 @@ const BInstantMobile = () => {
               desynchronized: true
             }}
             dpr={[1, 1.5]}
-            // Safari-specific props
-            onCreated={({ gl }) => {
-              // Safari-specific WebGL context setup
-              gl.getExtension('WEBGL_lose_context');
-              gl.getExtension('OES_element_index_uint');
-              // Force Safari to use hardware acceleration
-              gl.getExtension('WEBGL_debug_renderer_info');
-            }}
+          // Safari-specific props
+          onCreated={({ gl }) => {
+            // Safari-specific WebGL context setup
+            gl.context.getExtension('WEBGL_lose_context');
+            gl.context.getExtension('OES_element_index_uint');
+            // Force Safari to use hardware acceleration
+            gl.context.getExtension('WEBGL_debug_renderer_info');
+          }}
           >
             <Suspense fallback={null}>
               {/* Brighter lighting for better visibility */}
