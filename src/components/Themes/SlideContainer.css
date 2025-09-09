@@ -27,6 +27,7 @@
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   box-sizing: border-box;
+  background-color: #000;
 }
 
 .slide {
@@ -56,10 +57,11 @@
   min-height: 100svh;
   max-height: 100dvh;
   box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-top: 0;
+  padding-bottom: 0;
   margin: 0;
   overscroll-behavior: contain;
+  background-color: #000;
 }
 
 .slide-container .overflow-auto::-webkit-scrollbar {
@@ -540,6 +542,8 @@
   .slide-container .overflow-auto {
     height: -webkit-fill-available;
     max-height: -webkit-fill-available;
+    padding-top: 0;
+    padding-bottom: 0;
   }
   
   /* Prevent text selection on touch */

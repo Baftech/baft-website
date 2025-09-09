@@ -24,18 +24,25 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     const previousHtmlOverflow = document.documentElement.style.overflow;
     const previousBodyHeight = document.body.style.height;
     const previousHtmlHeight = document.documentElement.style.height;
+    const previousBodyBg = document.body.style.backgroundColor;
+    const previousHtmlBg = document.documentElement.style.backgroundColor;
 
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
-    // Use dynamic viewport units to avoid 100vh issues on mobile browser UI
-    document.body.style.height = '100dvh';
-    document.documentElement.style.height = '100dvh';
+    // Use percentage heights to avoid iOS navbar collapse/expand causing jumps
+    document.body.style.height = '100%';
+    document.documentElement.style.height = '100%';
+    // Prevent white flashes behind content during overscroll/bounce
+    document.body.style.backgroundColor = '#000';
+    document.documentElement.style.backgroundColor = '#000';
 
     return () => {
       document.body.style.overflow = previousBodyOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
       document.body.style.height = previousBodyHeight;
       document.documentElement.style.height = previousHtmlHeight;
+      document.body.style.backgroundColor = previousBodyBg;
+      document.documentElement.style.backgroundColor = previousHtmlBg;
     };
   }, []);
 
