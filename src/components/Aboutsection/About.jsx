@@ -1207,7 +1207,7 @@ const AboutBaft = () => {
                     className="font-normal mb-2 flex items-center"
                     style={{
                       fontFamily: 'Inter, sans-serif',
-                      fontSize: getFontSize('12px', '15px', '16px'),
+                      fontSize: getFontSize('17px', '22px', '23px'),
                       color: '#092646',
                       lineHeight: 1.1,
                       gap: getSpacing('5px', '6px', '7px'),
@@ -1220,7 +1220,7 @@ const AboutBaft = () => {
                     <img 
                       src={SVG_SVG} 
                       alt="Icon" 
-                      style={{ width: getDimensions('10px', '13px', '16px'), height: getDimensions('10px', '13px', '16px') }}
+                      style={{ width: getDimensions('16px', '21px', '26px'), height: getDimensions('16px', '21px', '26px') }}
                     />
                     Know our story
                   </p>
