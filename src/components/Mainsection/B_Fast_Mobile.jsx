@@ -24,8 +24,7 @@ const B_Fast_Mobile = () => {
     const onResize = () => {
       const estimatedNavbarHeight = 80;
       const currentScreenHeight = window.innerHeight;
-      // Reduce top spacing so heading sits closer to the navbar without overlap
-      const safeSpacing = Math.max(estimatedNavbarHeight, currentScreenHeight * 0.03);
+      const safeSpacing = Math.max(estimatedNavbarHeight + 20, currentScreenHeight * 0.08);
       setNavbarSafeSpacing(`${safeSpacing}px`);
 
       // Compute a responsive scale factor based on viewport width
@@ -128,7 +127,7 @@ const B_Fast_Mobile = () => {
           ref={contentRef}
           className="absolute"
           style={{
-            top: `calc(${navbarSafeSpacing} - 12px)`,
+            top: navbarSafeSpacing,
             left: "50%",
             width: "1045.386px",
             height: "148.822px",
@@ -155,7 +154,7 @@ const B_Fast_Mobile = () => {
               width: "1045.386474609375px",
               height: "124px",
               opacity: 1,
-              backgroundImage: "linear-gradient(180deg, #B8C9E0 33.59%, #0A2A4A 77.13%)",
+              backgroundImage: "linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%)",
               backgroundRepeat: "no-repeat",
               backgroundSize: "100% 100%",
               backgroundPosition: "center",
@@ -209,23 +208,7 @@ const B_Fast_Mobile = () => {
         }}>
           <div className="relative w-full h-full flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
             <div className="absolute inset-0 pointer-events-none" style={{ background: "transparent", zIndex: 1 }} />
-            {/* Ellipse 1765 */}
-            <div
-              className="pointer-events-none"
-              style={{
-                position: "absolute",
-                width: "351.11px",
-                height: "604.85px",
-                left: "calc(50% - 351.11px/2 - 127.49px)",
-                top: "254.43px",
-                background: "radial-gradient(ellipse at center, rgba(55,102,183,0.32) 0%, rgba(55,102,183,0.18) 45%, rgba(55,102,183,0.08) 72%, rgba(55,102,183,0) 100%)",
-                filter: "blur(120px)",
-                mixBlendMode: "soft-light",
-                transform: "rotate(-90deg)",
-                borderRadius: "50% / 50%",
-                zIndex: 9
-              }}
-            />
+            
             {videoError ? (
               <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center relative z-10 shadow-lg">
                 <div className="text-center text-gray-500">
@@ -245,22 +228,10 @@ const B_Fast_Mobile = () => {
                   transform: "translateX(-50%)"
                 }}
               >
-                {/* Glow applied on the video */}
-                <div
-                  className="pointer-events-none"
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "radial-gradient(ellipse at center, rgba(55,102,183,0.34) 0%, rgba(55,102,183,0.2) 45%, rgba(55,102,183,0.09) 72%, rgba(55,102,183,0) 100%)",
-                    filter: "blur(90px)",
-                    mixBlendMode: "soft-light",
-                    borderRadius: "10px",
-                    zIndex: 1
-                  }}
-                />
+                
                 <video
                   ref={videoRef}
-                  src="/bfast_video.mp4"
+                  src="/bfast_video_mobile.mp4"
                   className="relative z-10"
                   style={{
                     width: "100%",
@@ -292,28 +263,16 @@ const B_Fast_Mobile = () => {
           </div>
         </div>
 
-        {/* Subtle global glow and stars retained to keep visual parity */}
-        <div style={{
-          position: 'fixed',
-          width: '480px',
-          height: '520px',
-          left: 'calc(50% - 240px)',
-          top: 'calc(50% - 260px)',
-          background: 'radial-gradient(ellipse at center, rgba(55, 102, 183, 0.12) 0%, rgba(55, 102, 183, 0.08) 40%, rgba(55, 102, 183, 0.03) 75%, rgba(55, 102, 183, 0) 100%)',
-          filter: 'blur(40px)',
-          mixBlendMode: 'soft-light',
-          zIndex: 12,
-          pointerEvents: 'none'
-        }} />
+        
 
         {/* Orbiting stars overlay - revolve around center */}
-        <div ref={orbitingStarsRef} style={{ position: 'absolute', inset: 0, zIndex: 21, pointerEvents: 'none', opacity: 0.5 }}>
+        <div ref={orbitingStarsRef} style={{ position: 'absolute', inset: 0, zIndex: 21, pointerEvents: 'none' }}>
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0 }}>
             {/* Ring 1 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitSlow 24s linear infinite' }}>
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.35, transform: 'translateX(140px)' }} />
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.35, transform: 'rotate(120deg) translateX(140px)' }} />
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.35, transform: 'rotate(240deg) translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.75, transform: 'translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.75, transform: 'rotate(120deg) translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.75, transform: 'rotate(240deg) translateX(140px)' }} />
             </div>
             {/* Ring 2 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitMed 18s linear infinite reverse' }}>
