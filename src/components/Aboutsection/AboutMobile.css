@@ -1,4 +1,4 @@
-/* About Section Mobile/Tablet Styles */
+/* About Section Mobile/Tablet Styles - Safari Optimized */
 .about-section-mobile {
     min-height: 100vh;
     display: flex;
@@ -8,8 +8,14 @@
     overflow: hidden;
     padding-bottom: 1rem;
     padding-top: 0;
-    /* Ensure smooth scrolling for the image expansion effect */
+    /* Safari-specific smooth scrolling */
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    /* Safari hardware acceleration */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
   
   .about-grid-mobile {
@@ -176,11 +182,19 @@
     border-radius: inherit;
   }
   
-  /* Scroll-based image expansion styles */
+  /* Scroll-based image expansion styles - Safari optimized */
   .responsive-image-wrapper {
     will-change: transform, opacity;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     transform-origin: center center;
+    -webkit-transform-origin: center center;
+    /* Safari hardware acceleration */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    /* Safari-specific rendering optimizations */
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
   }
   
   /* When image is expanding, ensure it's above everything */
@@ -344,7 +358,7 @@
     }
   }
   
-  /* Dynamically scale write layers inside any container */
+  /* Dynamically scale write layers inside any container - Safari optimized */
   img[src*="layer1_write"],
   img[src*="layer2_write"],
   img[src*="layer3_write"] {
@@ -361,14 +375,20 @@
     object-position: center center !important;
     pointer-events: none;
     transform-origin: center center;
+    -webkit-transform-origin: center center;
     will-change: transform;
     /* Proportional scaling based on container height */
     padding: 1.5%;
     box-sizing: border-box;
     /* Base scale that adapts to container size - scaled down by 20% */
     transform: scale(calc(0.77 * (100vh / 800px)));
-    /* Smooth transition for responsive scaling */
+    -webkit-transform: scale(calc(0.77 * (100vh / 800px)));
+    /* Smooth transition for responsive scaling - Safari compatible */
     transition: transform 8s cubic-bezier(0.1, 0.0, 0.1, 1), padding 8s cubic-bezier(0.1, 0.0, 0.1, 1);
+    -webkit-transition: -webkit-transform 8s cubic-bezier(0.1, 0.0, 0.1, 1), padding 8s cubic-bezier(0.1, 0.0, 0.1, 1);
+    /* Safari hardware acceleration */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
   
   /* Slightly shrink layers on smaller desktops so they don't feel oversized */
@@ -446,7 +466,7 @@
     }
   }
 
-  /* Mobile-specific responsive scaling for layer images */
+  /* Mobile-specific responsive scaling for layer images - Safari optimized */
   @media (max-width: 768px) {
     img[src*="layer1_write"],
     img[src*="layer2_write"],
@@ -456,7 +476,13 @@
       top: 20%;
       bottom: 20%;
       transform: scale(calc(0.52 * (100vh / 600px)));
+      -webkit-transform: scale(calc(0.52 * (100vh / 600px)));
       padding: 2%;
+      /* Safari-specific optimizations */
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-transform-origin: center center;
+      transform-origin: center center;
     }
   }
 

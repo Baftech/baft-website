@@ -5,10 +5,28 @@ import { SAFE_SEC_SVG } from "../../assets/assets";
 const SafeSecureMobile = () => {
 
   return (
-    <div className="h-screen bg-gray-900 relative">
-      <section className="h-full flex items-center justify-center px-0">
-        <div className="w-full h-full relative">
-          {/* Main Content */}
+    <div className="h-screen bg-gray-900 relative" style={{
+      // Safari hardware acceleration
+      WebkitTransform: 'translateZ(0)',
+      transform: 'translateZ(0)',
+      WebkitBackfaceVisibility: 'hidden',
+      backfaceVisibility: 'hidden'
+    }}>
+      <section className="h-full flex items-center justify-center px-0" style={{
+        // Safari-specific optimizations
+        WebkitTransform: 'translateZ(0)',
+        transform: 'translateZ(0)',
+        WebkitBackfaceVisibility: 'hidden',
+        backfaceVisibility: 'hidden'
+      }}>
+        <div className="w-full h-full relative" style={{
+          // Safari hardware acceleration
+          WebkitTransform: 'translateZ(0)',
+          transform: 'translateZ(0)',
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden'
+        }}>
+          {/* Main Content - Safari optimized */}
           <div
             className="safe-secure-container flex flex-col items-center justify-center text-center"
             style={{
@@ -16,10 +34,15 @@ const SafeSecureMobile = () => {
               height: "100%",
               background: "#000000",
               padding: "2rem 1rem",
-              gap: "2rem"
+              gap: "2rem",
+              // Safari hardware acceleration
+              WebkitTransform: 'translateZ(0)',
+              transform: 'translateZ(0)',
+              WebkitBackfaceVisibility: 'hidden',
+              backfaceVisibility: 'hidden'
             }}
           >
-            {/* Title */}
+            {/* Title - Safari optimized */}
             <h1
               className="safe-secure-title"
               style={{
@@ -33,13 +56,22 @@ const SafeSecureMobile = () => {
                 maxWidth: "90vw",
                 overflow: "hidden",
                 wordWrap: "break-word",
-                padding: "0 1rem"
+                padding: "0 1rem",
+                // Safari text rendering optimizations
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                WebkitTextStroke: '0.01em transparent',
+                // Safari hardware acceleration
+                WebkitTransform: 'translateZ(0)',
+                transform: 'translateZ(0)',
+                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: 'hidden'
               }}
             >
               Safe & Secure
             </h1>
 
-            {/* Description */}
+            {/* Description - Safari optimized */}
             <p
               className="safe-secure-description"
               style={{
@@ -50,7 +82,16 @@ const SafeSecureMobile = () => {
                 lineHeight: "1.6",
                 textAlign: "center",
                 maxWidth: "35ch",
-                marginBottom: "2rem"
+                marginBottom: "2rem",
+                // Safari text rendering optimizations
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                WebkitTextStroke: '0.01em transparent',
+                // Safari hardware acceleration
+                WebkitTransform: 'translateZ(0)',
+                transform: 'translateZ(0)',
+                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: 'hidden'
               }}
             >
               At BAFT, we know trust isn't built in a day. That's why every
@@ -59,30 +100,48 @@ const SafeSecureMobile = () => {
               money.
             </p>
 
-            {/* Logo */}
-            <div className="safe-secure-logo">
-              <div className="security-logo-wrapper " style = {{
+            {/* Logo - Safari optimized */}
+            <div className="safe-secure-logo" style={{
+              // Safari hardware acceleration
+              WebkitTransform: 'translateZ(0)',
+              transform: 'translateZ(0)',
+              WebkitBackfaceVisibility: 'hidden',
+              backfaceVisibility: 'hidden'
+            }}>
+              <div className="security-logo-wrapper" style={{
                 width: "100%",
                 height: "100%",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 transform: "scale(1.5)",
-                transformOrigin: "center center"
+                WebkitTransform: "scale(1.5)",
+                transformOrigin: "center center",
+                WebkitTransformOrigin: "center center",
+                // Safari hardware acceleration
+                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: 'hidden'
               }}>
                 <img
-  src={SAFE_SEC_SVG}
-  alt="Security Badge"
-  className="security-logo-svg"
-  style={{
-    width: "100%",       // base size
-    height: "auto",
-    position : "relative",
-    display: "block",
-    transform: "scale(1.10004)", // scale 5x
-    transformOrigin: "center"
-  }}
-/>
+                  src={SAFE_SEC_SVG}
+                  alt="Security Badge"
+                  className="security-logo-svg"
+                  style={{
+                    width: "100%",       // base size
+                    height: "auto",
+                    position: "relative",
+                    display: "block",
+                    transform: "scale(1.10004)", // scale 5x
+                    WebkitTransform: "scale(1.10004)",
+                    transformOrigin: "center",
+                    WebkitTransformOrigin: "center",
+                    // Safari image rendering optimizations
+                    WebkitBackfaceVisibility: 'hidden',
+                    backfaceVisibility: 'hidden',
+                    imageRendering: 'auto',
+                    WebkitImageRendering: 'auto'
+                  }}
+                />
 
               </div>
             </div>

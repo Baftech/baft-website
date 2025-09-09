@@ -32,11 +32,20 @@ const HeroMobileComponent = () => {
     }
   };
 
-  // Detect device orientation and screen size
+  // Detect device orientation and screen size - Safari optimized
   useEffect(() => {
     const checkOrientation = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      // Safari-specific viewport calculation
+      const width = Math.max(
+        window.innerWidth || 0,
+        document.documentElement?.clientWidth || 0,
+        screen?.width || 0
+      );
+      const height = Math.max(
+        window.innerHeight || 0,
+        document.documentElement?.clientHeight || 0,
+        screen?.height || 0
+      );
       
       // Check device type - adjusted for smaller iPads and modern tablets
       const mobile = width <= 575; // Reduced from 768 to 575 to catch smaller iPads
@@ -97,11 +106,15 @@ const HeroMobileComponent = () => {
       // Only run animation if we're in mobile or tablet-portrait view mode
       if (viewMode !== 'mobile' && viewMode !== 'tablet-portrait') return;
 
-      // Mobile-specific initial frame (not fullscreen):
+      // Mobile-specific initial frame (not fullscreen) - Safari optimized:
       // - Start 5cm below top
       // - Width ~85vw (capped), centered
       // - Maintain original video aspect ratio 1056x594
-      const viewportWidth = window.innerWidth;
+      const viewportWidth = Math.max(
+        window.innerWidth || 0,
+        document.documentElement?.clientWidth || 0,
+        screen?.width || 0
+      );
       const videoAspect = 594 / 1056; // ≈ 0.5625
       
       // Aggressive scaling for tablet portrait to ensure complete viewport fit
@@ -163,20 +176,26 @@ const HeroMobileComponent = () => {
         if (!videoRef.current || !wrapperRef.current || !placeholderRef.current) return;
         if (videoRef.current.currentTime < 8 || animationCompletedRef.current || shrinkStartedRef.current) return;
 
-        // Use Figma final frame specs with aggressive scaling for tablet portrait
+        // Use Figma final frame specs with aggressive scaling for tablet portrait - Safari optimized
         let baseViewportWidth, scale;
+        const currentViewportWidth = Math.max(
+          window.innerWidth || 0,
+          document.documentElement?.clientWidth || 0,
+          screen?.width || 0
+        );
+        
         if (viewMode === 'tablet-portrait') {
           // Tablet portrait: use much smaller scale to guarantee fit
-          baseViewportWidth = window.innerWidth; // Use actual device width
+          baseViewportWidth = currentViewportWidth; // Use actual device width
           scale = 1; // Base scale of 1 for natural sizing
           // Apply very aggressive scaling factor to ensure video fits
-          if (window.innerWidth <= 575) {
+          if (currentViewportWidth <= 575) {
             scale = 0.4; // Very small tablets get 40% scale
-          } else if (window.innerWidth <= 768) {
+          } else if (currentViewportWidth <= 768) {
             scale = 0.5; // Small tablets get 50% scale
-          } else if (window.innerWidth <= 1024) {
+          } else if (currentViewportWidth <= 1024) {
             scale = 0.6; // Medium tablets get 60% scale
-          } else if (window.innerWidth <= 1600) {
+          } else if (currentViewportWidth <= 1600) {
             scale = 0.7; // Large tablets (like Pixel Tablet) get 70% scale
           } else {
             scale = 0.8; // Extra large tablets get 80% scale
@@ -184,11 +203,11 @@ const HeroMobileComponent = () => {
         } else if (viewMode === 'mobile') {
           // Mobile: use iPhone 13 mini specs for consistent mobile experience
           baseViewportWidth = 375; // iPhone 13 mini logical width
-          scale = window.innerWidth / baseViewportWidth;
+          scale = currentViewportWidth / baseViewportWidth;
         } else {
           // Landscape: use original scaling
           baseViewportWidth = 375;
-          scale = window.innerWidth / baseViewportWidth;
+          scale = currentViewportWidth / baseViewportWidth;
         }
         
         const finalWidth = 618.6666870117188 * scale;
@@ -209,21 +228,36 @@ const HeroMobileComponent = () => {
           duration: 1.6,
           ease: "none",
           force3D: true,
+          // Safari-specific optimizations
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden',
           onComplete: () => { 
             animationCompletedRef.current = true; 
           }
         });
 
         const textTop = viewMode === 'tablet-portrait' ? 40 * scale : 134 * scale; // Much higher for tablet portrait
-        gsap.to("#text-mobile", { opacity: 1, top: textTop, yPercent: 0, duration: 0.8, ease: "sine.out" });
+        gsap.to("#text-mobile", { 
+          opacity: 1, 
+          top: textTop, 
+          yPercent: 0, 
+          duration: 0.8, 
+          ease: "sine.out",
+          // Safari-specific optimizations
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden'
+        });
         
-        // Show dome mask after scaling completes with smooth animation
+        // Show dome mask after scaling completes with smooth animation - Safari optimized
         gsap.to("#hero-dome-mask-mobile", { 
           opacity: 1, 
           duration: 0.8, 
           ease: "power2.out", 
           delay: 1.6,
-          force3D: true
+          force3D: true,
+          // Safari-specific optimizations
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden'
         });
       };
 
@@ -566,11 +600,20 @@ const HeroMobileComponent = () => {
             className="w-full h-full object-contain bg-black object-center pointer-events-none mobile-video-blend"
             style={{
               objectPosition: 'center center',
-              // Remove heavy filters to avoid jank on mobile GPUs
+              // Safari-specific video optimizations
               willChange: 'transform',
-              transform: 'translateZ(0)'
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)',
+              WebkitBackfaceVisibility: 'hidden',
+              backfaceVisibility: 'hidden',
+              // Safari video rendering optimizations
+              WebkitVideoPlaybackQuality: 'high',
+              WebkitMediaControlsFullscreenButton: 'none'
             }}
             onEnded={() => videoRef.current.pause()}
+            // Safari-specific video attributes
+            webkit-playsinline="true"
+            x-webkit-airplay="deny"
           />
           
           {/* Radial gradient spotlight overlay */}

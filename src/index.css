@@ -5,6 +5,7 @@
 @import url('/fonts/GeneralSans_Complete/Fonts/WEB/css/general-sans.css');
 @import "tailwindcss";
 @import "./safari-fixes.css";
+@import "./safari-optimizations.css";
 
 /* Global scrollbar hiding - Force hide all scrollbars */
 * {

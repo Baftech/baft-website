@@ -1,0 +1,235 @@
+/* Safari-Specific Optimizations for Mobile Components */
+
+/* Global Safari optimizations */
+* {
+  /* Force hardware acceleration for all elements */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Safari-specific viewport fixes */
+html, body {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Safari video optimizations */
+video {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-video-playback-quality: high;
+  -webkit-media-controls-fullscreen-button: none;
+}
+
+/* Safari image optimizations */
+img {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  image-rendering: auto;
+  -webkit-image-rendering: auto;
+}
+
+/* Safari text rendering optimizations */
+h1, h2, h3, h4, h5, h6, p, span, div {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-stroke: 0.01em transparent;
+  text-rendering: optimizeLegibility;
+}
+
+/* Safari animation optimizations */
+.animate, [class*="animate-"], [class*="transition-"] {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Safari scroll optimizations */
+.scroll-container, .overflow-auto, .overflow-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Safari flexbox optimizations */
+.flex, [class*="flex-"] {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Safari grid optimizations */
+.grid, [class*="grid-"] {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Safari transform optimizations */
+[style*="transform"], [style*="scale"], [style*="rotate"] {
+  -webkit-transform-origin: center center;
+  transform-origin: center center;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Safari transition optimizations */
+[style*="transition"] {
+  -webkit-transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Safari WebGL optimizations */
+canvas {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  image-rendering: auto;
+  -webkit-image-rendering: auto;
+}
+
+/* Safari mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Force hardware acceleration on mobile Safari */
+  * {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* Optimize touch interactions */
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    -webkit-touch-callout: none;
+  }
+  
+  /* Optimize scrolling on mobile Safari */
+  body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+
+/* Safari iOS specific optimizations */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific styles */
+  * {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* Fix iOS Safari viewport issues */
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Optimize iOS Safari animations */
+  .animate, [class*="animate-"] {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Safari performance optimizations */
+.gpu-accelerated {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Safari text selection optimizations */
+.selectable {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Safari focus optimizations */
+button:focus, a:focus, input:focus, textarea:focus {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+/* Safari video container optimizations */
+.video-container {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+/* Safari animation container optimizations */
+.animation-container {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+}
+
+/* Safari scroll snap optimizations */
+.scroll-snap {
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.scroll-snap-item {
+  scroll-snap-align: start;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Safari sticky positioning optimizations */
+.sticky {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Safari fixed positioning optimizations */
+.fixed {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Safari absolute positioning optimizations */
+.absolute {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Safari relative positioning optimizations */
+.relative {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}

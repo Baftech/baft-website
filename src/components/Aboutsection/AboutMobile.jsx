@@ -35,13 +35,18 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
     if (onExpandChange) onExpandChange(newState);
   };
 
-  // Compute collapsed target height (mimics clamp(140px, 28vw, 220px))
+  // Compute collapsed target height (mimics clamp(140px, 28vw, 220px)) - Safari optimized
   const getCollapsedHeight = () => {
     try {
       if (typeof window === 'undefined' || typeof document === 'undefined') {
         return 180; // safe fallback during SSR/initial render
       }
-      const vw = Math.max(document.documentElement?.clientWidth || 0, window.innerWidth || 0);
+      // Safari-specific viewport calculation
+      const vw = Math.max(
+        document.documentElement?.clientWidth || 0, 
+        window.innerWidth || 0,
+        document.body?.clientWidth || 0
+      );
       const collapsed = Math.max(140, Math.min(0.28 * vw, 220));
       return Math.round(collapsed);
     } catch {
@@ -55,11 +60,12 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
     setAnimatedHeightPx(getCollapsedHeight());
   }, []);
 
-  // Animate on expand/collapse toggles
+  // Animate on expand/collapse toggles - Safari optimized
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
 
+    // Safari-specific height calculation
     const startRect = el.getBoundingClientRect?.();
     const start = startRect && typeof startRect.height === 'number' ? startRect.height : el.offsetHeight || 0;
     const end = isExpanded ? (el.scrollHeight || start) : getCollapsedHeight();
@@ -77,8 +83,10 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
     setIsAnimating(true);
     setAnimatedHeightPx(Math.round(start));
 
-    // Next frame, transition to end height
+    // Safari-optimized animation frame handling
     const id = requestAnimationFrame(() => {
+      // Force reflow for Safari
+      el.offsetHeight;
       setAnimatedHeightPx(Math.round(end));
     });
 
@@ -110,7 +118,12 @@ const ReadMoreText = React.memo(({ content, maxLength = 200, onExpandChange }) =
           height: animatedHeightPx == null ? (isExpanded ? 'auto' : `${getCollapsedHeight()}px`) : `${animatedHeightPx}px`,
           overflow: 'hidden',
           transition: isAnimating ? `height ${animDurationMs}ms ${animEase}` : 'none',
-          willChange: isAnimating ? 'height' : 'auto'
+          willChange: isAnimating ? 'height' : 'auto',
+          // Safari-specific optimizations
+          WebkitTransform: 'translateZ(0)',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
         }}
       >
                  {paragraphs.map((para, i) => (
@@ -736,14 +749,26 @@ const AboutMobile = () => {
     requestAnimationFrame(step);
   };
 
-  // Measure starting position/size of the image
+  // Measure starting position/size of the image - Safari optimized
   useEffect(() => {
-    // Detect iPhone 14 Pro (approx. 393x852 CSS px viewport)
+    // Detect iPhone 14 Pro (approx. 393x852 CSS px viewport) - Safari compatible
     try {
       const ua = navigator.userAgent || "";
       const isiPhone = /iPhone/i.test(ua);
-      const vw = Math.min(window.innerWidth || 0, window.innerHeight || 0);
-      const vh = Math.max(window.innerWidth || 0, window.innerHeight || 0);
+      const isSafari = /Safari/i.test(ua) && !/Chrome/i.test(ua);
+      
+      // Safari-specific viewport calculation
+      const vw = Math.min(
+        window.innerWidth || 0, 
+        document.documentElement?.clientWidth || 0,
+        screen?.width || 0
+      );
+      const vh = Math.max(
+        window.innerHeight || 0, 
+        document.documentElement?.clientHeight || 0,
+        screen?.height || 0
+      );
+      
       const approxWidth = vw >= 380 && vw <= 400; // around 393
       const approxHeight = vh >= 840 && vh <= 870; // around 852
       setIsIPhone14Pro(isiPhone && approxWidth && approxHeight);
@@ -751,6 +776,8 @@ const AboutMobile = () => {
 
     const measure = () => {
       if (imageStartRef.current) {
+        // Force reflow for Safari
+        imageStartRef.current.offsetHeight;
         const rect = imageStartRef.current.getBoundingClientRect();
         setStartRect({
           left: rect.left,
@@ -760,9 +787,19 @@ const AboutMobile = () => {
         });
       }
     };
+    
+    // Safari-specific timing
+    const timeoutId = setTimeout(measure, 100);
     measure();
+    
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('orientationchange', measure);
+    };
   }, []);
 
   // Comprehensive scroll control system

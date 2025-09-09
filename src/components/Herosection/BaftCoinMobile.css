@@ -1,23 +1,36 @@
-/* BaftCoinMobile Responsive Styles */
+/* BaftCoinMobile Responsive Styles - Safari Optimized */
 
-/* Base styles for larger mobile devices */
+/* Base styles for larger mobile devices - Safari compatible */
 .baft-coin-mobile .coin-image {
   width: 314px;
   height: 314px;
   top: 49px;
   left: 49px;
+  /* Safari hardware acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .baft-coin-mobile .intro-text {
   width: 113px;
   height: 28px;
   font-size: 24.22px;
+  /* Safari text rendering optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-stroke: 0.01em transparent;
 }
 
 .baft-coin-mobile .baft-text {
   width: 291px;
   height: 76px;
   font-size: 65.51px;
+  /* Safari text rendering optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-stroke: 0.01em transparent;
 }
 
 /* Small mobile devices (max-width: 640px) */

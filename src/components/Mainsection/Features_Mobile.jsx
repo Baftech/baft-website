@@ -68,10 +68,25 @@ const Cards = () => {
 
   const setOrAnimate = (card, props, immediate) => {
     if (immediate) {
-      gsap.set(card, props);
+      gsap.set(card, {
+        ...props,
+        // Safari-specific optimizations
+        force3D: true,
+        WebkitBackfaceVisibility: 'hidden',
+        backfaceVisibility: 'hidden'
+      });
     } else {
-      // Reduced duration from 1.2s to 0.4s for faster transitions
-      gsap.to(card, { ...props, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+      // Reduced duration from 1.2s to 0.4s for faster transitions - Safari optimized
+      gsap.to(card, { 
+        ...props, 
+        duration: 0.4, 
+        ease: "power2.out", 
+        overwrite: "auto",
+        // Safari-specific optimizations
+        force3D: true,
+        WebkitBackfaceVisibility: 'hidden',
+        backfaceVisibility: 'hidden'
+      });
     }
   };
 
@@ -87,7 +102,11 @@ const Cards = () => {
       rotateZ: 15,
       zIndex: 5,
       duration: 0.4, // Reduced from 1.2s to 0.4s
-      ease: "power2.out"
+      ease: "power2.out",
+      // Safari-specific optimizations
+      force3D: true,
+      WebkitBackfaceVisibility: 'hidden',
+      backfaceVisibility: 'hidden'
     });
   };
 
@@ -172,16 +191,20 @@ const Cards = () => {
   useLayoutEffect(() => {
     if (!cardsRef.current) return;
 
-    // Instantly place cards on first paint to avoid initial bounce
+    // Instantly place cards on first paint to avoid initial bounce - Safari optimized
     // Ensure cards start with index 0 to match list item 0
     updateCardPositions(0, true);
 
-    // Handle window resize for responsive updates
+    // Handle window resize for responsive updates - Safari optimized
     const handleResize = () => {
-      updateCardPositions(currentIndexRef.current, true);
+      // Safari-specific timing for resize handling
+      requestAnimationFrame(() => {
+        updateCardPositions(currentIndexRef.current, true);
+      });
     };
 
     window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
     startAutoRotate();
 
     return () => {
@@ -191,6 +214,7 @@ const Cards = () => {
         resumeTimeoutRef.current = null;
       }
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
     };
   }, []);
 
@@ -403,18 +427,23 @@ const Cards = () => {
             </ul>
           </div>
 
-          {/* Bottom Section - Phone Mockups (Horizontal Cylinder) */}
+          {/* Bottom Section - Phone Mockups (Horizontal Cylinder) - Safari optimized */}
           <div
             className="relative w-full flex items-end justify-center perspective-[1200px] mt-0"
             style={{ 
               willChange: "transform, opacity", 
               backfaceVisibility: "hidden", 
+              WebkitBackfaceVisibility: "hidden",
               transformStyle: "preserve-3d",
+              WebkitTransformStyle: "preserve-3d",
               minHeight: "600px",
               paddingBottom: "7rem",
               paddingTop: "0",
               overflow: "hidden",
-              marginTop: "-2rem"
+              marginTop: "-2rem",
+              // Safari hardware acceleration
+              WebkitTransform: 'translateZ(0)',
+              transform: 'translateZ(0)'
             }}
             ref={cardsRef}
           >
@@ -424,7 +453,15 @@ const Cards = () => {
                 className="absolute flex flex-col items-center justify-center"
                 style={{
                   width: "clamp(350px, 85vw, 500px)",
-                  height: "clamp(450px, 90vw, 600px)"
+                  height: "clamp(450px, 90vw, 600px)",
+                  transformOrigin: "center bottom",
+                  WebkitTransformOrigin: "center bottom",
+                  zIndex: 10,
+                  // Safari hardware acceleration
+                  WebkitTransform: 'translateZ(0)',
+                  transform: 'translateZ(0)',
+                  WebkitBackfaceVisibility: 'hidden',
+                  backfaceVisibility: 'hidden'
                 }}
               >
                 <img
@@ -435,6 +472,15 @@ const Cards = () => {
                   decoding="async"
                   fetchPriority="high"
                   draggable={false}
+                  style={{
+                    // Safari image rendering optimizations
+                    WebkitTransform: 'translateZ(0)',
+                    transform: 'translateZ(0)',
+                    WebkitBackfaceVisibility: 'hidden',
+                    backfaceVisibility: 'hidden',
+                    imageRendering: 'auto',
+                    WebkitImageRendering: 'auto'
+                  }}
                 />
               </div>
             ))}

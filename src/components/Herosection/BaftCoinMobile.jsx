@@ -25,11 +25,17 @@ const BaftCoinMobile = () => {
       animationRef.current = null;
     }
 
-    // Reset coin animation properties for mobile
+    // Reset coin animation properties for mobile - Safari optimized
     gsap.set(coinRef.current, {
       opacity: 0,
       scale: 0.8,
       rotation: 0,
+      // Safari-specific properties
+      force3D: true,
+      transformOrigin: 'center center',
+      WebkitTransformOrigin: 'center center',
+      backfaceVisibility: 'hidden',
+      WebkitBackfaceVisibility: 'hidden'
     });
 
     const ctx = gsap.context(() => {
@@ -57,7 +63,7 @@ const BaftCoinMobile = () => {
         }
       });
 
-      // Mobile-optimized animation sequence with synchronized coin and text movement
+      // Mobile-optimized animation sequence with synchronized coin and text movement - Safari optimized
       tl.fromTo(
         ".intro-text",
         {
@@ -67,6 +73,7 @@ const BaftCoinMobile = () => {
           left: "50%",
           top: "50vh",
           transform: "translate(-50%, -50%)",
+          WebkitTransform: "translate(-50%, -50%)",
         },
         {
           opacity: 1,
@@ -75,8 +82,13 @@ const BaftCoinMobile = () => {
           left: "50%",
           top: "50vh",
           transform: "translate(-50%, -50%)",
+          WebkitTransform: "translate(-50%, -50%)",
           duration: 1.5,
           ease: "power2.out",
+          force3D: true,
+          // Safari-specific optimizations
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden'
         }
       )
       .fromTo(
@@ -89,6 +101,7 @@ const BaftCoinMobile = () => {
           left: "50%",
           top: "50vh",
           transform: "translate(-50%, -50%)",
+          WebkitTransform: "translate(-50%, -50%)",
         },
         {
           opacity: 1,
@@ -98,8 +111,13 @@ const BaftCoinMobile = () => {
           left: "50%",
           top: "50vh",
           transform: "translate(-50%, -50%)",
+          WebkitTransform: "translate(-50%, -50%)",
           duration: 1.5,
           ease: "power2.out",
+          force3D: true,
+          // Safari-specific optimizations
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden'
         },
         "-=0.8"
       )
@@ -121,8 +139,12 @@ const BaftCoinMobile = () => {
           xPercent: -50,
           duration: 3.2,
           ease: "power2.out",
+          force3D: true,
+          // Safari-specific optimizations
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden',
           onComplete: () => {
-            // Gentle floating animation for mobile
+            // Gentle floating animation for mobile - Safari optimized
             if (coinRef.current) {
               animationRef.current = gsap.to(coinRef.current, {
                 y: -20,
@@ -130,6 +152,10 @@ const BaftCoinMobile = () => {
                 yoyo: true,
                 ease: "power1.inOut",
                 duration: 6,
+                force3D: true,
+                // Safari-specific properties
+                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: 'hidden'
               });
             }
           }

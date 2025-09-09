@@ -8,7 +8,7 @@
   padding: clamp(60px, 6vw, 100px);
   background: #000;
   border-radius: 37px;
-  /* Ultra smooth scrolling */
+  /* Ultra smooth scrolling - Safari optimized */
   scroll-behavior: smooth;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -16,6 +16,11 @@
   will-change: transform;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  /* Additional Safari optimizations */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
 }
 
 
@@ -29,8 +34,14 @@
   align-items: center;
   gap: clamp(20px, 5vw, 60px);
   flex-wrap: wrap;
-  /* Smooth transitions for layout changes */
+  /* Smooth transitions for layout changes - Safari optimized */
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  -webkit-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Safari hardware acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* ===========================
@@ -42,8 +53,14 @@
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
-  /* Smooth text transitions */
+  /* Smooth text transitions - Safari optimized */
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Safari text rendering optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-stroke: 0.01em transparent;
 }
 
 .safe-secure-title {
@@ -58,6 +75,7 @@
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .safe-secure-description {
@@ -72,6 +90,7 @@
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* ===========================
@@ -188,6 +207,7 @@
     border-radius: 1rem;
     /* Maintain smooth behavior on mobile */
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   .safe-secure-title {
     font-size: 1.6rem;
@@ -229,6 +249,7 @@
   background: rgba(255, 255, 255, 0.3);
   border-radius: 3px;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .buttery-smooth-scroll::-webkit-scrollbar-thumb:hover {
