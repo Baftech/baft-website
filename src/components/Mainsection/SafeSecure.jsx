@@ -8,6 +8,7 @@ const SafeSecureDesktop = () => {
   const baseScale = 1.10004;
   const bulgeMax = 0.08; // extra scale on hover at center (stronger bulge)
   const [tilt, setTilt] = useState({ x: 0, y: 0, s: baseScale });
+  const [isHovering, setIsHovering] = useState(false);
   const maxTilt = 8; // degrees
 
   const handleMove = (e) => {
@@ -27,10 +28,14 @@ const SafeSecureDesktop = () => {
         y: clampedY * maxTilt,
         s,
       });
+      setIsHovering(true);
     } catch {}
   };
 
-  const handleLeave = () => setTilt({ x: 0, y: 0, s: baseScale });
+  const handleLeave = () => {
+    setTilt({ x: 0, y: 0, s: baseScale });
+    setIsHovering(false);
+  };
 
   const handleTouchMove = (e) => {
     try {
@@ -70,36 +75,51 @@ const SafeSecureDesktop = () => {
               </div>
 
               {/* Logo */}
-            <div className="safe-secure-logo">
-              <div className="security-logo-wrapper " style = {{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                transform: "scale(1.5)",
-                transformOrigin: "center center",
-                perspective: "800px",
-                cursor: "pointer"
-              }} onMouseMove={handleMove} onMouseLeave={handleLeave} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-                <img
-  src={SAFE_SEC_SVG}
-  alt="Security Badge"
-  className="security-logo-svg"
-  style={{
-    width: "100%",       // base size
-    height: "auto",
-    position : "relative",
-    display: "block",
-    transform: `scale(${tilt.s.toFixed(5)}) rotateX(${(-tilt.y).toFixed(2)}deg) rotateY(${tilt.x.toFixed(2)}deg)`,
-    transformOrigin: "center",
-    transition: "transform 200ms ease",
-    willChange: "transform"
-  }}
-/>
-
-              </div>
-            </div>
+             <div className="safe-secure-logo">
+               <div 
+                 className={`security-logo-wrapper ${isHovering ? 'hovering' : ''}`}
+                 style={{
+                   width: "100%",
+                   height: "100%",
+                   display: "flex",
+                   justifyContent: "center",
+                   alignItems: "center",
+                   transform: "scale(1.5)",
+                   transformOrigin: "center center",
+                   perspective: "800px",
+                   cursor: "pointer",
+                   overflow: isHovering ? "visible" : "hidden"
+                 }} 
+                 onMouseMove={handleMove} 
+                 onMouseLeave={handleLeave} 
+                 onTouchMove={handleTouchMove} 
+                 onTouchEnd={handleTouchEnd}
+               >
+                 <div 
+                   className="image-container"
+                   style={{
+                     overflow: isHovering ? "visible" : "hidden",
+                     transition: "overflow 200ms ease-out"
+                   }}
+                 >
+                   <img
+                     src={SAFE_SEC_SVG}
+                     alt="Security Badge"
+                     className="security-logo-svg"
+                     style={{
+                       width: "100%",
+                       height: "auto",
+                       position: "relative",
+                       display: "block",
+                       transform: `scale(${tilt.s.toFixed(5)}) rotateX(${(-tilt.y).toFixed(2)}deg) rotateY(${tilt.x.toFixed(2)}deg)`,
+                       transformOrigin: "center",
+                       transition: "transform 200ms ease",
+                       willChange: "transform"
+                     }}
+                   />
+                 </div>
+               </div>
+             </div>
             </div>
           </div>
         </div>
