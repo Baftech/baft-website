@@ -89,27 +89,11 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
           // Calculate how many lines the second paragraph has
           const secondParaLines = Math.ceil(secondParaHeight / lineH);
           
-          // Randomly decide whether to show second paragraph or not (60% chance to hide)
-          const shouldShowSecondPara = Math.random() > 0.6; // 40% chance to show
+          // Show only first paragraph in collapsed state (no second paragraph preview)
+          collapsed = firstParaHeight;
           
-          if (shouldShowSecondPara) {
-            // Show first paragraph + exactly 1 line of second paragraph
-            const lineHeight = secondParaLines > 0 ? (secondParaHeight / secondParaLines) : lineH;
-            const linesToShow = 1; // Show exactly 1 line of second paragraph
-            const secondParaPartialHeight = lineHeight * linesToShow;
-            
-            // Calculate total height: first paragraph + 1 line of second paragraph + spacing
-            collapsed = firstParaHeight + secondParaPartialHeight;
-            
-            // Add spacing between paragraphs and safety buffer
-            collapsed += 24; // Paragraph spacing
-          } else {
-            // Show only first paragraph - hide second paragraph completely
-            collapsed = firstParaHeight;
-            
-            // Add small buffer for visual spacing
-            collapsed += 16; // Reduced spacing since no second paragraph
-          }
+          // Add small buffer for visual spacing
+          collapsed += 16; // Reduced spacing since no second paragraph preview
         } else if (paraNodes && paraNodes.length === 1) {
           // Only one paragraph, show it fully with safety buffer
           const firstRect = paraNodes[0].getBoundingClientRect();
@@ -122,22 +106,22 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
         }
         
         // Ensure minimum collapsed height to prevent cutoff
-        // Minimum should accommodate first paragraph (second paragraph is sometimes hidden)
-        const minCollapsedHeight = compact ? 200 : 250; // Reduced since second para is sometimes hidden
+        // Minimum should accommodate first paragraph only
+        const minCollapsedHeight = compact ? 200 : 250; // Reduced since only showing first paragraph
         collapsed = Math.max(collapsed, minCollapsedHeight);
         
         setCollapsedHeight(collapsed);
 
         // Max content height so expanded text doesn't overflow viewport on compact screens
-        // More generous padding for smaller screens to prevent text cutoff
-        const verticalPaddingAllowance = screenSize === 'small' ? 120 : // Increased from 100
-                                        screenSize === 'medium' ? 80 : // Increased from 60
-                                        screenSize === 'large' ? Math.max(140, vh * 0.18) : 40; // Increased from 20
-        const safeMax = Math.max(700, (vh || 800) - verticalPaddingAllowance); // Increased from 600
+        // More generous padding for smaller screens to prevent text cutoff and ensure Read Less button is accessible
+        const verticalPaddingAllowance = screenSize === 'small' ? 200 : // Increased to ensure Read Less button is visible
+                                        screenSize === 'medium' ? 160 : // Increased to ensure Read Less button is visible
+                                        screenSize === 'large' ? Math.max(180, vh * 0.25) : 120; // Increased to ensure Read Less button is visible
+        const safeMax = Math.max(500, (vh || 800) - verticalPaddingAllowance); // Reduced base height to ensure button accessibility
         setMaxContentHeight(safeMax);
       } catch {
-        // Fallback heights for first paragraph only (second para sometimes hidden)
-        setCollapsedHeight(250); // Reduced since second para is sometimes hidden
+        // Fallback heights for first paragraph only
+        setCollapsedHeight(250); // Reduced since only showing first paragraph
         setMaxContentHeight(900); // Increased from 800
       }
     };
@@ -163,33 +147,10 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
           const firstParaClone = paraNodes[0].cloneNode(true);
           tempDiv.appendChild(firstParaClone);
           
-          // Randomly decide whether to show second paragraph (same logic as main measurement)
-          const shouldShowSecondPara = Math.random() > 0.6; // 40% chance to show
-          
-          if (shouldShowSecondPara) {
-            // Add exactly first line of second paragraph
-            const secondParaText = paraNodes[1].textContent;
-            const words = secondParaText.split(' ');
-            const lineHeight = parseFloat(window.getComputedStyle(paraNodes[1]).lineHeight);
-            
-            // More accurate estimation of words per line based on actual width
-            const containerWidth = parseFloat(window.getComputedStyle(paraNodes[1]).width);
-            const avgCharWidth = 8; // Approximate character width
-            const wordsPerLine = Math.max(6, Math.floor(containerWidth / (avgCharWidth * 5))); // 5 chars per word average
-            const firstLineWords = words.slice(0, wordsPerLine);
-            const firstLineText = firstLineWords.join(' ');
-            
-            const firstLineDiv = document.createElement('div');
-            firstLineDiv.textContent = firstLineText;
-            firstLineDiv.style.marginTop = '24px'; // Paragraph spacing
-            firstLineDiv.style.lineHeight = lineHeight + 'px';
-            firstLineDiv.style.height = lineHeight + 'px';
-            firstLineDiv.style.overflow = 'hidden';
-            tempDiv.appendChild(firstLineDiv);
-          }
+          // Don't show second paragraph in collapsed state - only first paragraph
           
           document.body.appendChild(tempDiv);
-          const measuredHeight = tempDiv.offsetHeight + (shouldShowSecondPara ? 16 : 8); // Different buffer based on content
+          const measuredHeight = tempDiv.offsetHeight + 8; // Reduced buffer since only first paragraph
           document.body.removeChild(tempDiv);
           
           // Update collapsed height if measurement is more accurate
@@ -236,6 +197,9 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
     if (contentRef.current) {
       // Kill any existing tweens to avoid conflicts
       gsap.killTweensOf(contentRef.current);
+      
+      // Set initial height immediately to prevent expansion/collapse on page entry
+      contentRef.current.style.height = `${collapsedHeight}px`;
       
       if (isExpanded) {
         // Get the natural height of the content
@@ -285,11 +249,11 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
   return (
     <div className="leading-relaxed pr-2" style={{ 
       maxWidth: getDimensions('520px', '600px', '700px'),
-      maxHeight: compact ? 'calc(100vh - 160px)' : // Reduced from 180px
-                (screenSize === 'small' ? 'calc(100vh - 120px)' : // Reduced from 140px
-                 screenSize === 'medium' ? 'calc(100vh - 110px)' : // Reduced from 130px
-                 screenSize === 'large' ? 'calc(100vh - 20vh)' : // Reduced from 25vh
-                 'calc(100vh - 100px)'), // Reduced from 120px
+      maxHeight: compact ? 'calc(100vh - 200px)' : // Increased to ensure Read Less button is accessible
+                (screenSize === 'small' ? 'calc(100vh - 200px)' : // Increased to ensure Read Less button is accessible
+                 screenSize === 'medium' ? 'calc(100vh - 180px)' : // Increased to ensure Read Less button is accessible
+                 screenSize === 'large' ? 'calc(100vh - 25vh)' : // Increased to ensure Read Less button is accessible
+                 'calc(100vh - 160px)'), // Increased to ensure Read Less button is accessible
       display: 'flex',
       flexDirection: 'column',
       minHeight: isExpanded ? 'auto' : '280px', // Increased from 200px
@@ -322,13 +286,13 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
             style={{
               fontFamily: "Inter, sans-serif",
               color: '#909090',
-              fontSize: screenSize === 'large' ? '18px' : 
-                (compact ? getFontSize('16px', '20px', '21px') : getFontSize('18px', '22px', '18px')),
-              lineHeight: screenSize === 'large' ? '28px' : 
-                (compact ? getFontSize('24px', '28px', '30px') : getFontSize('26px', '30px', '28px')),
+              fontSize: screenSize === 'large' ? '16px' : 
+                (compact ? getFontSize('14px', '16px', '18px') : getFontSize('16px', '18px', '16px')),
+              lineHeight: screenSize === 'large' ? '24px' : 
+                (compact ? getFontSize('20px', '22px', '24px') : getFontSize('22px', '24px', '22px')),
               marginBottom: i === 0 ? 
-                getSpacing('20px', '24px', '28px') : 
-                getSpacing('18px', '22px', '26px')
+                getSpacing('16px', '18px', '20px') : 
+                getSpacing('14px', '16px', '18px')
             }}
           >
             {para}
@@ -1001,9 +965,9 @@ const AboutBaft = () => {
     let touchStartY = null;
     
     // Add scroll accumulation for touchpad sensitivity (using refs for cross-effect access)
-    const scrollThreshold = 150; // Minimum accumulated scroll before triggering
-    const scrollDecayTime = 200; // Time in ms for scroll accumulation to decay
-    const minScrollDelta = 10; // Minimum single scroll delta to accumulate
+    const scrollThreshold = 300; // Minimum accumulated scroll before triggering (increased from 150)
+    const scrollDecayTime = 400; // Time in ms for scroll accumulation to decay (increased from 200)
+    const minScrollDelta = 20; // Minimum single scroll delta to accumulate (increased from 10)
 
     const handleWheel = (e) => {
       if (isForceAnimatingRef.current) return;
@@ -1032,7 +996,7 @@ const AboutBaft = () => {
       
       // Decay scroll accumulator over time
       if (currentTime - lastScrollTimeRef.current > scrollDecayTime) {
-        scrollAccumulatorRef.current = Math.max(0, scrollAccumulatorRef.current - (currentTime - lastScrollTimeRef.current) / scrollDecayTime * 50);
+        scrollAccumulatorRef.current = Math.max(0, scrollAccumulatorRef.current - (currentTime - lastScrollTimeRef.current) / scrollDecayTime * 30);
       }
       
       // Only accumulate significant scroll movements
@@ -1323,9 +1287,7 @@ const AboutBaft = () => {
               height: '100vh',
               width: '100vw',
               overflow: 'hidden',
-              paddingTop: screenSize === 'large' ? 
-                'calc(var(--nav-h, 64px) + calc(var(--gap, 8px) * 1))' : 
-                'calc(var(--nav-h, 64px) + calc(var(--gap, 16px) * 2))'
+              paddingTop: 'calc(var(--nav-h, 64px) + 1.5cm)'
             }}
           >
             {/* Static grid: text left, measuring placeholder right */}
@@ -1365,14 +1327,14 @@ const AboutBaft = () => {
                     : 'none',
                   pointerEvents: textOpacity < 0.05 ? 'none' : 'auto',
         maxHeight: isExpanded ?
-          (screenSize === 'small' ? 'calc(100vh - 140px)' : // Reduced from 160px
-           screenSize === 'medium' ? 'calc(100vh - 120px)' : // Reduced from 140px
-           screenSize === 'large' ? 'calc(100vh - 15vh)' : // Reduced from 20vh
-           'calc(100vh - 100px)') : // Reduced from 120px
-          'calc(100vh - 130px)', // Reduced from 150px
+          (screenSize === 'small' ? 'calc(100vh - 220px)' : // Increased to ensure Read Less button is accessible
+           screenSize === 'medium' ? 'calc(100vh - 200px)' : // Increased to ensure Read Less button is accessible
+           screenSize === 'large' ? 'calc(100vh - 25vh)' : // Increased to ensure Read Less button is accessible
+           'calc(100vh - 180px)') : // Increased to ensure Read Less button is accessible
+          'calc(100vh - 180px)', // Increased to ensure Read Less button is accessible
                   overflow: 'visible',
                   minHeight: isExpanded ? 'auto' : 
-                    (screenSize === 'large' ? 'calc(100vh - 30vh)' : 'calc(100vh - 180px)'), // Reduced constraints
+                    (screenSize === 'large' ? 'calc(100vh - 30vh)' : 'calc(100vh - 200px)'), // Increased to ensure Read Less button is accessible
                   // Add safety padding to prevent text cutoff
                   paddingTop: '12px',
                   paddingBottom: '12px'

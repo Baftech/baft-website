@@ -282,30 +282,30 @@ const BaFTCoin = () => {
           ref={coinRef}
           src={B_COIN_IMAGE_PNG}
           alt="BaFT Coin"
-          className="absolute md:relative h-auto left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[2cm] lg:mt-[2cm] opacity-0"
+          className="absolute md:relative h-auto left-1/2 -translate-x-1/2 bottom-[2vh] sm:bottom-[3vh] md:bottom-auto md:left-auto md:translate-x-0 transform translate-y-0 sm:translate-y-0 md:mt-[3cm] lg:mt-[2.5cm] opacity-0"
           style={{
             width: isMacBook 
-              ? `min(95vw, 95vh)`
-              : `min(80vw, 75vh)`,
+              ? `min(65vw, 55vh)`
+              : `min(85vw, 80vh)`,
             height: isMacBook 
-              ? `min(95vw, 95vh)`
-              : `min(80vw, 75vh)`,
-            maxWidth: isMacBook ? '95vw' : '80vw',
-            maxHeight: isMacBook ? '95vh' : '75vh',
+              ? `min(65vw, 55vh)`
+              : `min(85vw, 80vh)`,
+            maxWidth: isMacBook ? '65vw' : '85vw',
+            maxHeight: isMacBook ? '55vh' : '80vh',
             objectFit: 'contain'
           }}
         />
       </div>
 
       {/* Overlay Text */}
-      <div className="z-10 mt-16 md:mt-20 lg:mt-24">
+      <div className="z-10 mt-24 md:mt-32 lg:mt-36">
         <h2
-          className="intro-text text-white eb-garamond-intro text-2xl sm:text-3xl md:text-[34px] lg:text-[48px] xl:text-[64px] 2xl:text-[72px] leading-[1.16] font-normal mb-4 opacity-0"
+          className="intro-text text-white eb-garamond-intro text-3xl sm:text-4xl md:text-[36px] lg:text-[48px] xl:text-[64px] 2xl:text-[72px] leading-[1.16] font-normal mb-8 opacity-0"
         >
           Introducing
         </h2>
         <h1
-          className="coin-text eb-garamond-intro font-medium leading-[1.16] text-4xl sm:text-5xl md:text-[72px] lg:text-[104px] xl:text-[156px] 2xl:text-[160px] text-transparent bg-clip-text bg-[linear-gradient(180deg,#FFFFFF_38.23%,#000000_147.25%)] [--tw-text-stroke:1px_rgba(255,255,255,0.5)] [webkit-text-stroke:var(--tw-text-stroke)] [text-stroke:var(--tw-text-stroke)] opacity-0"
+          className="coin-text eb-garamond-intro font-medium leading-[1.16] text-5xl sm:text-6xl md:text-[72px] lg:text-[96px] xl:text-[140px] 2xl:text-[160px] text-transparent bg-clip-text bg-[linear-gradient(180deg,#FFFFFF_38.23%,#000000_147.25%)] [--tw-text-stroke:1px_rgba(255,255,255,0.5)] [webkit-text-stroke:var(--tw-text-stroke)] [text-stroke:var(--tw-text-stroke)] opacity-0 edge-large-text"
         >
           BaFT Coin
         </h1>

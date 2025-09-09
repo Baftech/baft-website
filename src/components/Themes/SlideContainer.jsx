@@ -18,34 +18,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const navCooldownMs = 300;
   const momentumGuardUntilRef = useRef(0);
   
-  // Lock body scroll while SlideContainer is mounted to avoid extra page scroll
-  useEffect(() => {
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const previousBodyHeight = document.body.style.height;
-    const previousHtmlHeight = document.documentElement.style.height;
-    const previousBodyBg = document.body.style.backgroundColor;
-    const previousHtmlBg = document.documentElement.style.backgroundColor;
-
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    // Use percentage heights to avoid iOS navbar collapse/expand causing jumps
-    document.body.style.height = '100%';
-    document.documentElement.style.height = '100%';
-    // Prevent white flashes behind content during overscroll/bounce
-    document.body.style.backgroundColor = '#000';
-    document.documentElement.style.backgroundColor = '#000';
-
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.body.style.height = previousBodyHeight;
-      document.documentElement.style.height = previousHtmlHeight;
-      document.body.style.backgroundColor = previousBodyBg;
-      document.documentElement.style.backgroundColor = previousHtmlBg;
-    };
-  }, []);
-
   // BaFT Coin section control
   const [baftCoinPinned, setBaftCoinPinned] = useState(false);
   

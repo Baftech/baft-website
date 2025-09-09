@@ -116,33 +116,33 @@ const Cards = () => {
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -40, y: CARD_Y_OFFSET, z: -40, scale: 0.9, opacity: 1, rotateY: 15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: -30, y: CARD_Y_OFFSET, z: -30, scale: 0.9, opacity: 1, rotateY: 15, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 40, y: CARD_Y_OFFSET, z: -40, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: 30, y: CARD_Y_OFFSET, z: -30, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -80 : 80, y: CARD_Y_OFFSET, z: -60, scale: 0.75, opacity: 1, rotateY: index < activeIndex ? 20 : -20, zIndex: 7 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -60 : 60, y: CARD_Y_OFFSET, z: -45, scale: 0.75, opacity: 1, rotateY: index < activeIndex ? 20 : -20, zIndex: 7 }, immediate);
         }
       } else if (isSmallDesktop) {
-        // Small Desktop (1024px - 1279px): Moderate 3D carousel
+        // Small Desktop (1024px - 1279px): Moderate 3D carousel with reduced spacing
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -60, y: CARD_Y_OFFSET, z: -60, scale: 0.9, opacity: 1, rotateY: 15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: -45, y: CARD_Y_OFFSET, z: -45, scale: 0.9, opacity: 1, rotateY: 15, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 60, y: CARD_Y_OFFSET, z: -60, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: 45, y: CARD_Y_OFFSET, z: -45, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -120 : 120, y: CARD_Y_OFFSET, z: -90, scale: 0.8, opacity: 1, rotateY: index < activeIndex ? 25 : -25, zIndex: 7 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -90 : 90, y: CARD_Y_OFFSET, z: -70, scale: 0.8, opacity: 1, rotateY: index < activeIndex ? 25 : -25, zIndex: 7 }, immediate);
         }
       } else if (isMediumDesktop) {
-        // Medium Desktop (1280px - 1535px): Enhanced 3D carousel
+        // Medium Desktop (1280px - 1535px): Enhanced 3D carousel with reduced spacing
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -100, y: CARD_Y_OFFSET, z: -100, scale: 0.85, opacity: 1, rotateY: 20, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: -80, y: CARD_Y_OFFSET, z: -80, scale: 0.85, opacity: 1, rotateY: 20, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 100, y: CARD_Y_OFFSET, z: -100, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: 80, y: CARD_Y_OFFSET, z: -80, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -200 : 200, y: CARD_Y_OFFSET, z: -150, scale: 0.75, opacity: 1, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -160 : 160, y: CARD_Y_OFFSET, z: -120, scale: 0.75, opacity: 1, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
         }
       } else {
         // Large Desktop (1536px+): Full 3D carousel effect with bigger spacing
@@ -190,13 +190,42 @@ const Cards = () => {
     };
   }, []);
 
-  // Safari-specific optimizations
+  // Browser-specific optimizations
   useEffect(() => {
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    const isEdge = /Edg/.test(navigator.userAgent);
+    const isChromium = isChrome || isEdge;
+    
     if (isSafari) {
       // Add Safari-specific classes for better performance
       if (cardsRef.current) {
         cardsRef.current.classList.add('safari-gpu-accelerated');
+      }
+    }
+    
+    if (isChromium) {
+      // Add Chromium-specific classes for consistent rendering
+      if (cardsRef.current) {
+        cardsRef.current.classList.add('chromium-optimized');
+      }
+      // Force hardware acceleration for consistent 3D transforms
+      if (cardsRef.current) {
+        cardsRef.current.style.transform = 'translateZ(0)';
+        cardsRef.current.style.willChange = 'transform, opacity';
+      }
+      
+      // Apply browser-specific scaling
+      if (isEdge) {
+        // Edge: Scale up to match Chrome appearance
+        if (cardsRef.current) {
+          cardsRef.current.style.setProperty('--browser-scale', '1.1');
+        }
+      } else if (isChrome) {
+        // Chrome: Scale down to reduce bulkiness
+        if (cardsRef.current) {
+          cardsRef.current.style.setProperty('--browser-scale', '0.95');
+        }
       }
     }
   }, []);
@@ -238,7 +267,7 @@ const Cards = () => {
         id="features"
         className="relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 sm:py-16 lg:py-20 xl:py-24 2xl:py-28 features-section"
         style={{
-          marginTop: "clamp(2vh, 4vh, 8vh)",
+          marginTop: "clamp(4vh, 6vh, 8vh)",
           marginLeft: "1cm",
           marginRight: "1cm"
         }}
@@ -309,6 +338,7 @@ const Cards = () => {
                 return (
                   <li
                     key={index}
+                    data-active={isActive}
                     onMouseEnter={() => setCurrentIndex(index)}
                     style={{
                       /* Frame 1171276245 (Active) / Frame 1171276246 (Inactive) */
@@ -334,7 +364,10 @@ const Cards = () => {
                       flex: "none",
                       order: isActive ? 0 : 1,
                       flexGrow: 0,
-                      transition: "all 0.3s ease"
+                      transition: isActive ? "all 0.3s ease" : "none",
+                      /* Fix z-index layering */
+                      position: "relative",
+                      zIndex: isActive ? 10 : 1
                     }}
                   >
                     {feature.customIcon ? (
@@ -404,7 +437,7 @@ const Cards = () => {
             {featuresData.map((feature, index) => (
               <div
                 key={index}
-                className="absolute w-[16rem] sm:w-[20rem] md:w-[24rem] lg:w-[28rem] xl:w-[36rem] 2xl:w-[42rem] flex flex-col items-center justify-center scale-100 sm:scale-110 md:scale-125 lg:scale-150 xl:scale-200 2xl:scale-250"
+                className="absolute w-[14rem] sm:w-[18rem] md:w-[20rem] lg:w-[28rem] xl:w-[36rem] 2xl:w-[42rem] flex flex-col items-center justify-center scale-90 sm:scale-100 md:scale-110 lg:scale-150 xl:scale-200 2xl:scale-250"
               >
                 <img
                   src={feature.image}

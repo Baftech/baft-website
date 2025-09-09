@@ -27,8 +27,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
   display: none !important;
 }
 
-@utility flex-center{
-    @apply flex items-center justify-center;
+/* Utility class for flex center */
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .video-blend {
   mix-blend-mode: screen; /* Changed from lighten to screen for more subtle effect */
@@ -46,6 +49,225 @@ video.video-blend {
   box-shadow: none !important;
   filter: none;
   -webkit-filter: none;
+}
+
+/* Microsoft Edge specific styling for BaFT Coin text */
+@supports (-ms-ime-align: auto) {
+  .edge-large-text {
+    font-size: 1.2em !important;
+  }
+}
+
+/* Microsoft Edge Legacy specific styling */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .edge-large-text {
+    font-size: 1.2em !important;
+  }
+}
+
+/* Chromium browsers (Chrome, Edge, etc.) - slightly smaller text */
+@supports (-webkit-appearance: none) {
+  .coin-text {
+    font-size: 0.9em !important;
+  }
+  .intro-text {
+    font-size: 0.9em !important;
+  }
+}
+
+/* Webkit browsers (Safari, Chrome) - dynamic sizing */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .coin-text {
+    font-size: clamp(2.5rem, 8vw, 12rem) !important;
+  }
+  .intro-text {
+    font-size: clamp(1.5rem, 4vw, 6rem) !important;
+  }
+}
+
+/* MacBook specific styling - larger text */
+@media screen and (min-width: 1024px) and (min-height: 640px) and (-webkit-min-device-pixel-ratio: 1) {
+  .coin-text {
+    font-size: clamp(4rem, 10vw, 14rem) !important;
+  }
+  .intro-text {
+    font-size: clamp(2rem, 5vw, 7rem) !important;
+  }
+}
+
+/* Features section responsive adjustments */
+.features-section {
+  /* Dynamic sizing for different screen sizes */
+  font-size: clamp(0.8rem, 2vw, 1.2rem);
+}
+
+/* Small laptop and Chromium browser adjustments */
+@media screen and (min-width: 1024px) and (max-width: 1366px) {
+  .features-section {
+    font-size: clamp(0.7rem, 1.8vw, 1rem);
+  }
+  
+  .features-section h1 {
+    font-size: clamp(20px, 4vw, 60px) !important;
+    line-height: clamp(24px, 4.5vw, 65px) !important;
+  }
+  
+  .features-section .feature-list {
+    font-size: clamp(0.6rem, 1.5vw, 0.9rem);
+  }
+}
+
+/* Tablet portrait mode - ensure side-by-side layout */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .features-section .grid-cols-2 {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .features-section .feature-text {
+    width: 100% !important;
+    height: auto !important;
+  }
+  
+  .features-section .feature-mockups {
+    width: 100% !important;
+    height: 50vh !important;
+  }
+}
+
+/* Tablet landscape mode */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .features-section {
+    padding: 1rem 0 !important;
+  }
+  
+  .features-section .grid-cols-2 {
+    gap: 1.5rem !important;
+  }
+}
+
+/* Chromium browsers (Chrome, Edge) - ensure consistent rendering */
+@supports (-webkit-appearance: none) {
+  .features-section {
+    /* Force consistent font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  .features-section .feature-mockups {
+    /* Ensure consistent 3D transforms */
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
+  .features-section .feature-mockups > div {
+    /* Consistent scaling and positioning */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform, opacity;
+  }
+}
+
+/* Chrome-specific adjustments to reduce bulkiness */
+@media screen and (-webkit-min-device-pixel-ratio: 0) and (not (-ms-ime-align: auto)) {
+  .features-section .feature-mockups > div {
+    transform: scale(0.95) !important;
+  }
+  
+  .features-section .feature-mockups > div img {
+    transform: scale(0.98) !important;
+  }
+}
+
+/* Use JavaScript-set browser scaling */
+.features-section .feature-mockups {
+  --browser-scale: 1;
+}
+
+.features-section .feature-mockups > div {
+  transform: scale(var(--browser-scale, 1)) !important;
+}
+
+/* Chromium-optimized class for consistent rendering */
+.chromium-optimized {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.chromium-optimized > div {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Fix z-index layering for feature list items */
+.feature-list {
+  position: relative;
+  z-index: 1;
+}
+
+.feature-list li {
+  position: relative;
+  z-index: 1;
+  /* No transitions for inactive items */
+  transition: none;
+}
+
+.feature-list li:hover {
+  z-index: 10 !important;
+}
+
+/* Only active items have transitions */
+.feature-list li[data-active="true"] {
+  transition: all 0.3s ease;
+}
+
+/* Microsoft Edge specific adjustments */
+@supports (-ms-ime-align: auto) {
+  .features-section {
+    /* Edge-specific font rendering */
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  .features-section .feature-mockups {
+    /* Edge 3D transform support */
+    -ms-transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+  }
+  
+  /* Edge-specific card sizing to match Chrome */
+  .features-section .feature-mockups > div {
+    transform: scale(1.1) !important;
+  }
+  
+  .features-section .feature-mockups > div img {
+    transform: scale(1.05) !important;
+  }
+}
+
+/* Microsoft Edge Legacy */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .features-section {
+    /* Legacy Edge support */
+    -ms-text-size-adjust: 100%;
+  }
+  
+  .features-section .feature-mockups {
+    /* Fallback for older Edge versions */
+    -ms-transform-style: flat;
+    -webkit-transform-style: flat;
+    transform-style: flat;
+  }
 }
 
 .eb-garamond-intro {
