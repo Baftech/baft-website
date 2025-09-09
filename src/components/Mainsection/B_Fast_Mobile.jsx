@@ -239,10 +239,19 @@ const B_Fast_Mobile = () => {
                     objectFit: "cover",
                     objectPosition: "50% 50%",
                     opacity: 1,
-                    mixBlendMode: "darken",
+                    mixBlendMode: "normal",
                     filter: "saturate(1.08) contrast(1.04) brightness(1.02)",
-                    WebkitMaskImage: "none",
-                    maskImage: "none",
+                    // Feather edges into pure white background without tinting it
+                    WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 62%, rgba(0,0,0,0.75) 78%, rgba(0,0,0,0.35) 90%, rgba(0,0,0,0) 100%)",
+                    maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 62%, rgba(0,0,0,0.75) 78%, rgba(0,0,0,0.35) 90%, rgba(0,0,0,0) 100%)",
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskSize: "100% 100%",
+                    maskSize: "100% 100%",
+                    WebkitMaskPosition: "50% 50%",
+                    maskPosition: "50% 50%",
+                    transform: "scale(1.02)",
+                    transformOrigin: "center",
                     pointerEvents: "none",
                     border: "none",
                     outline: "none",
@@ -270,16 +279,16 @@ const B_Fast_Mobile = () => {
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0 }}>
             {/* Ring 1 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitSlow 24s linear infinite' }}>
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.75, transform: 'translateX(140px)' }} />
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.75, transform: 'rotate(120deg) translateX(140px)' }} />
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.75, transform: 'rotate(240deg) translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(120deg) translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(240deg) translateX(140px)' }} />
             </div>
             {/* Ring 2 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitMed 18s linear infinite reverse' }}>
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.3, transform: 'translateX(190px)' }} />
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.3, transform: 'rotate(90deg) translateX(190px)' }} />
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.3, transform: 'rotate(180deg) translateX(190px)' }} />
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.3, transform: 'rotate(270deg) translateX(190px)' }} />
+              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'translateX(190px)' }} />
+              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(90deg) translateX(190px)' }} />
+              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(180deg) translateX(190px)' }} />
+              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(270deg) translateX(190px)' }} />
             </div>
           </div>
         </div>
