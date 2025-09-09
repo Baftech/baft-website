@@ -182,7 +182,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
 
   return (
     <div className="leading-relaxed pr-2" style={{ 
-      maxWidth: getDimensions('520px', '600px', '750px'),
+      maxWidth: getDimensions('520px', '600px', '700px'),
       maxHeight: compact ? 'calc(100vh - 180px)' : 
                 (screenSize === 'small' ? 'calc(100vh - 140px)' :
                  screenSize === 'medium' ? 'calc(100vh - 130px)' :
@@ -1160,16 +1160,20 @@ const AboutBaft = () => {
                 WebkitOverflowScrolling: isCompactViewport ? 'touch' : undefined,
                 height: '100%',
                 maxHeight: '100%',
-                paddingBottom: isCompactViewport ? '16px' : 0
+                paddingBottom: isCompactViewport ? '16px' : 0,
+                // Constrain maximum width on very wide screens
+                maxWidth: '1800px',
+                marginLeft: 'auto',
+                marginRight: 'auto'
               }}
             >
               <div
                 className="w-full mx-auto grid grid-cols-2 items-center"
                 style={{
-                  columnGap: getDimensions('60px', '120px', '130px'),
-                  maxWidth: getDimensions('1200px', '1600px', '2000px'),
-                  paddingLeft: getSpacing('1rem', '2rem', '3rem'),
-                  paddingRight: getSpacing('1rem', '2rem', '3rem')
+                  columnGap: getDimensions('60px', '100px', '120px'),
+                  maxWidth: getDimensions('1200px', '1400px', '1600px'),
+                  paddingLeft: getSpacing('1rem', '2rem', '2.5rem'),
+                  paddingRight: getSpacing('1rem', '2rem', '2.5rem')
                 }}
               >
               <div
@@ -1259,6 +1263,12 @@ At BaFT, we build smart, seamless solutions that cut through the clutter of trad
                 <div
                   ref={imageStartRef}
                   className="about-right-responsive relative rounded-3xl overflow-hidden"
+                  style={{
+                    width: '100%',
+                    maxWidth: '500px',
+                    height: 'auto',
+                    minHeight: '400px'
+                  }}
                 >
                   <div className="w-full h-full" style={{ opacity: 1 - easedProgress, transition: 'opacity 120ms linear' }}>
                     <InteractiveTeamImage disabled={easedProgress > 0.1} />
