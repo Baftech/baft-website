@@ -6,7 +6,9 @@
   overscroll-behavior: none;
   /* Premium hardware acceleration */
   will-change: transform, scroll-position;
+  -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   perspective: 1000px;
   /* Touch handling for mobile */
@@ -23,7 +25,9 @@
   transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
   /* Ultra smooth slide transitions */
+  -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 

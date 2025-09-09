@@ -4,6 +4,8 @@ import './index.css'
 import App from './App.jsx'
 // Configure GSAP globally to avoid noisy warnings for optional targets
 import { gsap } from 'gsap'
+// Safari compatibility fixes
+import './safari-polyfills.js'
 
 try {
   gsap.config({

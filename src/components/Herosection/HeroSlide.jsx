@@ -48,6 +48,25 @@ const Hero = () => {
     };
   }, []);
 
+  // Safari-specific fixes
+  useEffect(() => {
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (isSafari) {
+      // Add Safari-specific classes
+      document.body.classList.add('safari-browser');
+      
+      // Fix for Safari's handling of video elements
+      if (videoRef.current) {
+        videoRef.current.classList.add('safari-video-fix');
+      }
+      
+      // Fix for Safari's handling of transforms
+      if (wrapperRef.current) {
+        wrapperRef.current.classList.add('safari-gpu-accelerated');
+      }
+    }
+  }, []);
+
   // Note: We do NOT early-return for mobile because that would change the
   // number/order of hooks between renders. We will conditionally render
   // mobile UI in the JSX and short-circuit effect bodies when isMobile is true.

@@ -1,12 +1,15 @@
 /* Mobile Transitions CSS */
 .transition-element {
   will-change: transform, opacity, filter;
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
 }
 
 .page-transition-container {
   perspective: 1000px;
+  -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
 }
 
@@ -27,6 +30,7 @@
   z-index: 9999;
   opacity: 0;
   transition: all 0.3s ease;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -118,8 +122,10 @@
 
 /* Performance optimizations */
 .gpu-accelerated {
+  -webkit-transform: translateZ(0);
   transform: translateZ(0);
   will-change: transform;
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 

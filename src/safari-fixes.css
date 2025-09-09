@@ -1,0 +1,221 @@
+/* Safari-specific CSS fixes and optimizations */
+
+/* Safari backdrop-filter support */
+@supports (-webkit-backdrop-filter: blur(10px)) {
+  .safari-backdrop-blur {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* Safari mix-blend-mode support */
+@supports (mix-blend-mode: screen) {
+  .safari-mix-blend-screen {
+    -webkit-mix-blend-mode: screen;
+    mix-blend-mode: screen;
+  }
+}
+
+/* Safari text gradient support */
+@supports (-webkit-background-clip: text) {
+  .safari-text-gradient {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Safari transform3d support */
+@supports (transform: translate3d(0, 0, 0)) {
+  .safari-transform3d {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Safari will-change support */
+@supports (will-change: transform) {
+  .safari-will-change {
+    will-change: transform;
+  }
+}
+
+/* Safari backface-visibility support */
+@supports (backface-visibility: hidden) {
+  .safari-backface-hidden {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+}
+
+/* Safari transform-style support */
+@supports (transform-style: preserve-3d) {
+  .safari-preserve-3d {
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+  }
+}
+
+/* Safari-specific scrollbar fixes */
+.safari-scrollbar-fix {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.safari-scrollbar-fix::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Safari font rendering optimizations */
+.safari-font-smooth {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Safari touch optimizations */
+.safari-touch-optimized {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Safari momentum scrolling */
+.safari-momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safari-specific media queries */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+  .safari-retina-optimized {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* Safari-specific animation fixes */
+@keyframes safari-fade-in {
+  from {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 20px, 0);
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.safari-fade-in {
+  animation: safari-fade-in 0.6s ease-out;
+}
+
+/* Safari-specific filter fixes */
+.safari-filter-blur {
+  -webkit-filter: blur(10px);
+  filter: blur(10px);
+}
+
+/* Safari-specific gradient fixes */
+.safari-gradient-fallback {
+  background: #000000; /* Fallback color */
+  background: linear-gradient(180deg, #FFFFFF 38.23%, #000000 147.25%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Safari-specific video fixes */
+.safari-video-fix {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Safari-specific performance optimizations */
+.safari-gpu-accelerated {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Safari-specific text selection fixes */
+.safari-text-selectable {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Safari-specific button fixes */
+.safari-button-fix {
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Safari-specific input fixes */
+.safari-input-fix {
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Safari-specific scroll fixes */
+.safari-scroll-smooth {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Safari-specific flex fixes */
+.safari-flex-fix {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+/* Safari-specific grid fixes */
+.safari-grid-fix {
+  display: -webkit-grid;
+  display: grid;
+}
+
+/* Safari-specific animation performance */
+.safari-animation-optimized {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Safari-specific transition fixes */
+.safari-transition-fix {
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+/* Safari-specific border-radius fixes */
+.safari-border-radius-fix {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+
+/* Safari-specific box-shadow fixes */
+.safari-box-shadow-fix {
+  -webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}

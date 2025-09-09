@@ -4,6 +4,7 @@
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap'); /*Satoshi via Fontshare*/
 @import url('/fonts/GeneralSans_Complete/Fonts/WEB/css/general-sans.css');
 @import "tailwindcss";
+@import "./safari-fixes.css";
 
 /* Global scrollbar hiding - Force hide all scrollbars */
 * {
@@ -30,6 +31,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 }
 .video-blend {
   mix-blend-mode: screen; /* Changed from lighten to screen for more subtle effect */
+  -webkit-mix-blend-mode: screen; /* Safari support */
   background-color: black;
   border: none;
   outline: none;
@@ -68,6 +70,8 @@ video.video-blend {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+  /* Fallback for Safari */
+  -webkit-text-fill-color: transparent;
 }
 
 .eb-garamond-heading {
@@ -87,6 +91,8 @@ video.video-blend {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+  /* Fallback for Safari */
+  -webkit-text-fill-color: transparent;
 }
 
 .inter-Bfast_sub {
@@ -99,6 +105,8 @@ video.video-blend {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+  /* Fallback for Safari */
+  -webkit-text-fill-color: transparent;
 }
 
 .shared-word {
@@ -229,6 +237,26 @@ video.video-blend {
   -webkit-touch-callout: none;
 }
 
+/* Safari-specific optimizations */
+.safari-browser * {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.safari-browser .video-blend {
+  -webkit-mix-blend-mode: screen;
+  mix-blend-mode: screen;
+}
+
+.safari-browser .coin-text,
+.safari-browser .eb-garamond-Bfast,
+.safari-browser .inter-Bfast_sub {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
 /* Performance optimizations for smooth scrolling */
 html {
   scroll-behavior: smooth;
@@ -321,4 +349,15 @@ select {
     font-size: 16px;
     line-height: 1.5;
   }
+}
+
+/* Safari-specific viewport height fixes */
+.safari-browser {
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+.safari-browser .min-h-screen {
+  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
 }
