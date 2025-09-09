@@ -26,6 +26,8 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     const previousHtmlHeight = document.documentElement.style.height;
     const previousBodyBg = document.body.style.backgroundColor;
     const previousHtmlBg = document.documentElement.style.backgroundColor;
+    const previousHtmlOverscroll = document.documentElement.style.overscrollBehaviorY;
+    const previousBodyOverscroll = document.body.style.overscrollBehaviorY;
 
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
@@ -35,6 +37,9 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
     // Prevent white flashes behind content during overscroll/bounce
     document.body.style.backgroundColor = '#000';
     document.documentElement.style.backgroundColor = '#000';
+    // Contain overscroll on the document to avoid rubber-band gaps
+    document.documentElement.style.overscrollBehaviorY = 'contain';
+    document.body.style.overscrollBehaviorY = 'contain';
 
     return () => {
       document.body.style.overflow = previousBodyOverflow;
@@ -43,6 +48,8 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       document.documentElement.style.height = previousHtmlHeight;
       document.body.style.backgroundColor = previousBodyBg;
       document.documentElement.style.backgroundColor = previousHtmlBg;
+      document.documentElement.style.overscrollBehaviorY = previousHtmlOverscroll;
+      document.body.style.overscrollBehaviorY = previousBodyOverscroll;
     };
   }, []);
 
