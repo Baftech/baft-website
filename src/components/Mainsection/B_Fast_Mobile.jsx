@@ -340,4 +340,3 @@ const B_Fast_Mobile = () => {
 };
 
 export default B_Fast_Mobile;
-

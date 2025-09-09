@@ -3,6 +3,7 @@ import "./SafeSecure.css";
 import { SAFE_SEC_SVG } from "../../assets/assets";
 
 const SafeSecureMobile = () => {
+  const isSafari = typeof navigator !== 'undefined' && /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios|android/i.test(navigator.userAgent);
 
   return (
     <div className="h-screen bg-gray-900 relative" style={{
@@ -94,55 +95,56 @@ const SafeSecureMobile = () => {
                 backfaceVisibility: 'hidden'
               }}
             >
-              At BAFT, we know trust isn't built in a day. That's why every
+              At BaFT, we know trust isn't built in a day. That's why every
               payment, every detail, and every account is protected with care.
               No hidden risks. Just the security you deserve while managing your
               money.
             </p>
 
             {/* Logo - Safari optimized */}
-            <div className="safe-secure-logo" style={{
-              // Safari hardware acceleration
-              WebkitTransform: 'translateZ(0)',
-              transform: 'translateZ(0)',
-              WebkitBackfaceVisibility: 'hidden',
-              backfaceVisibility: 'hidden'
-            }}>
-              <div className="security-logo-wrapper" style={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                transform: "scale(1.5)",
-                WebkitTransform: "scale(1.5)",
-                transformOrigin: "center center",
-                WebkitTransformOrigin: "center center",
-                // Safari hardware acceleration
-                WebkitBackfaceVisibility: 'hidden',
-                backfaceVisibility: 'hidden'
-              }}>
+            <div className="safe-secure-logo">
+              <div
+                className="security-logo-wrapper"
+                style={{
+                  width: isSafari ? '300.5002899169922px' : '100%',
+                  height: isSafari ? '300.5002899169922px' : '100%',
+                  aspectRatio: isSafari ? '1 / 1' : undefined,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexShrink: isSafari ? 0 : undefined,
+                  flexGrow: isSafari ? 0 : undefined,
+                  boxSizing: isSafari ? 'content-box' : undefined,
+                  transform: isSafari ? 'none' : 'scale(1.5)',
+                  WebkitTransform: isSafari ? 'none' : 'scale(1.5)',
+                  transformOrigin: 'center center',
+                  WebkitTransformOrigin: 'center center',
+                  overflow: 'hidden',
+                  borderRadius: isSafari ? '50%' : undefined,
+                  margin: isSafari ? '0 auto' : undefined,
+                  WebkitMaskImage: isSafari ? 'radial-gradient(circle, #000 99.9%, transparent 100%)' : undefined,
+                  maskImage: isSafari ? 'radial-gradient(circle, #000 99.9%, transparent 100%)' : undefined,
+                  opacity: isSafari ? 1 : undefined,
+                }}
+              >
                 <img
                   src={SAFE_SEC_SVG}
                   alt="Security Badge"
                   className="security-logo-svg"
                   style={{
-                    width: "100%",       // base size
-                    height: "auto",
-                    position: "relative",
-                    display: "block",
-                    transform: "scale(1.10004)", // scale 5x
-                    WebkitTransform: "scale(1.10004)",
-                    transformOrigin: "center",
-                    WebkitTransformOrigin: "center",
-                    // Safari image rendering optimizations
-                    WebkitBackfaceVisibility: 'hidden',
-                    backfaceVisibility: 'hidden',
+                    width: isSafari ? '100%' : '100%',
+                    height: isSafari ? '110%' : 'auto',
+                    position: 'relative',
+                    display: 'block',
+                    objectFit: isSafari ? 'cover' : 'contain',
+                    transform: isSafari ? 'none' : 'scale(1.10004)',
+                    WebkitTransform: isSafari ? 'none' : 'scale(1.10004)',
+                    transformOrigin: 'center',
+                    WebkitTransformOrigin: 'center',
                     imageRendering: 'auto',
-                    WebkitImageRendering: 'auto'
+                    WebkitImageRendering: 'auto',
                   }}
                 />
-
               </div>
             </div>
           </div>

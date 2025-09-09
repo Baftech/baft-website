@@ -217,13 +217,8 @@ const CombinedFooterMobile = () => {
 
   return (
     <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
-      {/* Mobile-optimized pre-footer section - Safari optimized */}
-      <div className="pre-footer-container relative bg-black w-screen min-h-screen flex items-center justify-center overflow-hidden py-8 sm:py-12 lg:py-16 xl:py-20" style={{
-        WebkitTransform: 'translateZ(0)',
-        transform: 'translateZ(0)',
-        WebkitBackfaceVisibility: 'hidden',
-        backfaceVisibility: 'hidden'
-      }}>
+      {/* Mobile-optimized pre-footer section */}
+      <div className="pre-footer-container relative bg-black w-screen min-h-screen flex items-center justify-center overflow-hidden py-8 sm:py-12 lg:py-16 xl:py-20">
         {/* Radial gradient background */}
           <div 
           aria-hidden
@@ -243,7 +238,7 @@ const CombinedFooterMobile = () => {
           }}
         />
 
-        {/* Concentric circles - centered - Safari optimized */}
+        {/* Concentric circles - centered */}
         <div
           aria-hidden
           style={{
@@ -255,19 +250,12 @@ const CombinedFooterMobile = () => {
             opacity: 0.6,
             pointerEvents: 'none',
             zIndex: 0,
-            // Vertical fade mask to match the image - Safari compatible
+            // Vertical fade mask to match the image
             maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%)',
-            // Soft blending for ethereal effect - Safari compatible
+            // Soft blending for ethereal effect
             mixBlendMode: 'screen',
-            WebkitMixBlendMode: 'screen',
             filter: 'blur(0.8px) drop-shadow(0 0 25px rgba(255,255,255,0.35))',
-            WebkitFilter: 'blur(0.8px) drop-shadow(0 0 25px rgba(255,255,255,0.35))',
-            // Safari hardware acceleration
-            WebkitTransform: 'translateZ(0)',
-            transform: 'translateZ(0)',
-            WebkitBackfaceVisibility: 'hidden',
-            backfaceVisibility: 'hidden'
           }}
         >
           {[0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((ratio, i) => {
@@ -293,15 +281,8 @@ const CombinedFooterMobile = () => {
           })}
         </div>
         
-        {/* Star Groups - Safari optimized */}
-        <div className="star-groups" style={{ 
-          position: 'relative', 
-          zIndex: 1,
-          WebkitTransform: 'translateZ(0)',
-          transform: 'translateZ(0)',
-          WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden'
-        }}>
+        {/* Star Groups */}
+        <div className="star-groups" style={{ position: 'relative', zIndex: 1 }}>
           <svg width="100%" height="100%" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Group 1 - Central stars (spread across screen) */}
             <g className="star-group-1">
@@ -334,13 +315,8 @@ const CombinedFooterMobile = () => {
           </svg>
         </div>
 
-                {/* Text content - Safari optimized */}
-        <div className="text-container relative z-10 text-center px-4 sm:px-6 lg:px-8" style={{
-          WebkitTransform: 'translateZ(0)',
-          transform: 'translateZ(0)',
-          WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden'
-        }}>
+                {/* Text content */}
+        <div className="text-container relative z-10 text-center px-4 sm:px-6 lg:px-8">
           
           
           <h1 
@@ -358,9 +334,6 @@ const CombinedFooterMobile = () => {
                WebkitBackgroundClip: 'text',
                WebkitTextFillColor: 'transparent',
                backgroundClip: 'text',
-               // Safari-specific text rendering
-               WebkitFontSmoothing: 'antialiased',
-               MozOsxFontSmoothing: 'grayscale',
                maxWidth: '100%',
                margin: '0 auto'
              }}
