@@ -138,22 +138,22 @@ const Cards = () => {
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -80, y: CARD_Y_OFFSET, z: -80, scale: 0.85, opacity: 1, rotateY: 20, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: -100, y: CARD_Y_OFFSET, z: -100, scale: 0.85, opacity: 1, rotateY: 20, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 80, y: CARD_Y_OFFSET, z: -80, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: 100, y: CARD_Y_OFFSET, z: -100, scale: 0.9, opacity: 1, rotateY: -15, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -160 : 160, y: CARD_Y_OFFSET, z: -120, scale: 0.75, opacity: 1, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -200 : 200, y: CARD_Y_OFFSET, z: -150, scale: 0.75, opacity: 1, rotateY: index < activeIndex ? 30 : -30, zIndex: 7 }, immediate);
         }
       } else {
-        // Large Desktop (1536px+): Full 3D carousel effect
+        // Large Desktop (1536px+): Full 3D carousel effect with bigger spacing
         if (index === activeIndex) {
           setOrAnimate(card, { x: 0, y: CARD_Y_OFFSET, z: 0, scale: 1, opacity: 1, rotateY: 0, zIndex: 10 }, immediate);
         } else if (index === (activeIndex - 1 + totalCards) % totalCards) {
-          setOrAnimate(card, { x: -100, y: CARD_Y_OFFSET, z: -100, scale: 0.8, opacity: 1, rotateY: 25, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: -120, y: CARD_Y_OFFSET, z: -120, scale: 0.8, opacity: 1, rotateY: 25, zIndex: 9 }, immediate);
         } else if (index === (activeIndex + 1) % totalCards) {
-          setOrAnimate(card, { x: 100, y: CARD_Y_OFFSET, z: -100, scale: 0.85, opacity: 1, rotateY: -20, zIndex: 9 }, immediate);
+          setOrAnimate(card, { x: 120, y: CARD_Y_OFFSET, z: -120, scale: 0.85, opacity: 1, rotateY: -20, zIndex: 9 }, immediate);
         } else {
-          setOrAnimate(card, { x: index < activeIndex ? -200 : 200, y: CARD_Y_OFFSET, z: -150, scale: 0.7, opacity: 1, rotateY: index < activeIndex ? 35 : -35, zIndex: 7 }, immediate);
+          setOrAnimate(card, { x: index < activeIndex ? -240 : 240, y: CARD_Y_OFFSET, z: -180, scale: 0.7, opacity: 1, rotateY: index < activeIndex ? 35 : -35, zIndex: 7 }, immediate);
         }
       }
     });
@@ -188,6 +188,17 @@ const Cards = () => {
     return () => {
       window.removeEventListener('resize', checkScreenSize);
     };
+  }, []);
+
+  // Safari-specific optimizations
+  useEffect(() => {
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (isSafari) {
+      // Add Safari-specific classes for better performance
+      if (cardsRef.current) {
+        cardsRef.current.classList.add('safari-gpu-accelerated');
+      }
+    }
   }, []);
 
   useLayoutEffect(() => {
@@ -282,13 +293,13 @@ const Cards = () => {
             </h1>
 
             <ul
-              className="space-y-1 sm:space-y-1.5 md:space-y-2 lg:space-y-2.5 xl:space-y-3 2xl:space-y-3.5"
+              className="space-y-1 sm:space-y-1.5 md:space-y-2 lg:space-y-2.5 xl:space-y-3 2xl:space-y-4"
               onMouseEnter={stopAutoRotate}
               onMouseLeave={startAutoRotate}
               style={{ 
                 cursor: "default", 
                 marginBottom: "clamp(0.3cm, 1vh, 0.8cm)",
-                width: "clamp(300px, 90%, 500px)"
+                width: "clamp(300px, 90%, 600px)"
               }}
             >
               {featuresData.map((feature, index) => {
@@ -308,16 +319,16 @@ const Cards = () => {
                       justifyContent: "flex-start",
                       alignItems: "center",
                       padding: isActive 
-                        ? "clamp(12px, 1.5vw, 20px) clamp(10px, 1.2vw, 14px)"
-                        : "clamp(12px, 1.5vw, 20px) clamp(10px, 1.2vw, 14px)",
-                      gap: "clamp(8px, 1vw, 14px)",
+                        ? "clamp(12px, 1.5vw, 24px) clamp(10px, 1.2vw, 18px)"
+                        : "clamp(12px, 1.5vw, 24px) clamp(10px, 1.2vw, 18px)",
+                      gap: "clamp(8px, 1vw, 18px)",
                       width: isActive ? "fit-content" : "100%",
-                      minHeight: "clamp(50px, 5vh, 75px)",
+                      minHeight: "clamp(50px, 5vh, 90px)",
                       background: isActive ? "#FFFFFF" : "transparent",
                       border: isActive 
                         ? "1px solid rgba(22, 93, 172, 0.19)"
                         : "none",
-                      borderRadius: "clamp(8px, 1.2vw, 14px)",
+                      borderRadius: "clamp(8px, 1.2vw, 18px)",
                       boxShadow: isActive ? "0px 2px 8px rgba(25, 102, 187, 0.1)" : "none",
                       /* Inside auto layout */
                       flex: "none",
@@ -332,8 +343,8 @@ const Cards = () => {
                         alt={feature.title}
                         className="flex-shrink-0"
                         style={{
-                          width: "clamp(16px, 2vw, 24px)",
-                          height: "clamp(16px, 2vw, 24px)"
+                          width: "clamp(16px, 2vw, 32px)",
+                          height: "clamp(16px, 2vw, 32px)"
                         }}
                       />
                     ) : (
@@ -349,7 +360,7 @@ const Cards = () => {
                           fontFamily: "Inter",
                           fontWeight: 500,
                           fontStyle: "normal",
-                          fontSize: "clamp(12px, 1.3vw, 15px)",
+                          fontSize: "clamp(12px, 1.3vw, 18px)",
                           lineHeight: "100%",
                           letterSpacing: "0%",
                           color: "#1966BB",
@@ -363,12 +374,12 @@ const Cards = () => {
                           fontFamily: "Inter",
                           fontWeight: 400,
                           fontStyle: "normal",
-                          fontSize: "clamp(10px, 1vw, 12px)",
+                          fontSize: "clamp(10px, 1vw, 14px)",
                           lineHeight: "100%",
                           letterSpacing: "0%",
                           color: "#989898",
                           margin: 0,
-                          marginTop: "clamp(4px, 0.8vw, 8px)"
+                          marginTop: "clamp(4px, 0.8vw, 10px)"
                         }}
                       >
                         {feature.description}
@@ -393,7 +404,7 @@ const Cards = () => {
             {featuresData.map((feature, index) => (
               <div
                 key={index}
-                className="absolute w-[16rem] sm:w-[20rem] md:w-[24rem] lg:w-[28rem] xl:w-[32rem] 2xl:w-[36rem] flex flex-col items-center justify-center scale-100 sm:scale-110 md:scale-125 lg:scale-150 xl:scale-175 2xl:scale-200"
+                className="absolute w-[16rem] sm:w-[20rem] md:w-[24rem] lg:w-[28rem] xl:w-[36rem] 2xl:w-[42rem] flex flex-col items-center justify-center scale-100 sm:scale-110 md:scale-125 lg:scale-150 xl:scale-200 2xl:scale-250"
               >
                 <img
                   src={feature.image}
