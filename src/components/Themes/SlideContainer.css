@@ -51,8 +51,15 @@
 .slide-container .overflow-auto {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-  /* Constrain scroll area to the container height */
-  max-height: 100%;
+  /* Constrain scroll area to the visible dynamic viewport */
+  height: 100dvh;
+  min-height: 100svh;
+  max-height: 100dvh;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  margin: 0;
+  overscroll-behavior: contain;
 }
 
 .slide-container .overflow-auto::-webkit-scrollbar {
@@ -527,6 +534,12 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+  }
+
+  /* Ensure inner scroll area matches the fill-available height on iOS */
+  .slide-container .overflow-auto {
+    height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
   }
   
   /* Prevent text selection on touch */

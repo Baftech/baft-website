@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import "./About.css";
 
 // Hoisted constants and helpers
-const FORCED_DURATION_MS = 3800; // 3.8 seconds for expansion (optimized for mobile)
+const FORCED_DURATION_MS = 1000; // 1.0s total so expansion phase (80%) is ~800ms
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 // Simplified ReadMoreText for mobile (memoized)

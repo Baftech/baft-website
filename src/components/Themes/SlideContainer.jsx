@@ -18,6 +18,27 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const navCooldownMs = 300;
   const momentumGuardUntilRef = useRef(0);
   
+  // Lock body scroll while SlideContainer is mounted to avoid extra page scroll
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyHeight = document.body.style.height;
+    const previousHtmlHeight = document.documentElement.style.height;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    // Use dynamic viewport units to avoid 100vh issues on mobile browser UI
+    document.body.style.height = '100dvh';
+    document.documentElement.style.height = '100dvh';
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.height = previousBodyHeight;
+      document.documentElement.style.height = previousHtmlHeight;
+    };
+  }, []);
+
   // BaFT Coin section control
   const [baftCoinPinned, setBaftCoinPinned] = useState(false);
   
