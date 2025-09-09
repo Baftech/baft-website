@@ -21,7 +21,7 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
   useFrame(() => {
     if (!ref.current) return;
     if (animate) {
-      // Move toward target even more slowly for a longer expansion - Safari optimized
+      // Move toward target even more slowly for a longer expansion
       ref.current.position.lerp(new THREE.Vector3(...target), 0.014);
       // Add a gentle scale-up effect on expand
       const base = (1.6 - position[2] * 0.2);
@@ -31,9 +31,6 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
       ref.current.userData.extraScale = next;
       const s = base * next;
       ref.current.scale.set(s, s, 1);
-      
-      // Safari-specific optimizations for smooth animation
-      ref.current.matrixWorldNeedsUpdate = true;
     }
   });
 
@@ -56,13 +53,6 @@ function Coin({ texture, position, animate, target, opacity = 0.97 }) {
           envMapIntensity={1.0}
           transparent
           opacity={opacity * 1}
-          // Safari-specific material optimizations
-          side={THREE.DoubleSide}
-          depthWrite={true}
-          depthTest={true}
-          alphaTest={0}
-          // Safari WebGL material optimizations
-          needsUpdate={true}
         />
       </mesh>
     </group>
@@ -127,31 +117,20 @@ const BInstantMobile = () => {
     }
   }, [startCoinAnimation, showCoins]);
 
-  // Prevent text from cutting off on small screens by scaling the fixed-size block - Safari optimized
+  // Prevent text from cutting off on small screens by scaling the fixed-size block
   useEffect(() => {
     const updateScale = () => {
       try {
-        // Safari-specific viewport calculation
-        const vw = Math.max(
-          window.innerWidth || 375,
-          document.documentElement?.clientWidth || 375,
-          screen?.width || 375
-        );
+        const vw = window.innerWidth || 375;
         const baseWidth = 380; // design width of the text block
         const scale = Math.min((vw * 0.94) / baseWidth, 1);
         setTextScale(scale);
       } catch (_) {}
     };
-    
-    // Safari-specific timing for initial scale
-    const timeoutId = setTimeout(updateScale, 100);
     updateScale();
-    
     window.addEventListener('resize', updateScale);
     window.addEventListener('orientationchange', updateScale);
-    
     return () => {
-      clearTimeout(timeoutId);
       window.removeEventListener('resize', updateScale);
       window.removeEventListener('orientationchange', updateScale);
     };
@@ -190,24 +169,9 @@ const BInstantMobile = () => {
               preserveDrawingBuffer: false,
               failIfMajorPerformanceCaveat: false,
               stencil: false,
-              depth: true,
-              // Safari-specific WebGL optimizations
-              premultipliedAlpha: false,
-              preserveDrawingBuffer: false,
-              logarithmicDepthBuffer: false,
-              // Safari mobile WebGL context optimizations
-              xrCompatible: false,
-              desynchronized: true
+              depth: true
             }}
             dpr={[1, 1.5]}
-          // Safari-specific props
-          onCreated={({ gl }) => {
-            // Safari-specific WebGL context setup
-            gl.context.getExtension('WEBGL_lose_context');
-            gl.context.getExtension('OES_element_index_uint');
-            // Force Safari to use hardware acceleration
-            gl.context.getExtension('WEBGL_debug_renderer_info');
-          }}
           >
             <Suspense fallback={null}>
               {/* Brighter lighting for better visibility */}
@@ -224,28 +188,16 @@ const BInstantMobile = () => {
 
       {/* CSS overlay removed - no more box constraints */}
 
-      {/* Text overlay — robustly centered in viewport - Safari optimized */}
-      <div className="absolute inset-0" style={{ 
-        zIndex: 30, 
-        pointerEvents: "none",
-        // Safari hardware acceleration
-        WebkitTransform: 'translateZ(0)',
-        transform: 'translateZ(0)',
-        WebkitBackfaceVisibility: 'hidden',
-        backfaceVisibility: 'hidden'
-      }}>
+      {/* Text overlay — robustly centered in viewport */}
+      <div className="absolute inset-0" style={{ zIndex: 30, pointerEvents: "none" }}>
         <div
           style={{
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(calc(-50% + 8px), -50%)",
-            WebkitTransform: "translate(calc(-50% + 8px), -50%)",
             width: "380px",
             height: "120px",
-            // Safari text rendering optimizations
-            WebkitFontSmoothing: 'antialiased',
-            MozOsxFontSmoothing: 'grayscale'
           }}
         >
           <motion.div style={{ position: "relative", width: "100%", height: "100%", transform: `scale(${textScale})`, transformOrigin: "center center" }}>
@@ -366,5 +318,3 @@ const BInstantMobile = () => {
 };
 
 export default BInstantMobile;
-
-
