@@ -19,6 +19,14 @@
   /* Smooth momentum scrolling */
   -webkit-overflow-scrolling: touch;
   overflow-scrolling: touch;
+  /* Ensure container fits visible viewport on mobile browsers */
+  height: 100dvh !important;
+  min-height: 100svh !important;
+  max-height: 100dvh !important;
+  /* Respect OS/browser UI safe areas (notches, system bars) */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
 }
 
 .slide {
@@ -43,6 +51,8 @@
 .slide-container .overflow-auto {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  /* Constrain scroll area to the container height */
+  max-height: 100%;
 }
 
 .slide-container .overflow-auto::-webkit-scrollbar {
@@ -509,6 +519,8 @@
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
+    /* iOS/Safari fallback for dynamic viewport */
+    height: -webkit-fill-available;
   }
   
   .custom-scroll {
@@ -532,6 +544,12 @@
     -ms-user-select: text;
     user-select: text;
   }
+}
+
+/* Extra specificity to override utility classes like h-screen (100vh) */
+.slide-container.slide-container {
+  height: 100dvh !important;
+  min-height: 100svh !important;
 }
 
 /* Touch gesture feedback */
