@@ -429,7 +429,7 @@ const HeroMobileComponent = () => {
             left: '50%',
             transform: 'translateX(-50%)',
             top: '-160px',
-            background: '#272727',
+            background: 'linear-gradient(to bottom, #272727 0%, #1f1f1f 30%, #0a0a0a 70%, transparent 100%)',
             filter: 'blur(162px)',
             mixBlendMode: 'normal',
             opacity: 0,
@@ -550,7 +550,7 @@ const HeroMobileComponent = () => {
                 : "calc(100vh - 2rem)", // Landscape: minimal margin
             overflow: "hidden",
             borderRadius: 0,
-            background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)",
+            background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0.8) 90%, #000000 100%)",
             zIndex: 50,
           }}
         >
@@ -577,7 +577,7 @@ const HeroMobileComponent = () => {
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)",
+              background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0.8) 90%, #000000 100%)",
               borderRadius: "inherit",
               zIndex: 2,
             }}

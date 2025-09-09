@@ -76,53 +76,142 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
         const cs = window.getComputedStyle(refElem);
         const lineH = parseFloat(cs.lineHeight || '0') || 28;
 
-        let collapsed = 200;
+        let collapsed = 250; // Increased base fallback height
         if (paraNodes && paraNodes.length >= 2) {
-          // Get actual height of first paragraph
+          // Get actual height of first paragraph - show it completely
           const firstRect = paraNodes[0].getBoundingClientRect();
-          const firstParaHeight = firstRect ? firstRect.height : lineH * 3;
+          const firstParaHeight = firstRect && firstRect.height > 0 ? firstRect.height : lineH * 4;
           
           // Get actual height of second paragraph
           const secondRect = paraNodes[1].getBoundingClientRect();
-          const secondParaHeight = secondRect ? secondRect.height : lineH * 3;
+          const secondParaHeight = secondRect && secondRect.height > 0 ? secondRect.height : lineH * 4;
           
           // Calculate how many lines the second paragraph has
           const secondParaLines = Math.ceil(secondParaHeight / lineH);
           
-          // Show first paragraph + first 2 lines of second paragraph
+          // Show first paragraph + exactly 1 line of second paragraph
           const lineHeight = secondParaLines > 0 ? (secondParaHeight / secondParaLines) : lineH;
-          const linesToShow = Math.min(2, secondParaLines); // Show up to 2 lines
-          collapsed = firstParaHeight + (lineHeight * linesToShow);
+          const linesToShow = 1; // Show exactly 1 line of second paragraph
+          const secondParaPartialHeight = lineHeight * linesToShow;
           
-          // Add some buffer for better visual spacing
-          collapsed += 12;
+          // Calculate total height: first paragraph + 1 line of second paragraph + spacing
+          collapsed = firstParaHeight + secondParaPartialHeight;
+          
+          // Add spacing between paragraphs and safety buffer
+          collapsed += 24; // Paragraph spacing
         } else if (paraNodes && paraNodes.length === 1) {
-          // Only one paragraph, show it fully
+          // Only one paragraph, show it fully with safety buffer
           const firstRect = paraNodes[0].getBoundingClientRect();
-          const firstParaHeight = firstRect ? firstRect.height : lineH * 3;
-          collapsed = firstParaHeight + 12;
+          const firstParaHeight = firstRect && firstRect.height > 0 ? firstRect.height : lineH * 4;
+          collapsed = firstParaHeight + 24; // Increased buffer
         } else {
-          // Fallback to a reasonable number of lines
-          const linesToShow = compact ? 5 : 7;
-          collapsed = Math.max(4, linesToShow) * lineH;
+          // Fallback: estimate first paragraph + exactly 1 line of second paragraph
+          // Assume first paragraph is about 4-5 lines, second paragraph exactly 1 line
+          const estimatedFirstParaLines = compact ? 4 : 5;
+          const estimatedSecondParaFirstLine = 1; // Exactly 1 line
+          const totalLines = estimatedFirstParaLines + estimatedSecondParaFirstLine;
+          collapsed = Math.max(6, totalLines) * lineH + 24; // Add spacing buffer
         }
+        
+        // Ensure minimum collapsed height to prevent cutoff
+        // Minimum should accommodate first paragraph + exactly 1 line of second paragraph
+        const minCollapsedHeight = compact ? 300 : 360; // Adjusted for first para + 1 line
+        collapsed = Math.max(collapsed, minCollapsedHeight);
+        
         setCollapsedHeight(collapsed);
 
         // Max content height so expanded text doesn't overflow viewport on compact screens
         // More generous padding for smaller screens to prevent text cutoff
-        const verticalPaddingAllowance = screenSize === 'small' ? 100 :
-                                        screenSize === 'medium' ? 60 : 
-                                        screenSize === 'large' ? Math.max(120, vh * 0.15) : 20;
-        const safeMax = Math.max(600, (vh || 800) - verticalPaddingAllowance);
+        const verticalPaddingAllowance = screenSize === 'small' ? 120 : // Increased from 100
+                                        screenSize === 'medium' ? 80 : // Increased from 60
+                                        screenSize === 'large' ? Math.max(140, vh * 0.18) : 40; // Increased from 20
+        const safeMax = Math.max(700, (vh || 800) - verticalPaddingAllowance); // Increased from 600
         setMaxContentHeight(safeMax);
       } catch {
-        setCollapsedHeight(200);
-        setMaxContentHeight(800);
+        // More generous fallback heights to ensure first para + 1 line fits
+        setCollapsedHeight(350); // Increased to ensure first para + 1 line fits
+        setMaxContentHeight(900); // Increased from 800
       }
     };
-    // Initial measurement with a small delay to ensure content is rendered
-    const timeoutId = setTimeout(measure, 100);
+    
+    // Enhanced measurement that specifically targets first para + 1 line of second para
+    const measurePrecise = () => {
+      if (!contentRef.current || typeof window === 'undefined') return;
+      try {
+        const paraNodes = contentRef.current.querySelectorAll('p');
+        if (paraNodes.length >= 2) {
+          // Create a temporary element to measure exact height needed
+          const tempDiv = document.createElement('div');
+          tempDiv.style.position = 'absolute';
+          tempDiv.style.visibility = 'hidden';
+          tempDiv.style.width = contentRef.current.offsetWidth + 'px';
+          tempDiv.style.fontFamily = window.getComputedStyle(paraNodes[0]).fontFamily;
+          tempDiv.style.fontSize = window.getComputedStyle(paraNodes[0]).fontSize;
+          tempDiv.style.lineHeight = window.getComputedStyle(paraNodes[0]).lineHeight;
+          tempDiv.style.padding = '0';
+          tempDiv.style.margin = '0';
+          
+          // Add first paragraph
+          const firstParaClone = paraNodes[0].cloneNode(true);
+          tempDiv.appendChild(firstParaClone);
+          
+          // Add exactly first line of second paragraph
+          const secondParaText = paraNodes[1].textContent;
+          const words = secondParaText.split(' ');
+          const lineHeight = parseFloat(window.getComputedStyle(paraNodes[1]).lineHeight);
+          
+          // More accurate estimation of words per line based on actual width
+          const containerWidth = parseFloat(window.getComputedStyle(paraNodes[1]).width);
+          const avgCharWidth = 8; // Approximate character width
+          const wordsPerLine = Math.max(6, Math.floor(containerWidth / (avgCharWidth * 5))); // 5 chars per word average
+          const firstLineWords = words.slice(0, wordsPerLine);
+          const firstLineText = firstLineWords.join(' ');
+          
+          const firstLineDiv = document.createElement('div');
+          firstLineDiv.textContent = firstLineText;
+          firstLineDiv.style.marginTop = '24px'; // Paragraph spacing
+          firstLineDiv.style.lineHeight = lineHeight + 'px';
+          firstLineDiv.style.height = lineHeight + 'px';
+          firstLineDiv.style.overflow = 'hidden';
+          tempDiv.appendChild(firstLineDiv);
+          
+          document.body.appendChild(tempDiv);
+          const measuredHeight = tempDiv.offsetHeight + 16; // Add safety buffer
+          document.body.removeChild(tempDiv);
+          
+          // Update collapsed height if measurement is more accurate
+          if (measuredHeight > 0 && measuredHeight > collapsedHeight) {
+            setCollapsedHeight(measuredHeight);
+          }
+        }
+      } catch (error) {
+        // Fallback to regular measurement
+        measure();
+      }
+    };
+
+    // Multiple measurement attempts to ensure accuracy
+    const measureMultiple = () => {
+      measure();
+      // Precise measurement for first para + 1 line
+      setTimeout(measurePrecise, 100);
+      // Second measurement after fonts load
+      setTimeout(measure, 200);
+      // Third measurement after layout stabilizes
+      setTimeout(measure, 500);
+    };
+    
+    // Initial measurement with multiple attempts
+    const timeoutId = setTimeout(measureMultiple, 50); // Reduced initial delay
     window.addEventListener('resize', measure, { passive: true });
+    
+    // Also measure when fonts load
+    if (typeof document !== 'undefined') {
+      document.fonts?.ready?.then(() => {
+        setTimeout(measure, 100);
+      });
+    }
+    
     return () => {
       clearTimeout(timeoutId);
       window.removeEventListener('resize', measure);
@@ -183,20 +272,20 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
   return (
     <div className="leading-relaxed pr-2" style={{ 
       maxWidth: getDimensions('520px', '600px', '700px'),
-      maxHeight: compact ? 'calc(100vh - 180px)' : 
-                (screenSize === 'small' ? 'calc(100vh - 140px)' :
-                 screenSize === 'medium' ? 'calc(100vh - 130px)' :
-                 screenSize === 'large' ? 'calc(100vh - 25vh)' :
-                 'calc(100vh - 120px)'),
+      maxHeight: compact ? 'calc(100vh - 160px)' : // Reduced from 180px
+                (screenSize === 'small' ? 'calc(100vh - 120px)' : // Reduced from 140px
+                 screenSize === 'medium' ? 'calc(100vh - 110px)' : // Reduced from 130px
+                 screenSize === 'large' ? 'calc(100vh - 20vh)' : // Reduced from 25vh
+                 'calc(100vh - 100px)'), // Reduced from 120px
       display: 'flex',
       flexDirection: 'column',
-      minHeight: isExpanded ? 'auto' : '200px',
+      minHeight: isExpanded ? 'auto' : '280px', // Increased from 200px
       transition: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
     }}>
       <div
         ref={contentRef}
         style={{
-          height: `${collapsedHeight}px`,
+          height: `${Math.max(collapsedHeight, 280)}px`, // Ensure minimum height
           // When expanded, cap to available height so it grows until the visual baseline
           maxHeight: isExpanded ? `${maxContentHeight}px` : undefined,
           overflowY: isExpanded ? 'auto' : 'hidden',
@@ -204,10 +293,13 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
           paddingRight: isExpanded ? '4px' : 0,
           opacity: isExpanded ? 1 : 0.9,
           transition: typeof window !== 'undefined' && window.innerWidth >= 1024 
-            ? "opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), padding 1.2s cubic-bezier(0.4, 0, 0.2, 1)" 
-            : "opacity 0.3s ease",
+            ? "opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), padding 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1)" 
+            : "opacity 0.3s ease, height 0.3s ease",
           position: 'relative',
-          flex: isExpanded ? '1 1 auto' : '0 0 auto'
+          flex: isExpanded ? '1 1 auto' : '0 0 auto',
+          // Add safety padding to prevent text cutoff
+          paddingTop: '8px',
+          paddingBottom: '8px'
         }}
       >
         {paragraphs.map((para, i) => (
@@ -1187,14 +1279,17 @@ const AboutBaft = () => {
                     : 'none',
                   pointerEvents: textOpacity < 0.05 ? 'none' : 'auto',
         maxHeight: isExpanded ?
-          (screenSize === 'small' ? 'calc(100vh - 160px)' :
-           screenSize === 'medium' ? 'calc(100vh - 140px)' :
-           screenSize === 'large' ? 'calc(100vh - 20vh)' :
-           'calc(100vh - 120px)') :
-          'calc(100vh - 150px)',
+          (screenSize === 'small' ? 'calc(100vh - 140px)' : // Reduced from 160px
+           screenSize === 'medium' ? 'calc(100vh - 120px)' : // Reduced from 140px
+           screenSize === 'large' ? 'calc(100vh - 15vh)' : // Reduced from 20vh
+           'calc(100vh - 100px)') : // Reduced from 120px
+          'calc(100vh - 130px)', // Reduced from 150px
                   overflow: 'visible',
                   minHeight: isExpanded ? 'auto' : 
-                    (screenSize === 'large' ? 'calc(100vh - 35vh)' : 'calc(100vh - 200px)')
+                    (screenSize === 'large' ? 'calc(100vh - 30vh)' : 'calc(100vh - 180px)'), // Reduced constraints
+                  // Add safety padding to prevent text cutoff
+                  paddingTop: '12px',
+                  paddingBottom: '12px'
                 }}
               >
                 <div
