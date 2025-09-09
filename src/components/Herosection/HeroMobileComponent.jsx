@@ -15,6 +15,9 @@ const HeroMobileComponent = () => {
   const [isLandscape, setIsLandscape] = useState(false);
   const [viewMode, setViewMode] = useState('mobile'); // 'mobile', 'tablet', 'desktop'
   const scaleRef = useRef(1);
+  const hasStartedRef = useRef(false);
+  const hasEndedRef = useRef(false);
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
   
   // Function to navigate to next slide
   const navigateToNextSlide = () => {
@@ -32,20 +35,11 @@ const HeroMobileComponent = () => {
     }
   };
 
-  // Detect device orientation and screen size - Safari optimized
+  // Detect device orientation and screen size
   useEffect(() => {
     const checkOrientation = () => {
-      // Safari-specific viewport calculation
-      const width = Math.max(
-        window.innerWidth || 0,
-        document.documentElement?.clientWidth || 0,
-        screen?.width || 0
-      );
-      const height = Math.max(
-        window.innerHeight || 0,
-        document.documentElement?.clientHeight || 0,
-        screen?.height || 0
-      );
+      const width = window.innerWidth;
+      const height = window.innerHeight;
       
       // Check device type - adjusted for smaller iPads and modern tablets
       const mobile = width <= 575; // Reduced from 768 to 575 to catch smaller iPads
@@ -93,6 +87,99 @@ const HeroMobileComponent = () => {
 
   // ... existing code ...
 
+  // Ensure video autoplays on iOS Safari and page is not blank
+  useEffect(() => {
+    const video = videoRef.current;
+    const wrapper = wrapperRef.current;
+    if (!video) return;
+
+    // use top-level refs declared in component scope
+
+    const tryPlay = () => {
+      if (hasEndedRef.current) return; // do not restart after end
+      try {
+        video.muted = true;
+        // @ts-ignore - playsInline for iOS
+        video.playsInline = true;
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.then === 'function') {
+          playPromise.catch(() => {});
+        }
+      } catch (_) {}
+    };
+
+    const onLoadedMetadata = () => {
+      try {
+        if (video.currentTime === 0) video.currentTime = 0.01; // nudge first frame on iOS
+      } catch (_) {}
+      tryPlay();
+    };
+
+    const onCanPlay = () => tryPlay();
+
+    const onPlay = () => {
+      if (!hasStartedRef.current) {
+        hasStartedRef.current = true;
+        // Once playing, we no longer need interaction kickers
+        window.removeEventListener('touchstart', onFirstInteraction, true);
+        window.removeEventListener('pointerdown', onFirstInteraction, true);
+      }
+    };
+
+    const onEnded = () => {
+      hasEndedRef.current = true;
+      // Remove any kickers to prevent restarting by touch/visibility
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('touchstart', onFirstInteraction, true);
+      window.removeEventListener('pointerdown', onFirstInteraction, true);
+      try {
+        video.pause();
+      } catch (_) {}
+    };
+
+    const onVisibility = () => {
+      if (!document.hidden) tryPlay();
+    };
+
+    const onFirstInteraction = () => {
+      tryPlay();
+      window.removeEventListener('touchstart', onFirstInteraction, true);
+      window.removeEventListener('pointerdown', onFirstInteraction, true);
+    };
+
+    // Attach listeners
+    video.addEventListener('loadedmetadata', onLoadedMetadata);
+    video.addEventListener('canplay', onCanPlay);
+    video.addEventListener('play', onPlay);
+    video.addEventListener('ended', onEnded);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('touchstart', onFirstInteraction, true);
+    window.addEventListener('pointerdown', onFirstInteraction, true);
+
+    // Fallback to show hero content if autoplay is blocked
+    const fallbackId = setTimeout(() => {
+      // Ensure hero wrapper is visible so page isn't blank,
+      // but keep text hidden until the scheduled reveal.
+      if (wrapper) {
+        gsap.set(wrapper, { opacity: 1 });
+      }
+    }, 1200);
+
+    // Kick once on mount
+    tryPlay();
+
+    return () => {
+      clearTimeout(fallbackId);
+      video.removeEventListener('loadedmetadata', onLoadedMetadata);
+      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('play', onPlay);
+      video.removeEventListener('ended', onEnded);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('touchstart', onFirstInteraction, true);
+      window.removeEventListener('pointerdown', onFirstInteraction, true);
+    };
+  }, []);
+
   // Mobile animation synced to video time
   useEffect(() => {
     let rafId;
@@ -106,15 +193,11 @@ const HeroMobileComponent = () => {
       // Only run animation if we're in mobile or tablet-portrait view mode
       if (viewMode !== 'mobile' && viewMode !== 'tablet-portrait') return;
 
-      // Mobile-specific initial frame (not fullscreen) - Safari optimized:
+      // Mobile-specific initial frame (not fullscreen):
       // - Start 5cm below top
       // - Width ~85vw (capped), centered
       // - Maintain original video aspect ratio 1056x594
-      const viewportWidth = Math.max(
-        window.innerWidth || 0,
-        document.documentElement?.clientWidth || 0,
-        screen?.width || 0
-      );
+      const viewportWidth = window.innerWidth;
       const videoAspect = 594 / 1056; // ≈ 0.5625
       
       // Aggressive scaling for tablet portrait to ensure complete viewport fit
@@ -176,26 +259,20 @@ const HeroMobileComponent = () => {
         if (!videoRef.current || !wrapperRef.current || !placeholderRef.current) return;
         if (videoRef.current.currentTime < 8 || animationCompletedRef.current || shrinkStartedRef.current) return;
 
-        // Use Figma final frame specs with aggressive scaling for tablet portrait - Safari optimized
+        // Use Figma final frame specs with aggressive scaling for tablet portrait
         let baseViewportWidth, scale;
-        const currentViewportWidth = Math.max(
-          window.innerWidth || 0,
-          document.documentElement?.clientWidth || 0,
-          screen?.width || 0
-        );
-        
         if (viewMode === 'tablet-portrait') {
           // Tablet portrait: use much smaller scale to guarantee fit
-          baseViewportWidth = currentViewportWidth; // Use actual device width
+          baseViewportWidth = window.innerWidth; // Use actual device width
           scale = 1; // Base scale of 1 for natural sizing
           // Apply very aggressive scaling factor to ensure video fits
-          if (currentViewportWidth <= 575) {
+          if (window.innerWidth <= 575) {
             scale = 0.4; // Very small tablets get 40% scale
-          } else if (currentViewportWidth <= 768) {
+          } else if (window.innerWidth <= 768) {
             scale = 0.5; // Small tablets get 50% scale
-          } else if (currentViewportWidth <= 1024) {
+          } else if (window.innerWidth <= 1024) {
             scale = 0.6; // Medium tablets get 60% scale
-          } else if (currentViewportWidth <= 1600) {
+          } else if (window.innerWidth <= 1600) {
             scale = 0.7; // Large tablets (like Pixel Tablet) get 70% scale
           } else {
             scale = 0.8; // Extra large tablets get 80% scale
@@ -203,11 +280,11 @@ const HeroMobileComponent = () => {
         } else if (viewMode === 'mobile') {
           // Mobile: use iPhone 13 mini specs for consistent mobile experience
           baseViewportWidth = 375; // iPhone 13 mini logical width
-          scale = currentViewportWidth / baseViewportWidth;
+          scale = window.innerWidth / baseViewportWidth;
         } else {
           // Landscape: use original scaling
           baseViewportWidth = 375;
-          scale = currentViewportWidth / baseViewportWidth;
+          scale = window.innerWidth / baseViewportWidth;
         }
         
         const finalWidth = 618.6666870117188 * scale;
@@ -228,36 +305,22 @@ const HeroMobileComponent = () => {
           duration: 1.6,
           ease: "none",
           force3D: true,
-          // Safari-specific optimizations
-          WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden',
           onComplete: () => { 
             animationCompletedRef.current = true; 
+            setShowScrollBtn(true);
           }
         });
 
         const textTop = viewMode === 'tablet-portrait' ? 40 * scale : 134 * scale; // Much higher for tablet portrait
-        gsap.to("#text-mobile", { 
-          opacity: 1, 
-          top: textTop, 
-          yPercent: 0, 
-          duration: 0.8, 
-          ease: "sine.out",
-          // Safari-specific optimizations
-          WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden'
-        });
+        gsap.to("#text-mobile", { opacity: 1, top: textTop, yPercent: 0, duration: 0.8, ease: "sine.out" });
         
-        // Show dome mask after scaling completes with smooth animation - Safari optimized
+        // Show dome mask after scaling completes with smooth animation
         gsap.to("#hero-dome-mask-mobile", { 
           opacity: 1, 
           duration: 0.8, 
           ease: "power2.out", 
           delay: 1.6,
-          force3D: true,
-          // Safari-specific optimizations
-          WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden'
+          force3D: true
         });
       };
 
@@ -315,12 +378,17 @@ const HeroMobileComponent = () => {
     <>
       <style>
         {`
-          /* Prevent horizontal scrolling on body and html */
-          body, html {
+          /* Prevent horizontal overflow */
+          html, body {
             overflow-x: hidden !important;
             max-width: 100vw !important;
           }
-          
+
+          #hero-mobile {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+          }
+
           /* Grid container - disabled */
           /* #grid_container {
             opacity: 1 !important;
@@ -347,8 +415,6 @@ const HeroMobileComponent = () => {
             scrollbar-width: none !important;
             -ms-overflow-style: none !important;
             overflow: -moz-scrollbars-none !important;
-            overflow-x: hidden !important;
-            max-width: 100vw !important;
           }
           
           /* Mobile-optimized video container */
@@ -454,7 +520,7 @@ const HeroMobileComponent = () => {
           WebkitScrollbarWidth: 'none',
           overflow: '-moz-scrollbars-none',
           overflowX: 'hidden',
-          overflowY: 'auto'
+          maxWidth: '100vw'
         }}
       >
         {/* Grid overlay - disabled */}
@@ -473,7 +539,7 @@ const HeroMobileComponent = () => {
             left: '50%',
             transform: 'translateX(-50%)',
             top: '-160px',
-            background: 'linear-gradient(to bottom, #272727 0%, #1f1f1f 30%, #0a0a0a 70%, transparent 100%)',
+            background: '#272727',
             filter: 'blur(162px)',
             mixBlendMode: 'normal',
             opacity: 0,
@@ -594,7 +660,7 @@ const HeroMobileComponent = () => {
                 : "calc(100vh - 2rem)", // Landscape: minimal margin
             overflow: "hidden",
             borderRadius: 0,
-            background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0.8) 90%, #000000 100%)",
+            background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)",
             zIndex: 50,
           }}
         >
@@ -610,27 +676,19 @@ const HeroMobileComponent = () => {
             className="w-full h-full object-contain bg-black object-center pointer-events-none mobile-video-blend"
             style={{
               objectPosition: 'center center',
-              // Safari-specific video optimizations
+              // Remove heavy filters to avoid jank on mobile GPUs
               willChange: 'transform',
-              transform: 'translateZ(0)',
-              WebkitTransform: 'translateZ(0)',
-              WebkitBackfaceVisibility: 'hidden',
-              backfaceVisibility: 'hidden',
-              // Safari video rendering optimizations
-              WebkitVideoPlaybackQuality: 'high',
-              WebkitMediaControlsFullscreenButton: 'none'
+              transform: 'translateZ(0)'
             }}
             onEnded={() => videoRef.current.pause()}
-            // Safari-specific video attributes
-            webkit-playsinline="true"
-            x-webkit-airplay="deny"
+            disableRemotePlayback
           />
           
           {/* Radial gradient spotlight overlay */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0.8) 90%, #000000 100%)",
+              background: "radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 54.88%, #000000 100%)",
               borderRadius: "inherit",
               zIndex: 2,
             }}
@@ -638,44 +696,45 @@ const HeroMobileComponent = () => {
         </div>
 
         {/* Responsive scroll button */}
-        <div
-          id="scroll-down-btn"
-          className={`absolute pointer-events-auto mobile-scroll-btn ${
-            viewMode === 'tablet-portrait'
-              ? 'bottom-1' // Tablet portrait: much higher to ensure visibility
-              : viewMode === 'mobile'
-                ? 'bottom-8' // Mobile: original position
-                : 'bottom-6' // Landscape: original position
-          }`}
-          style={{
-            left: '50%',
-            zIndex: 100,
-            opacity: 1, // Make visible immediately for testing
-            transform: 'translateX(-50%) translateY(0)', // Remove translateY offset
-          }}
-        >
-          <button
-            className="w-full h-full flex items-center justify-center gap-2 px-4 py-3 rounded-full hover:bg-white/0.08 transition-all duration-300 group mobile-touch-target"
+        {showScrollBtn && (
+          <div
+            id="scroll-down-btn"
+            className={`absolute pointer-events-auto mobile-scroll-btn ${
+              viewMode === 'tablet-portrait'
+                ? 'bottom-1'
+                : viewMode === 'mobile'
+                  ? 'bottom-8'
+                  : 'bottom-6'
+            }`}
             style={{
-              background: 'rgba(255, 255, 255, 0.04)',
-              boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-              fontFamily: 'GeneralSans, sans-serif',
+              left: '50%',
+              zIndex: 100,
+              transform: 'translateX(-50%) translateY(0)',
             }}
-            onClick={navigateToNextSlide}
           >
-            <span className="text-white font-medium tracking-wide">
-              Scroll Down
-            </span>
-            <svg 
-              className="w-4 h-4 text-white transform group-hover:translate-y-1 transition-transform duration-300" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
+            <button
+              className="w-full h-full flex items-center justify-center gap-2 px-4 py-3 rounded-full hover:bg-white/0.08 transition-all duration-300 group mobile-touch-target"
+              style={{
+                background: 'rgba(255, 255, 255, 0.04)',
+                boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+                fontFamily: 'GeneralSans, sans-serif',
+              }}
+              onClick={navigateToNextSlide}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
-        </div>
+              <span className="text-white font-medium tracking-wide">
+                Scroll Down
+              </span>
+              <svg 
+                className="w-4 h-4 text-white transform group-hover:translate-y-1 transition-transform duration-300" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
