@@ -70,7 +70,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
         
         // Screen size is now passed as a prop from parent component
 
-        // Collapsed height logic: show full first paragraph plus first 2 lines of second paragraph (if present)
+        // Collapsed height logic: show full first paragraph, sometimes hide second paragraph completely
         const paraNodes = contentRef.current.querySelectorAll('p');
         const refElem = paraNodes && paraNodes[0] ? paraNodes[0] : contentRef.current;
         const cs = window.getComputedStyle(refElem);
@@ -89,33 +89,41 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
           // Calculate how many lines the second paragraph has
           const secondParaLines = Math.ceil(secondParaHeight / lineH);
           
-          // Show first paragraph + exactly 1 line of second paragraph
-          const lineHeight = secondParaLines > 0 ? (secondParaHeight / secondParaLines) : lineH;
-          const linesToShow = 1; // Show exactly 1 line of second paragraph
-          const secondParaPartialHeight = lineHeight * linesToShow;
+          // Randomly decide whether to show second paragraph or not (60% chance to hide)
+          const shouldShowSecondPara = Math.random() > 0.6; // 40% chance to show
           
-          // Calculate total height: first paragraph + 1 line of second paragraph + spacing
-          collapsed = firstParaHeight + secondParaPartialHeight;
-          
-          // Add spacing between paragraphs and safety buffer
-          collapsed += 24; // Paragraph spacing
+          if (shouldShowSecondPara) {
+            // Show first paragraph + exactly 1 line of second paragraph
+            const lineHeight = secondParaLines > 0 ? (secondParaHeight / secondParaLines) : lineH;
+            const linesToShow = 1; // Show exactly 1 line of second paragraph
+            const secondParaPartialHeight = lineHeight * linesToShow;
+            
+            // Calculate total height: first paragraph + 1 line of second paragraph + spacing
+            collapsed = firstParaHeight + secondParaPartialHeight;
+            
+            // Add spacing between paragraphs and safety buffer
+            collapsed += 24; // Paragraph spacing
+          } else {
+            // Show only first paragraph - hide second paragraph completely
+            collapsed = firstParaHeight;
+            
+            // Add small buffer for visual spacing
+            collapsed += 16; // Reduced spacing since no second paragraph
+          }
         } else if (paraNodes && paraNodes.length === 1) {
           // Only one paragraph, show it fully with safety buffer
           const firstRect = paraNodes[0].getBoundingClientRect();
           const firstParaHeight = firstRect && firstRect.height > 0 ? firstRect.height : lineH * 4;
           collapsed = firstParaHeight + 24; // Increased buffer
         } else {
-          // Fallback: estimate first paragraph + exactly 1 line of second paragraph
-          // Assume first paragraph is about 4-5 lines, second paragraph exactly 1 line
+          // Fallback: estimate first paragraph only (no second paragraph)
           const estimatedFirstParaLines = compact ? 4 : 5;
-          const estimatedSecondParaFirstLine = 1; // Exactly 1 line
-          const totalLines = estimatedFirstParaLines + estimatedSecondParaFirstLine;
-          collapsed = Math.max(6, totalLines) * lineH + 24; // Add spacing buffer
+          collapsed = Math.max(6, estimatedFirstParaLines) * lineH + 16; // Reduced spacing
         }
         
         // Ensure minimum collapsed height to prevent cutoff
-        // Minimum should accommodate first paragraph + exactly 1 line of second paragraph
-        const minCollapsedHeight = compact ? 300 : 360; // Adjusted for first para + 1 line
+        // Minimum should accommodate first paragraph (second paragraph is sometimes hidden)
+        const minCollapsedHeight = compact ? 200 : 250; // Reduced since second para is sometimes hidden
         collapsed = Math.max(collapsed, minCollapsedHeight);
         
         setCollapsedHeight(collapsed);
@@ -128,13 +136,13 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
         const safeMax = Math.max(700, (vh || 800) - verticalPaddingAllowance); // Increased from 600
         setMaxContentHeight(safeMax);
       } catch {
-        // More generous fallback heights to ensure first para + 1 line fits
-        setCollapsedHeight(350); // Increased to ensure first para + 1 line fits
+        // Fallback heights for first paragraph only (second para sometimes hidden)
+        setCollapsedHeight(250); // Reduced since second para is sometimes hidden
         setMaxContentHeight(900); // Increased from 800
       }
     };
     
-    // Enhanced measurement that specifically targets first para + 1 line of second para
+    // Enhanced measurement that sometimes hides second paragraph completely
     const measurePrecise = () => {
       if (!contentRef.current || typeof window === 'undefined') return;
       try {
@@ -155,28 +163,33 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
           const firstParaClone = paraNodes[0].cloneNode(true);
           tempDiv.appendChild(firstParaClone);
           
-          // Add exactly first line of second paragraph
-          const secondParaText = paraNodes[1].textContent;
-          const words = secondParaText.split(' ');
-          const lineHeight = parseFloat(window.getComputedStyle(paraNodes[1]).lineHeight);
+          // Randomly decide whether to show second paragraph (same logic as main measurement)
+          const shouldShowSecondPara = Math.random() > 0.6; // 40% chance to show
           
-          // More accurate estimation of words per line based on actual width
-          const containerWidth = parseFloat(window.getComputedStyle(paraNodes[1]).width);
-          const avgCharWidth = 8; // Approximate character width
-          const wordsPerLine = Math.max(6, Math.floor(containerWidth / (avgCharWidth * 5))); // 5 chars per word average
-          const firstLineWords = words.slice(0, wordsPerLine);
-          const firstLineText = firstLineWords.join(' ');
-          
-          const firstLineDiv = document.createElement('div');
-          firstLineDiv.textContent = firstLineText;
-          firstLineDiv.style.marginTop = '24px'; // Paragraph spacing
-          firstLineDiv.style.lineHeight = lineHeight + 'px';
-          firstLineDiv.style.height = lineHeight + 'px';
-          firstLineDiv.style.overflow = 'hidden';
-          tempDiv.appendChild(firstLineDiv);
+          if (shouldShowSecondPara) {
+            // Add exactly first line of second paragraph
+            const secondParaText = paraNodes[1].textContent;
+            const words = secondParaText.split(' ');
+            const lineHeight = parseFloat(window.getComputedStyle(paraNodes[1]).lineHeight);
+            
+            // More accurate estimation of words per line based on actual width
+            const containerWidth = parseFloat(window.getComputedStyle(paraNodes[1]).width);
+            const avgCharWidth = 8; // Approximate character width
+            const wordsPerLine = Math.max(6, Math.floor(containerWidth / (avgCharWidth * 5))); // 5 chars per word average
+            const firstLineWords = words.slice(0, wordsPerLine);
+            const firstLineText = firstLineWords.join(' ');
+            
+            const firstLineDiv = document.createElement('div');
+            firstLineDiv.textContent = firstLineText;
+            firstLineDiv.style.marginTop = '24px'; // Paragraph spacing
+            firstLineDiv.style.lineHeight = lineHeight + 'px';
+            firstLineDiv.style.height = lineHeight + 'px';
+            firstLineDiv.style.overflow = 'hidden';
+            tempDiv.appendChild(firstLineDiv);
+          }
           
           document.body.appendChild(tempDiv);
-          const measuredHeight = tempDiv.offsetHeight + 16; // Add safety buffer
+          const measuredHeight = tempDiv.offsetHeight + (shouldShowSecondPara ? 16 : 8); // Different buffer based on content
           document.body.removeChild(tempDiv);
           
           // Update collapsed height if measurement is more accurate
@@ -707,6 +720,12 @@ const AboutBaft = () => {
   const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [screenSize, setScreenSize] = useState('medium');
+  const [dynamicGaps, setDynamicGaps] = useState({
+    columnGap: '100px',
+    maxWidth: '1400px',
+    paddingHorizontal: '2rem',
+    marginTop: '4vh'
+  });
 
   // Dynamic spacing functions based on screen size
   const getSpacing = (small, medium, large) => {
@@ -816,6 +835,73 @@ const AboutBaft = () => {
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  // Calculate dynamic gaps and margins based on screen dimensions
+  useEffect(() => {
+    const calculateDynamicGaps = () => {
+      const vw = window.innerWidth || 0;
+      const vh = window.innerHeight || 0;
+      
+      // Calculate column gap based on screen width
+      let columnGap;
+      if (vw <= 1024) {
+        columnGap = Math.max(40, vw * 0.06); // 6% of viewport width, minimum 40px
+      } else if (vw <= 1280) {
+        columnGap = Math.max(60, vw * 0.08); // 8% of viewport width, minimum 60px
+      } else if (vw <= 1536) {
+        columnGap = Math.max(80, vw * 0.09); // 9% of viewport width, minimum 80px
+      } else {
+        columnGap = Math.max(100, vw * 0.1); // 10% of viewport width, minimum 100px
+      }
+      
+      // Calculate max width based on screen width
+      let maxWidth;
+      if (vw <= 1024) {
+        maxWidth = Math.min(1000, vw * 0.95); // 95% of viewport width, max 1000px
+      } else if (vw <= 1280) {
+        maxWidth = Math.min(1200, vw * 0.9); // 90% of viewport width, max 1200px
+      } else if (vw <= 1536) {
+        maxWidth = Math.min(1400, vw * 0.85); // 85% of viewport width, max 1400px
+      } else {
+        maxWidth = Math.min(1600, vw * 0.8); // 80% of viewport width, max 1600px
+      }
+      
+      // Calculate horizontal padding based on screen width
+      let paddingHorizontal;
+      if (vw <= 768) {
+        paddingHorizontal = Math.max(16, vw * 0.05); // 5% of viewport width, minimum 16px
+      } else if (vw <= 1024) {
+        paddingHorizontal = Math.max(24, vw * 0.03); // 3% of viewport width, minimum 24px
+      } else if (vw <= 1280) {
+        paddingHorizontal = Math.max(32, vw * 0.025); // 2.5% of viewport width, minimum 32px
+      } else {
+        paddingHorizontal = Math.max(40, vw * 0.02); // 2% of viewport width, minimum 40px
+      }
+      
+      // Calculate top margin based on screen height
+      let marginTop;
+      if (vh <= 600) {
+        marginTop = Math.max(20, vh * 0.03); // 3% of viewport height, minimum 20px
+      } else if (vh <= 800) {
+        marginTop = Math.max(30, vh * 0.04); // 4% of viewport height, minimum 30px
+      } else if (vh <= 1000) {
+        marginTop = Math.max(40, vh * 0.05); // 5% of viewport height, minimum 40px
+      } else {
+        marginTop = Math.max(50, vh * 0.06); // 6% of viewport height, minimum 50px
+      }
+      
+      setDynamicGaps({
+        columnGap: `${Math.round(columnGap)}px`,
+        maxWidth: `${Math.round(maxWidth)}px`,
+        paddingHorizontal: `${Math.round(paddingHorizontal)}px`,
+        marginTop: `${Math.round(marginTop)}px`
+      });
+    };
+
+    calculateDynamicGaps();
+    window.addEventListener('resize', calculateDynamicGaps);
+    return () => window.removeEventListener('resize', calculateDynamicGaps);
   }, []);
 
   // Removed unnecessary logging effects that were causing performance issues
@@ -1246,7 +1332,7 @@ const AboutBaft = () => {
             <div
               className="w-full h-full"
               style={{
-                marginTop: getSpacing('2vh', '4vh', '20vh'),
+                marginTop: dynamicGaps.marginTop,
                 // Enable internal vertical scrolling on compact desktop viewports
                 overflowY: isCompactViewport ? 'auto' : 'visible',
                 WebkitOverflowScrolling: isCompactViewport ? 'touch' : undefined,
@@ -1254,7 +1340,7 @@ const AboutBaft = () => {
                 maxHeight: '100%',
                 paddingBottom: isCompactViewport ? '16px' : 0,
                 // Constrain maximum width on very wide screens
-                maxWidth: '1800px',
+                maxWidth: dynamicGaps.maxWidth,
                 marginLeft: 'auto',
                 marginRight: 'auto'
               }}
@@ -1262,10 +1348,10 @@ const AboutBaft = () => {
               <div
                 className="w-full mx-auto grid grid-cols-2 items-center"
                 style={{
-                  columnGap: getDimensions('60px', '100px', '120px'),
-                  maxWidth: getDimensions('1200px', '1400px', '1600px'),
-                  paddingLeft: getSpacing('1rem', '2rem', '2.5rem'),
-                  paddingRight: getSpacing('1rem', '2rem', '2.5rem')
+                  columnGap: dynamicGaps.columnGap,
+                  maxWidth: dynamicGaps.maxWidth,
+                  paddingLeft: dynamicGaps.paddingHorizontal,
+                  paddingRight: dynamicGaps.paddingHorizontal
                 }}
               >
               <div
