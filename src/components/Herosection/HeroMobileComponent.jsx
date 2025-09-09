@@ -315,6 +315,12 @@ const HeroMobileComponent = () => {
     <>
       <style>
         {`
+          /* Prevent horizontal scrolling on body and html */
+          body, html {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+          }
+          
           /* Grid container - disabled */
           /* #grid_container {
             opacity: 1 !important;
@@ -341,6 +347,8 @@ const HeroMobileComponent = () => {
             scrollbar-width: none !important;
             -ms-overflow-style: none !important;
             overflow: -moz-scrollbars-none !important;
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
           }
           
           /* Mobile-optimized video container */
@@ -437,14 +445,16 @@ const HeroMobileComponent = () => {
       
       <div 
         id="hero-mobile" 
-        className={`relative w-full min-h-screen bg-black flex flex-col items-center overflow-y-auto ${
+        className={`relative w-full min-h-screen bg-black flex flex-col items-center overflow-y-auto overflow-x-hidden ${
           isLandscape ? 'mobile-landscape' : 'mobile-portrait'
         } ${isTablet && !isLandscape ? 'tablet-portrait' : ''}`}
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
           WebkitScrollbarWidth: 'none',
-          overflow: '-moz-scrollbars-none'
+          overflow: '-moz-scrollbars-none',
+          overflowX: 'hidden',
+          overflowY: 'auto'
         }}
       >
         {/* Grid overlay - disabled */}
