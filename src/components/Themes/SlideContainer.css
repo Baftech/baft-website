@@ -4,7 +4,6 @@
   /* Enhanced smooth scrolling */
   scroll-snap-type: none;
   overscroll-behavior: none;
-  overscroll-behavior-y: contain;
   /* Premium hardware acceleration */
   will-change: transform, scroll-position;
   -webkit-transform: translateZ(0);
@@ -21,9 +20,9 @@
   -webkit-overflow-scrolling: touch;
   overflow-scrolling: touch;
   /* Ensure container fits visible viewport on mobile browsers */
-  height: 100svh !important;
+  height: 100dvh !important;
   min-height: 100svh !important;
-  max-height: 100svh !important;
+  max-height: 100dvh !important;
   /* Respect OS/browser UI safe areas (notches, system bars) */
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -54,15 +53,14 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
   /* Constrain scroll area to the visible dynamic viewport */
-  height: 100svh;
+  height: 100dvh;
   min-height: 100svh;
-  max-height: 100svh;
+  max-height: 100dvh;
   box-sizing: border-box;
   padding-top: 0;
   padding-bottom: 0;
   margin: 0;
   overscroll-behavior: contain;
-  overscroll-behavior-y: contain;
   background-color: #000;
 }
 
