@@ -1,3 +1,18 @@
+/* iOS Safari safe area insets */
+:root {
+  /* Fallback for other browsers */
+  --safe-top: 0px;
+  --safe-bottom: 0px;
+  --safe-left: 0px;
+  --safe-right: 0px;
+
+  /* iOS Safari safe-area insets */
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-left: env(safe-area-inset-left);
+  --safe-right: env(safe-area-inset-right);
+}
+
 .slide-container {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
@@ -16,7 +31,12 @@
   transform: translate3d(0, 0, 0);
   /* Smooth momentum scrolling */
   -webkit-overflow-scrolling: touch;
-  overflow-scrolling: touch;
+  /* Use dynamic viewport height to respect Safari's changing UI */
+  height: 100dvh;
+  min-height: 100dvh;
+  /* Ensure full viewport coverage */
+  width: 100vw;
+  position: relative;
 }
 
 .slide {
@@ -86,7 +106,6 @@
   transition: scroll-behavior 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   /* Premium momentum scrolling */
   -webkit-overflow-scrolling: touch;
-  overflow-scrolling: touch;
 }
 
 .buttery-smooth-scroll::-webkit-scrollbar {
@@ -371,6 +390,8 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: none;
     scroll-snap-type: none;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .custom-scroll {
@@ -401,6 +422,8 @@
 @media (min-width: 576px) {
   .slide-container {
     scroll-behavior: smooth;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .custom-scroll {
@@ -426,6 +449,8 @@
   .slide-container {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .slide {
@@ -447,6 +472,8 @@
 @media (min-width: 992px) {
   .slide-container {
     scroll-behavior: smooth;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .slide {
@@ -466,6 +493,8 @@
 @media (min-width: 1200px) {
   .slide-container {
     scroll-behavior: smooth;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .slide {
@@ -479,6 +508,8 @@
 @media (min-width: 2560px) {
   .slide-container {
     scroll-behavior: smooth;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .slide {
@@ -505,6 +536,8 @@
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .custom-scroll {
@@ -576,6 +609,8 @@
 @media (prefers-reduced-motion: reduce) {
   .slide-container {
     scroll-behavior: auto;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .custom-scroll {
@@ -606,5 +641,158 @@
 @media (prefers-color-scheme: light) {
   .slide-indicator {
     background-color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* ===== IPHONE SAFARI SPECIFIC FIXES ===== */
+
+/* iPhone Safari specific handling for bottom navigation bar */
+@supports (-webkit-touch-callout: none) {
+  .slide-container {
+    /* Use 100vh for iPhone Safari to avoid bottom bar overlap */
+    height: 100vh;
+    min-height: 100vh;
+    /* Ensure content goes behind the bottom bar */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Individual slides should fill the full viewport */
+  .slide-container > div {
+    height: 100vh;
+    min-height: 100vh;
+  }
+  
+  /* Seamless transition containers */
+  .seamless-up-prev,
+  .seamless-up-next,
+  .seamless-down-prev,
+  .seamless-down-next {
+    height: 100vh;
+    min-height: 100vh;
+  }
+}
+
+/* iPhone Safari landscape mode */
+@supports (-webkit-touch-callout: none) and (orientation: landscape) {
+  .slide-container {
+    /* In landscape, use 100vh to avoid issues */
+    height: 100vh;
+    min-height: 100vh;
+  }
+}
+
+/* iPhone Safari portrait mode */
+@supports (-webkit-touch-callout: none) and (orientation: portrait) {
+  .slide-container {
+    /* In portrait, account for bottom bar */
+    height: 100vh;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* iPhone Safari specific viewport handling */
+@supports (-webkit-touch-callout: none) {
+  /* Ensure slides fill the full viewport without gaps */
+  .slide-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    min-height: 100vh;
+    width: 100vw;
+    /* Remove any padding that could cause gaps */
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Individual slide content should fill the container */
+  .slide-container > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    min-height: 100vh;
+    width: 100vw;
+  }
+  
+  /* Seamless transition containers */
+  .seamless-up-prev,
+  .seamless-up-next,
+  .seamless-down-prev,
+  .seamless-down-next {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    min-height: 100vh;
+    width: 100vw;
+  }
+}
+
+/* ===== TAILWIND UTILITIES FOR SAFE AREAS ===== */
+@layer utilities {
+  .pt-safe {
+    padding-top: calc(1rem + env(safe-area-inset-top));
+  }
+  
+  .pb-safe {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  
+  .pl-safe {
+    padding-left: calc(1rem + env(safe-area-inset-left));
+  }
+  
+  .pr-safe {
+    padding-right: calc(1rem + env(safe-area-inset-right));
+  }
+  
+  .p-safe {
+    padding: calc(1rem + env(safe-area-inset-top)) 
+             calc(1rem + env(safe-area-inset-right)) 
+             calc(1rem + env(safe-area-inset-bottom)) 
+             calc(1rem + env(safe-area-inset-left));
+  }
+  
+  .pt-safe-only {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .pb-safe-only {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .pl-safe-only {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .pr-safe-only {
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .p-safe-only {
+    padding: env(safe-area-inset-top) 
+             env(safe-area-inset-right) 
+             env(safe-area-inset-bottom) 
+             env(safe-area-inset-left);
+  }
+  
+  .h-dvh {
+    height: 100dvh;
+  }
+  
+  .min-h-dvh {
+    min-height: 100dvh;
+  }
+  
+  .max-h-dvh {
+    max-height: 100dvh;
   }
 }
