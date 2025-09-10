@@ -534,13 +534,13 @@ const HeroMobileComponent = () => {
           className="absolute pointer-events-none z-[40]"
           style={{
             position: 'absolute',
-            width: 'clamp(1024px, 94vw, 1600px)',
-            height: '360px',
+            width: 'clamp(1024px, 90vw, 1600px)',
+            height: '280px',
             left: '50%',
             transform: 'translateX(-50%)',
             top: '-160px',
             background: '#272727',
-            filter: 'blur(162px)',
+            filter: 'blur(170px)',
             mixBlendMode: 'normal',
             opacity: 0,
             willChange: 'opacity',
@@ -602,11 +602,6 @@ const HeroMobileComponent = () => {
               fontSize: isTablet ? '80px' : '64px',
               lineHeight: isTablet ? '96px' : '84px',
               textAlign: 'center',
-              backgroundImage: 'linear-gradient(165.6deg, #999999 32.7%, #161616 70.89%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              color: 'transparent',
               flex: 'none',
               order: 1,
               flexGrow: 0,
@@ -614,7 +609,36 @@ const HeroMobileComponent = () => {
               padding: 0,
             }}
           >
-            Do Money, Differently.
+            <span
+              style={{
+                backgroundImage: 'linear-gradient(180deg, #FFFFFF 0%, #EEEEEE 18%, #A8A8A8 50%, #3A3A3A 80%, #1A1A1A 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                color: 'transparent',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '100% 100%',
+                backgroundPosition: 'center top',
+                display: 'inline-block',
+              }}
+            >
+              Do Money, 
+            </span>
+            <span
+              style={{
+                backgroundImage: 'linear-gradient(180deg, #FFFFFF 0%, #EEEEEE 18%, #A8A8A8 50%, #3A3A3A 80%, #1A1A1A 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                color: 'transparent',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '100% 100%',
+                backgroundPosition: 'center top',
+                display: 'inline-block',
+              }}
+            >
+              Differently.
+            </span>
           </h1>
         </div>
 
@@ -647,7 +671,7 @@ const HeroMobileComponent = () => {
         {/* Responsive video wrapper with radial gradient background */}
         <div
           ref={wrapperRef}
-          className="w-full opacity-0"
+          className="w-full"
           style={{
             position: "absolute",
             top: 0,

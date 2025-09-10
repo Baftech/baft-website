@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import "./SafeSecure.css";
+import "./SafeSecureMobile.css";
 import { SAFE_SEC_SVG } from "../../assets/assets";
 
 const SafeSecureMobile = () => {
@@ -53,6 +53,7 @@ const SafeSecureMobile = () => {
                 fontFamily: "EB Garamond, serif",
                 lineHeight: "100%",
                 textAlign: "center",
+                marginTop: "clamp(0.1rem, 0.2vh, 0.3rem)",
                 marginBottom: "2rem",
                 maxWidth: "90vw",
                 overflow: "hidden",

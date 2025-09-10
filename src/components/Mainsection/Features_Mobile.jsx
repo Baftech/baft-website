@@ -129,33 +129,45 @@ const Cards = () => {
           zIndex: 30,
           rotateX: 0,
           rotateY: 0,
-          rotateZ: 0
+          rotateZ: 0,
+          top: "auto",
+          bottom: "0px",
+          left: "50%",
+          transform: "translateX(-50%) rotate(0deg)"
         }, immediate);
       } else if (index === (activeIndex + 1) % totalCards) {
         // Next card - slides up to become active
         setOrAnimate(card, { 
           x: 0,
-          y: -30, // Slightly above
-          z: -30,
-          scale: 0.95,
+          y: -50, // Decreased offset
+          z: -50,
+          scale: 0.9,
           opacity: 1,
           zIndex: 20,
           rotateX: 0,
           rotateY: 0,
-          rotateZ: 0
+          rotateZ: 0,
+          top: "auto",
+          bottom: "0px",
+          left: "50%",
+          transform: "translateX(-50%) rotate(0deg)"
         }, immediate);
       } else if (index === (activeIndex + 2) % totalCards) {
         // Third card - visible peek
         setOrAnimate(card, { 
           x: 0,
-          y: -60, // Further above
-          z: -60,
-          scale: 0.9,
+          y: -100, // Decreased offset
+          z: -100,
+          scale: 0.8,
           opacity: 1,
           zIndex: 10,
           rotateX: 0,
           rotateY: 0,
-          rotateZ: 0
+          rotateZ: 0,
+          top: "auto",
+          bottom: "0px",
+          left: "50%",
+          transform: "translateX(-50%) rotate(0deg)"
         }, immediate);
       } else {
         // Hide all other cards
@@ -168,7 +180,11 @@ const Cards = () => {
           zIndex: 0,
           rotateX: 0,
           rotateY: 0,
-          rotateZ: 0
+          rotateZ: 0,
+          top: "auto",
+          bottom: "0px",
+          left: "50%",
+          transform: "translateX(-50%) rotate(0deg)"
         }, immediate);
       }
     });
@@ -248,25 +264,33 @@ const Cards = () => {
           marginBottom: "0.1cm"
         }}
       >
-        {/* Mobile Layout - Stacked vertically */}
+        {/* Mobile/Tablet Layout - Stacked vertically */}
         <div 
-          className="w-full max-w-4xl mx-auto flex flex-col gap-0 items-center px-4 sm:px-6 md:px-8"
-          style={{ marginTop: "4rem" }}
+          className="w-full max-w-4xl mx-auto flex flex-col gap-0 items-center px-4 sm:px-6 md:px-8 lg:px-12"
+          style={{ 
+            marginTop: "clamp(0.5rem, 1vh, 1rem)",
+            minHeight: "calc(100vh - 100px)", // Account for navbar and padding
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between"
+          }}
         >
 
           {/* Top Section - Features Text */}
-          <div 
-            className="flex flex-col justify-start w-full text-left z-10"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "flex-start",
-              padding: "0px",
-              width: "100%",
-              maxWidth: "clamp(300px, 90%, 500px)"
-            }}
+           <div 
+             className="flex flex-col items-center w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto text-left z-10"
+             style={{
+               display: "flex",
+               flexDirection: "column",
+               justifyContent: "center",
+               alignItems: "flex-start",
+               padding: "0px",
+               width: "100%",
+               maxWidth: "clamp(300px, 90%, 500px)",
+               margin: "0 auto"
+             }}
           >
+
             <p
               className="font-normal mb-3 sm:mb-4 flex items-center gap-2 justify-start"
               style={{
@@ -283,23 +307,23 @@ const Cards = () => {
             </p>
 
             <h1
-              className="leading-tight font-bold text-[#1966BB] text-left"
+              className="leading-tight font-bold text-[#1966BB] text-left md:text-center lg:text-left"
               style={{ 
-                width: "176.35px",
-                height: "89px",
+                width: "clamp(200px, 50vw, 500px)",
+                height: "clamp(60px, 12vh, 100px)",
                 transform: "rotate(-0.08deg)",
                 opacity: 1,
                 fontFamily: "EB Garamond",
                 fontWeight: 700,
                 fontStyle: "Bold",
-                fontSize: "43.6px",
-                lineHeight: "44.47px",
+                fontSize: "clamp(40px, 8vw, 70px)",
+                lineHeight: "clamp(44px, 9vw, 74px)",
                 letterSpacing: "-0.89px",
                 verticalAlign: "middle",
                 color: "#1966BB",
                 margin: 0,
                 padding: 0,
-                marginBottom: "0.7cm"
+                marginBottom: "clamp(0.5rem, 1.5vh, 1rem)"
               }}
             >
               <span className="block">All in</span>
@@ -307,10 +331,10 @@ const Cards = () => {
             </h1>
 
             <ul
-              className="space-y-1 sm:space-y-1.5 md:space-y-2"
+              className="space-y-0.5 sm:space-y-1 md:space-y-1.5 lg:space-y-2"
               style={{ 
                 cursor: "default", 
-                marginBottom: "0",
+                marginBottom: "clamp(2rem, 4vh, 3rem)",
                 width: "100%"
               }}
             >
@@ -355,22 +379,22 @@ const Cards = () => {
                       flexDirection: "row",
                       justifyContent: "flex-start",
                       alignItems: "center",
-                      padding: isActive 
-                        ? "clamp(12px, 1.5vw, 20px) clamp(10px, 1.2vw, 14px)"
-                        : "clamp(12px, 1.5vw, 20px) clamp(10px, 1.2vw, 14px)",
-                      gap: "clamp(8px, 1vw, 14px)",
-                      width: isActive ? "fit-content" : "100%",
-                      minHeight: "clamp(50px, 5vh, 75px)",
+                padding: isActive
+                  ? "clamp(12px, 1.8vw, 24px) clamp(12px, 1.5vw, 22px)"
+                  : "clamp(10px, 1.5vw, 20px) clamp(10px, 1.2vw, 18px)",
+                gap: "clamp(8px, 1.5vw, 20px)",
+                width: isActive ? "fit-content" : "100%",
+                minHeight: "clamp(45px, 5vh, 80px)",
                       background: isActive ? "#FFFFFF" : "transparent",
                       border: isActive 
                         ? "1px solid rgba(22, 93, 172, 0.19)"
                         : "none",
-                      borderRadius: "clamp(8px, 1.2vw, 14px)",
+                      borderRadius: "clamp(6px, 1vw, 12px)",
                       boxShadow: isActive ? "0px 2px 8px rgba(25, 102, 187, 0.1)" : "none",
                       flex: "none",
                       order: isActive ? 0 : 1,
                       flexGrow: 0,
-                      transition: "all 0.3s ease"
+                      transition: isActive ? "all 0.3s ease" : "none"
                     }}
                   >
                     {feature.customIcon ? (
@@ -379,8 +403,8 @@ const Cards = () => {
                         alt={feature.title}
                         className="flex-shrink-0"
                         style={{
-                          width: "clamp(16px, 2vw, 24px)",
-                          height: "clamp(16px, 2vw, 24px)"
+                          width: "clamp(18px, 2.5vw, 30px)",
+                          height: "clamp(18px, 2.5vw, 30px)"
                         }}
                       />
                     ) : (
@@ -396,7 +420,7 @@ const Cards = () => {
                           fontFamily: "Inter",
                           fontWeight: 500,
                           fontStyle: "normal",
-                          fontSize: "clamp(12px, 1.3vw, 15px)",
+                          fontSize: "clamp(12px, 1.8vw, 20px)",
                           lineHeight: "100%",
                           letterSpacing: "0%",
                           color: "#1966BB",
@@ -410,12 +434,12 @@ const Cards = () => {
                           fontFamily: "Inter",
                           fontWeight: 400,
                           fontStyle: "normal",
-                          fontSize: "clamp(10px, 1vw, 12px)",
+                          fontSize: "clamp(10px, 1.4vw, 16px)",
                           lineHeight: "120%",
                           letterSpacing: "0%",
                           color: "#989898",
                           margin: 0,
-                          marginTop: "clamp(8px, 1.2vw, 12px)"
+                          marginTop: "clamp(6px, 1vh, 10px)"
                         }}
                       >
                         {feature.description}
@@ -436,11 +460,12 @@ const Cards = () => {
               WebkitBackfaceVisibility: "hidden",
               transformStyle: "preserve-3d",
               WebkitTransformStyle: "preserve-3d",
-              minHeight: "600px",
-              paddingBottom: "7rem",
-              paddingTop: "0",
+              minHeight: "clamp(280px, 40vh, 450px)",
+              maxHeight: "clamp(350px, 45vh, 550px)",
+              paddingBottom: "clamp(6rem, 12vh, 10rem)",
+              paddingTop: "clamp(-0.5rem, -1vh, -1rem)",
               overflow: "hidden",
-              marginTop: "-2rem",
+              marginTop: "clamp(-0.5rem, -1vh, -1rem)",
               // Safari hardware acceleration
               WebkitTransform: 'translateZ(0)',
               transform: 'translateZ(0)'
@@ -452,15 +477,18 @@ const Cards = () => {
                 key={index}
                 className="absolute flex flex-col items-center justify-center"
                 style={{
-                  width: "clamp(350px, 85vw, 500px)",
-                  height: "clamp(450px, 90vw, 600px)",
+                  width: "270px",
+                  height: "281px",
+                  top: "auto",
+                  bottom: "0px",
+                  left: "50%",
+                  transform: "translateX(-50%) rotate(0deg)",
+                  opacity: 1,
                   transformOrigin: "center bottom",
                   WebkitTransformOrigin: "center bottom",
                   zIndex: 10,
                   // Safari hardware acceleration
-                  WebkitTransform: 'translateZ(0)',
-                  transform: 'translateZ(0)',
-                  WebkitBackfaceVisibility: 'hidden',
+                  WebkitTransform: 'translateX(-50%) translateZ(0)',
                   backfaceVisibility: 'hidden'
                 }}
               >

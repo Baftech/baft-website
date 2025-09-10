@@ -415,6 +415,10 @@ const InteractiveTeamImage = React.memo(({ disabled = false }) => {
             opacity: activeImageId === "full" ? 1 : 0.999,
             transition: "opacity 1200ms ease-in-out",
             zIndex: 1,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center center"
           }}
           onLoad={() => {}}
         />
@@ -436,6 +440,10 @@ const InteractiveTeamImage = React.memo(({ disabled = false }) => {
                 transition: "opacity 1200ms ease-in-out",
                 zIndex: isActive ? 2 : 1,
                 display: isLoaded ? "block" : "none",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center center"
               }}
               onLoad={() => {
                 setLoadedImages((prev) => new Set([...prev, member.image]));
@@ -454,26 +462,30 @@ const InteractiveTeamImage = React.memo(({ disabled = false }) => {
               className="absolute z-30 pointer-events-none"
               style={{
                 ...member.textPosition,
-                maxWidth: '280px',
+                maxWidth: 'clamp(200px, 50vw, 320px)',
               }}
             >
               <div className="text-white">
                 <h3
-                  className="text-2xl font-bold leading-tight mb-2"
+                  className="font-bold leading-tight mb-1"
                   style={{
                     fontFamily: "EB Garamond, serif",
                     textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
+                    fontSize: "clamp(12px, 3vh, 18px)",
+                    lineHeight: "clamp(14px, 3.5vh, 20px)",
                     ...memberAnimationStyles.name,
                   }}
                 >
                   {member.name}
                 </h3>
                 <p
-                  className="text-lg leading-tight"
+                  className="leading-tight"
                   style={{
                     fontFamily: "Inter, sans-serif",
                     fontWeight: "150",
                     textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
+                    fontSize: "clamp(10px, 2.5vh, 14px)",
+                    lineHeight: "clamp(12px, 3vh, 16px)",
                     ...memberAnimationStyles.role,
                   }}
                 >
@@ -1286,9 +1298,7 @@ At BaFT, we build smart, seamless solutions that cut through the clutter of trad
               className="relative rounded-2xl overflow-hidden"
           style={{
                 width: "clamp(280px, 75vw, 380px)",
-                height: isIPhone14Pro
-                  ? "clamp(600px, 100vh, 820px)"
-                  : "clamp(520px, 100vh, 720px)",
+                height: "clamp(400px, 60vh, 800px)",
                 opacity: (easedProgress > 0.08 || forcedAnimT >= 0.8 || isTransitioning || transitionTriggeredRef.current || forcedAnimT > 0 || hasAnimationTriggered || hasAnimationTriggeredRef.current) ? 0 : 1, // Hide original image during animation and permanently after
                 // Debug: Add a visual indicator
                 border: hasAnimationTriggered ? '2px solid red' : 'none',

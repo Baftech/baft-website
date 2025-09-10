@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { BFAST_VIDEO_MP4 } from "../../assets/assets";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -154,7 +155,7 @@ const B_Fast_Mobile = () => {
               width: "1045.386474609375px",
               height: "124px",
               opacity: 1,
-              backgroundImage: "linear-gradient(161.3deg, #9AB5D2 33.59%, #092646 77.13%)",
+              backgroundImage: "linear-gradient(180deg, #B8C9E0 33.59%, #0A2A4A 77.13%)",
               backgroundRepeat: "no-repeat",
               backgroundSize: "100% 100%",
               backgroundPosition: "center",
@@ -228,10 +229,26 @@ const B_Fast_Mobile = () => {
                   transform: "translateX(-50%)"
                 }}
               >
+                {/* Blended ellipse overlay over video */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    width: '351.11px',
+                    height: '604.85px',
+                    left: 'calc(50% - 351.11px/2 - 127.49px)',
+                    top: '254.43px',
+                    background: 'rgba(55, 102, 183, 0.1)',
+                    filter: 'blur(67.271px)',
+                    transform: 'rotate(-90deg)',
+                    borderRadius: '50%',
+                    pointerEvents: 'none',
+                    zIndex: 11
+                  }}
+                />
                 
                 <video
                   ref={videoRef}
-                  src="/bfast_video_mobile.mp4"
+                  src={BFAST_VIDEO_MP4}
                   className="relative z-10"
                   style={{
                     width: "100%",
@@ -241,16 +258,15 @@ const B_Fast_Mobile = () => {
                     opacity: 1,
                     mixBlendMode: "normal",
                     filter: "saturate(1.08) contrast(1.04) brightness(1.02)",
-                    // Feather edges into pure white background without tinting it
-                    WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 62%, rgba(0,0,0,0.75) 78%, rgba(0,0,0,0.35) 90%, rgba(0,0,0,0) 100%)",
-                    maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 62%, rgba(0,0,0,0.75) 78%, rgba(0,0,0,0.35) 90%, rgba(0,0,0,0) 100%)",
+                    WebkitMaskImage: "none",
+                    maskImage: "none",
                     WebkitMaskRepeat: "no-repeat",
                     maskRepeat: "no-repeat",
-                    WebkitMaskSize: "100% 100%",
-                    maskSize: "100% 100%",
-                    WebkitMaskPosition: "50% 50%",
-                    maskPosition: "50% 50%",
-                    transform: "scale(1.02)",
+                    WebkitMaskSize: "auto",
+                    maskSize: "auto",
+                    WebkitMaskPosition: "0 0",
+                    maskPosition: "0 0",
+                    transform: "none",
                     transformOrigin: "center",
                     pointerEvents: "none",
                     border: "none",
@@ -262,11 +278,15 @@ const B_Fast_Mobile = () => {
                   muted
                   playsInline
                   controls={false}
+                  controlsList="nodownload noplaybackrate nofullscreen"
+                  disableRemotePlayback
                   disablePictureInPicture
                   preload="auto"
-                  onError={() => setVideoError(true)}
-                onPlay={() => { videoStartedRef.current = true; }}
-                />
+                  onError={(e) => { console.warn('Mobile video failed to load', e); setVideoError(true); }}
+                  onPlay={() => { videoStartedRef.current = true; }}
+                >
+                  <source src={BFAST_VIDEO_MP4} type="video/mp4" />
+                </video>
               </div>
             )}
           </div>
@@ -279,16 +299,29 @@ const B_Fast_Mobile = () => {
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 0, height: 0 }}>
             {/* Ring 1 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitSlow 24s linear infinite' }}>
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'translateX(140px)' }} />
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(120deg) translateX(140px)' }} />
-              <div style={{ width: '8px', height: '8px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.85, transform: 'rotate(240deg) translateX(140px)' }} />
+              <div style={{ width: '8px', height: '8px', background: '#666', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.6, transform: 'translateX(clamp(180px, 28vw, 360px))' }} />
+              <div style={{ width: '8px', height: '8px', background: '#666', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.6, transform: 'rotate(120deg) translateX(clamp(180px, 28vw, 360px))' }} />
+              <div style={{ width: '8px', height: '8px', background: '#666', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.6, transform: 'rotate(240deg) translateX(clamp(180px, 28vw, 360px))' }} />
             </div>
             {/* Ring 2 */}
             <div style={{ position: 'absolute', left: '-1px', top: '-1px', width: '2px', height: '2px', transformOrigin: '1px 1px', animation: 'orbitMed 18s linear infinite reverse' }}>
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'translateX(190px)' }} />
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(90deg) translateX(190px)' }} />
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(180deg) translateX(190px)' }} />
-              <div style={{ width: '6px', height: '6px', background: '#000', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.9, transform: 'rotate(270deg) translateX(190px)' }} />
+              <div style={{ width: '6px', height: '6px', background: '#666', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.65, transform: 'translateX(clamp(260px, 36vw, 520px))' }} />
+              <div style={{ width: '6px', height: '6px', background: '#666', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.65, transform: 'rotate(90deg) translateX(clamp(260px, 36vw, 520px))' }} />
+              <div style={{ width: '6px', height: '6px', background: '#666', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.65, transform: 'rotate(180deg) translateX(clamp(260px, 36vw, 520px))' }} />
+              <div style={{ width: '6px', height: '6px', background: '#666', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.65, transform: 'rotate(270deg) translateX(clamp(260px, 36vw, 520px))' }} />
+            </div>
+            {/* Scattered stars across the viewport */}
+            <div style={{ position: 'absolute', inset: 0 }}>
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '8%', top: '12%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.5 }} />
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '22%', top: '38%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.55 }} />
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '36%', top: '18%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.5 }} />
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '52%', top: '30%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.6 }} />
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '68%', top: '10%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.45 }} />
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '78%', top: '42%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.55 }} />
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '12%', top: '72%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.5 }} />
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '32%', top: '82%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.6 }} />
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '58%', top: '74%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.5 }} />
+              <div style={{ position: 'absolute', width: '6px', height: '6px', left: '84%', top: '66%', background: '#777', clipPath: 'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)', opacity: 0.45 }} />
             </div>
           </div>
         </div>

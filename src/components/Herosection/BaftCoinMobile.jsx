@@ -3,6 +3,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 // import { GridBackground } from "../Themes/Grid_coins";
 import { B_COIN_IMAGE_PNG } from "../../assets/assets";
+import "./BaftCoinMobile.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -209,7 +210,7 @@ const BaftCoinMobile = () => {
   return (
     <section
       ref={introRef}
-      className="relative w-full h-screen flex flex-col items-center justify-center bg-black text-center overflow-hidden px-4"
+      className="baft-coin-mobile relative w-full h-screen flex flex-col items-center justify-center bg-black text-center overflow-hidden px-4"
     >
       {/* Background grid removed for production */}
       
@@ -226,12 +227,14 @@ const BaftCoinMobile = () => {
       {/* Mobile-optimized Text Layout */}
       <div className="z-10 relative z-20 mb-6">
         <h2
-          className="intro-text text-white eb-garamond-intro text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl leading-tight font-normal mb-8 opacity-0"
+          className="intro-text text-white eb-garamond-intro leading-tight font-normal mb-14 opacity-0"
+          style={{ fontSize: 'clamp(56px, 11vw, 120px)', lineHeight: '1.05' }}
         >
           Introducing
         </h2>
         <h1
-          className="coin-text eb-garamond-intro font-medium leading-tight text-7xl sm:text-8xl md:text-9xl lg:text-[120px] xl:text-[140px] text-transparent bg-clip-text bg-[linear-gradient(197.98deg,#999999_12.89%,#3D3D3D_73.42%)] [--tw-text-stroke:1px_rgba(255,255,255,0.5)] [webkit-text-stroke:var(--tw-text-stroke)] [text-stroke:var(--tw-text-stroke)] opacity-0"
+          className="coin-text eb-garamond-intro font-medium leading-tight text-transparent bg-clip-text bg-[linear-gradient(180deg,#999999_30.89%,#3D3D3D_63.42%)] [--tw-text-stroke:1px_rgba(255,255,255,0.5)] [webkit-text-stroke:var(--tw-text-stroke)] [text-stroke:var(--tw-text-stroke)] opacity-0"
+          style={{ fontSize: 'clamp(88px, 14.5vw, 220px)', lineHeight: '1.02' }}
         >
           BaFT Coin
         </h1>

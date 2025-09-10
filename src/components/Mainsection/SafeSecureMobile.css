@@ -1,0 +1,383 @@
+/* ===========================
+   Container
+=========================== */
+.safe-secure-container {
+    width: 95%;              /* take up more horizontal space */
+    max-width: 1600px;       /* allow very wide stretch */
+    margin: 0 auto;          /* keep it centered */
+    padding: clamp(60px, 6vw, 100px);
+    background: #000;
+    border-radius: 37px;
+    /* Ultra smooth scrolling - Safari optimized */
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    /* Hardware acceleration for smoother performance */
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    /* Additional Safari optimizations */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
+  }
+  
+  
+  
+  /* ===========================
+     Layout
+  =========================== */
+  .safe-secure-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: clamp(20px, 5vw, 60px);
+    flex-wrap: wrap;
+    /* Smooth transitions for layout changes - Safari optimized */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -webkit-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* Safari hardware acceleration */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
+  /* ===========================
+     Text
+  =========================== */
+  .safe-secure-text {
+    flex: 1 1 320px;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    /* Smooth text transitions - Safari optimized */
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* Safari text rendering optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-stroke: 0.01em transparent;
+  }
+  
+  .safe-secure-title {
+    font-family: 'EB Garamond', serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 6vw, 4rem);
+    line-height: 1.2;
+    color: #fff;
+    margin: 0;
+    margin-top: clamp(0.1rem, 0.2vh, 0.3rem); /* Very minimal responsive gap from navbar */
+    margin-bottom: clamp(1rem, 3vh, 2rem); /* Gap to paragraph */
+    /* Smooth text rendering and transitions */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .safe-secure-description {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;             /* Regular weight */
+    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+    line-height: 1.6;
+    color: #aaa;                  /* light gray like the reference */
+    margin: 0;
+    /* Smooth text rendering and transitions */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  /* ===========================
+     Logo
+  =========================== */
+  .safe-secure-logo {
+    flex: 0 0 auto;
+    width: min(50vw, 220px);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1.5rem auto 0;
+    position: relative;
+    /* Ultra smooth logo transitions */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  .security-logo-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 50%;
+    overflow: hidden;
+    /* prevent pseudo-element from affecting outside stacking */
+    /* isolation: isolate; */
+  }
+  
+  
+  /* Enhanced metallic rim effect with smooth transitions */
+  
+  /* metallic dotted rim effect */
+  
+  /* SVG inside */
+  .security-logo-svg {
+    width: 160%;
+    height: 160%;
+    display: block;
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+    /* Ultra smooth SVG transitions */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  /* ===========================
+     Diagonal Sweep (only inside logo)
+  =========================== */
+  .security-logo-wrapper::before {
+    content: '';
+    position: absolute;
+    left: -5%;
+    right: -5%;
+    top: -50%;
+    bottom: -50%;
+    width: 110%;
+    height: 200%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 35%, #FFFFFF 50%, rgba(255, 255, 255, 0) 65%);
+    filter: blur(8px);
+    transform: rotate(45deg);
+    animation: diagonalSweep 4s linear infinite;
+    z-index: 2;
+    pointer-events: none;
+    will-change: transform;
+    -webkit-mix-blend-mode: screen;
+    mix-blend-mode: screen;
+  }
+  
+  
+  
+  @keyframes diagonalSweep {
+    0%   { 
+      transform: translate(-160%, -160%) rotate(45deg);
+      opacity: 1;
+    }
+    100% { 
+      transform: translate(160%, 160%) rotate(45deg);
+      opacity: 1;
+    }
+  }
+  
+  /* ===========================
+     Responsive
+  =========================== */
+  @media (max-width: 992px) {
+    .safe-secure-content {
+      flex-direction: column;
+      text-align: center;
+      gap: 1.2rem;          /* tighter spacing */
+      /* Smooth responsive transitions */
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .safe-secure-logo {
+      margin-top: 1rem;     /* reduce gap below text */
+      /* Smooth responsive logo adjustments */
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .safe-secure-container {
+      padding: 20px;
+      border-radius: 1rem;
+      /* Maintain smooth behavior on mobile */
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .safe-secure-title {
+      font-size: 1.6rem;
+    }
+    .safe-secure-logo {
+      width: min(60vw, 180px);  /* wrapper unchanged on mobile */
+      /* Smooth mobile logo transitions */
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+  }
+
+  /* ===========================
+     Responsive Gap Classes for Mobile
+  =========================== */
+  
+  /* Extra small phones (320px and below) */
+  @media (max-width: 320px) {
+    .safe-secure-container {
+      gap: clamp(1rem, 3vh, 1.5rem);
+    }
+    .safe-secure-text {
+      gap: clamp(0.8rem, 2vh, 1rem);
+    }
+    .safe-secure-logo {
+      margin-top: clamp(0.8rem, 2vh, 1rem);
+    }
+    .safe-secure-title {
+      margin-top: clamp(0.1rem, 0.2vh, 0.2rem); /* Ultra tight gap on small screens */
+      margin-bottom: clamp(0.8rem, 2.5vh, 1.2rem); /* Smaller gap to paragraph */
+    }
+  }
+
+  /* Small phones (321px to 375px) */
+  @media (min-width: 321px) and (max-width: 375px) {
+    .safe-secure-container {
+      gap: clamp(1.2rem, 3.5vh, 1.8rem);
+    }
+    .safe-secure-text {
+      gap: clamp(1rem, 2.5vh, 1.2rem);
+    }
+    .safe-secure-logo {
+      margin-top: clamp(1rem, 2.5vh, 1.2rem);
+    }
+    .safe-secure-title {
+      margin-top: clamp(0.1rem, 0.2vh, 0.25rem); /* Ultra tight gap on small-medium screens */
+      margin-bottom: clamp(1rem, 3vh, 1.5rem); /* Medium gap to paragraph */
+    }
+  }
+
+  /* Medium phones (376px to 414px) */
+  @media (min-width: 376px) and (max-width: 414px) {
+    .safe-secure-container {
+      gap: clamp(1.5rem, 4vh, 2rem);
+    }
+    .safe-secure-text {
+      gap: clamp(1.2rem, 3vh, 1.5rem);
+    }
+    .safe-secure-logo {
+      margin-top: clamp(1.2rem, 3vh, 1.5rem);
+    }
+    .safe-secure-title {
+      margin-top: clamp(0.1rem, 0.2vh, 0.3rem); /* Ultra tight gap on medium screens */
+      margin-bottom: clamp(1.2rem, 3.5vh, 1.8rem); /* Good gap to paragraph */
+    }
+  }
+
+  /* Large phones (415px to 480px) */
+  @media (min-width: 415px) and (max-width: 480px) {
+    .safe-secure-container {
+      gap: clamp(1.8rem, 4.5vh, 2.2rem);
+    }
+    .safe-secure-text {
+      gap: clamp(1.4rem, 3.5vh, 1.8rem);
+    }
+    .safe-secure-logo {
+      margin-top: clamp(1.4rem, 3.5vh, 1.8rem);
+    }
+    .safe-secure-title {
+      margin-top: clamp(0.1rem, 0.2vh, 0.35rem); /* Ultra tight gap on large screens */
+      margin-bottom: clamp(1.4rem, 4vh, 2rem); /* Larger gap to paragraph */
+    }
+  }
+
+  /* Extra large phones (481px to 600px) */
+  @media (min-width: 481px) and (max-width: 600px) {
+    .safe-secure-container {
+      gap: clamp(2rem, 5vh, 2.5rem);
+    }
+    .safe-secure-text {
+      gap: clamp(1.6rem, 4vh, 2rem);
+    }
+    .safe-secure-logo {
+      margin-top: clamp(1.6rem, 4vh, 2rem);
+    }
+    .safe-secure-title {
+      margin-top: clamp(0.1rem, 0.2vh, 0.4rem); /* Ultra tight gap on extra large screens */
+      margin-bottom: clamp(1.6rem, 4.5vh, 2.2rem); /* Largest gap to paragraph */
+    }
+  }
+  
+  /* ===========================
+     Global Smooth Scrolling Utilities
+  =========================== */
+  
+  /* Buttery smooth scroll class for enhanced scrolling */
+  .buttery-smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    /* Enhanced momentum scrolling on iOS */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    /* Optimized scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+  
+  .buttery-smooth-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .buttery-smooth-scroll::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+  }
+  
+  .buttery-smooth-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -webkit-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .buttery-smooth-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  
+  /* Ultra smooth hover effects for interactive elements */
+  /* Hover effects removed per request */
+  
+  /* Enhanced animation timing for ultra smooth feel - removed duplicates */
+  
+  /* Hide diagonal sweep effect when logo is in bulge state (hovered) */
+  .security-logo-wrapper:hover::before,
+  .security-logo-wrapper.hovering::before {
+    opacity: 0 !important;
+    animation-play-state: paused !important;
+    visibility: hidden !important;
+  }
+  
+  /* Hide any diagonal sweep effects on main containers when logo is in bulge state */
+  .security-logo-wrapper:hover ~ *::before,
+  .security-logo-wrapper:hover ~ *::after,
+  .safe-secure-container:hover::before,
+  .safe-secure-container:hover::after,
+  .safe-secure-content:hover::before,
+  .safe-secure-content:hover::after {
+    opacity: 0;
+    animation-play-state: paused;
+  }
+  
+  /* Image container styles */
+  .image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+  }
