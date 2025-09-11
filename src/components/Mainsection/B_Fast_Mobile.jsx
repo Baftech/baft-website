@@ -27,6 +27,20 @@ const B_Fast_Mobile = () => {
   const [scaleFactor, setScaleFactor] = useState(1);
   // Safari viewport handling
   const [viewportInfo, setViewportInfo] = useState(null);
+  
+  // Responsive vertical gap between heading container and video
+  const responsiveGapPx = Math.round(60 * scaleFactor);
+  // On Safari, use viewportInfo width if available to keep spacing consistent
+  const effectiveGapPx = (() => {
+    if (isSafari) {
+      const BASE_WIDTH = 390;
+      const width = (viewportInfo && viewportInfo.viewportWidth) ? viewportInfo.viewportWidth : Math.max(window.innerWidth || BASE_WIDTH, 320);
+      const computed = width / BASE_WIDTH;
+      const clamped = Math.max(0.62, Math.min(computed, 1.35));
+      return Math.round(60 * clamped);
+    }
+    return responsiveGapPx;
+  })();
 
   useEffect(() => {
     const onResize = () => {
@@ -161,7 +175,7 @@ const B_Fast_Mobile = () => {
           ref={contentRef}
           className="absolute"
           style={{
-            top: navbarSafeSpacing,
+            top: `calc(${navbarSafeSpacing} - 16px)`,
             left: "50%",
             width: "1045.386px",
             height: "148.822px",
@@ -237,7 +251,8 @@ const B_Fast_Mobile = () => {
           alignItems: "center",
           justifyContent: "center",
           overflow: "hidden",
-          marginTop: "60px",
+          // Gap scales with viewport via scaleFactor; Safari uses stable viewport width
+          marginTop: `${effectiveGapPx}px`,
           borderRadius: "0px",
           // Add gradient mask for video blending - even stronger effect
           maskImage: "linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%)",
@@ -262,8 +277,7 @@ const B_Fast_Mobile = () => {
                   height: "397.00933837890625px",
                   position: "relative",
                   top: "3cm",
-                  left: "50%",
-                  transform: "translateX(-50%)"
+                  margin: "0 auto"
                 }}
               >
                 {/* Blended ellipse overlay over video */}

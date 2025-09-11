@@ -175,9 +175,9 @@ const BInstantMobile = () => {
       <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 30, pointerEvents: "none" }}>
         <motion.div
           className="flex flex-col items-start leading-tight text-center"
-          initial={{ y: 120, opacity: 0 }}
-          animate={{ y: -50, opacity: 1 }}
-          transition={{ duration: 3.8, ease: [0.25, 0.1, 0.25, 1] }}
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 1.4, ease: [0.25, 0.1, 0.25, 1] }}
           style={{ 
             marginTop: "clamp(2rem, 8vh, 6rem)",
             width: "100%",
@@ -241,21 +241,23 @@ const BInstantMobile = () => {
               SHARED
             </motion.span>
           </div>
-          <motion.span
-            className="self-end text-amber-50 italic bc-instantly"
-            style={{
-              fontWeight: 200,
-              fontSize: "clamp(26px, 7.5vw, 48px)",
-              textShadow: "0 0 25px rgba(255,215,0,0.6)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1
-            }}
-            initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
-            animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
-            transition={{ duration: 2.0, ease: [0.2, 0.8, 0.2, 1] }}
-          >
-            Instantly
-          </motion.span>
+          <div className="w-full text-right" style={{ marginTop: "4px", transform: "translateX(-0.5cm)" }}>
+            <motion.span
+              className="text-amber-50 italic bc-instantly"
+              style={{
+                fontWeight: 200,
+                fontSize: "clamp(26px, 7.5vw, 48px)",
+                textShadow: "0 0 25px rgba(255,215,0,0.6)",
+                letterSpacing: "-0.01em",
+                lineHeight: 1
+              }}
+              initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
+              animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
+              transition={{ duration: 2.0, ease: [0.2, 0.8, 0.2, 1] }}
+            >
+              Instantly
+            </motion.span>
+          </div>
         </motion.div>
       </div>
     </div>
