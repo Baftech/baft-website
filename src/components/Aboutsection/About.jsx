@@ -297,6 +297,7 @@ const ReadMoreText = ({ content, maxLength = 320, onExpandChange, compact = fals
     }}>
       <div
         ref={contentRef}
+        className="no-scrollbar"
         style={{
           height: `${Math.max(collapsedHeight, 280)}px`, // Ensure minimum height
           // When expanded, cap to available height so it grows until the visual baseline
@@ -1330,7 +1331,7 @@ const AboutBaft = () => {
           >
             {/* Static grid: text left, measuring placeholder right */}
             <div
-              className="w-full h-full"
+              className="w-full h-full no-scrollbar"
               style={{
                 marginTop: dynamicGaps.marginTop,
                 // Enable internal vertical scrolling on compact desktop viewports

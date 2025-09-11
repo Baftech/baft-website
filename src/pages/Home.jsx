@@ -12,26 +12,33 @@ import Pre_footer from "../components/Footer/Pre_footer";
 import Footer from "../components/Footer/Footer";
 import AboutBaft from "../components/Aboutsection/About";
 import CombinedFooter from "../components/Footer/CombinedFooter";
+import { preloadLinkHints } from "../assets/preloader";
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    // Preload Features slide assets to avoid delay when entering slide 5
-    const sources = [
+    // Add early preload hints for above-the-fold hero and features assets
+    const remove = preloadLinkHints([
+      "/logo.png",
       "/baft_card1.svg",
       "/baft_card2.svg",
       "/baft_card3.svg",
       "/baft_card4.svg",
-    ];
-    const imgs = sources.map((src) => {
-      const img = new Image();
-      img.decoding = "async";
-      img.src = src;
-      return img;
-    });
-    return () => { imgs.forEach((img) => (img.src = "")); };
+    ]);
+    return () => { try { remove(); } catch {} };
   }, []);
+
+  // Preload manifest per slide (indices must match SlideContainer children order)
+  const preloadManifestBySlide = {
+    0: { images: ["/logo.png", "/headline.png"] },
+    1: { images: ["/b-coin.svg", "/b-coin-1.svg", "/b-coin-2.svg", "/b-coin-3.svg"] },
+    2: { videos: ["/bfast_video.mp4", "/bfast_video_mobile.mp4"] },
+    3: { images: ["/manage-account.svg", "/pay-bills.svg", "/seamless-payments.svg"] },
+    4: { images: ["/baft_card1.svg", "/baft_card2.svg", "/baft_card3.svg", "/baft_card4.svg"] },
+    5: { images: ["/safe_sec.svg"] },
+    6: { images: ["/aboutus.svg"] },
+  };
 
   const handleSlideChange = (slideIndex) => {
     setCurrentSlide(slideIndex);
@@ -74,7 +81,7 @@ const Home = () => {
       />
 
       {/* PowerPoint-style slide system - now with 9 slides */}
-      <SlideContainer currentSlide={currentSlide} onSlideChange={handleSlideChange}>
+      <SlideContainer currentSlide={currentSlide} onSlideChange={handleSlideChange} preloadManifestBySlide={preloadManifestBySlide}>
         {/* Slide 1: Hero Section */}
         <HeroSlide />
         {/* Slide 2: BaFT Coin Section */}

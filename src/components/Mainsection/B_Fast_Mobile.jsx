@@ -46,13 +46,62 @@ const B_Fast_Mobile = () => {
   const headingFontSizePx = (() => {
     const BASE_WIDTH = 390;
     const baseFontPx = 95; // original design size
+    const vw = (isSafari && viewportInfo && viewportInfo.viewportWidth)
+      ? viewportInfo.viewportWidth
+      : (typeof window !== 'undefined' ? window.innerWidth : BASE_WIDTH);
+    const vh = (isSafari && viewportInfo && viewportInfo.viewportHeight)
+      ? viewportInfo.viewportHeight
+      : (typeof window !== 'undefined' ? window.innerHeight : 844);
+    const isPortrait = vh >= vw;
+    const isTabletPortrait = isPortrait && vw >= 744 && vw <= 1024;
     let effectiveScale = scaleFactor;
     if (isSafari && viewportInfo && viewportInfo.viewportWidth) {
       const computed = viewportInfo.viewportWidth / BASE_WIDTH;
       effectiveScale = Math.max(0.62, Math.min(computed, 1.35));
     }
     const sized = Math.round(baseFontPx * effectiveScale);
+    if (isTabletPortrait) {
+      const boosted = Math.round(sized * 1.25);
+      return Math.max(80, Math.min(boosted, 180));
+    }
     return Math.max(52, Math.min(sized, 120));
+  })();
+
+  // Responsive subheading font size
+  const subheadingFontSizePx = (() => {
+    const BASE_WIDTH = 390;
+    const baseFontPx = 20.33;
+    const vw = (isSafari && viewportInfo && viewportInfo.viewportWidth)
+      ? viewportInfo.viewportWidth
+      : (typeof window !== 'undefined' ? window.innerWidth : BASE_WIDTH);
+    const vh = (isSafari && viewportInfo && viewportInfo.viewportHeight)
+      ? viewportInfo.viewportHeight
+      : (typeof window !== 'undefined' ? window.innerHeight : 844);
+    const isPortrait = vh >= vw;
+    const isTabletPortrait = isPortrait && vw >= 744 && vw <= 1024;
+    let effectiveScale = scaleFactor;
+    if (isSafari && viewportInfo && viewportInfo.viewportWidth) {
+      const computed = viewportInfo.viewportWidth / BASE_WIDTH;
+      effectiveScale = Math.max(0.62, Math.min(computed, 1.35));
+    }
+    let sized = baseFontPx * effectiveScale;
+    if (isTabletPortrait) {
+      sized *= 1.15;
+      return Math.max(14, Math.min(Math.round(sized), 28));
+    }
+    return Math.max(12, Math.min(Math.round(sized), 24));
+  })();
+
+  // Keep video centered and only scale DOWN on smaller screens
+  const videoScale = (() => {
+    const BASE_WIDTH = 390;
+    let effectiveScale = scaleFactor;
+    if (isSafari && viewportInfo && viewportInfo.viewportWidth) {
+      const computed = viewportInfo.viewportWidth / BASE_WIDTH;
+      effectiveScale = Math.max(0.62, Math.min(computed, 1.35));
+    }
+    // Never upscale beyond design size; only scale down for smaller screens
+    return Math.min(1, effectiveScale);
   })();
 
   useEffect(() => {
@@ -241,7 +290,7 @@ const B_Fast_Mobile = () => {
               fontFamily: "Inter, sans-serif",
               fontWeight: 500,
               fontStyle: "normal",
-              fontSize: "20.33px",
+              fontSize: `${subheadingFontSizePx}px`,
               lineHeight: "100%",
               letterSpacing: "0%",
               textAlign: "center",
@@ -290,7 +339,10 @@ const B_Fast_Mobile = () => {
                   height: "397.00933837890625px",
                   position: "relative",
                   top: "3cm",
-                  margin: "0 auto"
+                  margin: "0 auto",
+                  transform: `scale(${videoScale})`,
+                  transformOrigin: "center center",
+                  willChange: "transform"
                 }}
               >
                 {/* Blended ellipse overlay over video */}

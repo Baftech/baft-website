@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { preloadAssets, buildPreloadManifestForSlide } from "../../assets/preloader";
 import "./SlideContainer.css";
 
-const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
+const SlideContainer = ({ children, currentSlide, onSlideChange, preloadManifestBySlide }) => {
   const [slideIndex, setSlideIndex] = useState(0);
   const [previousSlideIndex, setPreviousSlideIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -63,6 +64,21 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
       window.removeEventListener('resize', checkScrollPermissions);
     };
   }, [slideIndex]);
+
+  // Preload assets for current, next and previous slides when index changes
+  useEffect(() => {
+    if (!preloadManifestBySlide) return;
+    const current = buildPreloadManifestForSlide(slideIndex, preloadManifestBySlide);
+    const next = buildPreloadManifestForSlide(slideIndex + 1, preloadManifestBySlide);
+    const prev = buildPreloadManifestForSlide(slideIndex - 1, preloadManifestBySlide);
+    const cancelers = [];
+    try { cancelers.push(preloadAssets(current)); } catch {}
+    try { cancelers.push(preloadAssets(next)); } catch {}
+    try { cancelers.push(preloadAssets(prev)); } catch {}
+    return () => {
+      cancelers.forEach((c) => { try { c && c(); } catch {} });
+    };
+  }, [slideIndex, preloadManifestBySlide]);
 
   const handleSlideChange = useCallback((newIndex) => {
     if (newIndex >= 0 && newIndex < totalSlides && !isTransitioning) {

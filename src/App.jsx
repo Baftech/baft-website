@@ -1,10 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import  Home  from "./pages/Home";
 import { NotFound } from "./pages/NotFound";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import safariViewportHandler from "./safari-viewport-handler";
+import Preloader from "./components/Preloader";
 
 function App() {
+  const [isAppLoaded, setIsAppLoaded] = useState(false);
+
   // Safari-specific fixes
   useEffect(() => {
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -24,14 +27,42 @@ function App() {
     }
   }, []);
 
+  // Preloader: wait until all assets have loaded
+  useEffect(() => {
+    const handleLoad = () => {
+      // Give a short delay for nicer fade-out
+      setTimeout(() => setIsAppLoaded(true), 150);
+    };
+    if (document.readyState === 'complete') {
+      handleLoad();
+    } else {
+      window.addEventListener('load', handleLoad);
+    }
+    // Prevent scroll while loading
+    if (!isAppLoaded) {
+      document.documentElement.style.overflow = 'hidden';
+    }
+    return () => {
+      window.removeEventListener('load', handleLoad);
+      document.documentElement.style.overflow = '';
+    };
+  }, [isAppLoaded]);
+
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route index element={<Home />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      {!isAppLoaded && (
+        <div className={`preloader-wrapper ${isAppLoaded ? 'preloader-hidden' : ''}`}>
+          <Preloader />
+        </div>
+      )}
+      <div aria-hidden={!isAppLoaded} style={{ visibility: isAppLoaded ? 'visible' : 'hidden' }}>
+        <BrowserRouter>
+          <Routes>
+            <Route index element={<Home />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
     </>
   );
 }

@@ -34,6 +34,17 @@
   }
 }
 
+/* Hide native scrollbars but keep scroll functionality */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  display: none; /* Chrome, Safari, Opera */
+}
+
 @media (min-width: 1280px) {
   .about-paragraph {
     font-size: 1.125rem;
