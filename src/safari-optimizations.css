@@ -1,8 +1,8 @@
 /* Safari-Specific Optimizations for Mobile Components */
 
-/* Global Safari optimizations */
-* {
-  /* Force hardware acceleration for all elements */
+/* Global Safari optimizations - avoid forcing transforms on all elements */
+/* Use an opt-in helper instead of global enforcement to prevent layout bugs */
+.webkit-gpu {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-backface-visibility: hidden;
@@ -48,8 +48,6 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 /* Safari animation optimizations */
 .animate, [class*="animate-"], [class*="transition-"] {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   will-change: transform, opacity;
@@ -59,24 +57,11 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .scroll-container, .overflow-auto, .overflow-scroll {
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
 }
 
-/* Safari flexbox optimizations */
-.flex, [class*="flex-"] {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
-/* Safari grid optimizations */
-.grid, [class*="grid-"] {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+/* Remove layout-affecting transforms on common layout primitives */
+.flex, [class*="flex-"], .grid, [class*="grid-"] {
+  /* No forced transforms; prevents fixed/sticky glitches in Safari */
 }
 
 /* Safari transform optimizations */
@@ -105,86 +90,47 @@ canvas {
 
 /* Safari mobile-specific optimizations */
 @media (max-width: 768px) {
-  /* Force hardware acceleration on mobile Safari */
-  * {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-  
   /* Optimize touch interactions */
   button, a, [role="button"] {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
     -webkit-touch-callout: none;
   }
-  
   /* Optimize scrolling on mobile Safari */
   body {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-  
   /* Enhanced viewport handling for Safari's dynamic tab bar */
   html {
-    /* Use dynamic viewport units that account for Safari's tab bar */
-    height: 100vh;
-    height: 100dvh; /* Dynamic viewport height - accounts for tab bar changes */
-  }
-  
-  body {
-    height: 100vh;
+    height: 100svh;
     height: 100dvh;
-    /* Ensure smooth transitions when tab bar appears/disappears */
-    transition: height 0.3s ease-out;
   }
-  
-  /* Full-screen containers that adapt to tab bar changes */
-  .full-screen, .slide-container, .h-screen {
-    height: 100vh;
+  body, .full-screen, .slide-container, .h-screen {
+    height: 100svh;
     height: 100dvh;
-    min-height: 100vh;
+    min-height: 100svh;
     min-height: 100dvh;
-    /* Smooth transition when tab bar changes */
-    transition: height 0.3s ease-out;
+    transition: height 0.2s ease-out;
   }
-  
   /* Safe area handling for when tab bar is hidden */
-  .safe-area-top {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-  
-  .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  
+  .safe-area-top { padding-top: env(safe-area-inset-top, 0px); }
+  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
   /* Dynamic height calculation for content that needs to fill viewport */
   .dynamic-height {
-    height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   }
 }
 
-/* Safari iOS specific optimizations */
+/* iOS specific optimizations */
 @supports (-webkit-touch-callout: none) {
-  /* iOS Safari specific styles */
-  * {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-  
-  /* Fix iOS Safari viewport issues */
-  html {
-    -webkit-text-size-adjust: 100%;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  /* Optimize iOS Safari animations */
   .animate, [class*="animate-"] {
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
   }
 }
 
-/* Safari performance optimizations */
+/* Opt-in GPU accel helper */
 .gpu-accelerated {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -193,82 +139,7 @@ canvas {
   will-change: transform, opacity;
 }
 
-/* Safari text selection optimizations */
-.selectable {
-  -webkit-user-select: text;
-  user-select: text;
-}
-
-/* Safari focus optimizations */
-button:focus, a:focus, input:focus, textarea:focus {
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-  outline: none;
-}
-
-/* Safari video container optimizations */
-.video-container {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  overflow: hidden;
-}
-
-/* Safari animation container optimizations */
-.animation-container {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  will-change: transform, opacity;
-  -webkit-perspective: 1000px;
-  perspective: 1000px;
-}
-
-/* Safari scroll snap optimizations */
-.scroll-snap {
-  scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-}
-
-.scroll-snap-item {
-  scroll-snap-align: start;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-}
-
-/* Safari sticky positioning optimizations */
-.sticky {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  will-change: transform;
-}
-
-/* Safari fixed positioning optimizations */
-.fixed {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  will-change: transform;
-}
-
-/* Safari absolute positioning optimizations */
-.absolute {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
-/* Safari relative positioning optimizations */
-.relative {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+/* Positioning helpers: avoid forcing transforms */
+.sticky, .fixed, .absolute, .relative {
+  /* Do not force transforms; prevents Safari from breaking stacking/positioning */
 }

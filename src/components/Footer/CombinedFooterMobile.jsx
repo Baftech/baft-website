@@ -51,57 +51,62 @@ const SignupFormMobile = ({ onOpenThanks }) => {
 
   return (
          <section
-       className="relative text-white mx-auto overflow-visible px-4 sm:px-6 flex"
+       className="relative text-white mx-auto overflow-hidden px-2 sm:px-3 md:px-4 lg:px-6 flex"
        style={{
-         width: 'clamp(327px, 85vw, 500px)',
-         height: 'clamp(160px, 40vh, 220px)',
-         borderRadius: "20px",
+         width: 'clamp(280px, 95vw, 500px)',
+         height: 'clamp(180px, 45vh, 240px)',
+         minHeight: 'clamp(180px, 45vh, 240px)',
+         borderRadius: "clamp(15px, 4vw, 20px)",
          background: "linear-gradient(92.61deg, #092646 3.49%, #3766B7 98.57%)",
          opacity: 1,
-         top: '16px',
+         top: 'clamp(8px, 2vh, 16px)',
          margin: '0 auto',
          border: '1px solid rgba(255, 255, 255, 0.1)',
-         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+         // Prevent content from spilling when keyboard opens
+         flexShrink: 0,
+         flexGrow: 0
        }}
      >
-       <div className="py-4 sm:py-6 lg:py-8 relative z-20 px-3 sm:px-4 lg:px-6 w-3/5">
-        <div className="flex flex-col items-start text-left gap-3 sm:gap-4 lg:gap-6">
+       <div className="py-1.5 sm:py-2 md:py-3 lg:py-4 relative z-20 px-1.5 sm:px-2 md:px-3 lg:px-4 w-3/4 h-full overflow-auto" style={{ paddingBottom: 'clamp(8px, 2vh, 16px)' }}>
+        <div className="flex flex-col items-start text-left gap-1 sm:gap-1.5 md:gap-2 lg:gap-3 h-full justify-between">
           <h2
-            className="mb-3 sm:mb-4 lg:mb-6"
+            className="mb-1 sm:mb-1.5 lg:mb-2"
             style={{
-              width: 'clamp(54px, 15vw, 80px)',
-              height: 'clamp(19px, 5vw, 28px)',
+              width: 'clamp(70px, 20vw, 100px)',
+              height: 'clamp(26px, 7vw, 36px)',
               fontFamily: "EB Garamond",
               fontWeight: 700,
               fontStyle: "Bold",
-              fontSize: "clamp(16px, 4.5vw, 24px)",
+              fontSize: "clamp(22px, 6vw, 32px)",
               lineHeight: "100%",
               letterSpacing: "-1%",
               color: "#FFFFFF",
               opacity: 1,
               transform: "rotate(0deg)",
               margin: "0",
-              whiteSpace: "nowrap",
-              overflow: "hidden"
+              whiteSpace: "nowrap"
             }}
           >
             Sign Up
           </h2>
           <p
-            className="mb-3 sm:mb-4 lg:mb-6"
+            className="mb-1 sm:mb-1.5 lg:mb-2"
             style={{
-              width: 'clamp(195px, 50vw, 280px)',
-              height: 'clamp(42px, 10vw, 60px)',
+              width: '100%',
+              maxWidth: 'clamp(200px, 55vw, 300px)',
               fontFamily: "Inter",
               fontWeight: 400,
               fontStyle: "Regular",
-              fontSize: "clamp(12px, 3vw, 16px)",
-              lineHeight: "120%",
+              fontSize: "clamp(11px, 2.8vw, 14px)",
+              lineHeight: "130%",
               letterSpacing: "-1%",
               color: "#FFFFFFC4",
               opacity: 1,
               transform: "rotate(0deg)",
-              margin: "0"
+              margin: "0",
+              wordWrap: "break-word",
+              overflowWrap: "break-word"
             }}
           >
             Get early access, updates, and exclusive perks. Enter your email below – no spam, we promise.
@@ -109,7 +114,7 @@ const SignupFormMobile = ({ onOpenThanks }) => {
 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col items-start gap-3 sm:gap-4 lg:gap-5 w-full"
+            className="flex flex-col items-start gap-1.5 sm:gap-2 lg:gap-3 w-full mt-1 sm:mt-1.5 lg:mt-2"
           >
             <input
               type="email"
@@ -124,8 +129,9 @@ const SignupFormMobile = ({ onOpenThanks }) => {
                 alignItems: 'center',
                 padding: 'clamp(2px, 0.8vw, 3px) clamp(15px, 4vw, 20px)',
                 gap: 'clamp(4px, 1.2vw, 6px)',
-                width: 'clamp(200px, 50vw, 350px)',
-                height: 'clamp(36px, 9vw, 50px)',
+                width: '100%',
+                maxWidth: 'clamp(200px, 55vw, 350px)',
+                height: 'clamp(28px, 7vw, 38px)',
                 background: 'rgba(247, 247, 247, 0.18)',
                 backdropFilter: 'blur(7.4622px)',
                 borderRadius: 'clamp(10px, 3vw, 15px)',
@@ -133,10 +139,13 @@ const SignupFormMobile = ({ onOpenThanks }) => {
                 color: '#FFFFFF'
               }}
             />
-            {errMsg && (
-              <span className="text-red-500 text-sm">{errMsg}</span>
-            )}
-                        <button
+            <span
+              className="text-red-500 text-xs"
+              style={{ minHeight: '16px', lineHeight: '16px', visibility: errMsg ? 'visible' : 'hidden' }}
+            >
+              {errMsg || 'placeholder'}
+            </span>
+            <button
               type="submit"
               disabled={loading || !isEmailValid}
               className={`font-medium transition ${
@@ -146,9 +155,9 @@ const SignupFormMobile = ({ onOpenThanks }) => {
               }`}
               style={{
                 width: 'clamp(80px, 20vw, 120px)',
-                height: 'clamp(28px, 7vw, 36px)',
-                minHeight: 'clamp(28px, 7vw, 36px)',
-                maxHeight: 'clamp(28px, 7vw, 36px)',
+                height: 'clamp(24px, 6vw, 30px)',
+                minHeight: 'clamp(24px, 6vw, 30px)',
+                maxHeight: 'clamp(24px, 6vw, 30px)',
                 justifyContent: 'center',
                 opacity: email.trim() ? 1 : 0.5,
                 top: '15px',
@@ -157,6 +166,7 @@ const SignupFormMobile = ({ onOpenThanks }) => {
                 borderStyle: 'solid',
                 padding: '0',
                 margin: '0',
+                marginBottom: 'clamp(8px, 2vh, 16px)',
                 lineHeight: '1',
                 color: email.trim() ? '#000000' : '#666666',
                 backgroundColor: email.trim() ? '#FFFFFF' : '#E5E5E5',
@@ -178,10 +188,10 @@ const SignupFormMobile = ({ onOpenThanks }) => {
       <div 
         className="absolute z-10"
         style={{
-          width: 'clamp(160px, 35vw, 220px)',
+          width: 'clamp(140px, 30vw, 200px)',
           height: 'auto',
-          right: '10px',
-          bottom: '0px',
+          right: 'clamp(2px, 1vw, 8px)',
+          bottom: 'clamp(-8px, -2vh, -2px)',
         }}
       >
         <img
@@ -218,7 +228,7 @@ const CombinedFooterMobile = () => {
   return (
     <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
       {/* Mobile-optimized pre-footer section */}
-      <div className="pre-footer-container relative bg-black w-screen min-h-screen flex items-center justify-center overflow-hidden py-8 sm:py-12 lg:py-16 xl:py-20">
+      <div className="pre-footer-container relative bg-black w-screen min-h-screen flex items-center justify-center overflow-y-auto overflow-x-hidden py-8 sm:py-12 lg:py-16 xl:py-20" style={{ minHeight: '100dvh', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
         {/* Radial gradient background */}
           <div 
           aria-hidden
@@ -243,10 +253,11 @@ const CombinedFooterMobile = () => {
           aria-hidden
           style={{
             position: 'absolute',
-            width: '507.43px',
-            height: '508px',
-            left: 'calc(50% - 507.43px/2 - 0.3px)',
-            top: 'calc(50% - 508px/2)',
+            width: 'clamp(360px, 80vmin, 720px)',
+            aspectRatio: '1 / 1',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
             opacity: 0.6,
             pointerEvents: 'none',
             zIndex: 0,
@@ -363,7 +374,7 @@ const CombinedFooterMobile = () => {
       </div>
 
       {/* Mobile-optimized main footer section */}
-      <div className="main-footer bg-gray-100 py-6 px-4 shadow-lg border-t border-gray-200">
+      <div className="main-footer bg-gray-100 py-6 px-4 pb-10 sm:pb-12 shadow-lg border-t border-gray-200 overflow-x-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 48px)' }}>
         <div className="max-w-full mx-auto">
           <div className="mb-6">
             <SignupFormMobile onOpenThanks={() => setIsThanksOpen(true)} />
@@ -472,6 +483,9 @@ const CombinedFooterMobile = () => {
               </div>
             </div>
           </div>
+          
+          {/* Final bottom spacer to prevent clipping on small screens / with keyboard */}
+          <div className="w-full" style={{ height: 'clamp(24px, 6vh, 72px)' }}></div>
         </div>
       </div>
       

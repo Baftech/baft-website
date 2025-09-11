@@ -6,6 +6,30 @@
   scroll-behavior: smooth;
 }
 
+/* Scoped overflow and media containment (was global) */
+.combined-footer {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+}
+
+.combined-footer * {
+  max-width: 100%;
+}
+
+.combined-footer img,
+.combined-footer video,
+.combined-footer canvas,
+.combined-footer svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 /* Pre-footer Section Styles */
 .pre-footer-container {
   position: relative;

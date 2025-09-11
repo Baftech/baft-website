@@ -1,12 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap'); /*EB-Garamond*/
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap'); /*Inter*/
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap'); /*Satoshi via Fontshare*/
+@import url('/fonts/Satoshi_Complete/Fonts/WEB/css/satoshi.css'); /* Local Satoshi */
 @import url('/fonts/GeneralSans_Complete/Fonts/WEB/css/general-sans.css');
 @import "tailwindcss";
 @import "./safari-fixes.css";
 @import "./safari-optimizations.css";
 @import "./components/Themes/MobileTransitions.css";
+
+/* Use local Satoshi as primary UI font; fallbacks provided */
+body {
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'EB Garamond', sans-serif;
+}
+
+/* Prevent horizontal scroll globally (including Safari) */
 
 /* Safari Dynamic Viewport CSS Variables */
 :root {
@@ -37,25 +43,8 @@
   max-height: var(--viewport-height-dynamic, 100vh);
 }
 
-/* Global scrollbar hiding - Force hide all scrollbars */
-* {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-
-*::-webkit-scrollbar {
-  display: none !important;
-}
-
-html, body {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-  /* Remove overflow: hidden to allow normal scrolling */
-}
-
-html::-webkit-scrollbar, body::-webkit-scrollbar {
-  display: none !important;
-}
+/* Avoid forcing scrollbar hiding globally; allow native scrollbars to prevent layout jumps */
+/* Remove overflow: hidden to allow normal scrolling */
 
 /* Utility class for flex center */
 .flex-center {
@@ -483,7 +472,6 @@ video.video-blend {
 /* Touch-friendly optimizations */
 * {
   -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
 }
 
 /* Safari-specific optimizations */
@@ -600,13 +588,18 @@ select {
   }
 }
 
-/* Safari-specific viewport height fixes */
+/* Safari-specific viewport height fixes using modern units */
 .safari-browser {
-  height: 100vh;
-  height: calc(var(--vh, 1vh) * 100);
+  height: 100svh;
+  height: 100dvh;
 }
 
 .safari-browser .min-h-screen {
-  min-height: 100vh;
-  min-height: calc(var(--vh, 1vh) * 100);
+  min-height: 100svh;
+  min-height: 100dvh;
+}
+
+/* Account for Safari bottom tab bar when visible to avoid content jump */
+body.safari-tab-bar-visible {
+  padding-bottom: var(--tab-bar-height, 0px);
 }
