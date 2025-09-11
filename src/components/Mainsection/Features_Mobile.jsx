@@ -379,6 +379,7 @@ const Cards = () => {
                       flexDirection: "row",
                       justifyContent: "flex-start",
                       alignItems: "center",
+                      fontFamily: "Inter, sans-serif",
                 padding: isActive
                   ? "clamp(12px, 1.8vw, 24px) clamp(12px, 1.5vw, 22px)"
                   : "clamp(10px, 1.5vw, 20px) clamp(10px, 1.2vw, 18px)",

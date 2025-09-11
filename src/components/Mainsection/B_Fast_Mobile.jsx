@@ -71,7 +71,7 @@ const B_Fast_Mobile = () => {
     if (!contentRef.current || !sectionRef.current || !overlayRef.current) return;
 
     // Ensure hidden before any paint to avoid flicker
-    gsap.set(contentRef.current, { opacity: 0, y: -80 });
+    gsap.set(contentRef.current, { opacity: 0, y: -60 });
     gsap.set(overlayRef.current, { opacity: 0 });
     if (orbitingStarsRef.current) gsap.set(orbitingStarsRef.current, { opacity: 0 });
 
@@ -100,10 +100,10 @@ const B_Fast_Mobile = () => {
               if (isFromBottom) {
                 gsap.set(overlayRef.current, { opacity: 1 });
                 tl.to(overlayRef.current, { opacity: 0, duration: 1.6, ease: "power2.out" })
-                  .to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut" }, "+=0.8")
+                  .to(contentRef.current, { opacity: 1, y: -16, duration: 2.4, ease: "power1.inOut" }, "+=0.8")
                   .to(orbitingStarsRef.current, { opacity: 1, duration: 1.2, ease: "power1.out" }, "<");
               } else {
-                tl.to(contentRef.current, { opacity: 1, y: 0, duration: 2.4, ease: "power1.inOut", delay: 0.4 })
+                tl.to(contentRef.current, { opacity: 1, y: -16, duration: 2.4, ease: "power1.inOut", delay: 0.4 })
                   .to(orbitingStarsRef.current, { opacity: 1, duration: 1.2, ease: "power1.out" }, "<");
               }
             };
@@ -125,7 +125,7 @@ const B_Fast_Mobile = () => {
             }
             lastScrollY = currentScrollY;
           } else {
-            gsap.set(contentRef.current, { opacity: 1, y: 0 });
+            gsap.set(contentRef.current, { opacity: 1, y: -16 });
             lastScrollY = window.scrollY;
           }
         });

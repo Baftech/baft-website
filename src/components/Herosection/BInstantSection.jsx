@@ -248,7 +248,7 @@ const BInstantSection = () => {
     <div 
       ref={sectionRef}
       className="relative w-full h-screen"
-      style={{ backgroundColor: 'black' }}
+      style={{ backgroundColor: 'black', overflow: 'hidden' }}
     >
       {/* Radial gradient background - will animate with coins */}
       <motion.div

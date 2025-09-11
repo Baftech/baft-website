@@ -98,7 +98,7 @@ const CoinStack = ({ startAnimation }) => {
 const BInstantMobile = () => {
   const [startCoinAnimation, setStartCoinAnimation] = useState(false);
   const [showCoins, setShowCoins] = useState(false);
-  const [textScale, setTextScale] = useState(1);
+  
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -117,24 +117,7 @@ const BInstantMobile = () => {
     }
   }, [startCoinAnimation, showCoins]);
 
-  // Prevent text from cutting off on small screens by scaling the fixed-size block
-  useEffect(() => {
-    const updateScale = () => {
-      try {
-        const vw = window.innerWidth || 375;
-        const baseWidth = 380; // design width of the text block
-        const scale = Math.min((vw * 0.94) / baseWidth, 1);
-        setTextScale(scale);
-      } catch (_) {}
-    };
-    updateScale();
-    window.addEventListener('resize', updateScale);
-    window.addEventListener('orientationchange', updateScale);
-    return () => {
-      window.removeEventListener('resize', updateScale);
-      window.removeEventListener('orientationchange', updateScale);
-    };
-  }, []);
+  
 
   return (
     <div
@@ -188,130 +171,92 @@ const BInstantMobile = () => {
 
       {/* CSS overlay removed - no more box constraints */}
 
-      {/* Text overlay — robustly centered in viewport */}
-      <div className="absolute inset-0" style={{ zIndex: 30, pointerEvents: "none" }}>
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(calc(-50% + 8px), -50%)",
-            width: "380px",
-            height: "120px",
+      {/* Text overlay — same as desktop section */}
+      <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 30, pointerEvents: "none" }}>
+        <motion.div
+          className="flex flex-col items-start leading-tight text-center"
+          initial={{ y: 120, opacity: 0 }}
+          animate={{ y: -50, opacity: 1 }}
+          transition={{ duration: 3.8, ease: [0.25, 0.1, 0.25, 1] }}
+          style={{ 
+            marginTop: "clamp(2rem, 8vh, 6rem)",
+            width: "100%",
+            maxWidth: "min(92vw, 420px)",
+            paddingLeft: "12px",
+            paddingRight: "12px"
           }}
         >
-          <motion.div style={{ position: "relative", width: "100%", height: "100%", transform: `scale(${textScale})`, transformOrigin: "center center" }}>
-          {/* Left Chunk - B-Coin + Instant Value */}
-          <motion.div
-            style={{ position: "relative" }}
-            initial={{ y: 120, opacity: 0, scale: 0.8 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            transition={{ duration: 3.5, ease: [0.25, 0.1, 0.25, 1], delay: 0 }}
+          <motion.span
+            className="text-amber-50 italic bc-bcoin"
+            style={{
+              fontWeight: 200,
+              fontSize: "clamp(26px, 7.5vw, 48px)",
+              textShadow: "0 0 25px rgba(255,215,0,0.6)",
+              letterSpacing: "-0.01em",
+              lineHeight: 1
+            }}
+            initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
+            animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
+            transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            {/* B-Coin */}
-            <div
-              style={{ 
-                position: "absolute",
-                width: "100px",
-                height: "36px",
-                left: "3.41px",
-                top: "0px",
-                fontFamily: "Inter, sans-serif",
-                fontStyle: "italic",
+            B-Coin
+          </motion.span>
+          <div className="flex items-baseline">
+            <motion.span
+              className="mr-2 text-amber-50 italic bc-instant"
+              style={{
                 fontWeight: 200,
-                fontSize: "32px",
-                lineHeight: "116.36%",
-                color: "#FFFFFF"
+                fontSize: "clamp(26px, 7.5vw, 48px)",
+                textShadow: "0 0 25px rgba(255,215,0,0.6)",
+                letterSpacing: "-0.01em",
+                lineHeight: 1
               }}
-            >
-              B-Coin
-            </div>
-            
-            {/* Instant Value */}
-            <div
-              style={{ 
-                position: "absolute",
-                width: "180px",
-                height: "36px",
-                left: "-1px",
-                top: "30.04px",
-                fontFamily: "Inter, sans-serif",
-                fontStyle: "italic",
-                fontWeight: 200,
-                fontSize: "32px",
-                lineHeight: "116.36%",
-                textAlign: "center",
-                color: "#FFFFFF"
-              }}
+              initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
+              animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
+              transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
             >
               Instant Value
-            </div>
-            
-            {/* Dash Separator */}
-            <div
-              style={{ 
-                position: "absolute",
-                width: "10.92257308959961px",
-                height: "0px",
-                top: "45.74px",
-                left: "185px",
-                border: "1.54px solid #FFFFFF",
-                opacity: 1
-              }}
-            />
-          </motion.div>
-          
-          {/* Right Chunk - SHARED + Instantly */}
-          <motion.div
-            style={{ position: "relative" }}
-            initial={{ y: 120, opacity: 0, scale: 0.8 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            transition={{ duration: 3.5, ease: [0.25, 0.1, 0.25, 1], delay: 0 }}
-          >
-            {/* Shared */}
-            <div
-              style={{ 
-                position: "absolute",
-                width: "140px",
-                height: "40px",
-                left: "200px",
-                top: "28.33px",
-                fontFamily: "EB Garamond, serif",
-                fontStyle: "normal",
+            </motion.span>
+            <motion.span
+              className="text-white bc-dash"
+              style={{ fontSize: "clamp(24px, 7vw, 44px)", fontWeight: 400, lineHeight: 1 }}
+              initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
+              animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
+              transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
+            >
+              —
+            </motion.span>
+            <motion.span
+              className="ml-2 shared-word text-white uppercase bc-shared"
+              style={{
+                fontSize: "clamp(26px, 7.5vw, 48px)",
                 fontWeight: 500,
-                fontSize: "36px",
-                lineHeight: "116.36%",
-                textAlign: "right",
-                textTransform: "uppercase",
-                color: "#FFFFFF",
-                textShadow: "0px 0px 11.6052px rgba(255, 255, 255, 0.25)"
+                letterSpacing: "0.02em",
+                lineHeight: 1
               }}
+              initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
+              animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
+              transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
             >
               SHARED
-            </div>
-            
-            {/* Instantly */}
-            <div
-              style={{ 
-                position: "absolute",
-                width: "120px",
-                height: "36px",
-                left: "220px",
-                top: "61.78px",
-                fontFamily: "Inter, sans-serif",
-                fontStyle: "italic",
-                fontWeight: 200,
-                fontSize: "32px",
-                lineHeight: "116.36%",
-                textAlign: "right",
-                color: "#FFFFFF"
-              }}
-            >
-              Instantly
-            </div>
-          </motion.div>
-          </motion.div>
-        </div>
+            </motion.span>
+          </div>
+          <motion.span
+            className="self-end text-amber-50 italic bc-instantly"
+            style={{
+              fontWeight: 200,
+              fontSize: "clamp(26px, 7.5vw, 48px)",
+              textShadow: "0 0 25px rgba(255,215,0,0.6)",
+              letterSpacing: "-0.01em",
+              lineHeight: 1
+            }}
+            initial={{ scaleX: 0.92, scaleY: 0.9, opacity: 0 }}
+            animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
+            transition={{ duration: 2.0, ease: [0.2, 0.8, 0.2, 1] }}
+          >
+            Instantly
+          </motion.span>
+        </motion.div>
       </div>
     </div>
   );

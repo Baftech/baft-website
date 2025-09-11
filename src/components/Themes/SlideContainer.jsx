@@ -535,7 +535,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const isSeamless = seamlessEnabled && (isSeamlessUp || isSeamlessDown);
 
   return (
-    <div className="slide-container relative w-full h-screen overflow-hidden" tabIndex={0} onKeyDown={handleKeyDown}>
+    <div className="slide-container relative w-full h-screen overflow-hidden" tabIndex={0} onKeyDown={handleKeyDown} style={{ height: '100dvh', minHeight: '100dvh' }}>
       {isSeamless ? (
         <>
           <div className={`absolute inset-0 w-full h-full ${
@@ -553,6 +553,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
         <div 
           ref={currentSlideRef}
           className="w-full h-full transition-all duration-[1000ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] overflow-auto scroll-smooth custom-scroll buttery-smooth-scroll"
+          style={{ height: '100dvh', maxHeight: '100dvh', overflowX: 'hidden' }}
           onScroll={() => {
             // Update scroll permissions when user scrolls
             if (currentSlideRef.current) {

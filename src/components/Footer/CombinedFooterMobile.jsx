@@ -15,7 +15,7 @@ const SignupFormMobile = ({ onOpenThanks }) => {
   const [errMsg, setErrMsg] = useState("");
 
   const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
-  const isEmailValid = isValidEmail(email);
+  const isEmailValid = isValidEmail(email.trim().toLowerCase());
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -149,7 +149,7 @@ const SignupFormMobile = ({ onOpenThanks }) => {
               type="submit"
               disabled={loading || !isEmailValid}
               className={`font-medium transition ${
-                email.trim() 
+                isEmailValid 
                   ? 'cursor-pointer hover:bg-gray-100' 
                   : 'cursor-not-allowed opacity-50'
               }`}
@@ -159,7 +159,7 @@ const SignupFormMobile = ({ onOpenThanks }) => {
                 minHeight: 'clamp(24px, 6vw, 30px)',
                 maxHeight: 'clamp(24px, 6vw, 30px)',
                 justifyContent: 'center',
-                opacity: email.trim() ? 1 : 0.5,
+                opacity: isEmailValid ? 1 : 0.5,
                 top: '15px',
                 borderRadius: '9999px',
                 borderWidth: '0.28px',
@@ -168,8 +168,8 @@ const SignupFormMobile = ({ onOpenThanks }) => {
                 margin: '0',
                 marginBottom: 'clamp(8px, 2vh, 16px)',
                 lineHeight: '1',
-                color: email.trim() ? '#000000' : '#666666',
-                backgroundColor: email.trim() ? '#FFFFFF' : '#E5E5E5',
+                color: isEmailValid ? '#000000' : '#666666',
+                backgroundColor: isEmailValid ? '#FFFFFF' : '#E5E5E5',
                 border: '0.28px solid',
                 borderImageSource: 'linear-gradient(121.31deg, rgba(49, 49, 49, 0.048) -10.95%, rgba(49, 49, 49, 0) 146.16%), linear-gradient(297.75deg, rgba(255, 255, 255, 0.048) 22.05%, rgba(0, 0, 0, 0) 120.83%, rgba(255, 255, 255, 0) 120.83%)',
                 display: 'flex',
