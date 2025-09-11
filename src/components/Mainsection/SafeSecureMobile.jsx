@@ -18,7 +18,10 @@ const SafeSecureMobile = () => {
         WebkitTransform: 'translateZ(0)',
         transform: 'translateZ(0)',
         WebkitBackfaceVisibility: 'hidden',
-        backfaceVisibility: 'hidden'
+        backfaceVisibility: 'hidden',
+        // Ensure content is visible on iPhone XR and similar devices
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        minHeight: '100dvh'
       }}>
         <div className="w-full h-full relative" style={{
           // Safari hardware acceleration
@@ -34,13 +37,16 @@ const SafeSecureMobile = () => {
               width: "100%",
               height: "100%",
               background: "#000000",
-              padding: "2rem 1rem",
-              gap: "2rem",
+              padding: "1rem 1rem",
+              gap: "1.5rem",
               // Safari hardware acceleration
               WebkitTransform: 'translateZ(0)',
               transform: 'translateZ(0)',
               WebkitBackfaceVisibility: 'hidden',
-              backfaceVisibility: 'hidden'
+              backfaceVisibility: 'hidden',
+              // Ensure content fits on iPhone XR
+              maxHeight: 'calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))',
+              overflow: 'hidden'
             }}
           >
             {/* Title - Safari optimized */}
@@ -53,8 +59,8 @@ const SafeSecureMobile = () => {
                 fontFamily: "EB Garamond, serif",
                 lineHeight: "100%",
                 textAlign: "center",
-                marginTop: "clamp(0.1rem, 0.2vh, 0.3rem)",
-                marginBottom: "2rem",
+                marginTop: "0",
+                marginBottom: "1rem",
                 maxWidth: "90vw",
                 overflow: "hidden",
                 wordWrap: "break-word",
@@ -84,7 +90,7 @@ const SafeSecureMobile = () => {
                 lineHeight: "1.6",
                 textAlign: "center",
                 maxWidth: "35ch",
-                marginBottom: "2rem",
+                marginBottom: "1rem",
                 // Safari text rendering optimizations
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',

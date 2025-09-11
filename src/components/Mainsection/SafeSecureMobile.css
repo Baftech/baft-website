@@ -8,19 +8,10 @@
     padding: clamp(60px, 6vw, 100px);
     background: #000;
     border-radius: 37px;
-    /* Ultra smooth scrolling - Safari optimized */
-    scroll-behavior: smooth;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    /* Hardware acceleration for smoother performance */
-    will-change: transform;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    /* Additional Safari optimizations */
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-perspective: 1000px;
-    perspective: 1000px;
+  /* Smooth scrolling - Safari optimized */
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   }
   
   
@@ -37,11 +28,6 @@
     /* Smooth transitions for layout changes - Safari optimized */
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     -webkit-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    /* Safari hardware acceleration */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
   }
   
   /* ===========================
@@ -107,11 +93,8 @@
     align-items: center;
     margin: 1.5rem auto 0;
     position: relative;
-    /* Ultra smooth logo transitions */
+    /* Smooth logo transitions */
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
   }
   
   .security-logo-wrapper {
@@ -143,11 +126,8 @@
     object-fit: contain;
     position: relative;
     z-index: 1;
-    /* Ultra smooth SVG transitions */
+    /* Smooth SVG transitions */
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
   }
   /* ===========================
      Diagonal Sweep (only inside logo)
@@ -167,7 +147,6 @@
     animation: diagonalSweep 4s linear infinite;
     z-index: 2;
     pointer-events: none;
-    will-change: transform;
     -webkit-mix-blend-mode: screen;
     mix-blend-mode: screen;
   }
@@ -318,9 +297,7 @@
   .buttery-smooth-scroll {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    /* Enhanced momentum scrolling on iOS */
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
+  /* Enhanced momentum scrolling on iOS */
     /* Optimized scrollbar styling */
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { BAFT_VID_MP4, LOGO_PNG } from "../../assets/assets";
+import MobileTransitionWrapper from "../Themes/MobileTransitionWrapper";
 
 
 const HeroMobileComponent = () => {
@@ -101,6 +102,11 @@ const HeroMobileComponent = () => {
         video.muted = true;
         // @ts-ignore - playsInline for iOS
         video.playsInline = true;
+        // @ts-ignore - webkit-playsinline for Safari
+        video.webkitPlaysInline = true;
+        // Force Safari to treat as inline video
+        video.setAttribute('webkit-playsinline', 'true');
+        video.setAttribute('playsinline', 'true');
         const playPromise = video.play();
         if (playPromise && typeof playPromise.then === 'function') {
           playPromise.catch(() => {});
@@ -375,7 +381,17 @@ const HeroMobileComponent = () => {
   }
 
   return (
-    <>
+    <MobileTransitionWrapper 
+      direction="up" 
+      duration={1.5} 
+      enableSwipe={true}
+      onSwipe={(direction) => {
+        console.log('HeroMobileComponent swiped:', direction);
+        if (direction === 'down') {
+          navigateToNextSlide();
+        }
+      }}
+    >
       <style>
         {`
           /* Prevent horizontal overflow */
@@ -506,12 +522,64 @@ const HeroMobileComponent = () => {
             backface-visibility: hidden;
             transform: translateZ(0);
           }
+          
+          /* Safari video optimizations */
+          video::-webkit-media-controls {
+            display: none !important;
+            -webkit-appearance: none;
+          }
+          
+          video::-webkit-media-controls-panel {
+            display: none !important;
+            -webkit-appearance: none;
+          }
+          
+          video::-webkit-media-controls-play-button {
+            display: none !important;
+            -webkit-appearance: none;
+          }
+          
+          video::-webkit-media-controls-start-playback-button {
+            display: none !important;
+            -webkit-appearance: none;
+          }
+          
+          video::-webkit-media-controls-overlay-play-button {
+            display: none !important;
+            -webkit-appearance: none;
+          }
+          
+          video::-webkit-media-controls-enclosure {
+            display: none !important;
+            -webkit-appearance: none;
+          }
+          
+          /* Force hardware acceleration for Safari */
+          video {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-perspective: 1000px;
+            perspective: 1000px;
+          }
+          
+          /* Safari rendering optimizations */
+          .safari-optimized {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-perspective: 1000px;
+            perspective: 1000px;
+            will-change: transform;
+          }
         `}
       </style>
       
       <div 
         id="hero-mobile" 
-        className={`relative w-full min-h-screen bg-black flex flex-col items-center overflow-y-auto overflow-x-hidden ${
+        className={`relative w-full min-h-screen bg-black flex flex-col items-center overflow-y-auto overflow-x-hidden safari-optimized ${
           isLandscape ? 'mobile-landscape' : 'mobile-portrait'
         } ${isTablet && !isLandscape ? 'tablet-portrait' : ''}`}
         style={{
@@ -695,14 +763,22 @@ const HeroMobileComponent = () => {
             autoPlay
             muted
             playsInline
+            webkit-playsinline="true"
             disablePictureInPicture
+            controls={false}
             controlsList="nodownload nofullscreen noremoteplayback"
             className="w-full h-full object-contain bg-black object-center pointer-events-none mobile-video-blend"
             style={{
               objectPosition: 'center center',
-              // Remove heavy filters to avoid jank on mobile GPUs
-              willChange: 'transform',
-              transform: 'translateZ(0)'
+              // Safari-specific optimizations
+              WebkitPlaysInline: true,
+              playsInline: true,
+              // Force hardware acceleration
+              WebkitTransform: 'translateZ(0)',
+              transform: 'translateZ(0)',
+              WebkitBackfaceVisibility: 'hidden',
+              backfaceVisibility: 'hidden',
+              willChange: 'transform'
             }}
             onEnded={() => videoRef.current.pause()}
             disableRemotePlayback
@@ -760,7 +836,7 @@ const HeroMobileComponent = () => {
           </div>
         )}
       </div>
-    </>
+    </MobileTransitionWrapper>
   );
 };
 

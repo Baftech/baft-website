@@ -417,8 +417,7 @@ const InteractiveTeamImage = React.memo(({ disabled = false }) => {
             zIndex: 1,
             width: "100%",
             height: "100%",
-            objectFit: "cover",
-            objectPosition: "center center"
+            objectFit: "cover"
           }}
           onLoad={() => {}}
         />
@@ -442,8 +441,7 @@ const InteractiveTeamImage = React.memo(({ disabled = false }) => {
                 display: isLoaded ? "block" : "none",
                 width: "100%",
                 height: "100%",
-                objectFit: "cover",
-                objectPosition: "center center"
+                objectFit: "cover"
               }}
               onLoad={() => {
                 setLoadedImages((prev) => new Set([...prev, member.image]));

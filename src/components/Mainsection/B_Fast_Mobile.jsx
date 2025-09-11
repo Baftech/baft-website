@@ -3,6 +3,8 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { BFAST_VIDEO_MP4 } from "../../assets/assets";
+import MobileTransitionWrapper from "../Themes/MobileTransitionWrapper";
+import safariViewportHandler from "../../safari-viewport-handler";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,11 +17,16 @@ const B_Fast_Mobile = () => {
   const orbitingStarsRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
   const videoStartedRef = useRef(false);
+  
+  // Safari detection
+  const isSafari = typeof navigator !== 'undefined' && /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios|android/i.test(navigator.userAgent);
 
   // Keep a bit of top spacing to avoid navbar overlap
   const [navbarSafeSpacing, setNavbarSafeSpacing] = useState("80px");
   // Scale the text group from an iPhone 13 mini baseline (≈390px width)
   const [scaleFactor, setScaleFactor] = useState(1);
+  // Safari viewport handling
+  const [viewportInfo, setViewportInfo] = useState(null);
 
   useEffect(() => {
     const onResize = () => {
@@ -40,6 +47,24 @@ const B_Fast_Mobile = () => {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  // Subscribe to Safari viewport changes
+  useEffect(() => {
+    if (isSafari && safariViewportHandler) {
+      const unsubscribe = safariViewportHandler.subscribe((info) => {
+        setViewportInfo(info);
+        // Adjust navbar spacing based on tab bar visibility
+        const estimatedNavbarHeight = info.tabBarVisible ? 80 : 20;
+        const safeSpacing = Math.max(estimatedNavbarHeight + 20, info.viewportHeight * 0.08);
+        setNavbarSafeSpacing(`${safeSpacing}px`);
+      });
+      
+      // Get initial viewport info
+      setViewportInfo(safariViewportHandler.getViewportInfo());
+      
+      return unsubscribe;
+    }
+  }, [isSafari]);
 
   // Simple enter animation and reveal overlay, mirroring desktop logic
   useGSAP(() => {
@@ -117,7 +142,15 @@ const B_Fast_Mobile = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative w-full h-screen overflow-hidden" style={{ backgroundColor: "#ffffff" }} data-theme="light">
+    <MobileTransitionWrapper 
+      direction="up" 
+      duration={1.0} 
+      enableSwipe={true}
+      onSwipe={(direction) => {
+        console.log('B_Fast_Mobile swiped:', direction);
+      }}
+    >
+      <section ref={sectionRef} className="relative w-full h-screen overflow-hidden safari-optimized" style={{ backgroundColor: "#ffffff" }} data-theme="light">
       {/* Reveal overlay for page-reveal effect */}
       <div ref={overlayRef} className="absolute inset-0 z-50 pointer-events-none" style={{ backgroundColor: "#ffffff" }} />
 
@@ -205,9 +238,13 @@ const B_Fast_Mobile = () => {
           justifyContent: "center",
           overflow: "hidden",
           marginTop: "60px",
-          borderRadius: "0px"
+          borderRadius: "0px",
+          // Add gradient mask for video blending - even stronger effect
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%)"
         }}>
           <div className="relative w-full h-full flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
+            {/* Removed overlay - using only video masking for blending */}
             <div className="absolute inset-0 pointer-events-none" style={{ background: "transparent", zIndex: 1 }} />
             
             {videoError ? (
@@ -258,27 +295,36 @@ const B_Fast_Mobile = () => {
                     opacity: 1,
                     mixBlendMode: "normal",
                     filter: "saturate(1.08) contrast(1.04) brightness(1.02)",
-                    WebkitMaskImage: "none",
-                    maskImage: "none",
+                    // Safari-specific video blending - even stronger effect
+                    WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
+                    maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
                     WebkitMaskRepeat: "no-repeat",
                     maskRepeat: "no-repeat",
-                    WebkitMaskSize: "auto",
-                    maskSize: "auto",
-                    WebkitMaskPosition: "0 0",
-                    maskPosition: "0 0",
-                    transform: "none",
+                    WebkitMaskSize: "100% 100%",
+                    maskSize: "100% 100%",
+                    WebkitMaskPosition: "center center",
+                    maskPosition: "center center",
                     transformOrigin: "center",
                     pointerEvents: "none",
                     border: "none",
                     outline: "none",
                     background: "transparent",
-                    backgroundColor: "transparent"
+                    backgroundColor: "transparent",
+                    // Safari-specific optimizations
+                    WebkitPlaysInline: true,
+                    playsInline: true,
+                    // Force hardware acceleration
+                    WebkitTransform: "translateZ(0)",
+                    transform: "translateZ(0)",
+                    WebkitBackfaceVisibility: "hidden",
+                    backfaceVisibility: "hidden"
                   }}
                   autoPlay
                   muted
                   playsInline
+                  webkit-playsinline="true"
                   controls={false}
-                  controlsList="nodownload noplaybackrate nofullscreen"
+                  controlsList="nodownload noplaybackrate nofullscreen noremoteplayback"
                   disableRemotePlayback
                   disablePictureInPicture
                   preload="auto"
@@ -335,8 +381,73 @@ const B_Fast_Mobile = () => {
         @keyframes spinDriftC { 0% { transform: rotate(0deg) translate(0px, 0px); } 50% { transform: rotate(180deg) translate(4px, 5px); } 100% { transform: rotate(360deg) translate(0px, 0px); } }
         @keyframes orbitSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes orbitMed { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        
+        /* Safari video optimizations */
+        video::-webkit-media-controls {
+          display: none !important;
+          -webkit-appearance: none;
+        }
+        
+        video::-webkit-media-controls-panel {
+          display: none !important;
+          -webkit-appearance: none;
+        }
+        
+        video::-webkit-media-controls-play-button {
+          display: none !important;
+          -webkit-appearance: none;
+        }
+        
+        video::-webkit-media-controls-start-playback-button {
+          display: none !important;
+          -webkit-appearance: none;
+        }
+        
+        video::-webkit-media-controls-overlay-play-button {
+          display: none !important;
+          -webkit-appearance: none;
+        }
+        
+        video::-webkit-media-controls-enclosure {
+          display: none !important;
+          -webkit-appearance: none;
+        }
+        
+        /* Force hardware acceleration for Safari */
+        video {
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          -webkit-perspective: 1000px;
+          perspective: 1000px;
+        }
+        
+        /* Safari video blending fix */
+        .safari-optimized video {
+          -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+          -webkit-mask-size: 100% 100%;
+          mask-size: 100% 100%;
+          -webkit-mask-position: center center;
+          mask-position: center center;
+          -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+        }
+        
+        /* Safari rendering optimizations */
+        .safari-optimized {
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          -webkit-perspective: 1000px;
+          perspective: 1000px;
+          will-change: transform;
+        }
       `}</style>
-    </section>
+      </section>
+    </MobileTransitionWrapper>
   );
 };
 

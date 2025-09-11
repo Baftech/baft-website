@@ -6,6 +6,36 @@
 @import "tailwindcss";
 @import "./safari-fixes.css";
 @import "./safari-optimizations.css";
+@import "./components/Themes/MobileTransitions.css";
+
+/* Safari Dynamic Viewport CSS Variables */
+:root {
+  --viewport-height: 100vh;
+  --viewport-height-dynamic: 100dvh;
+}
+
+/* Safari tab bar state classes */
+.safari-tab-bar-hidden {
+  /* When tab bar is hidden, we have more viewport space */
+  --tab-bar-height: 0px;
+}
+
+.safari-tab-bar-visible {
+  /* When tab bar is visible, account for its height */
+  --tab-bar-height: 44px; /* Approximate Safari tab bar height */
+}
+
+/* Dynamic viewport height utilities */
+.dynamic-vh {
+  height: var(--viewport-height-dynamic, 100vh);
+  min-height: var(--viewport-height-dynamic, 100vh);
+}
+
+.dynamic-vh-screen {
+  height: var(--viewport-height-dynamic, 100vh);
+  min-height: var(--viewport-height-dynamic, 100vh);
+  max-height: var(--viewport-height-dynamic, 100vh);
+}
 
 /* Global scrollbar hiding - Force hide all scrollbars */
 * {
