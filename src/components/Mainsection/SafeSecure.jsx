@@ -5,57 +5,15 @@ import { SAFE_SEC_SVG } from "../../assets/assets";
 
 // Desktop layout
 const SafeSecureDesktop = () => {
-  const baseScale = 1.10004;
-  const bulgeMax = 0.08; // extra scale on hover at center (stronger bulge)
-  const [tilt, setTilt] = useState({ x: 0, y: 0, s: baseScale });
+  const baseScale = 1.18;
+  const hoverScale = 1.24;
+  const imageBaseScale = 1.08;
+  const imageHoverScale = 1.14;
   const [isHovering, setIsHovering] = useState(false);
-  const maxTilt = 8; // degrees
-
-  const handleMove = (e) => {
-    try {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const relX = (e.clientX - rect.left) / rect.width; // 0..1
-      const relY = (e.clientY - rect.top) / rect.height; // 0..1
-      const x = (relX - 0.5) * 2; // -1..1
-      const y = (relY - 0.5) * 2; // -1..1
-      const clampedX = Math.max(-1, Math.min(1, x));
-      const clampedY = Math.max(-1, Math.min(1, y));
-      const r = Math.min(1, Math.sqrt(clampedX * clampedX + clampedY * clampedY));
-      const intensity = 1 - r; // 1 at center, 0 at edges
-      const s = baseScale + bulgeMax * intensity;
-      setTilt({
-        x: clampedX * maxTilt,
-        y: clampedY * maxTilt,
-        s,
-      });
-      setIsHovering(true);
-    } catch {}
-  };
-
-  const handleLeave = () => {
-    setTilt({ x: 0, y: 0, s: baseScale });
-    setIsHovering(false);
-  };
-
-  const handleTouchMove = (e) => {
-    try {
-      const t = e.touches && e.touches[0];
-      if (!t) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      const relX = (t.clientX - rect.left) / rect.width;
-      const relY = (t.clientY - rect.top) / rect.height;
-      const x = (relX - 0.5) * 2;
-      const y = (relY - 0.5) * 2;
-      const clampedX = Math.max(-1, Math.min(1, x));
-      const clampedY = Math.max(-1, Math.min(1, y));
-      const r = Math.min(1, Math.sqrt(clampedX * clampedX + clampedY * clampedY));
-      const intensity = 1 - r;
-      const s = baseScale + bulgeMax * intensity;
-      setTilt({ x: clampedX * maxTilt, y: clampedY * maxTilt, s });
-    } catch {}
-  };
-
-  const handleTouchEnd = () => handleLeave();
+  const handleEnter = () => setIsHovering(true);
+  const handleLeave = () => setIsHovering(false);
+  const handleTouchStart = () => setIsHovering(true);
+  const handleTouchEnd = () => setIsHovering(false);
 
   return (
     <div className="h-screen bg-white" data-theme="light">
@@ -84,22 +42,21 @@ const SafeSecureDesktop = () => {
                    display: "flex",
                    justifyContent: "center",
                    alignItems: "center",
-                   transform: "scale(1.5)",
                    transformOrigin: "center center",
-                   perspective: "800px",
                    cursor: "pointer",
-                   overflow: isHovering ? "visible" : "hidden"
+                   overflow: "hidden",
+                   transform: `scale(${(isHovering ? hoverScale : baseScale).toFixed(3)})`,
+                   transition: "transform 200ms ease"
                  }} 
-                 onMouseMove={handleMove} 
-                 onMouseLeave={handleLeave} 
-                 onTouchMove={handleTouchMove} 
+                 onMouseEnter={handleEnter}
+                 onMouseLeave={handleLeave}
+                 onTouchStart={handleTouchStart}
                  onTouchEnd={handleTouchEnd}
                >
                  <div 
                    className="image-container"
                    style={{
-                     overflow: isHovering ? "visible" : "hidden",
-                     transition: "overflow 200ms ease-out"
+                     overflow: "hidden"
                    }}
                  >
                    <img
@@ -108,13 +65,12 @@ const SafeSecureDesktop = () => {
                      className="security-logo-svg"
                      style={{
                        width: "100%",
-                       height: "auto",
+                       height: "100%",
                        position: "relative",
                        display: "block",
-                       transform: `scale(${tilt.s.toFixed(5)}) rotateX(${(-tilt.y).toFixed(2)}deg) rotateY(${tilt.x.toFixed(2)}deg)`,
+                       transform: `scale(${(isHovering ? imageHoverScale : imageBaseScale).toFixed(3)})`,
                        transformOrigin: "center",
-                       transition: "transform 200ms ease",
-                       willChange: "transform"
+                       transition: "transform 200ms ease"
                      }}
                    />
                  </div>

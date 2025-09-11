@@ -42,6 +42,19 @@ const B_Fast_Mobile = () => {
     return responsiveGapPx;
   })();
 
+  // Responsive heading font size (stable on Safari when viewportInfo is available)
+  const headingFontSizePx = (() => {
+    const BASE_WIDTH = 390;
+    const baseFontPx = 95; // original design size
+    let effectiveScale = scaleFactor;
+    if (isSafari && viewportInfo && viewportInfo.viewportWidth) {
+      const computed = viewportInfo.viewportWidth / BASE_WIDTH;
+      effectiveScale = Math.max(0.62, Math.min(computed, 1.35));
+    }
+    const sized = Math.round(baseFontPx * effectiveScale);
+    return Math.max(52, Math.min(sized, 120));
+  })();
+
   useEffect(() => {
     const onResize = () => {
       const estimatedNavbarHeight = 80;
@@ -195,7 +208,7 @@ const B_Fast_Mobile = () => {
               fontFamily: "EB Garamond, serif",
               fontWeight: 700,
               fontStyle: "bold",
-              fontSize: "94.97px",
+              fontSize: `${headingFontSizePx}px`,
               lineHeight: "100%",
               letterSpacing: "0%",
               textAlign: "center",

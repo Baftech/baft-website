@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faInstagram,
@@ -224,9 +224,71 @@ const socialLinks = [
 
 const CombinedFooterMobile = () => {
   const [isThanksOpen, setIsThanksOpen] = useState(false);
+  const footerRef = useRef(null);
+
+  // Enable upward scroll/swipe handoff to About section with SlideContainer crossfade
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el) return;
+
+    let touchStartY = null;
+    const threshold = 24; // px from top to consider at top
+    const minSwipe = 40; // px swipe distance
+    const opts = { passive: false };
+
+    const atTop = () => {
+      try {
+        return el.scrollTop <= threshold;
+      } catch {
+        return true;
+      }
+    };
+
+    const navigateToAbout = () => {
+      try {
+        const evt = new CustomEvent('navigateToSlide', { detail: { index: 6, slow: true } });
+        window.dispatchEvent(evt);
+      } catch {}
+    };
+
+    const onWheel = (e) => {
+      if (e && e.cancelable) e.preventDefault();
+      e.stopPropagation();
+      if (e.deltaY < 0 && atTop()) {
+        navigateToAbout();
+      }
+    };
+
+    const onTouchStart = (e) => {
+      const t = e.touches && e.touches[0];
+      touchStartY = t ? t.clientY : null;
+    };
+
+    const onTouchEnd = (e) => {
+      if (touchStartY == null) return;
+      const t = e.changedTouches && e.changedTouches[0];
+      const dy = touchStartY - (t ? t.clientY : touchStartY);
+      if (dy < -minSwipe && atTop()) {
+        if (e && e.cancelable) e.preventDefault();
+        e.stopPropagation();
+        navigateToAbout();
+      }
+      touchStartY = null;
+    };
+
+    el.addEventListener('wheel', onWheel, opts);
+    el.addEventListener('touchstart', onTouchStart, opts);
+    el.addEventListener('touchend', onTouchEnd, opts);
+
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchend', onTouchEnd);
+    };
+  }, []);
 
   return (
-    <footer id="footer" data-theme="dark" className="combined-footer smooth-scroll">
+    <footer ref={footerRef} id="footer" data-theme="dark" className="combined-footer smooth-scroll">
       {/* Mobile-optimized pre-footer section */}
       <div className="pre-footer-container relative bg-black w-screen min-h-screen flex items-center justify-center overflow-y-auto overflow-x-hidden py-8 sm:py-12 lg:py-16 xl:py-20" style={{ minHeight: '100dvh', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
         {/* Radial gradient background */}

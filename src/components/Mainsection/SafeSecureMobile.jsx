@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import "./SafeSecureMobile.css";
+import "./SafeSecure.css";
 import { SAFE_SEC_SVG } from "../../assets/assets";
 
 const SafeSecureMobile = () => {
@@ -18,10 +18,7 @@ const SafeSecureMobile = () => {
         WebkitTransform: 'translateZ(0)',
         transform: 'translateZ(0)',
         WebkitBackfaceVisibility: 'hidden',
-        backfaceVisibility: 'hidden',
-        // Ensure content is visible on iPhone XR and similar devices
-        paddingTop: 'env(safe-area-inset-top, 0px)',
-        minHeight: '100dvh'
+        backfaceVisibility: 'hidden'
       }}>
         <div className="w-full h-full relative" style={{
           // Safari hardware acceleration
@@ -37,16 +34,13 @@ const SafeSecureMobile = () => {
               width: "100%",
               height: "100%",
               background: "#000000",
-              padding: "1rem 1rem",
-              gap: "1.5rem",
+              padding: "2rem 1rem",
+              gap: "2rem",
               // Safari hardware acceleration
               WebkitTransform: 'translateZ(0)',
               transform: 'translateZ(0)',
               WebkitBackfaceVisibility: 'hidden',
-              backfaceVisibility: 'hidden',
-              // Ensure content fits on iPhone XR
-              maxHeight: 'calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))',
-              overflow: 'hidden'
+              backfaceVisibility: 'hidden'
             }}
           >
             {/* Title - Safari optimized */}
@@ -59,8 +53,8 @@ const SafeSecureMobile = () => {
                 fontFamily: "EB Garamond, serif",
                 lineHeight: "100%",
                 textAlign: "center",
-                marginTop: "0",
-                marginBottom: "1rem",
+                marginTop: "clamp(8px, 6vh, 40px)",
+                marginBottom: "2rem",
                 maxWidth: "90vw",
                 overflow: "hidden",
                 wordWrap: "break-word",
@@ -90,7 +84,7 @@ const SafeSecureMobile = () => {
                 lineHeight: "1.6",
                 textAlign: "center",
                 maxWidth: "35ch",
-                marginBottom: "1rem",
+                marginBottom: "2rem",
                 // Safari text rendering optimizations
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',
@@ -113,8 +107,8 @@ const SafeSecureMobile = () => {
               <div
                 className="security-logo-wrapper"
                 style={{
-                  width: isSafari ? '300.5002899169922px' : '100%',
-                  height: isSafari ? '300.5002899169922px' : '100%',
+                  width: isSafari ? '295px' : '100%',
+                  height: isSafari ? '295px' : '100%',
                   aspectRatio: isSafari ? '1 / 1' : undefined,
                   display: 'flex',
                   justifyContent: 'center',
@@ -122,8 +116,8 @@ const SafeSecureMobile = () => {
                   flexShrink: isSafari ? 0 : undefined,
                   flexGrow: isSafari ? 0 : undefined,
                   boxSizing: isSafari ? 'content-box' : undefined,
-                  transform: isSafari ? 'none' : 'scale(1.5)',
-                  WebkitTransform: isSafari ? 'none' : 'scale(1.5)',
+                  transform: isSafari ? 'none' : 'scale(1.45)',
+                  WebkitTransform: isSafari ? 'none' : 'scale(1.45)',
                   transformOrigin: 'center center',
                   WebkitTransformOrigin: 'center center',
                   overflow: 'hidden',
@@ -140,12 +134,12 @@ const SafeSecureMobile = () => {
                   className="security-logo-svg"
                   style={{
                     width: isSafari ? '100%' : '100%',
-                    height: isSafari ? '110%' : 'auto',
+                    height: isSafari ? '105%' : 'auto',
                     position: 'relative',
                     display: 'block',
                     objectFit: isSafari ? 'cover' : 'contain',
-                    transform: isSafari ? 'none' : 'scale(1.10004)',
-                    WebkitTransform: isSafari ? 'none' : 'scale(1.10004)',
+                    transform: isSafari ? 'none' : 'scale(1.08)',
+                    WebkitTransform: isSafari ? 'none' : 'scale(1.08)',
                     transformOrigin: 'center',
                     WebkitTransformOrigin: 'center',
                     imageRendering: 'auto',

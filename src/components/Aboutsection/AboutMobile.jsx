@@ -523,6 +523,16 @@ const AboutMobile = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasAnimationTriggered, setHasAnimationTriggered] = useState(false);
   const [isIPhone14Pro, setIsIPhone14Pro] = useState(false);
+  const isIOSSafari = useMemo(() => {
+    try {
+      const ua = navigator.userAgent || "";
+      const isIOS = /iP(hone|od|ad)/.test(ua) || /iOS/i.test(ua);
+      const isSafari = /Safari\//.test(ua) && !/Chrome\//.test(ua) && !/CriOS\//.test(ua);
+      return isIOS && isSafari;
+    } catch {
+      return false;
+    }
+  }, []);
   const sectionRef = useRef(null);
   
   const imageRef = useRef(null);
@@ -610,6 +620,38 @@ const AboutMobile = () => {
       // setIsTransitioning(false);
     };
   }, []);
+
+  // Inject iOS Safari-only CSS to eliminate top gap when entering this section
+  useEffect(() => {
+    if (!isIOSSafari) return;
+    const styleId = 'about-ios-safari-gap-fix';
+    if (document.getElementById(styleId)) return;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      @supports (-webkit-touch-callout: none) {
+        /* Ensure sticky works on iOS Safari */
+        section.about-sticky-ios-fix {
+          position: -webkit-sticky !important;
+          position: sticky !important;
+          top: 0 !important;
+          height: 100dvh !important;
+          min-height: 100dvh !important;
+          overscroll-behavior: none !important;
+          padding-top: clamp(24px, 6vw, 56px) !important;
+          margin-top: 0 !important;
+          overflow-anchor: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      try {
+        const el = document.getElementById(styleId);
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+      } catch {}
+    };
+  }, [isIOSSafari]);
 
   // Robust auto-scroll to next section (CombinedFooter)
   const scrollToNextSection = () => {
@@ -1199,12 +1241,12 @@ const AboutMobile = () => {
   const disperseOpacity = 1 - 0.2 * overlayProgress; // slight fade of image content under overlay (same as desktop)
 
   return (
-    <div ref={triggerRef} className="relative" style={{ height: '300vh' }}>
+    <div ref={triggerRef} className="relative" style={{ height: isIOSSafari ? '112dvh' : '300vh' }}>
     <section
       ref={sectionRef}
       id="about"
       data-theme="light"
-        className="sticky top-0 bg-white flex items-center justify-center"
+        className={`sticky top-0 bg-white flex items-center justify-center ${isIOSSafari ? 'about-sticky-ios-fix' : ''}`}
       style={{ 
           height: '100vh',
           width: '100vw',
