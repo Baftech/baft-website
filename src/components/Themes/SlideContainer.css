@@ -31,11 +31,15 @@
   transform: translate3d(0, 0, 0);
   /* Smooth momentum scrolling */
   -webkit-overflow-scrolling: touch;
-  /* Use dynamic viewport height to avoid extra scroll on mobile */
+  /* Use dynamic viewport height with safe small viewport as final fallback */
+  height: 100vh;
   height: 100dvh;
+  height: 100svh;
+  min-height: 100vh;
   min-height: 100dvh;
+  min-height: 100svh;
   /* Ensure full viewport coverage */
-  width: 100vw;
+  width: 100%;
   position: relative;
 }
 
@@ -680,10 +684,14 @@
   
   .slide-container {
     /* Force Safari to use the full viewport and enable navigation bar collapse */
+    height: 100vh;
     height: 100dvh;
+    height: 100svh;
+    min-height: 100vh;
     min-height: 100dvh;
+    min-height: 100svh;
     /* Ensure the container respects Safari's viewport changes */
-    position: fixed;
+    position: relative;
     top: 0;
     left: 0;
     right: 0;
@@ -693,7 +701,7 @@
     margin: 0;
     /* Enable smooth scrolling that works with Safari's navigation bar */
     -webkit-overflow-scrolling: touch;
-    overflow: hidden;
+    overflow: auto;
   }
 }
 
@@ -701,8 +709,9 @@
 @supports (-webkit-touch-callout: none) {
   /* Individual slides should fill the full viewport */
   .slide-container > div {
-    height: 100vh;
-    min-height: 100vh;
+    position: static;
+    height: auto;
+    min-height: 100%;
   }
   
   /* Seamless transition containers */
@@ -719,8 +728,12 @@
 @supports (-webkit-touch-callout: none) and (orientation: landscape) {
   .slide-container {
     /* In landscape, use 100vh to avoid issues */
+    height: 100vh;
     height: 100dvh;
+    height: 100svh;
+    min-height: 100vh;
     min-height: 100dvh;
+    min-height: 100svh;
   }
 }
 
@@ -728,8 +741,12 @@
 @supports (-webkit-touch-callout: none) and (orientation: portrait) {
   .slide-container {
     /* In portrait, account for bottom bar */
+    height: 100vh;
     height: 100dvh;
+    height: 100svh;
+    min-height: 100vh;
     min-height: 100dvh;
+    min-height: 100svh;
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
@@ -738,14 +755,18 @@
 @supports (-webkit-touch-callout: none) {
   /* Ensure slides fill the full viewport without gaps */
   .slide-container {
-    position: fixed;
+    position: relative;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    height: 100vh;
     height: 100dvh;
+    height: 100svh;
+    min-height: 100vh;
     min-height: 100dvh;
-    width: 100vw;
+    min-height: 100svh;
+    width: 100%;
     /* Remove any padding that could cause gaps */
     padding: 0;
     margin: 0;
@@ -753,14 +774,10 @@
   
   /* Individual slide content should fill the container */
   .slide-container > div {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 100vh;
-    min-height: 100vh;
-    width: 100vw;
+    position: static;
+    height: auto;
+    min-height: 100%;
+    width: 100%;
   }
   
   /* Seamless transition containers */
@@ -768,14 +785,14 @@
   .seamless-up-next,
   .seamless-down-prev,
   .seamless-down-next {
-    position: absolute;
+    position: static;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 100dvh;
-    min-height: 100dvh;
-    width: 100vw;
+    height: auto;
+    min-height: 100%;
+    width: 100%;
   }
 }
 

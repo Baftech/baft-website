@@ -516,6 +516,15 @@ html {
   }
 }
 
+/* Mobile caps to avoid oversized type/spacing on small iOS Safari viewports */
+@media (max-width: 480px) {
+  :root {
+    --title-fs: clamp(22px, 8vw, 38px);
+    --title-lh: clamp(26px, 10vw, 44px);
+    --feature-gap: clamp(8px, 3vw, 14px);
+  }
+}
+
 /* Touch-friendly button and interactive elements */
 button, 
 .nav-btn, 
