@@ -122,6 +122,45 @@ canvas {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
+  
+  /* Enhanced viewport handling for Safari's dynamic tab bar */
+  html {
+    /* Use dynamic viewport units that account for Safari's tab bar */
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height - accounts for tab bar changes */
+  }
+  
+  body {
+    height: 100vh;
+    height: 100dvh;
+    /* Ensure smooth transitions when tab bar appears/disappears */
+    transition: height 0.3s ease-out;
+  }
+  
+  /* Full-screen containers that adapt to tab bar changes */
+  .full-screen, .slide-container, .h-screen {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* Smooth transition when tab bar changes */
+    transition: height 0.3s ease-out;
+  }
+  
+  /* Safe area handling for when tab bar is hidden */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  
+  /* Dynamic height calculation for content that needs to fill viewport */
+  .dynamic-height {
+    height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* Safari iOS specific optimizations */

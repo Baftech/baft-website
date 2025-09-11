@@ -20,10 +20,10 @@ export const useMobileTransition = (sectionRef, options = {}) => {
   const [isExiting, setIsExiting] = useState(false);
   const animationRef = useRef(null);
 
-  // Get transform values based on direction
+  // Get transform values based on direction - minimal movement
   const getTransformValues = (direction, isEntering) => {
     const multiplier = isEntering ? 1 : -1;
-    const baseValue = 100;
+    const baseValue = 20; // Very minimal movement
     
     switch (direction) {
       case "up":
@@ -49,16 +49,14 @@ export const useMobileTransition = (sectionRef, options = {}) => {
     const elements = sectionRef.current.querySelectorAll('[data-transition]');
     const transformValues = getTransformValues(direction, true);
     
-    // Set initial state
+    // Set initial state - very subtle fade only
     gsap.set(elements, {
-      opacity: 0,
-      scale: scale ? 0.8 : 1,
-      filter: blur ? "blur(20px)" : "none",
-      transform: `translate3d(${transformValues.x}px, ${transformValues.y}px, ${transformValues.z}px) rotateX(${perspective ? 15 : 0}deg)`,
+      opacity: 0.3,
+      transform: "translate3d(0px, 0px, 0px)",
       transformOrigin: "center center"
     });
 
-    // Animate in
+    // Animate in - just fade, no movement
     const tl = gsap.timeline({
       delay: enterDelay,
       ease: ease
@@ -66,11 +64,8 @@ export const useMobileTransition = (sectionRef, options = {}) => {
 
     tl.to(elements, {
       opacity: 1,
-      scale: 1,
-      filter: "blur(0px)",
-      transform: "translate3d(0px, 0px, 0px) rotateX(0deg)",
-      duration: duration,
-      stagger: stagger,
+      duration: duration * 0.5, // Shorter duration
+      stagger: stagger * 0.5, // Less stagger
       ease: ease
     });
 
@@ -92,12 +87,9 @@ export const useMobileTransition = (sectionRef, options = {}) => {
     });
 
     tl.to(elements, {
-      opacity: 0,
-      scale: scale ? 0.8 : 1,
-      filter: blur ? "blur(20px)" : "none",
-      transform: `translate3d(${transformValues.x}px, ${transformValues.y}px, ${transformValues.z}px) rotateX(${perspective ? -15 : 0}deg)`,
-      duration: duration * 0.7,
-      stagger: stagger * 0.5,
+      opacity: 0.3,
+      duration: duration * 0.3, // Much shorter exit
+      stagger: stagger * 0.3, // Less stagger
       ease: ease
     });
 
