@@ -26,6 +26,9 @@ html, body {
   scroll-snap-type: none;
   overscroll-behavior: contain;
   overscroll-behavior-y: contain;
+  /* Ensure touch scrolling works on tablets/desktops with touch */
+  touch-action: pan-y;
+  -ms-touch-action: pan-y;
   /* Premium hardware acceleration */
   will-change: transform, scroll-position;
   transform: translateZ(0);
@@ -481,6 +484,10 @@ html, body {
     scroll-behavior: smooth;
     height: 100dvh;
     min-height: 100dvh;
+    /* On desktop screens with touch (e.g., Windows tablets), keep touch scroll */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    -ms-touch-action: pan-y;
   }
   
   .slide {
@@ -502,6 +509,9 @@ html, body {
     scroll-behavior: smooth;
     height: 100dvh;
     min-height: 100dvh;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    -ms-touch-action: pan-y;
   }
   
   .slide {
@@ -517,6 +527,9 @@ html, body {
     scroll-behavior: smooth;
     height: 100dvh;
     min-height: 100dvh;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    -ms-touch-action: pan-y;
   }
   
   .slide {
