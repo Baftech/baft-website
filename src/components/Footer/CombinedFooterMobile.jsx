@@ -9,7 +9,7 @@ import Thanks from "./Thanks";
 import { supabase } from "../../supabasedb/supabaseClient";
 import "./CombinedFooter.css";
 
-const SignupFormMobile = ({ onOpenThanks }) => {
+const SignupFormMobile = ({ onOpenThanks, isKeyboardOpen }) => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState("");
@@ -54,18 +54,25 @@ const SignupFormMobile = ({ onOpenThanks }) => {
        className="relative text-white mx-auto overflow-hidden px-2 sm:px-3 md:px-4 lg:px-6 flex"
        style={{
          width: 'clamp(280px, 95vw, 500px)',
-         height: 'clamp(180px, 45vh, 240px)',
-         minHeight: 'clamp(180px, 45vh, 240px)',
+         height: isKeyboardOpen ? 'clamp(160px, 40vh, 200px)' : 'clamp(180px, 45vh, 240px)',
+         minHeight: isKeyboardOpen ? 'clamp(160px, 40vh, 200px)' : 'clamp(180px, 45vh, 240px)',
+         maxHeight: isKeyboardOpen ? 'clamp(160px, 40vh, 200px)' : 'clamp(180px, 45vh, 240px)',
          borderRadius: "clamp(15px, 4vw, 20px)",
          background: "linear-gradient(92.61deg, #092646 3.49%, #3766B7 98.57%)",
          opacity: 1,
-         top: 'clamp(8px, 2vh, 16px)',
+         top: isKeyboardOpen ? 'clamp(4px, 1vh, 8px)' : 'clamp(8px, 2vh, 16px)',
          margin: '0 auto',
          border: '1px solid rgba(255, 255, 255, 0.1)',
          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
          // Prevent content from spilling when keyboard opens
          flexShrink: 0,
-         flexGrow: 0
+         flexGrow: 0,
+         // Lock the container size when keyboard is open
+         position: 'relative',
+         zIndex: 10,
+         // Prevent viewport changes from affecting the container
+         transform: 'translateZ(0)',
+         backfaceVisibility: 'hidden'
        }}
      >
        <div className="py-1.5 sm:py-2 md:py-3 lg:py-4 relative z-20 px-1.5 sm:px-2 md:px-3 lg:px-4 w-3/4 h-full overflow-auto" style={{ paddingBottom: 'clamp(8px, 2vh, 16px)' }}>
@@ -188,10 +195,13 @@ const SignupFormMobile = ({ onOpenThanks }) => {
       <div 
         className="absolute z-10"
         style={{
-          width: 'clamp(140px, 30vw, 200px)',
+          width: isKeyboardOpen ? 'clamp(120px, 25vw, 160px)' : 'clamp(140px, 30vw, 200px)',
           height: 'auto',
           right: 'clamp(2px, 1vw, 8px)',
-          bottom: 'clamp(-8px, -2vh, -2px)',
+          bottom: isKeyboardOpen ? 'clamp(-4px, -1vh, -1px)' : 'clamp(-8px, -2vh, -2px)',
+          // Hide phone image when keyboard is open to save space
+          opacity: isKeyboardOpen ? 0.3 : 1,
+          transition: 'opacity 0.3s ease, width 0.3s ease, bottom 0.3s ease'
         }}
       >
         <img
@@ -224,7 +234,56 @@ const socialLinks = [
 
 const CombinedFooterMobile = () => {
   const [isThanksOpen, setIsThanksOpen] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const footerRef = useRef(null);
+  const signupRef = useRef(null);
+
+  // Handle mobile keyboard behavior
+  useEffect(() => {
+    const handleResize = () => {
+      const initialHeight = window.innerHeight;
+      const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const heightDifference = initialHeight - currentHeight;
+      
+      // If height difference is significant (keyboard likely open), set keyboard state
+      setIsKeyboardOpen(heightDifference > 150);
+    };
+
+    const handleVisualViewportChange = () => {
+      if (window.visualViewport) {
+        const heightDifference = window.innerHeight - window.visualViewport.height;
+        setIsKeyboardOpen(heightDifference > 150);
+      }
+    };
+
+    // Set initial viewport meta tag to prevent zooming
+    const setViewportMeta = () => {
+      let viewport = document.querySelector('meta[name="viewport"]');
+      if (!viewport) {
+        viewport = document.createElement('meta');
+        viewport.name = 'viewport';
+        document.head.appendChild(viewport);
+      }
+      viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+    };
+
+    setViewportMeta();
+
+    // Listen for viewport changes
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleVisualViewportChange);
+    } else {
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleVisualViewportChange);
+      } else {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
 
   // Enable upward scroll/swipe handoff to About section with SlideContainer crossfade
   useEffect(() => {
@@ -290,7 +349,18 @@ const CombinedFooterMobile = () => {
   return (
     <footer ref={footerRef} id="footer" data-theme="dark" className="combined-footer smooth-scroll">
       {/* Mobile-optimized pre-footer section */}
-      <div className="pre-footer-container relative bg-black w-screen min-h-screen flex items-center justify-center overflow-y-auto overflow-x-hidden py-8 sm:py-12 lg:py-16 xl:py-20" style={{ minHeight: '100dvh', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
+      <div 
+        className="pre-footer-container relative bg-black w-screen min-h-screen flex items-center justify-center overflow-y-auto overflow-x-hidden py-8 sm:py-12 lg:py-16 xl:py-20" 
+        style={{ 
+          minHeight: isKeyboardOpen ? '50vh' : '100dvh', 
+          height: isKeyboardOpen ? '50vh' : '100dvh',
+          maxHeight: isKeyboardOpen ? '50vh' : '100dvh',
+          paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+          // Prevent layout shifts when keyboard opens
+          position: 'relative',
+          zIndex: 1
+        }}
+      >
         {/* Radial gradient background */}
           <div 
           aria-hidden
@@ -436,10 +506,20 @@ const CombinedFooterMobile = () => {
       </div>
 
       {/* Mobile-optimized main footer section */}
-      <div className="main-footer bg-gray-100 py-6 px-4 pb-10 sm:pb-12 shadow-lg border-t border-gray-200 overflow-x-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 48px)' }}>
+      <div 
+        className="main-footer bg-gray-100 py-6 px-4 pb-10 sm:pb-12 shadow-lg border-t border-gray-200 overflow-x-hidden" 
+        style={{ 
+          // Adjust padding when keyboard is open
+          paddingTop: isKeyboardOpen ? 'clamp(12px, 3vh, 24px)' : 'clamp(24px, 6vh, 48px)',
+          paddingBottom: isKeyboardOpen ? 'clamp(12px, 3vh, 24px)' : 'calc(env(safe-area-inset-bottom, 0px) + 48px)'
+        }}
+      >
         <div className="max-w-full mx-auto">
           <div className="mb-6">
-            <SignupFormMobile onOpenThanks={() => setIsThanksOpen(true)} />
+            <SignupFormMobile 
+              onOpenThanks={() => setIsThanksOpen(true)} 
+              isKeyboardOpen={isKeyboardOpen}
+            />
           </div>
           
           {/* Spacing between signup and contact info */}
