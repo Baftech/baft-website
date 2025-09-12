@@ -107,6 +107,11 @@
     box-shadow: none;
     border-radius: 50%;
     overflow: hidden;
+    /* Harden circular mask across browsers */
+    clip-path: circle(50% at 50% 50%);
+    -webkit-clip-path: circle(50% at 50% 50%);
+    -webkit-mask-image: radial-gradient(circle, #000 99.9%, transparent 100%);
+    mask-image: radial-gradient(circle, #000 99.9%, transparent 100%);
     /* Ensure the container is properly sized */
     aspect-ratio: 1 / 1;
     /* prevent pseudo-element from affecting outside stacking */
@@ -129,6 +134,10 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    /* Ensure the image respects circular mask */
+    border-radius: 50%;
+    clip-path: circle(50% at 50% 50%);
+    -webkit-clip-path: circle(50% at 50% 50%);
     z-index: 1;
     /* Smooth SVG transitions */
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
