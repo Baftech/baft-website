@@ -31,13 +31,9 @@
   transform: translate3d(0, 0, 0);
   /* Smooth momentum scrolling */
   -webkit-overflow-scrolling: touch;
-  /* Use dynamic viewport height with safe small viewport as final fallback */
+  /* Use consistent viewport height for all browsers */
   height: 100vh;
-  height: 100dvh;
-  height: 100svh;
   min-height: 100vh;
-  min-height: 100dvh;
-  min-height: 100svh;
   /* Ensure full viewport coverage */
   width: 100%;
   position: relative;
@@ -128,6 +124,11 @@
     transform: none !important;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    /* Ensure consistent height like Android */
+    height: 100vh;
+    min-height: 100vh;
+    /* Prevent extra space */
+    overflow: hidden;
   }
 }
 
@@ -669,12 +670,12 @@
 
 /* ===== IPHONE SAFARI SPECIFIC FIXES ===== */
 
-/* Enable Safari's natural navigation bar behavior */
+/* Enable Safari's natural navigation bar behavior - Android-like behavior */
 @supports (-webkit-touch-callout: none) {
   /* Ensure body and html don't interfere with Safari's navigation bar behavior */
   html, body {
-    height: 100dvh;
-    min-height: 100dvh;
+    height: 100vh;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -683,13 +684,9 @@
   }
   
   .slide-container {
-    /* Force Safari to use the full viewport and enable navigation bar collapse */
+    /* Use consistent viewport height like Android */
     height: 100vh;
-    height: 100dvh;
-    height: 100svh;
     min-height: 100vh;
-    min-height: 100dvh;
-    min-height: 100svh;
     /* Ensure the container respects Safari's viewport changes */
     position: relative;
     top: 0;
@@ -702,6 +699,9 @@
     /* Enable smooth scrolling that works with Safari's navigation bar */
     -webkit-overflow-scrolling: touch;
     overflow: auto;
+    /* Prevent extra space by using fixed positioning approach */
+    position: fixed;
+    width: 100%;
   }
 }
 
@@ -710,8 +710,10 @@
   /* Individual slides should fill the full viewport */
   .slide-container > div {
     position: static;
-    height: auto;
-    min-height: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
   }
   
   /* Seamless transition containers */
@@ -721,63 +723,60 @@
   .seamless-down-next {
     height: 100vh;
     min-height: 100vh;
+    width: 100%;
   }
 }
 
 /* iPhone Safari landscape mode */
 @supports (-webkit-touch-callout: none) and (orientation: landscape) {
   .slide-container {
-    /* In landscape, use 100vh to avoid issues */
+    /* In landscape, use 100vh to avoid issues - Android-like behavior */
     height: 100vh;
-    height: 100dvh;
-    height: 100svh;
     min-height: 100vh;
-    min-height: 100dvh;
-    min-height: 100svh;
+    position: fixed;
+    width: 100%;
   }
 }
 
 /* iPhone Safari portrait mode */
 @supports (-webkit-touch-callout: none) and (orientation: portrait) {
   .slide-container {
-    /* In portrait, account for bottom bar */
+    /* In portrait, use consistent 100vh like Android */
     height: 100vh;
-    height: 100dvh;
-    height: 100svh;
     min-height: 100vh;
-    min-height: 100dvh;
-    min-height: 100svh;
-    padding-bottom: env(safe-area-inset-bottom);
+    position: fixed;
+    width: 100%;
+    /* Remove padding that causes extra space */
+    padding-bottom: 0;
   }
 }
 
-/* iPhone Safari specific viewport handling */
+/* iPhone Safari specific viewport handling - Android-like behavior */
 @supports (-webkit-touch-callout: none) {
   /* Ensure slides fill the full viewport without gaps */
   .slide-container {
-    position: relative;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     height: 100vh;
-    height: 100dvh;
-    height: 100svh;
     min-height: 100vh;
-    min-height: 100dvh;
-    min-height: 100svh;
     width: 100%;
     /* Remove any padding that could cause gaps */
     padding: 0;
     margin: 0;
+    /* Prevent extra space by ensuring no overflow */
+    overflow: hidden;
   }
   
   /* Individual slide content should fill the container */
   .slide-container > div {
     position: static;
-    height: auto;
-    min-height: 100%;
+    height: 100vh;
+    min-height: 100vh;
     width: 100%;
+    overflow: hidden;
   }
   
   /* Seamless transition containers */
@@ -790,8 +789,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: auto;
-    min-height: 100%;
+    height: 100vh;
+    min-height: 100vh;
     width: 100%;
   }
 }

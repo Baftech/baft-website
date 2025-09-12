@@ -95,15 +95,18 @@
 /* About Section Mobile/Tablet Styles */
 .about-section-mobile {
   min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: stretch;
   justify-content: flex-start;
   width: 100%;
   overflow: hidden;
-  padding-bottom: 1rem;
+  padding-bottom: 0;
   padding-top: 0;
   /* Ensure smooth scrolling for the image expansion effect */
   scroll-behavior: smooth;
+  /* Prevent extra space on Safari */
+  position: relative;
 }
 
 .about-grid-mobile {
@@ -115,8 +118,11 @@
   margin: 0 auto;
   padding: 1rem;
   min-height: 100vh;
+  height: 100vh;
   align-items: stretch;
   justify-content: space-between;
+  /* Prevent extra space on Safari */
+  overflow: hidden;
 }
 
 .about-image-container-mobile {
@@ -756,5 +762,79 @@ img[src*="layer3_write"] {
 @media (min-width: 1600px) and (max-width: 1919px) {
   .about-grid-container {
     max-width: 1800px;
+  }
+}
+
+/* ===== SAFARI MOBILE FIXES - ANDROID-LIKE BEHAVIOR ===== */
+
+/* Safari mobile viewport fixes */
+@supports (-webkit-touch-callout: none) {
+  .about-section-mobile {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    position: relative;
+    /* Prevent extra space */
+    padding: 0;
+    margin: 0;
+  }
+  
+  .about-grid-mobile {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    /* Prevent extra space */
+    padding: 1rem;
+  }
+  
+  .about-image-container-mobile {
+    height: auto;
+    min-height: auto;
+    max-height: none;
+    /* Prevent extra space */
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .responsive-image-wrapper {
+    height: auto;
+    min-height: auto;
+    max-height: none;
+    /* Prevent extra space */
+    margin-bottom: 0;
+  }
+}
+
+/* Safari mobile landscape fixes */
+@supports (-webkit-touch-callout: none) and (orientation: landscape) {
+  .about-section-mobile {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+  }
+  
+  .about-grid-mobile {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+  }
+}
+
+/* Safari mobile portrait fixes */
+@supports (-webkit-touch-callout: none) and (orientation: portrait) {
+  .about-section-mobile {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    /* Remove any padding that causes extra space */
+    padding-bottom: 0;
+  }
+  
+  .about-grid-mobile {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
   }
 }

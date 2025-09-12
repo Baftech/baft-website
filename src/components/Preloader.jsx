@@ -1,22 +1,144 @@
 import React, { useEffect, useState, useRef } from 'react';
 
-export default function Preloader() {
+export default function Preloader({ onComplete }) {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [waveOffset, setWaveOffset] = useState(0);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
   const rafRef = useRef(null);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    let loadedAssets = 0;
+    let totalAssets = 0;
+    
+    const checkAllAssetsLoaded = () => {
+      // Check images
+      const images = document.querySelectorAll('img');
+      totalAssets += images.length;
+      
+      // Check videos
+      const videos = document.querySelectorAll('video');
+      totalAssets += videos.length;
+      
+      // Check if all images are loaded
+      images.forEach(img => {
+        if (img.complete) {
+          loadedAssets++;
+        } else {
+          img.addEventListener('load', () => {
+            loadedAssets++;
+            if (loadedAssets >= totalAssets) {
+              setIsPageLoaded(true);
+            }
+          });
+          img.addEventListener('error', () => {
+            loadedAssets++;
+            if (loadedAssets >= totalAssets) {
+              setIsPageLoaded(true);
+            }
+          });
+        }
+      });
+      
+      // Check if all videos are loaded
+      videos.forEach(video => {
+        if (video.readyState >= 3) { // HAVE_FUTURE_DATA
+          loadedAssets++;
+        } else {
+          video.addEventListener('canplaythrough', () => {
+            loadedAssets++;
+            if (loadedAssets >= totalAssets) {
+              setIsPageLoaded(true);
+            }
+          });
+          video.addEventListener('error', () => {
+            loadedAssets++;
+            if (loadedAssets >= totalAssets) {
+              setIsPageLoaded(true);
+            }
+          });
+        }
+      });
+      
+      // If no assets or all already loaded
+      if (totalAssets === 0 || loadedAssets >= totalAssets) {
+        setIsPageLoaded(true);
+      }
+    };
+    
+    // Check if page is already loaded
+    if (document.readyState === 'complete') {
+      // Small delay to ensure all assets are processed
+      setTimeout(checkAllAssetsLoaded, 100);
+    } else {
+      // Listen for page load event
+      const handleLoad = () => {
+        setTimeout(checkAllAssetsLoaded, 100);
+      };
+      window.addEventListener('load', handleLoad);
+      return () => window.removeEventListener('load', handleLoad);
+    }
+  }, []);
+
+  useEffect(() => {
+    const startTime = Date.now();
+    const minLoadingTime = 1000; // Minimum 1 second for preloader
+
+    const updateProgress = () => {
       setLoadingProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(interval);
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          // Mark preloader as complete and trigger hide after a short delay
+          setTimeout(() => {
+            setIsPreloaderComplete(true);
+          }, 500); // Small delay to show 100% completion
           return 100;
         }
-        return prev + Math.random() * 2 + 0.5;
+        
+        const elapsed = Date.now() - startTime;
+        const isMinTimeReached = elapsed >= minLoadingTime;
+        
+        // Only complete when page is actually loaded AND minimum time has passed
+        if (isPageLoaded && isMinTimeReached) {
+          // Speed up to reach 100% when everything is loaded
+          return Math.min(100, prev + 6 + Math.random() * 3);
+        }
+        
+        // Slow, steady progress when still loading
+        return Math.min(95, prev + Math.random() * 1.5 + 0.3); // Cap at 95% until loaded
       });
-    }, 80);
-    return () => clearInterval(interval);
-  }, []);
+    };
+
+    intervalRef.current = setInterval(updateProgress, 100);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isPageLoaded]);
+
+  // Hide preloader when complete
+  useEffect(() => {
+    if (isPreloaderComplete) {
+      const preloaderElement = document.querySelector('.preloader');
+      if (preloaderElement) {
+        preloaderElement.style.opacity = '0';
+        preloaderElement.style.transition = 'opacity 0.5s ease-out';
+        setTimeout(() => {
+          preloaderElement.style.display = 'none';
+          // Notify parent component that preloader is complete
+          if (onComplete) {
+            onComplete();
+          }
+        }, 500);
+      }
+    }
+  }, [isPreloaderComplete, onComplete]);
 
   useEffect(() => {
     const start = performance.now();

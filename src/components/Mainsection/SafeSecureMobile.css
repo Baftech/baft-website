@@ -100,15 +100,15 @@
   .security-logo-wrapper {
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
     position: relative;
     background: none;
     border: none;
     box-shadow: none;
     border-radius: 50%;
     overflow: hidden;
+    /* Ensure the container is properly sized */
+    aspect-ratio: 1 / 1;
     /* prevent pseudo-element from affecting outside stacking */
     /* isolation: isolate; */
   }
@@ -120,11 +120,16 @@
   
   /* SVG inside */
   .security-logo-svg {
-    width: 160%;
-    height: 160%;
+    width: 105%;
+    height: 105%;
     display: block;
-    object-fit: contain;
-    position: relative;
+    object-fit: cover;
+    object-position: center;
+    position: absolute;
+    top: -2.5%;
+    left: -2.5%;
+    right: -2.5%;
+    bottom: -2.5%;
     z-index: 1;
     /* Smooth SVG transitions */
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -289,6 +294,239 @@
     }
   }
   
+  /* ===========================
+     Safari Mobile Optimizations
+  =========================== */
+  
+  /* Safari mobile specific fixes - bigger and more proportional */
+  @supports (-webkit-touch-callout: none) {
+    .safe-secure-container {
+      padding: clamp(28px, 6vw, 56px) !important;
+      gap: clamp(1.5rem, 4vh, 2rem) !important;
+      /* Bigger overall size for Safari */
+      max-width: 94vw;
+      margin: 0 auto;
+    }
+    
+    .safe-secure-title {
+      font-size: clamp(36px, 9vw, 54px) !important;
+      margin-top: clamp(6px, 4vh, 20px) !important;
+      margin-bottom: clamp(1rem, 3vh, 1.5rem) !important;
+      line-height: 1.1 !important;
+    }
+    
+    .safe-secure-description {
+      font-size: clamp(13px, 3.5vw, 15px) !important;
+      margin-bottom: clamp(1rem, 3vh, 1.5rem) !important;
+      max-width: 32ch !important;
+      line-height: 1.5 !important;
+    }
+    
+    .safe-secure-logo {
+      width: clamp(200px, 28vw, 250px) !important;
+      margin-top: clamp(1rem, 3vh, 1.5rem) !important;
+    }
+    
+    .security-logo-wrapper {
+      width: 100% !important;
+      height: 100% !important;
+      position: relative !important;
+      aspect-ratio: 1 / 1 !important;
+    }
+    
+    .security-logo-svg {
+      width: 105% !important;
+      height: 105% !important;
+      object-fit: cover !important;
+      object-position: center !important;
+      position: absolute !important;
+      top: -2.5% !important;
+      left: -2.5% !important;
+      right: -2.5% !important;
+      bottom: -2.5% !important;
+    }
+  }
+
+  /* Safari mobile landscape - bigger */
+  @supports (-webkit-touch-callout: none) and (orientation: landscape) {
+    .safe-secure-container {
+      padding: clamp(22px, 4vw, 44px) !important;
+      gap: clamp(1.2rem, 3vh, 1.6rem) !important;
+    }
+    
+    .safe-secure-title {
+      font-size: clamp(32px, 8vw, 48px) !important;
+      margin-top: clamp(4px, 2vh, 12px) !important;
+      margin-bottom: clamp(0.8rem, 2.5vh, 1.2rem) !important;
+    }
+    
+    .safe-secure-description {
+      font-size: clamp(12px, 3vw, 14px) !important;
+      margin-bottom: clamp(0.8rem, 2.5vh, 1.2rem) !important;
+      max-width: 29ch !important;
+    }
+    
+    .safe-secure-logo {
+      width: clamp(160px, 22vw, 200px) !important;
+      margin-top: clamp(0.8rem, 2.5vh, 1.2rem) !important;
+    }
+  }
+
+  /* Safari mobile portrait - optimized for portrait */
+  @supports (-webkit-touch-callout: none) and (orientation: portrait) {
+    .safe-secure-container {
+      padding: clamp(26px, 5vw, 50px) !important;
+      gap: clamp(1.3rem, 3.5vh, 1.7rem) !important;
+    }
+    
+    .safe-secure-title {
+      font-size: clamp(34px, 8.5vw, 52px) !important;
+      margin-top: clamp(5px, 2.5vh, 16px) !important;
+      margin-bottom: clamp(0.8rem, 2.8vh, 1.3rem) !important;
+    }
+    
+    .safe-secure-description {
+      font-size: clamp(12px, 3.2vw, 14px) !important;
+      margin-bottom: clamp(0.8rem, 2.8vh, 1.3rem) !important;
+      max-width: 30ch !important;
+    }
+    
+    .safe-secure-logo {
+      width: clamp(170px, 23vw, 210px) !important;
+      margin-top: clamp(0.8rem, 2.8vh, 1.3rem) !important;
+    }
+  }
+
+  /* ===========================
+     Phone Specific Optimizations
+  =========================== */
+  
+  /* Phone Safari - slightly bigger sizes for mobile screens */
+  @media (max-width: 767px) and (-webkit-touch-callout: none) {
+    .safe-secure-container {
+      padding: clamp(20px, 5vw, 40px) !important;
+      gap: clamp(1rem, 3vh, 1.5rem) !important;
+      max-width: 90vw !important;
+    }
+    
+    .safe-secure-title {
+      font-size: clamp(32px, 8vw, 48px) !important;
+      margin-top: clamp(4px, 3vh, 16px) !important;
+      margin-bottom: clamp(0.8rem, 2.5vh, 1.2rem) !important;
+      line-height: 1.1 !important;
+    }
+    
+    .safe-secure-description {
+      font-size: clamp(12px, 3.2vw, 14px) !important;
+      margin-bottom: clamp(0.8rem, 2.5vh, 1.2rem) !important;
+      max-width: 30ch !important;
+      line-height: 1.5 !important;
+    }
+    
+    .safe-secure-logo {
+      width: clamp(180px, 25vw, 220px) !important;
+      margin-top: clamp(0.8rem, 2.5vh, 1.2rem) !important;
+    }
+    
+    .security-logo-wrapper {
+      width: 100% !important;
+      height: 100% !important;
+      position: relative !important;
+      aspect-ratio: 1 / 1 !important;
+    }
+    
+    .security-logo-svg {
+      width: 105% !important;
+      height: 105% !important;
+      object-fit: cover !important;
+      object-position: center !important;
+      position: absolute !important;
+      top: -2.5% !important;
+      left: -2.5% !important;
+      right: -2.5% !important;
+      bottom: -2.5% !important;
+    }
+  }
+
+  /* ===========================
+     iPad Specific Optimizations
+  =========================== */
+  
+  /* iPad Safari - bigger sizes for tablet screens */
+  @media (min-width: 768px) and (max-width: 1024px) and (-webkit-touch-callout: none) {
+    .safe-secure-container {
+      padding: clamp(40px, 8vw, 80px) !important;
+      gap: clamp(2rem, 5vh, 3rem) !important;
+      max-width: 96vw !important;
+    }
+    
+    .safe-secure-title {
+      font-size: clamp(48px, 12vw, 72px) !important;
+      margin-top: clamp(8px, 6vh, 32px) !important;
+      margin-bottom: clamp(1.5rem, 4vh, 2.5rem) !important;
+      line-height: 1.1 !important;
+    }
+    
+    .safe-secure-description {
+      font-size: clamp(16px, 4vw, 20px) !important;
+      margin-bottom: clamp(1.5rem, 4vh, 2.5rem) !important;
+      max-width: 40ch !important;
+      line-height: 1.6 !important;
+    }
+    
+    .safe-secure-logo {
+      width: clamp(280px, 40vw, 360px) !important;
+      margin-top: clamp(1.5rem, 4vh, 2.5rem) !important;
+    }
+    
+    .security-logo-wrapper {
+      width: 100% !important;
+      height: 100% !important;
+      position: relative !important;
+      aspect-ratio: 1 / 1 !important;
+    }
+    
+    .security-logo-svg {
+      width: 105% !important;
+      height: 105% !important;
+      object-fit: cover !important;
+      object-position: center !important;
+      position: absolute !important;
+      top: -2.5% !important;
+      left: -2.5% !important;
+      right: -2.5% !important;
+      bottom: -2.5% !important;
+    }
+  }
+
+  /* iPad Pro Safari - even bigger for larger tablets */
+  @media (min-width: 1024px) and (max-width: 1366px) and (-webkit-touch-callout: none) {
+    .safe-secure-container {
+      padding: clamp(50px, 10vw, 100px) !important;
+      gap: clamp(2.5rem, 6vh, 4rem) !important;
+      max-width: 98vw !important;
+    }
+    
+    .safe-secure-title {
+      font-size: clamp(56px, 14vw, 84px) !important;
+      margin-top: clamp(12px, 8vh, 40px) !important;
+      margin-bottom: clamp(2rem, 5vh, 3rem) !important;
+      line-height: 1.1 !important;
+    }
+    
+    .safe-secure-description {
+      font-size: clamp(18px, 5vw, 24px) !important;
+      margin-bottom: clamp(2rem, 5vh, 3rem) !important;
+      max-width: 45ch !important;
+      line-height: 1.6 !important;
+    }
+    
+    .safe-secure-logo {
+      width: clamp(320px, 45vw, 420px) !important;
+      margin-top: clamp(2rem, 5vh, 3rem) !important;
+    }
+  }
+
   /* ===========================
      Global Smooth Scrolling Utilities
   =========================== */

@@ -27,23 +27,18 @@ function App() {
     }
   }, []);
 
-  // Preloader: wait until all assets have loaded
+  // Handle preloader completion
+  const handlePreloaderComplete = () => {
+    setIsAppLoaded(true);
+    document.documentElement.style.overflow = '';
+  };
+
+  // Prevent scroll while loading
   useEffect(() => {
-    const handleLoad = () => {
-      // Give a short delay for nicer fade-out
-      setTimeout(() => setIsAppLoaded(true), 150);
-    };
-    if (document.readyState === 'complete') {
-      handleLoad();
-    } else {
-      window.addEventListener('load', handleLoad);
-    }
-    // Prevent scroll while loading
     if (!isAppLoaded) {
       document.documentElement.style.overflow = 'hidden';
     }
     return () => {
-      window.removeEventListener('load', handleLoad);
       document.documentElement.style.overflow = '';
     };
   }, [isAppLoaded]);
@@ -52,17 +47,19 @@ function App() {
     <>
       {!isAppLoaded && (
         <div className={`preloader-wrapper ${isAppLoaded ? 'preloader-hidden' : ''}`}>
-          <Preloader />
+          <Preloader onComplete={handlePreloaderComplete} />
         </div>
       )}
-      <div aria-hidden={!isAppLoaded} style={{ visibility: isAppLoaded ? 'visible' : 'hidden' }}>
-        <BrowserRouter>
-          <Routes>
-            <Route index element={<Home />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </div>
+      {isAppLoaded && (
+        <div>
+          <BrowserRouter>
+            <Routes>
+              <Route index element={<Home />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </div>
+      )}
     </>
   );
 }
