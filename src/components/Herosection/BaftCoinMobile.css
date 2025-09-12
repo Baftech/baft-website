@@ -6,6 +6,7 @@
   height: 314px;
   top: 49px;
   left: 49px;
+  opacity: 0.95;
   /* Safari hardware acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);

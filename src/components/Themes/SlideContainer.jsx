@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { preloadAssets, buildPreloadManifestForSlide } from "../../assets/preloader";
 import "./SlideContainer.css";
 
-const SlideContainer = ({ children, currentSlide, onSlideChange, preloadManifestBySlide }) => {
+const SlideContainer = ({ children, currentSlide, onSlideChange }) => {
   const [slideIndex, setSlideIndex] = useState(0);
   const [previousSlideIndex, setPreviousSlideIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -65,21 +64,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange, preloadManifest
     };
   }, [slideIndex]);
 
-  // Preload assets for current, next and previous slides when index changes
-  useEffect(() => {
-    if (!preloadManifestBySlide) return;
-    const current = buildPreloadManifestForSlide(slideIndex, preloadManifestBySlide);
-    const next = buildPreloadManifestForSlide(slideIndex + 1, preloadManifestBySlide);
-    const prev = buildPreloadManifestForSlide(slideIndex - 1, preloadManifestBySlide);
-    const cancelers = [];
-    try { cancelers.push(preloadAssets(current)); } catch {}
-    try { cancelers.push(preloadAssets(next)); } catch {}
-    try { cancelers.push(preloadAssets(prev)); } catch {}
-    return () => {
-      cancelers.forEach((c) => { try { c && c(); } catch {} });
-    };
-  }, [slideIndex, preloadManifestBySlide]);
-
   const handleSlideChange = useCallback((newIndex) => {
     if (newIndex >= 0 && newIndex < totalSlides && !isTransitioning) {
       setPreviousSlideIndex(slideIndex);
@@ -101,8 +85,9 @@ const SlideContainer = ({ children, currentSlide, onSlideChange, preloadManifest
         (slideIndex === 7 && newIndex === 6)
       );
       const isSeamlessTransition = movingUpSeamless || movingDownSeamless;
-      // Match CSS durations: seamless 1.3s, banner overlay 1.6s
-      const transitionDurationMs = isSeamlessTransition ? 1300 : 1600;
+      // Match CSS durations: seamless 1.3s, banner overlay 1.6s (up) / 1.8s (down)
+      const baseBannerMs = direction === 'down' ? 1800 : 1600;
+      const transitionDurationMs = isSeamlessTransition ? 1300 : baseBannerMs;
 
       // Set a momentum guard immediately so inertial scroll doesn't affect target slide
       momentumGuardUntilRef.current = Date.now() + transitionDurationMs + 450;
@@ -145,7 +130,19 @@ const SlideContainer = ({ children, currentSlide, onSlideChange, preloadManifest
       if (e && e.cancelable) e.preventDefault();
       return;
     }
-    // Allow native scrolling otherwise; do not prevent default
+    // Prevent pull-to-refresh on mobile when at top and swiping down
+    const element = currentSlideRef.current;
+    if (!element) return;
+    const currentY = e.touches && e.touches.length ? e.touches[0].clientY : null;
+    if (currentY !== null) {
+      const delta = currentY - touchStartY.current;
+      const atTop = element.scrollTop <= scrollThreshold;
+      const atBottom = element.scrollTop >= (element.scrollHeight - element.clientHeight - scrollThreshold);
+      // If user is pulling down at the very top, or pushing up at the very bottom, prevent browser overscroll
+      if ((delta > 0 && atTop) || (delta < 0 && atBottom)) {
+        if (e && e.cancelable) e.preventDefault();
+      }
+    }
   }, [isTransitioning]);
 
   const handleTouchEnd = useCallback((e) => {
@@ -173,6 +170,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange, preloadManifest
     } else if (distance < 0 && atTop && slideIndex > 0) {
       // Swipe down at top -> previous slide
       lastNavTime.current = now;
+      if (e && e.cancelable) e.preventDefault(); // avoid pull-to-refresh
       handleSlideChange(slideIndex - 1);
     }
   }, [isTransitioning, slideIndex, totalSlides, handleSlideChange]);
@@ -551,7 +549,7 @@ const SlideContainer = ({ children, currentSlide, onSlideChange, preloadManifest
   const isSeamless = seamlessEnabled && (isSeamlessUp || isSeamlessDown);
 
   return (
-    <div className="slide-container relative w-full h-screen overflow-hidden" tabIndex={0} onKeyDown={handleKeyDown} style={{ height: '100dvh', minHeight: '100dvh' }}>
+    <div className="slide-container relative w-full h-screen overflow-hidden" tabIndex={0} onKeyDown={handleKeyDown}>
       {isSeamless ? (
         <>
           <div className={`absolute inset-0 w-full h-full ${
@@ -569,7 +567,6 @@ const SlideContainer = ({ children, currentSlide, onSlideChange, preloadManifest
         <div 
           ref={currentSlideRef}
           className="w-full h-full transition-all duration-[1000ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] overflow-auto scroll-smooth custom-scroll buttery-smooth-scroll"
-          style={{ height: '100dvh', maxHeight: '100dvh', overflowX: 'hidden' }}
           onScroll={() => {
             // Update scroll permissions when user scrolls
             if (currentSlideRef.current) {

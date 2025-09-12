@@ -9,73 +9,82 @@ export default function Preloader({ onComplete }) {
   const intervalRef = useRef(null);
 
   useEffect(() => {
-    let loadedAssets = 0;
-    let totalAssets = 0;
-    
-    const checkAllAssetsLoaded = () => {
-      // Check images
-      const images = document.querySelectorAll('img');
-      totalAssets += images.length;
-      
-      // Check videos
-      const videos = document.querySelectorAll('video');
-      totalAssets += videos.length;
-      
-      // Check if all images are loaded
-      images.forEach(img => {
-        if (img.complete) {
-          loadedAssets++;
-        } else {
-          img.addEventListener('load', () => {
-            loadedAssets++;
-            if (loadedAssets >= totalAssets) {
-              setIsPageLoaded(true);
-            }
-          });
-          img.addEventListener('error', () => {
-            loadedAssets++;
-            if (loadedAssets >= totalAssets) {
-              setIsPageLoaded(true);
-            }
-          });
-        }
-      });
-      
-      // Check if all videos are loaded
-      videos.forEach(video => {
-        if (video.readyState >= 3) { // HAVE_FUTURE_DATA
-          loadedAssets++;
-        } else {
-          video.addEventListener('canplaythrough', () => {
-            loadedAssets++;
-            if (loadedAssets >= totalAssets) {
-              setIsPageLoaded(true);
-            }
-          });
-          video.addEventListener('error', () => {
-            loadedAssets++;
-            if (loadedAssets >= totalAssets) {
-              setIsPageLoaded(true);
-            }
-          });
-        }
-      });
-      
-      // If no assets or all already loaded
-      if (totalAssets === 0 || loadedAssets >= totalAssets) {
-        setIsPageLoaded(true);
+    // Utility: extract URL(s) from CSS background-image values
+    const extractUrls = (bg) => {
+      if (!bg || bg === 'none') return [];
+      const urls = [];
+      // Supports multiple backgrounds: url(a), linear-gradient(...), url(b)
+      const regex = /url\(("|')?(.*?)\1\)/g;
+      let match;
+      while ((match = regex.exec(bg)) !== null) {
+        if (match[2]) urls.push(match[2]);
       }
+      return urls;
     };
-    
-    // Check if page is already loaded
+
+    const createImagePromise = (src) => new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(true); // don't block on errors
+      img.src = src;
+    });
+
+    const waitForAllAssets = async () => {
+      const promises = [];
+
+      // Images in the DOM
+      const images = Array.from(document.querySelectorAll('img'));
+      images.forEach((img) => {
+        if (img.complete) return; // already done
+        promises.push(new Promise((resolve) => {
+          const done = () => resolve(true);
+          img.addEventListener('load', done, { once: true });
+          img.addEventListener('error', done, { once: true });
+        }));
+      });
+
+      // Videos in the DOM
+      const videos = Array.from(document.querySelectorAll('video'));
+      videos.forEach((video) => {
+        if (video.readyState >= 3) return; // HAVE_FUTURE_DATA
+        promises.push(new Promise((resolve) => {
+          const done = () => resolve(true);
+          video.addEventListener('canplaythrough', done, { once: true });
+          video.addEventListener('error', done, { once: true });
+        }));
+      });
+
+      // CSS background images referenced in computed styles
+      const allElements = Array.from(document.querySelectorAll('*'));
+      const bgUrls = new Set();
+      allElements.forEach((el) => {
+        const style = window.getComputedStyle(el);
+        extractUrls(style.backgroundImage).forEach((u) => bgUrls.add(u));
+      });
+      bgUrls.forEach((u) => promises.push(createImagePromise(u)));
+
+      // Web fonts
+      if (document.fonts && typeof document.fonts.ready?.then === 'function') {
+        promises.push(document.fonts.ready.catch(() => {}));
+      }
+
+      // If nothing to wait for, resolve immediately
+      if (promises.length === 0) {
+        setIsPageLoaded(true);
+        return;
+      }
+
+      await Promise.allSettled(promises);
+      // Add a micro delay to let layout settle
+      setTimeout(() => setIsPageLoaded(true), 50);
+    };
+
+    const kickoff = () => setTimeout(waitForAllAssets, 100);
+
     if (document.readyState === 'complete') {
-      // Small delay to ensure all assets are processed
-      setTimeout(checkAllAssetsLoaded, 100);
+      kickoff();
     } else {
-      // Listen for page load event
-      const handleLoad = () => {
-        setTimeout(checkAllAssetsLoaded, 100);
-      };
+      const handleLoad = () => kickoff();
       window.addEventListener('load', handleLoad);
       return () => window.removeEventListener('load', handleLoad);
     }
@@ -83,7 +92,7 @@ export default function Preloader({ onComplete }) {
 
   useEffect(() => {
     const startTime = Date.now();
-    const minLoadingTime = 1000; // Minimum 1 second for preloader
+    const minLoadingTime = 1500; // Ensure slow preloader until content is really ready
 
     const updateProgress = () => {
       setLoadingProgress((prev) => {
@@ -104,16 +113,16 @@ export default function Preloader({ onComplete }) {
         
         // Only complete when page is actually loaded AND minimum time has passed
         if (isPageLoaded && isMinTimeReached) {
-          // Speed up to reach 100% when everything is loaded
-          return Math.min(100, prev + 6 + Math.random() * 3);
+          // Smoothly accelerate to 100% when everything is loaded
+          return Math.min(100, prev + 10 + Math.random() * 5);
         }
-        
-        // Slow, steady progress when still loading
-        return Math.min(95, prev + Math.random() * 1.5 + 0.3); // Cap at 95% until loaded
+
+        // Slow, steady progress when still loading (capped lower)
+        return Math.min(90, prev + (Math.random() * 0.25 + 0.15)); // Cap at 90% until loaded
       });
     };
 
-    intervalRef.current = setInterval(updateProgress, 100);
+    intervalRef.current = setInterval(updateProgress, 150);
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -127,15 +136,16 @@ export default function Preloader({ onComplete }) {
     if (isPreloaderComplete) {
       const preloaderElement = document.querySelector('.preloader');
       if (preloaderElement) {
-        preloaderElement.style.opacity = '0';
-        preloaderElement.style.transition = 'opacity 0.5s ease-out';
+        // Trigger disperse animation via class, then fully hide
+        preloaderElement.classList.add('preloader--disperse');
+        const hideAfter = 900; // keep in sync with CSS animation duration
         setTimeout(() => {
           preloaderElement.style.display = 'none';
           // Notify parent component that preloader is complete
           if (onComplete) {
             onComplete();
           }
-        }, 500);
+        }, hideAfter);
       }
     }
   }, [isPreloaderComplete, onComplete]);
@@ -193,7 +203,21 @@ export default function Preloader({ onComplete }) {
   );
 
   return (
-    <div className="preloader min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden px-4">
+    <>
+      {/* Inline styles for preloader disperse animation */}
+      <style>{`
+        .preloader { will-change: opacity, transform, filter; }
+        .preloader--disperse {
+          animation: preloaderDisperse 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          pointer-events: none;
+        }
+        @keyframes preloaderDisperse {
+          0% { opacity: 1; transform: scale(1); filter: blur(0px); }
+          60% { opacity: 0.6; transform: scale(1.05); filter: blur(4px); }
+          100% { opacity: 0; transform: scale(1.1); filter: blur(8px); }
+        }
+      `}</style>
+      <div className="preloader min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden px-4" aria-live="polite" aria-busy={!isPreloaderComplete}>
       {/* Responsive container: fluid width with max, keep 2:1 aspect */}
       <div className="w-full max-w-[800px]" style={{ aspectRatio: '2 / 1' }}>
         <svg
@@ -265,7 +289,8 @@ export default function Preloader({ onComplete }) {
           <span className="text-white font-mono tracking-wider ml-2 text-sm md:text-base">{Math.floor(loadingProgress)}%</span>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

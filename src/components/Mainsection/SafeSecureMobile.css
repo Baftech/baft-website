@@ -52,7 +52,7 @@
   .safe-secure-title {
     font-family: 'EB Garamond', serif;
     font-weight: 700;
-    font-size: clamp(2rem, 6vw, 4rem);
+    font-size: clamp(2.4rem, 7vw, 4.8rem);
     line-height: 1.2;
     color: #fff;
     margin: 0;
@@ -120,16 +120,15 @@
   
   /* SVG inside */
   .security-logo-svg {
-    width: 105%;
-    height: 105%;
+    width: 108%;
+    height: 108%;
     display: block;
     object-fit: cover;
     object-position: center;
     position: absolute;
-    top: -2.5%;
-    left: -2.5%;
-    right: -2.5%;
-    bottom: -2.5%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 1;
     /* Smooth SVG transitions */
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -309,7 +308,7 @@
     }
     
     .safe-secure-title {
-      font-size: clamp(36px, 9vw, 54px) !important;
+      font-size: clamp(40px, 10vw, 60px) !important;
       margin-top: clamp(6px, 4vh, 20px) !important;
       margin-bottom: clamp(1rem, 3vh, 1.5rem) !important;
       line-height: 1.1 !important;
@@ -355,7 +354,7 @@
     }
     
     .safe-secure-title {
-      font-size: clamp(32px, 8vw, 48px) !important;
+      font-size: clamp(36px, 9vw, 54px) !important;
       margin-top: clamp(4px, 2vh, 12px) !important;
       margin-bottom: clamp(0.8rem, 2.5vh, 1.2rem) !important;
     }
@@ -380,7 +379,7 @@
     }
     
     .safe-secure-title {
-      font-size: clamp(34px, 8.5vw, 52px) !important;
+      font-size: clamp(38px, 9.5vw, 58px) !important;
       margin-top: clamp(5px, 2.5vh, 16px) !important;
       margin-bottom: clamp(0.8rem, 2.8vh, 1.3rem) !important;
     }
@@ -410,7 +409,7 @@
     }
     
     .safe-secure-title {
-      font-size: clamp(32px, 8vw, 48px) !important;
+      font-size: clamp(36px, 9vw, 54px) !important;
       margin-top: clamp(4px, 3vh, 16px) !important;
       margin-bottom: clamp(0.8rem, 2.5vh, 1.2rem) !important;
       line-height: 1.1 !important;
@@ -461,7 +460,7 @@
     }
     
     .safe-secure-title {
-      font-size: clamp(48px, 12vw, 72px) !important;
+      font-size: clamp(56px, 14vw, 84px) !important;
       margin-top: clamp(8px, 6vh, 32px) !important;
       margin-bottom: clamp(1.5rem, 4vh, 2.5rem) !important;
       line-height: 1.1 !important;
@@ -508,7 +507,7 @@
     }
     
     .safe-secure-title {
-      font-size: clamp(56px, 14vw, 84px) !important;
+      font-size: clamp(64px, 16vw, 96px) !important;
       margin-top: clamp(12px, 8vh, 40px) !important;
       margin-bottom: clamp(2rem, 5vh, 3rem) !important;
       line-height: 1.1 !important;

@@ -131,10 +131,10 @@ const BaftCoinMobile = () => {
           bottom: "auto",
         },
         {
-          opacity: 0.3,
+          opacity: 0.4,
           scale: 1,
           rotation: 0,
-          y: 0,
+          y: -44,
           top: "50vh",
           left: "50%",
           xPercent: -50,
@@ -148,7 +148,7 @@ const BaftCoinMobile = () => {
             // Gentle floating animation for mobile - Safari optimized
             if (coinRef.current) {
               animationRef.current = gsap.to(coinRef.current, {
-                y: -20,
+                y: -64,
                 repeat: -1,
                 yoyo: true,
                 ease: "power1.inOut",

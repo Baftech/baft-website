@@ -13,12 +13,19 @@
   --safe-right: env(safe-area-inset-right);
 }
 
+/* Prevent browser pull-to-refresh and rubber-band overscroll on mobile */
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+}
+
 .slide-container {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   /* Enhanced smooth scrolling */
   scroll-snap-type: none;
-  overscroll-behavior: none;
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
   /* Premium hardware acceleration */
   will-change: transform, scroll-position;
   transform: translateZ(0);
@@ -31,21 +38,12 @@
   transform: translate3d(0, 0, 0);
   /* Smooth momentum scrolling */
   -webkit-overflow-scrolling: touch;
-  /* Use consistent viewport height for all browsers */
-  height: 100vh;
-  min-height: 100vh;
+  /* Use dynamic viewport height to respect Safari's changing UI */
+  height: 100dvh;
+  min-height: 100dvh;
   /* Ensure full viewport coverage */
-  width: 100%;
+  width: 100vw;
   position: relative;
-}
-
-/* iOS Safari: avoid transforms on the root slide container to preserve sticky */
-@supports (-webkit-touch-callout: none) {
-  .slide-container {
-    -webkit-transform: none !important;
-    transform: none !important;
-    perspective: none !important;
-  }
 }
 
 .slide {
@@ -117,21 +115,6 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* iOS Safari: avoid transforms on the scroll container to preserve sticky */
-@supports (-webkit-touch-callout: none) {
-  .buttery-smooth-scroll {
-    -webkit-transform: none !important;
-    transform: none !important;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    /* Ensure consistent height like Android */
-    height: 100vh;
-    min-height: 100vh;
-    /* Prevent extra space */
-    overflow: hidden;
-  }
-}
-
 .buttery-smooth-scroll::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -176,7 +159,7 @@
 
 .banner-transition-down {
   background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.7) 45%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.1) 90%, transparent 100%);
-  animation: bannerRevealDown 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: bannerRevealDown 1.8s ease-in-out forwards;
   will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -532,8 +515,8 @@
 @media (min-width: 2560px) {
   .slide-container {
     scroll-behavior: smooth;
-    height: 100vh;
-    min-height: 100vh;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .slide {
@@ -633,8 +616,8 @@
 @media (prefers-reduced-motion: reduce) {
   .slide-container {
     scroll-behavior: auto;
-    height: 100vh;
-    min-height: 100vh;
+    height: 100dvh;
+    min-height: 100dvh;
   }
   
   .custom-scroll {
@@ -670,50 +653,20 @@
 
 /* ===== IPHONE SAFARI SPECIFIC FIXES ===== */
 
-/* Enable Safari's natural navigation bar behavior - Android-like behavior */
+/* iPhone Safari specific handling for bottom navigation bar */
 @supports (-webkit-touch-callout: none) {
-  /* Ensure body and html don't interfere with Safari's navigation bar behavior */
-  html, body {
+  .slide-container {
+    /* Use 100vh for iPhone Safari to avoid bottom bar overlap */
     height: 100vh;
     min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    /* Enable Safari's natural viewport behavior */
-    -webkit-overflow-scrolling: touch;
+    /* Ensure content goes behind the bottom bar */
+    padding-bottom: env(safe-area-inset-bottom);
   }
   
-  .slide-container {
-    /* Use consistent viewport height like Android */
-    height: 100vh;
-    min-height: 100vh;
-    /* Ensure the container respects Safari's viewport changes */
-    position: relative;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* Remove any properties that might interfere with Safari's behavior */
-    padding: 0;
-    margin: 0;
-    /* Enable smooth scrolling that works with Safari's navigation bar */
-    -webkit-overflow-scrolling: touch;
-    overflow: auto;
-    /* Prevent extra space by using fixed positioning approach */
-    position: fixed;
-    width: 100%;
-  }
-}
-
-/* Additional Safari optimizations for navigation bar behavior */
-@supports (-webkit-touch-callout: none) {
   /* Individual slides should fill the full viewport */
   .slide-container > div {
-    position: static;
     height: 100vh;
     min-height: 100vh;
-    width: 100%;
-    overflow: hidden;
   }
   
   /* Seamless transition containers */
@@ -723,35 +676,29 @@
   .seamless-down-next {
     height: 100vh;
     min-height: 100vh;
-    width: 100%;
   }
 }
 
 /* iPhone Safari landscape mode */
 @supports (-webkit-touch-callout: none) and (orientation: landscape) {
   .slide-container {
-    /* In landscape, use 100vh to avoid issues - Android-like behavior */
+    /* In landscape, use 100vh to avoid issues */
     height: 100vh;
     min-height: 100vh;
-    position: fixed;
-    width: 100%;
   }
 }
 
 /* iPhone Safari portrait mode */
 @supports (-webkit-touch-callout: none) and (orientation: portrait) {
   .slide-container {
-    /* In portrait, use consistent 100vh like Android */
+    /* In portrait, account for bottom bar */
     height: 100vh;
     min-height: 100vh;
-    position: fixed;
-    width: 100%;
-    /* Remove padding that causes extra space */
-    padding-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 
-/* iPhone Safari specific viewport handling - Android-like behavior */
+/* iPhone Safari specific viewport handling */
 @supports (-webkit-touch-callout: none) {
   /* Ensure slides fill the full viewport without gaps */
   .slide-container {
@@ -762,21 +709,22 @@
     bottom: 0;
     height: 100vh;
     min-height: 100vh;
-    width: 100%;
+    width: 100vw;
     /* Remove any padding that could cause gaps */
     padding: 0;
     margin: 0;
-    /* Prevent extra space by ensuring no overflow */
-    overflow: hidden;
   }
   
   /* Individual slide content should fill the container */
   .slide-container > div {
-    position: static;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     height: 100vh;
     min-height: 100vh;
-    width: 100%;
-    overflow: hidden;
+    width: 100vw;
   }
   
   /* Seamless transition containers */
@@ -784,14 +732,14 @@
   .seamless-up-next,
   .seamless-down-prev,
   .seamless-down-next {
-    position: static;
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     height: 100vh;
     min-height: 100vh;
-    width: 100%;
+    width: 100vw;
   }
 }
 
@@ -844,14 +792,14 @@
   }
   
   .h-dvh {
-    height: 100vh;
+    height: 100dvh;
   }
   
   .min-h-dvh {
-    min-height: 100vh;
+    min-height: 100dvh;
   }
   
   .max-h-dvh {
-    max-height: 100vh;
+    max-height: 100dvh;
   }
 }

@@ -50,7 +50,7 @@ const SafeSecureMobile = () => {
             <h1
               className="safe-secure-title"
               style={{
-                fontSize: isIPadPro ? "clamp(56px, 14vw, 84px)" : isIPad ? "clamp(48px, 12vw, 72px)" : isPhone ? "clamp(36px, 9vw, 52px)" : isSafari ? "clamp(42px, 10vw, 64px)" : "clamp(48px, 12vw, 85px)",
+                fontSize: isIPadPro ? "clamp(64px, 16vw, 96px)" : isIPad ? "clamp(56px, 14vw, 84px)" : isPhone ? "clamp(42px, 11vw, 60px)" : isSafari ? "clamp(48px, 12vw, 72px)" : "clamp(56px, 14vw, 96px)",
                 color: "#FFFFFF",
                 fontWeight: "700",
                 fontFamily: "EB Garamond, serif",
@@ -137,18 +137,16 @@ const SafeSecureMobile = () => {
                   alt="Security Badge"
                   className="security-logo-svg"
                   style={{
-                    width: '105%',
-                    height: '105%',
+                    width: '108%',
+                    height: '108%',
                     position: 'absolute',
-                    top: '-2.5%',
-                    left: '-2.5%',
-                    right: '-2.5%',
-                    bottom: '-2.5%',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    WebkitTransform: 'translate(-50%, -50%)',
                     display: 'block',
                     objectFit: 'cover',
                     objectPosition: 'center',
-                    transform: 'none',
-                    WebkitTransform: 'none',
                     transformOrigin: 'center',
                     WebkitTransformOrigin: 'center',
                     imageRendering: 'auto',
